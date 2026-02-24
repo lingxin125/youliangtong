@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮粮通 - 模拟数据控制台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #11A64A;
+            --bg: #FFFBF0;
+            --bridge: rgba(200, 230, 201, 0.25);
+            --card: #FFFFFF;
+            --border: rgba(0, 0, 0, 0.04);
+            --text-main: #1F2937;
+            --text-sub: #6B7280;
+            --shadow-1: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-2: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-3: 0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Poppins", "Noto Sans SC", sans-serif;
+            color: var(--text-main);
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 14% 12%, var(--bridge) 0%, transparent 48%),
+                radial-gradient(ellipse at 82% 22%, rgba(200,230,201,0.16) 0%, transparent 44%),
+                linear-gradient(180deg, rgba(200,146,42,0.10) 0%, rgba(255,251,240,0) 560px);
+            min-height: 100vh;
+        }
+
+        .wrap {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 30px 18px 24px;
+        }
+
+        .hero {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            box-shadow: var(--shadow-3);
+            padding: 24px 22px;
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-size: 30px;
+            line-height: 1.15;
+        }
+
+        .hero p {
+            margin: 9px 0 0;
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        .badge-row {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 11px;
+            color: #166534;
+            background: #F0FDF4;
+            border: 1px solid rgba(17,166,74,0.24);
+            border-radius: 999px;
+            padding: 4px 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.25fr 1fr;
+            gap: 12px;
+        }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow-2);
+            padding: 16px;
+        }
+
+        .panel-title {
+            margin: 0 0 10px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .stat {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 8px;
+            text-align: center;
+            background: #fff;
+            box-shadow: var(--shadow-1);
+        }
+
+        .stat .label {
+            font-size: 10px;
+            color: #6B7280;
+        }
+
+        .stat .value {
+            margin-top: 3px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        button, .link-btn {
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 10px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+            background: #fff;
+            color: #374151;
+        }
+
+        button:hover, .link-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-1);
+            border-color: rgba(17,166,74,0.25);
+        }
+
+        button:active, .link-btn:active {
+            transform: scale(0.99);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .btn-soft {
+            background: #F0FDF4;
+            color: #166534;
+            border-color: rgba(17,166,74,0.24);
+        }
+
+        .btn-warn {
+            background: #FEF2F2;
+            color: #B91C1C;
+            border-color: #FECACA;
+        }
+
+        .list-wrap {
+            max-height: 560px;
+            overflow: auto;
+            border-radius: 12px;
+        }
+
+        .order-item {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            background: #fff;
+            box-shadow: var(--shadow-1);
+            margin-bottom: 8px;
+        }
+
+        .order-item:last-child { margin-bottom: 0; }
+
+        .top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .mono {
+            font-family: "Poppins", monospace;
+            font-size: 10px;
+            color: #6B7280;
+        }
+
+        .status {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+        }
+
+        .status.pending { color: #B45309; background: #FEF3C7; border-color: #FDE68A; }
+        .status.processing { color: #1D4ED8; background: #DBEAFE; border-color: #BFDBFE; }
+        .status.success { color: #166534; background: #DCFCE7; border-color: #BBF7D0; }
+        .status.failed { color: #B91C1C; background: #FEE2E2; border-color: #FECACA; }
+        .status.canceled { color: #4B5563; background: #F3F4F6; border-color: #E5E7EB; }
+
+        .meta {
+            font-size: 11px;
+            color: #4B5563;
+            line-height: 1.45;
+        }
+
+        .meta .money {
+            font-family: "Poppins", monospace;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .toolbar {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .link-btn {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            bottom: 22px;
+            background: rgba(17, 24, 39, 0.92);
+            color: #fff;
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            z-index: 20;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 900px) {
+            .wrap { padding: 18px 14px 20px; }
+            .hero h1 { font-size: 24px; }
+            .grid { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .btn-grid { grid-template-columns: 1fr; }
+            .list-wrap { max-height: none; }
+        }
+    </style>
+</head>
+<body>
+<main class="wrap">
+    <section class="hero">
+        <h1>模拟数据控制台</h1>
+        <p>统一管理收购商端 mock 订单数据。数据写入 `localStorage(ylt_buyer_orders_mock_v1)`，可跨浏览器页签共享。</p>
+        <div class="badge-row">
+            <span class="badge">跨页签共享</span>
+            <span class="badge">一键重置</span>
+            <span class="badge">快速注入案例</span>
+        </div>
+    </section>
+
+    <section class="grid">
+        <div class="panel">
+            <h2 class="panel-title">数据操作</h2>
+            <div class="stats">
+                <div class="stat">
+                    <div class="label">订单总数</div>
+                    <div id="countAll" class="value">0</div>
+                </div>
+                <div class="stat">
+                    <div class="label">待支付</div>
+                    <div id="countPending" class="value">0</div>
+                </div>
+                <div class="stat">
+                    <div class="label">支付成功</div>
+                    <div id="countSuccess" class="value">0</div>
+                </div>
+            </div>
+
+            <div class="btn-grid">
+                <button class="btn-primary" onclick="injectOrder('pending')">注入待支付订单</button>
+                <button class="btn-soft" onclick="injectOrder('success')">注入支付成功订单</button>
+                <button class="btn-soft" onclick="injectOrder('failed')">注入支付失败订单</button>
+                <button class="btn-warn" onclick="cancelAllPending()">所有待支付改为已取消</button>
+                <button onclick="markAllProcessing()">将待支付改为支付中</button>
+                <button class="btn-warn" onclick="resetData()">重置为系统默认样例</button>
+            </div>
+
+            <div class="toolbar">
+                <a class="link-btn" href="buyer-orders.html" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-table-list"></i> 打开订单列表
+                </a>
+                <a class="link-btn" href="buyer-billing.html" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-file-invoice"></i> 打开开单页
+                </a>
+                <a class="link-btn" href="index.html" target="_blank" rel="noopener noreferrer">
+                    <i class="fas fa-compass"></i> 打开演示导航
+                </a>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2 class="panel-title">当前订单快照</h2>
+            <div id="orderList" class="list-wrap"></div>
+        </div>
+    </section>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const STORAGE_KEY = 'ylt_buyer_orders_mock_v1';
+const contactPool = [
+    { name: '李大姐', mobile: '138****2233', bank: '邮储银行烟台支行', card: '尾号 2233', product: '红富士苹果' },
+    { name: '王大哥', mobile: '139****5612', bank: '邮储银行保定支行', card: '尾号 5612', product: '冬储土豆' },
+    { name: '赵师傅', mobile: '136****9801', bank: '农业银行哈尔滨支行', card: '尾号 9801', product: '东北大米' },
+    { name: '孙阿姨', mobile: '137****3326', bank: '农商银行德州支行', card: '尾号 3326', product: '有机西红柿' },
+    { name: '刘师傅', mobile: '135****7119', bank: '邮储银行临沂支行', card: '尾号 7119', product: '鲜活草鱼' }
+];
+
+function readOrders() {
+    try {
+        const text = localStorage.getItem(STORAGE_KEY);
+        if (!text) return [];
+        const data = JSON.parse(text);
+        return Array.isArray(data) ? data : [];
+    } catch (err) {
+        return [];
+    }
+}
+
+function saveOrders(list) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    render();
+}
+
+function pad2(v) {
+    return String(v).padStart(2, '0');
+}
+
+function buildOrderNo(date = new Date()) {
+    return 'SL' +
+        date.getFullYear() +
+        pad2(date.getMonth() + 1) +
+        pad2(date.getDate()) +
+        pad2(date.getHours()) +
+        pad2(date.getMinutes()) +
+        pad2(date.getSeconds());
+}
+
+function statusLabel(status) {
+    const map = {
+        pending: '待支付',
+        processing: '支付中',
+        success: '支付成功',
+        failed: '支付失败',
+        canceled: '已取消'
+    };
+    return map[status] || '未知状态';
+}
+
+function formatMoney(amount) {
+    const n = Number(amount || 0);
+    return '¥' + n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatTime(iso) {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '-';
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+}
+
+function showToast(text) {
+    const toast = document.getElementById('toast');
+    toast.textContent = text;
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+function resetData() {
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+    showToast('已重置。打开业务页后会自动生成默认样例');
+}
+
+function injectOrder(status) {
+    const orders = readOrders();
+    const contact = contactPool[Math.floor(Math.random() * contactPool.length)];
+    const qty = 100 + Math.floor(Math.random() * 900);
+    const price = Number((1.8 + Math.random() * 6).toFixed(2));
+    const subtotal = Number((qty * price).toFixed(2));
+    const createdAt = new Date().toISOString();
+    const order = {
+        id: buildOrderNo(new Date()),
+        status: status,
+        payeeName: contact.name,
+        payeeMobile: contact.mobile,
+        payeeBank: contact.bank,
+        payeeCard: contact.card,
+        summary: `${contact.product} x ${qty}斤`,
+        amount: subtotal,
+        createdAt: createdAt,
+        payMethod: status === 'success' ? 'industry' : (status === 'failed' ? 'industry' : ''),
+        paidAt: status === 'success' ? createdAt : '',
+        failReason: status === 'failed' ? '银行返回失败，请重试' : '',
+        items: [{ name: contact.product, qty: qty, unit: '斤', price: price, subtotal: subtotal }]
+    };
+    orders.unshift(order);
+    saveOrders(orders);
+    showToast('已注入：' + statusLabel(status));
+}
+
+function cancelAllPending() {
+    const orders = readOrders();
+    let count = 0;
+    orders.forEach(item => {
+        if (item.status === 'pending') {
+            item.status = 'canceled';
+            item.failReason = '演示控制台批量取消';
+            count += 1;
+        }
+    });
+    saveOrders(orders);
+    showToast(count > 0 ? `已取消 ${count} 笔待支付订单` : '当前没有待支付订单');
+}
+
+function markAllProcessing() {
+    const orders = readOrders();
+    let count = 0;
+    orders.forEach(item => {
+        if (item.status === 'pending') {
+            item.status = 'processing';
+            count += 1;
+        }
+    });
+    saveOrders(orders);
+    showToast(count > 0 ? `已将 ${count} 笔订单改为支付中` : '当前没有待支付订单');
+}
+
+function render() {
+    const orders = readOrders().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const countPending = orders.filter(i => i.status === 'pending').length;
+    const countSuccess = orders.filter(i => i.status === 'success').length;
+    document.getElementById('countAll').textContent = String(orders.length);
+    document.getElementById('countPending').textContent = String(countPending);
+    document.getElementById('countSuccess').textContent = String(countSuccess);
+
+    const wrap = document.getElementById('orderList');
+    if (orders.length === 0) {
+        wrap.innerHTML = '<div class="order-item"><div class="meta">当前未写入 mock 订单。可点击左侧按钮注入案例，或打开业务页自动生成默认样例。</div></div>';
+        return;
+    }
+
+    wrap.innerHTML = orders.map(order => `
+        <div class="order-item">
+            <div class="top-row">
+                <span class="mono">${order.id || '-'}</span>
+                <span class="status ${order.status || ''}">${statusLabel(order.status)}</span>
+            </div>
+            <div class="meta">${order.payeeName || '-'}（${order.payeeMobile || '-'}）</div>
+            <div class="meta">${order.summary || '-'}</div>
+            <div class="meta"><span class="money">${formatMoney(order.amount)}</span> · ${formatTime(order.createdAt)}</div>
+        </div>
+    `).join('');
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD - 收粮平台（农产品收购系统）V1.0</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=LXGW+WenKai:wght@300;400;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        forest: { 50:'#f0f7f1', 100:'#d8ecd9', 200:'#b3d9b7', 300:'#7fbf87', 400:'#4a9e56', 500:'#2d7a3a', 600:'#1a5c26', 700:'#1a472a', 800:'#163a23', 900:'#0f2a19' },
+        wheat: { 50:'#fdf9ef', 100:'#faf0d4', 200:'#f4dfa8', 300:'#ecc96f', 400:'#d4a843', 500:'#c4922a', 600:'#a87420', 700:'#88571c', 800:'#6f461e', 900:'#5c3b1d' },
+        cream: { 50:'#fefdfb', 100:'#faf6f0', 200:'#f5ede0', 300:'#ede0cc', 400:'#e0ccab' }
+      },
+      fontFamily: {
+        serif: ['"Noto Serif SC"', 'serif'],
+        body: ['"LXGW WenKai"', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { scroll-behavior: smooth; }
+  body { font-family: 'LXGW WenKai', sans-serif; background: #faf6f0; color: #2c2c2c; }
+  h1,h2,h3,h4,h5 { font-family: 'Noto Serif SC', serif; }
+
+  /* 侧边导航 */
+  .side-nav { position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: linear-gradient(180deg, #1a472a 0%, #0f2a19 100%); overflow-y: auto; z-index: 50; transition: transform 0.3s; }
+  .side-nav::-webkit-scrollbar { width: 4px; }
+  .side-nav::-webkit-scrollbar-thumb { background: rgba(212,168,67,0.4); border-radius: 2px; }
+  .side-nav a { display: block; padding: 10px 20px; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; border-left: 3px solid transparent; transition: all 0.2s; }
+  .side-nav a:hover, .side-nav a.active { color: #f4dfa8; border-left-color: #d4a843; background: rgba(212,168,67,0.08); }
+  .side-nav .nav-title { padding: 24px 20px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: rgba(212,168,67,0.6); font-family: 'Noto Serif SC', serif; }
+  .main-content { margin-left: 280px; }
+
+  /* 英雄区 */
+  .hero { background: linear-gradient(135deg, #1a472a 0%, #2d7a3a 50%, #1a5c26 100%); position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -50%; right: -20%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(212,168,67,0.15) 0%, transparent 70%); }
+  .hero::after { content: '🌾'; position: absolute; right: 60px; bottom: 40px; font-size: 120px; opacity: 0.1; }
+
+  /* 卡片 */
+  .card { background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.04); transition: transform 0.2s, box-shadow 0.2s; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 16px 40px rgba(0,0,0,0.06); }
+
+  /* 角色卡片 */
+  .role-card { position: relative; overflow: hidden; }
+  .role-card::after { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 0 16px 0 80px; opacity: 0.08; }
+  .role-card.farmer::after { background: #2d7a3a; }
+  .role-card.buyer::after { background: #d4a843; }
+  .role-card.manager::after { background: #4a6fa5; }
+
+  /* 阶段标签 */
+  .phase-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+
+  /* 用户故事折叠 */
+  .us-toggle { cursor: pointer; user-select: none; }
+  .us-toggle .arrow { transition: transform 0.3s; display: inline-block; }
+  .us-toggle.open .arrow { transform: rotate(90deg); }
+  .us-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; }
+  .us-content.open { max-height: 8000px; }
+
+  /* 线框图 */
+  .wireframe { background: #1e1e2e; color: #cdd6f4; border-radius: 12px; padding: 20px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.6; white-space: pre; overflow-x: auto; }
+
+  /* 验收标准 */
+  .ac-item { border-left: 3px solid #d4a843; padding-left: 16px; margin-bottom: 12px; }
+  .ac-keyword { font-weight: 700; color: #1a472a; }
+
+  /* Mermaid 容器 */
+  .mermaid-container { background: white; border-radius: 16px; padding: 32px; border: 1px solid rgba(0,0,0,0.06); overflow-x: auto; }
+  .mermaid { display: flex; justify-content: center; }
+
+  /* 动画 */
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-in { animation: fadeInUp 0.6s ease forwards; }
+  .delay-1 { animation-delay: 0.1s; opacity: 0; }
+  .delay-2 { animation-delay: 0.2s; opacity: 0; }
+  .delay-3 { animation-delay: 0.3s; opacity: 0; }
+
+  /* 表格 */
+  .prd-table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 12px; overflow: hidden; }
+  .prd-table th { background: #1a472a; color: white; padding: 12px 16px; text-align: left; font-weight: 600; font-size: 14px; }
+  .prd-table td { padding: 12px 16px; border-bottom: 1px solid #f0ebe3; font-size: 14px; }
+  .prd-table tr:last-child td { border-bottom: none; }
+  .prd-table tr:hover td { background: #fdf9ef; }
+
+  /* 移动端响应 */
+  @media (max-width: 1024px) {
+    .side-nav { transform: translateX(-100%); }
+    .side-nav.open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .mobile-toggle { display: flex !important; }
+  }
+
+  /* 打印样式 */
+  @media print {
+    .side-nav, .mobile-toggle { display: none !important; }
+    .main-content { margin-left: 0 !important; }
+    .hero { background: #1a472a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+  }
+</style>
+</head>
+<body class="antialiased">
+<!-- 移动端菜单按钮 -->
+<button class="mobile-toggle hidden fixed top-4 left-4 z-[60] bg-forest-700 text-white p-2 rounded-lg shadow-lg" onclick="document.querySelector('.side-nav').classList.toggle('open')">
+  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+</button>
+
+<!-- 侧边导航 -->
+<nav class="side-nav">
+  <div class="px-5 py-6 border-b border-white/10">
+    <div class="text-wheat-400 font-serif text-lg font-bold">🌾 收粮平台</div>
+    <div class="text-white/40 text-xs mt-1">PRD V1.0 · 产品需求文档</div>
+  </div>
+  <div class="nav-title">概览</div>
+  <a href="#overview">项目背景与核心问题</a>
+  <a href="#roles">核心角色</a>
+  <a href="#terminals">产品终端覆盖</a>
+  <a href="#journey">核心业务流程</a>
+  <a href="#flow-main">主流程图</a>
+  <a href="#flow-order">订单状态机</a>
+  <a href="#constraints">技术约束</a>
+  <div class="nav-title">文档入口</div>
+  <a href="./PRD-收粮平台-功能模块版.html">技术对接版（功能模块）</a>
+  <a href="./需求标注-收购商农户.html">需求标注文档（收购商/农户）</a>
+  <div class="nav-title">阶段一 · 入驻与开户</div>
+  <a href="#us01">US-01 收购商开户</a>
+  <a href="#us02">US-02 农户开户</a>
+  <div class="nav-title">阶段二 · 信息发布与匹配</div>
+  <a href="#us03">US-03 发布需求</a>
+  <a href="#us04">US-04 浏览市场</a>
+  <a href="#us05">US-05 管理需求</a>
+  <a href="#us06">US-06 关注关键词</a>
+  <div class="nav-title">阶段三 · 开单与交易</div>
+  <a href="#us07">US-07 明细开单</a>
+  <a href="#us08">US-08 快捷开单</a>
+  <a href="#us09">US-09 常用人</a>
+  <div class="nav-title">阶段四 · 支付与结算</div>
+  <a href="#us10">US-10 小程序收银台</a>
+  <a href="#us11">US-11 H5 收银台</a>
+  <a href="#us12">US-12 农户收款页</a>
+  <div class="nav-title">阶段五 · 订单与记录</div>
+  <a href="#us13">US-13 收购商订单</a>
+  <a href="#us14">US-14 农户收款记录</a>
+  <a href="#us15">US-15 个人中心</a>
+  <div class="nav-title">阶段六 · 管理与看板</div>
+  <a href="#us16">US-16 收购商首页</a>
+  <a href="#us17">US-17 农户首页</a>
+  <a href="#us18">US-18 开户申请记录</a>
+  <a href="#us19">US-19 用户信息查询</a>
+  <a href="#us20">US-20 数据看板</a>
+</nav>
+
+<!-- 主内容区 -->
+<div class="main-content">
+
+  <!-- 英雄区 -->
+  <section class="hero px-8 py-16 md:px-16 md:py-24">
+    <div class="max-w-4xl relative z-10">
+      <div class="inline-block px-4 py-1.5 bg-wheat-400/20 text-wheat-300 rounded-full text-sm font-semibold mb-6 backdrop-blur-sm border border-wheat-400/20">
+        PRD V1.0 · 产品需求文档
+      </div>
+      <h1 class="text-4xl md:text-5xl font-serif font-black text-white leading-tight mb-4">
+        收粮平台<br><span class="text-wheat-400">农产品收购系统</span>
+      </h1>
+      <p class="text-white/70 text-lg leading-relaxed max-w-2xl mt-6 font-body">
+        依托银行体系，为农户和收购商提供从开户、信息匹配、开单交易到支付结算的<strong class="text-white">全链路数字化服务</strong>。
+      </p>
+      <div class="flex flex-wrap gap-4 mt-10">
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
+          <div class="text-wheat-400 text-2xl font-serif font-bold">3</div>
+          <div class="text-white/60 text-sm">产品终端</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
+          <div class="text-wheat-400 text-2xl font-serif font-bold">6</div>
+          <div class="text-white/60 text-sm">业务阶段</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
+          <div class="text-wheat-400 text-2xl font-serif font-bold">20</div>
+          <div class="text-white/60 text-sm">用户故事</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
+          <div class="text-wheat-400 text-2xl font-serif font-bold">3</div>
+          <div class="text-white/60 text-sm">核心角色</div>
+        </div>
+      </div>
+      <div class="mt-7">
+        <a href="./PRD-收粮平台-功能模块版.html" class="inline-flex items-center px-4 py-2 rounded-lg bg-wheat-500 text-white text-sm font-semibold hover:bg-wheat-600 mr-3">
+          查看技术对接版（功能模块）
+        </a>
+        <a href="./需求标注-收购商农户.html" class="inline-flex items-center px-4 py-2 rounded-lg bg-white/15 border border-white/30 text-white text-sm font-semibold hover:bg-white/25">
+          查看需求标注文档
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 内容容器 -->
+  <div class="max-w-5xl mx-auto px-6 md:px-12 py-12">
+
+    <!-- ========== 1. 项目背景 ========== -->
+    <section id="overview" class="mb-16 animate-in">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">1</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">项目背景与核心问题</h2>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-2xl">📋</span>
+            <h4 class="font-serif font-bold text-forest-700">交易流程不规范</h4>
+          </div>
+          <p class="text-sm text-gray-600 leading-relaxed">传统农产品收购依赖线下口头协商、现金交易，缺乏标准化的开单、支付、记录流程</p>
+        </div>
+        <div class="card p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-2xl">💰</span>
+            <h4 class="font-serif font-bold text-forest-700">支付方式单一且不安全</h4>
+          </div>
+          <p class="text-sm text-gray-600 leading-relaxed">大量现金交易存在安全隐患，缺乏银行级别的资金保障</p>
+        </div>
+        <div class="card p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-2xl">📊</span>
+            <h4 class="font-serif font-bold text-forest-700">交易数据不透明</h4>
+          </div>
+          <p class="text-sm text-gray-600 leading-relaxed">农户和收购商缺乏便捷的交易记录查询手段，银行网点无法有效监控和服务辖区内的农产品交易</p>
+        </div>
+        <div class="card p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-2xl">🔗</span>
+            <h4 class="font-serif font-bold text-forest-700">信息不对称</h4>
+          </div>
+          <p class="text-sm text-gray-600 leading-relaxed">收购需求和农产品供给之间缺乏高效的匹配渠道</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 2. 核心角色 ========== -->
+    <section id="roles" class="mb-16">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">2</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">核心角色</h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="card role-card farmer p-6">
+          <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-3xl mb-4">🌾</div>
+          <h4 class="font-serif font-bold text-lg text-forest-700 mb-2">农户</h4>
+          <p class="text-sm text-gray-600 leading-relaxed">农产品的生产者和销售者，通过平台接收收购款项，查看交易记录</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">收款</span>
+            <span class="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">发布销售</span>
+            <span class="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">查看记录</span>
+          </div>
+        </div>
+        <div class="card role-card buyer p-6">
+          <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-3xl mb-4">🏪</div>
+          <h4 class="font-serif font-bold text-lg text-wheat-600 mb-2">收购商</h4>
+          <p class="text-sm text-gray-600 leading-relaxed">农产品的收购方，通过平台发布采购需求、开单、支付</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">发布求购</span>
+            <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">开单</span>
+            <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">支付</span>
+          </div>
+        </div>
+        <div class="card role-card manager p-6">
+          <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4">🏦</div>
+          <h4 class="font-serif font-bold text-lg text-blue-700 mb-2">网点客户经理</h4>
+          <p class="text-sm text-gray-600 leading-relaxed">银行网点工作人员，负责为农户和收购商开户，审核管理，查看数据统计</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span class="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">开户</span>
+            <span class="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">审核</span>
+            <span class="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">数据看板</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 3. 产品终端覆盖 ========== -->
+    <section id="terminals" class="mb-16">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">3</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">产品终端覆盖</h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="card p-6 border-t-4 border-t-green-500">
+          <div class="text-sm font-semibold text-green-600 mb-1">终端 A</div>
+          <h4 class="font-serif font-bold text-lg mb-2">收粮小程序</h4>
+          <p class="text-sm text-gray-500 mb-3">微信小程序</p>
+          <p class="text-sm text-gray-600 leading-relaxed">核心业务端：信息发布、开单、支付、记录查看</p>
+          <div class="mt-3 pt-3 border-t border-gray-100">
+            <span class="text-xs text-gray-400">使用者：</span>
+            <span class="text-xs font-medium text-forest-700">农户 + 收购商</span>
+          </div>
+        </div>
+        <div class="card p-6 border-t-4 border-t-blue-500">
+          <div class="text-sm font-semibold text-blue-600 mb-1">终端 B</div>
+          <h4 class="font-serif font-bold text-lg mb-2">H5 管理页面</h4>
+          <p class="text-sm text-gray-500 mb-3">移动端 H5</p>
+          <p class="text-sm text-gray-600 leading-relaxed">开户管理、审核、查询、数据看板</p>
+          <div class="mt-3 pt-3 border-t border-gray-100">
+            <span class="text-xs text-gray-400">使用者：</span>
+            <span class="text-xs font-medium text-blue-700">网点客户经理</span>
+          </div>
+        </div>
+        <div class="card p-6 border-t-4 border-t-amber-500">
+          <div class="text-sm font-semibold text-amber-600 mb-1">终端 C</div>
+          <h4 class="font-serif font-bold text-lg mb-2">H5 收银台</h4>
+          <p class="text-sm text-gray-500 mb-3">PC 端 H5</p>
+          <p class="text-sm text-gray-600 leading-relaxed">收购商自有 PC 系统调用我方支付接口时跳转的支付页面</p>
+          <div class="mt-3 pt-3 border-t border-gray-100">
+            <span class="text-xs text-gray-400">使用者：</span>
+            <span class="text-xs font-medium text-amber-700">收购商（PC 端调用）</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 4. 核心业务流程 ========== -->
+    <section id="journey" class="mb-16">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">4</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">核心业务流程 / 用户旅程地图</h2>
+      </div>
+      <!-- 六阶段时间线 -->
+      <div class="relative">
+        <div class="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-forest-500 via-wheat-400 to-forest-300 hidden md:block"></div>
+        <div class="space-y-6">
+          <div class="flex gap-5 items-start">
+            <div class="w-12 h-12 bg-forest-700 rounded-full flex items-center justify-center text-white font-serif font-bold text-sm shrink-0 relative z-10 shadow-lg">1</div>
+            <div class="card p-5 flex-1">
+              <div class="phase-badge bg-forest-50 text-forest-700 mb-2">🏦 入驻与开户</div>
+              <p class="text-sm text-gray-600">网点客户经理在 H5 管理页面为收购商和农户完成开户，生成小程序登录账号</p>
+            </div>
+          </div>
+          <div class="flex gap-5 items-start">
+            <div class="w-12 h-12 bg-forest-600 rounded-full flex items-center justify-center text-white font-serif font-bold text-sm shrink-0 relative z-10 shadow-lg">2</div>
+            <div class="card p-5 flex-1">
+              <div class="phase-badge bg-emerald-50 text-emerald-700 mb-2">📢 信息发布与匹配</div>
+              <p class="text-sm text-gray-600">收购商在小程序发布采购需求，农户浏览匹配，建立交易意向</p>
+            </div>
+          </div>
+          <div class="flex gap-5 items-start">
+            <div class="w-12 h-12 bg-wheat-500 rounded-full flex items-center justify-center text-white font-serif font-bold text-sm shrink-0 relative z-10 shadow-lg">3</div>
+            <div class="card p-5 flex-1">
+              <div class="phase-badge bg-amber-50 text-amber-700 mb-2">📝 开单与交易</div>
+              <p class="text-sm text-gray-600">收购商在小程序对农户进行明细开单或快捷开单，生成订单</p>
+            </div>
+          </div>
+          <div class="flex gap-5 items-start">
+            <div class="w-12 h-12 bg-wheat-600 rounded-full flex items-center justify-center text-white font-serif font-bold text-sm shrink-0 relative z-10 shadow-lg">4</div>
+            <div class="card p-5 flex-1">
+              <div class="phase-badge bg-orange-50 text-orange-700 mb-2">💳 支付与结算</div>
+              <p class="text-sm text-gray-600">收购商扫码或选择常用人，进入收银台，选择行业支付或订单付完成付款</p>
+            </div>
+          </div>
+          <div class="flex gap-5 items-start">
+            <div class="w-12 h-12 bg-forest-400 rounded-full flex items-center justify-center text-white font-serif font-bold text-sm shrink-0 relative z-10 shadow-lg">5</div>
+            <div class="card p-5 flex-1">
+              <div class="phase-badge bg-teal-50 text-teal-700 mb-2">📋 订单与记录查看</div>
+              <p class="text-sm text-gray-600">双方在小程序查看订单记录和绑定的银行卡信息</p>
+            </div>
+          </div>
+          <div class="flex gap-5 items-start">
+            <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-serif font-bold text-sm shrink-0 relative z-10 shadow-lg">6</div>
+            <div class="card p-5 flex-1">
+              <div class="phase-badge bg-blue-50 text-blue-700 mb-2">📊 平台管理与数据看板</div>
+              <p class="text-sm text-gray-600">网点客户经理在 H5 管理页面进行审核、查询、数据统计</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 5. 主流程图 ========== -->
+    <section id="flow-main" class="mb-16">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">5</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">核心用户操作流（主流程）</h2>
+      </div>
+      <div class="mermaid-container">
+        <div class="mermaid">
+flowchart TD
+    Start([开始]) --> A1[网点客户经理打开 H5 管理页面]
+    A1 --> A2{选择开户对象：收购商 / 农户}
+    A2 --> A3{有无营业执照?}
+    A3 -->|有| A3a[填写：营业执照 + 名称/简称/负责人/手机号/身份证照片]
+    A3 -->|无| A3b[填写：名称/简称/负责人/手机号/身份证照片]
+    A3a --> A5[开户成功，生成小程序登录账号]
+    A3b --> A5
+    A5 --> B1[收购商/农户登录收粮小程序]
+    B1 --> B2{角色}
+    B2 -->|收购商| B3[发布采购需求：品类/价格/位置等]
+    B2 -->|农户| B4[浏览采购信息，关注感兴趣的需求]
+    B3 --> B5[双方建立交易意向]
+    B4 --> B5
+    B5 --> C1[收购商进入开单]
+    C1 --> C2{开单方式}
+    C2 -->|明细开单| C3[选择品类 → 添加商品 → 输入数量/单价]
+    C2 -->|快捷开单| C4[直接输入总金额 + 备注]
+    C3 --> C5[生成订单]
+    C4 --> C5
+    C5 --> D1{选择付款对象}
+    D1 -->|扫码| D2[扫描农户收款码]
+    D1 -->|常用人| D3[从已保存的农户中选择]
+    D2 --> D4[进入收银台页面]
+    D3 --> D4
+    D4 --> D5{选择支付方式}
+    D5 -->|行业支付| D6[银行转账，直接到账农户银行卡]
+    D5 -->|订单付| D7[大额担保：资金冻结，收购商后续确认放款]
+    D6 --> D8[支付完成，订单完成]
+    D7 --> D8
+    D8 --> E1[双方在小程序查看订单记录]
+    A5 -.-> F1[网点客户经理：开户审核/信息查询/数据看板]
+    E1 -.-> F1
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 6. 订单状态机 ========== -->
+    <section id="flow-order" class="mb-16">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">6</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">订单状态机</h2>
+      </div>
+      <div class="mermaid-container">
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> 待支付: 开单生成订单
+    待支付 --> 支付中: 进入收银台发起支付
+    待支付 --> 已取消: 30分钟超时自动取消
+    支付中 --> 支付成功: 银行回调成功
+    支付中 --> 支付失败: 银行回调失败
+    支付失败 --> 待支付: 可重新发起支付
+    已取消 --> [*]
+    支付成功 --> [*]
+        </div>
+      </div>
+      <div class="mt-4 grid md:grid-cols-2 gap-3">
+        <div class="card p-4 flex items-start gap-3">
+          <span class="text-lg">💡</span>
+          <div>
+            <div class="font-semibold text-sm text-forest-700">行业支付</div>
+            <div class="text-xs text-gray-500 mt-1">银行转账，直接到账农户银行卡，适合常规交易</div>
+          </div>
+        </div>
+        <div class="card p-4 flex items-start gap-3">
+          <span class="text-lg">🔒</span>
+          <div>
+            <div class="font-semibold text-sm text-forest-700">订单付（大额担保）</div>
+            <div class="text-xs text-gray-500 mt-1">资金冻结，收购商后续确认放款，适合大额交易</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 7. 技术约束 ========== -->
+    <section id="constraints" class="mb-16">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">7</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">技术约束与备注</h2>
+      </div>
+      <div class="card overflow-hidden">
+        <table class="prd-table">
+          <thead><tr><th>约束项</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="font-medium text-forest-700">银行信科系统对接</td><td>需对接银行信科系统，查询商户信息、同步订单信息</td></tr>
+            <tr><td class="font-medium text-forest-700">商户 ID 体系</td><td>开户时由微邮付平台分配唯一商户 ID，作为平台内所有业务数据的关联标识</td></tr>
+            <tr><td class="font-medium text-forest-700">支付接口</td><td>行业支付（银行转账）和订单付均通过银行提供的支付接口实现</td></tr>
+            <tr><td class="font-medium text-forest-700">收银台对接</td><td>收购商 PC 端自有系统通过调用我方支付接口跳转 H5 收银台完成支付</td></tr>
+            <tr><td class="font-medium text-forest-700">数据安全</td><td>敏感信息（身份证号、银行卡号）需脱敏展示，传输加密</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========== 分割线 ========== -->
+    <div class="border-t-2 border-dashed border-wheat-300 my-16"></div>
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-serif font-black text-forest-800">用户故事详述</h2>
+      <p class="text-gray-500 mt-2">共 20 个用户故事，按 6 个业务阶段展开</p>
+    </div>
+
+    <!-- ==================== 阶段一：入驻与开户 ==================== -->
+    <section class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="phase-badge bg-forest-700 text-white text-base px-5 py-2">🏦 阶段一：入驻与开户</div>
+      </div>
+
+      <!-- US-01 -->
+      <div id="us01" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-forest-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-forest-700 text-white rounded-lg font-serif font-bold text-sm">01</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">收购商开户</h4>
+              <p class="text-xs text-gray-500 mt-0.5">网点客户经理 → H5 管理页面 → 为收购商录入信息并提交开户申请</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <!-- 价值陈述 -->
+            <div class="mb-5 p-4 bg-wheat-50 rounded-xl border border-wheat-200">
+              <div class="text-xs font-semibold text-wheat-600 mb-2">💡 价值陈述</div>
+              <p class="text-sm text-gray-700"><strong>作为</strong>网点客户经理，<strong>我希望</strong>在 H5 管理页面中为收购商录入基本信息并提交开户申请，<strong>以便于</strong>收购商获得小程序登录账号，开始使用收粮平台进行采购和支付。</p>
+            </div>
+            <!-- 操作流程 -->
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 操作流程（Happy Path）</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">1.</span> 客户经理在首页选择"为收购商开户"</div>
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">2.</span> 选择有无营业执照 → 有：上传营业执照（支持 OCR 识别）/ 无：跳过</div>
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">3.</span> 填写基础信息：名称、简称、负责人、手机号、行业类型（下拉）、地址</div>
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">4.</span> 上传身份证照片（支持 OCR 识别证件号码）</div>
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">5.</span> 点击"提交开户申请" → 系统提示"提交成功，等待平台审核"</div>
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">6.</span> 审核通过后，系统自动生成小程序登录账号（手机号登录），发送短信通知</div>
+              </div>
+            </div>
+            <!-- 异常处理 -->
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-red-600 mb-3">⚠️ 异常处理</h5>
+              <div class="grid md:grid-cols-2 gap-2 text-sm">
+                <div class="p-2.5 bg-red-50 rounded-lg text-red-700">OCR 识别失败 → 提示手动填写</div>
+                <div class="p-2.5 bg-red-50 rounded-lg text-red-700">手机号已存在 → 提示"该手机号已注册"</div>
+                <div class="p-2.5 bg-red-50 rounded-lg text-red-700">必填字段未填 → 高亮提示</div>
+                <div class="p-2.5 bg-red-50 rounded-lg text-red-700">审核驳回 → 通知原因，可修改重提</div>
+              </div>
+            </div>
+            <!-- 验收标准 -->
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">✅ 验收标准</h5>
+              <div class="space-y-3">
+                <div class="ac-item">
+                  <div class="text-sm"><span class="ac-keyword">GIVEN</span> 客户经理已登录 H5 管理页面</div>
+                  <div class="text-sm"><span class="ac-keyword">WHEN</span> 上传营业执照，填写完整信息，点击提交</div>
+                  <div class="text-sm"><span class="ac-keyword">THEN</span> 系统提示"提交成功，等待平台审核"</div>
+                </div>
+                <div class="ac-item">
+                  <div class="text-sm"><span class="ac-keyword">GIVEN</span> 收购商开户申请已提交</div>
+                  <div class="text-sm"><span class="ac-keyword">WHEN</span> 平台审核通过</div>
+                  <div class="text-sm"><span class="ac-keyword">THEN</span> 系统生成小程序账号（手机号登录），发送短信通知</div>
+                </div>
+              </div>
+            </div>
+            <!-- 线框图 -->
+            <div>
+              <h5 class="font-serif font-bold text-sm text-gray-500 mb-3">🖼️ 页面线框图</h5>
+              <div class="wireframe">┌─────────────────────────────┐
+│  ← 返回      收购商开户      │
+├─────────────────────────────┤
+│  营业执照                    │
+│  ┌─────────────────────────┐│
+│  │ ○ 有营业执照  ○ 无营业执照││
+│  └─────────────────────────┘│
+│  [若选"有"则显示]            │
+│  ┌─────────────────────────┐│
+│  │  📷 点击上传营业执照     ││
+│  │     支持OCR识别          ││
+│  └─────────────────────────┘│
+│  ── 基础信息 ──────────────  │
+│  名称    [________________] │
+│  简称    [________________] │
+│  负责人  [________________] │
+│  手机号  [________________] │
+│  行业类型 [▼ 请选择_______] │
+│  地址    [________________] │
+│  ── 身份证信息 ────────────  │
+│  ┌─────────────────────────┐│
+│  │  📷 点击上传身份证       ││
+│  └─────────────────────────┘│
+│  证件号码 [OCR自动识别_____] │
+│  ┌─────────────────────────┐│
+│  │      提交开户申请        ││
+│  └─────────────────────────┘│
+└─────────────────────────────┘</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-02 -->
+      <div id="us02" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-green-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-forest-700 text-white rounded-lg font-serif font-bold text-sm">02</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">农户开户</h4>
+              <p class="text-xs text-gray-500 mt-0.5">网点客户经理 → H5 管理页面 → 为农户录入信息、结算银行卡和结算类型</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5 p-4 bg-wheat-50 rounded-xl border border-wheat-200">
+              <div class="text-xs font-semibold text-wheat-600 mb-2">💡 价值陈述</div>
+              <p class="text-sm text-gray-700"><strong>作为</strong>网点客户经理，<strong>我希望</strong>为农户录入基本信息、结算银行卡和结算类型并提交开户申请，<strong>以便于</strong>农户获得小程序登录账号，通过平台收取收购款项。</p>
+            </div>
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 操作流程（Happy Path）</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">1.</span> 选择"为农户开户" → 营业执照（有/无）</div>
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">2.</span> 填写基础信息：名称、简称、负责人、手机号、行业类型、地址</div>
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">3.</span> 上传身份证照片（OCR 识别证件号码）</div>
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">4.</span> <strong class="text-forest-700">结算银行卡</strong>：上传银行卡照片（OCR 识别）→ 自动填充银行名称、开户支行、支行联号、银行卡号，可手动修改</div>
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">5.</span> <strong class="text-forest-700">结算类型</strong>选择：</div>
+              </div>
+              <div class="ml-6 mt-2 grid md:grid-cols-3 gap-3">
+                <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <div class="font-semibold text-sm text-blue-700 mb-1">对公</div>
+                  <div class="text-xs text-gray-600">对公账户信息 + 法人身份信息</div>
+                </div>
+                <div class="p-3 bg-green-50 rounded-lg border border-green-100">
+                  <div class="font-semibold text-sm text-green-700 mb-1">对法人</div>
+                  <div class="text-xs text-gray-600">法人姓名、手机号、证件类型、证件号码、有效期</div>
+                </div>
+                <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                  <div class="font-semibold text-sm text-amber-700 mb-1">对非法人</div>
+                  <div class="text-xs text-gray-600">非法人身份信息 + <strong>上传授权书（必填）</strong></div>
+                </div>
+              </div>
+            </div>
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">✅ 验收标准</h5>
+              <div class="space-y-3">
+                <div class="ac-item">
+                  <div class="text-sm"><span class="ac-keyword">场景1</span>：对法人结算的农户开户 → 填写完整信息 + 银行卡 + 法人信息 → 提交成功</div>
+                </div>
+                <div class="ac-item">
+                  <div class="text-sm"><span class="ac-keyword">场景2</span>：对非法人结算需上传授权书 → 未上传 → 提示"请上传授权书"</div>
+                </div>
+                <div class="ac-item">
+                  <div class="text-sm"><span class="ac-keyword">场景3</span>：银行卡 OCR 识别并可修改 → 上传银行卡 → 自动填充，可手动修改</div>
+                </div>
+                <div class="ac-item">
+                  <div class="text-sm"><span class="ac-keyword">场景4</span>：审核通过后 → 生成小程序账号，发送短信通知农户</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 阶段二：信息发布与匹配 ==================== -->
+    <section class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="phase-badge bg-emerald-600 text-white text-base px-5 py-2">📢 阶段二：信息发布与匹配</div>
+      </div>
+
+      <!-- US-03 -->
+      <div id="us03" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-emerald-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-emerald-600 text-white rounded-lg font-serif font-bold text-sm">03</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">发布需求到市场</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 发布求购/销售需求，同一营业所区域可见</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5 p-4 bg-wheat-50 rounded-xl border border-wheat-200">
+              <div class="text-xs font-semibold text-wheat-600 mb-2">💡 价值陈述</div>
+              <p class="text-sm text-gray-700"><strong>作为</strong>收购商/农户，<strong>我希望</strong>在小程序中发布需求到市场，<strong>以便于</strong>同一营业所区域内的对方能看到我的需求促成交易。</p>
+            </div>
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 系统根据角色<strong>自动确定</strong>需求类型：收购商 → 求购需求，农户 → 销售需求</div>
+                <div>• 表单字段：品类（必填，7类）、内容描述（必填）、数量（必填）、期望价格（选填）、补充说明（选填）、位置（必填）</div>
+                <div>• 当前原型入口：<code>buyer-publish.html</code>、<code>farmer-publish.html</code>；采用“角色说明 + 核心信息 + 交易信息 + 补充信息”分组布局，减少卡片割裂感</div>
+                <div>• 发布后仅<strong>对方角色</strong>可见（收购商发布 → 农户可见，反之亦然）</div>
+                <div>• 最多同时发布 <strong>20 条</strong>未关闭需求</div>
+              </div>
+            </div>
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">✅ 验收标准</h5>
+              <div class="space-y-3">
+                <div class="ac-item"><div class="text-sm">收购商发布求购 → 同一营业所区域的农户市场中展示</div></div>
+                <div class="ac-item"><div class="text-sm">农户发布销售 → 同一营业所区域的收购商市场中展示</div></div>
+                <div class="ac-item"><div class="text-sm">已有 20 条未关闭需求 → 提示"最多同时发布 20 条"</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-04 -->
+      <div id="us04" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-emerald-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-emerald-600 text-white rounded-lg font-serif font-bold text-sm">04</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">浏览市场需求</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 浏览对方角色发布的需求，筛选排序联系</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 当前原型入口：<code>buyer-market.html</code>（收购商视角）与 <code>farmer-market.html</code>（农户视角）</div>
+                <div>• 系统根据角色自动过滤：收购商只看到农户的销售需求，农户只看到收购商的求购需求（读取 <code>DemandMockStore</code> 的 active 数据）</div>
+                <div>• 收购商市场页顶部结构调整为两行：第一行<strong>搜索框 + 外置筛选按钮</strong>；第二行为轻量工具入口（筛选标签 / 只看关注 / 关键词入口 / 发布求购）</div>
+                <div>• “关注关键词”入口弱化为右侧轻入口，支持跳转关键词设置页；“只看关注”为列表快速筛选开关</div>
+                <div>• 筛选由底部抽屉承载，MVP 维度：<strong>排序</strong>（最新/最近）、<strong>发布时间</strong>、<strong>品类</strong>、<strong>距离</strong></div>
+                <div>• 顶部不再展示“当前筛选：xxx”长文案，仅在有筛选条件时显示<strong>筛选数量标签</strong>（如“已筛选 2”）</div>
+                <div>• 需求卡片统一为轻量信息结构：品类标签 + 数量标签、内容、价格、发布时间、距离（仅距离，不展示完整地址）</div>
+                <div>• 卡片不展示“销售/求购”类型标签，也不展示发布者名称；收购商视角默认即为农户销售需求</div>
+                <div>• 操作区保留“联系”按钮，详情入口使用卡片右侧垂直居中的下钻图标（&gt;）</div>
+                <div>• 点击“联系”按钮 → 弹窗展示手机号，支持<strong>拨打电话</strong>和<strong>复制号码</strong></div>
+                <div>• 无匹配需求时展示空态提示（引导调整筛选或清空关键词）</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-05 -->
+      <div id="us05" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-emerald-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-emerald-600 text-white rounded-lg font-serif font-bold text-sm">05</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">管理我的需求</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 查看、编辑和关闭自己发布的需求</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 两个 Tab：<strong>进行中</strong>（未关闭）/ <strong>历史记录</strong>（已关闭，近 3 个月）</div>
+                <div>• 编辑：修改字段 → 保存 → 市场中实时更新</div>
+                <div>• 关闭：确认弹窗 → 从市场下架 → 转入历史记录</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-06 -->
+      <div id="us06" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-emerald-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-emerald-600 text-white rounded-lg font-serif font-bold text-sm">06</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">关注关键词推送</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 设置关注关键词，首页展示匹配需求</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 当前原型入口：<code>buyer-keywords.html</code>、<code>farmer-keywords.html</code></div>
+                <div>• 支持添加/删除关键词，最多 10 个；重复关键词会提示并阻止添加</div>
+                <div>• 支持推荐关键词一键添加，支持回车快速添加</div>
+                <div>• 点击"保存关键词"后持久化到 localStorage，刷新页面后自动回填</div>
+                <div>• 未设置关键词时展示空提示："未设置关键词，请添加后保存"</div>
+                <div>• 关键词用于首页关注模块与市场筛选联动（原型阶段先实现本地持久化与展示）</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 阶段三：开单与交易 ==================== -->
+    <section class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="phase-badge bg-wheat-500 text-white text-base px-5 py-2">📝 阶段三：开单与交易</div>
+      </div>
+
+      <!-- US-07 -->
+      <div id="us07" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-amber-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-wheat-500 text-white rounded-lg font-serif font-bold text-sm">07</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">明细开单</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 按品类逐项录入商品明细生成订单</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5 p-4 bg-wheat-50 rounded-xl border border-wheat-200">
+              <div class="text-xs font-semibold text-wheat-600 mb-2">💡 价值陈述</div>
+              <p class="text-sm text-gray-700"><strong>作为</strong>收购商，<strong>我希望</strong>按品类逐项录入商品明细生成订单，<strong>以便于</strong>清晰记录每笔收购的商品构成和金额。</p>
+            </div>
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 操作流程</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">1.</span> 进入"开单"页面，默认明细开单模式</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">2.</span> 选择品类（水果/蔬菜/粮食/禽蛋/肉类/水产/其他）</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">3.</span> 添加商品：输入名称、数量、单价 → 系统自动计算小计</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">4.</span> 可添加多个商品，系统自动计算合计金额，可删除已添加商品</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">5.</span> 选择付款对象：<strong>扫码</strong>（扫描农户收款码）/ <strong>常用人</strong>（从列表选择）</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">6.</span> 系统生成订单 → 进入收银台页面</div>
+              </div>
+            </div>
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">✅ 验收标准</h5>
+              <div class="space-y-3">
+                <div class="ac-item"><div class="text-sm">添加商品 A（100斤×2元=200元）+ 商品 B（50斤×3元=150元）→ 合计 350 元</div></div>
+                <div class="ac-item"><div class="text-sm">删除商品 → 列表移除，合计金额实时更新</div></div>
+                <div class="ac-item"><div class="text-sm">选择付款对象 → 生成订单 → 跳转收银台</div></div>
+              </div>
+            </div>
+            <div>
+              <h5 class="font-serif font-bold text-sm text-gray-500 mb-3">🖼️ 页面线框图</h5>
+              <div class="wireframe">┌──────────────────────────────┐
+│  ← 返回        开单           │
+├──────────────────────────────┤
+│  [明细开单]  [快捷开单]       │
+├──────────────────────────────┤
+│  品类  [▼ 请选择___________] │
+│  ── 商品明细 ──────────────   │
+│  ┌──────────────────────────┐│
+│  │ 红富士苹果                ││
+│  │ 100斤 × ¥2.5 = ¥250     ││
+│  │                    [删除] ││
+│  ├──────────────────────────┤│
+│  │ 黄元帅苹果                ││
+│  │ 50斤 × ¥3.0 = ¥150      ││
+│  │                    [删除] ││
+│  └──────────────────────────┘│
+│  [+ 添加商品]                 │
+│  ┌──────────────────────────┐│
+│  │  合计：¥400.00            ││
+│  └──────────────────────────┘│
+│  ── 付款对象 ──────────────   │
+│  ┌────────┐  ┌────────────┐ │
+│  │ 📷扫码  │  │ 👤常用人    │ │
+│  └────────┘  └────────────┘ │
+│  ┌──────────────────────────┐│
+│  │       去收银台            ││
+│  └──────────────────────────┘│
+└──────────────────────────────┘</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-08 -->
+      <div id="us08" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-amber-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-wheat-500 text-white rounded-lg font-serif font-bold text-sm">08</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">快捷开单</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 直接输入总金额快速生成订单</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 切换到"快捷开单"模式 → 输入总金额（必填）+ 备注（选填）</div>
+                <div>• 选择付款对象：扫码 / 常用人 → 生成订单 → 进入收银台</div>
+                <div>• 适用场景：已与农户线下谈好价格，快速完成支付流程</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-09 -->
+      <div id="us09" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-amber-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-wheat-500 text-white rounded-lg font-serif font-bold text-sm">09</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">常用人管理</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 按付款次数排序的常用农户列表，开单时快速选择</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 付款成功后，系统<strong>自动保存</strong>农户信息到常用人列表</div>
+                <div>• 按<strong>付款次数从高到低</strong>排序</div>
+                <div>• 开单时选择"常用人" → 从列表中选择农户作为付款对象</div>
+                <div>• 无付款记录 → 提示"暂无常用人，付款成功后自动添加"</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 阶段四：支付与结算 ==================== -->
+    <section class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="phase-badge bg-orange-600 text-white text-base px-5 py-2">💳 阶段四：支付与结算</div>
+      </div>
+
+      <!-- US-10 -->
+      <div id="us10" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-orange-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-orange-600 text-white rounded-lg font-serif font-bold text-sm">10</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">小程序收银台支付</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 选择支付方式（行业支付/订单付）完成付款</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5 p-4 bg-wheat-50 rounded-xl border border-wheat-200">
+              <div class="text-xs font-semibold text-wheat-600 mb-2">💡 价值陈述</div>
+              <p class="text-sm text-gray-700"><strong>作为</strong>收购商，<strong>我希望</strong>在小程序收银台中选择支付方式并完成付款，<strong>以便于</strong>将收购款安全、快捷地支付给农户。</p>
+            </div>
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 操作流程</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div class="flex gap-2"><span class="text-orange-500 font-bold">1.</span> 收银台展示：订单金额、收款方、收款银行、支付方式选择</div>
+                <div class="flex gap-2"><span class="text-orange-500 font-bold">2.</span> 选择支付方式：</div>
+              </div>
+              <div class="ml-6 mt-2 grid md:grid-cols-2 gap-3">
+                <div class="p-3 bg-green-50 rounded-lg border border-green-200">
+                  <div class="font-semibold text-sm text-green-700 mb-1">💰 行业支付（银行转账）</div>
+                  <div class="text-xs text-gray-600">直接到账农户银行卡，适合常规交易</div>
+                </div>
+                <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div class="font-semibold text-sm text-blue-700 mb-1">🔒 订单付（大额担保）</div>
+                  <div class="text-xs text-gray-600">资金冻结，收购商后续确认放款</div>
+                </div>
+              </div>
+              <div class="space-y-2 text-sm text-gray-600 mt-3">
+                <div class="flex gap-2"><span class="text-orange-500 font-bold">3.</span> 点击"确认付款" → 跳转银行 APP 完成支付</div>
+                <div class="flex gap-2"><span class="text-orange-500 font-bold">4.</span> 支付成功 → 返回小程序展示成功页（金额、订单号、时间、支付方式、付款方、收款方）</div>
+              </div>
+            </div>
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-red-600 mb-3">⚠️ 关键业务规则</h5>
+              <div class="grid md:grid-cols-2 gap-2 text-sm">
+                <div class="p-2.5 bg-amber-50 rounded-lg text-amber-800 border border-amber-200">⏱ 支付中途退出 → 订单"待支付"，<strong>30 分钟内</strong>可继续支付</div>
+                <div class="p-2.5 bg-red-50 rounded-lg text-red-700 border border-red-200">⏰ 超过 30 分钟未支付 → 订单<strong>自动取消</strong></div>
+              </div>
+            </div>
+            <div>
+              <h5 class="font-serif font-bold text-sm text-gray-500 mb-3">🖼️ 页面线框图</h5>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div class="text-xs text-gray-400 mb-2 font-semibold">收银台页面</div>
+                  <div class="wireframe text-xs">┌────────────────────────┐
+│  ← 返回     收银台      │
+├────────────────────────┤
+│  ┌────────────────────┐│
+│  │    ¥ 5,000.00      ││
+│  │    订单金额         ││
+│  └────────────────────┘│
+│  收款方：李大姐         │
+│  收款银行：邮储银行     │
+│  ── 选择支付方式 ────  │
+│  ┌────────────────────┐│
+│  │ ○ 行业支付（转账）  ││
+│  ├────────────────────┤│
+│  │ ○ 订单付（担保）    ││
+│  └────────────────────┘│
+│  ┌────────────────────┐│
+│  │     确认付款        ││
+│  └────────────────────┘│
+│  ⏱ 30分钟内完成支付    │
+└────────────────────────┘</div>
+                </div>
+                <div>
+                  <div class="text-xs text-gray-400 mb-2 font-semibold">支付成功页面</div>
+                  <div class="wireframe text-xs">┌────────────────────────┐
+│                        │
+│      ✅ 支付成功        │
+│      ¥ 5,000.00        │
+│                        │
+│  ── 订单信息 ────────  │
+│  订单号：SL20260209001 │
+│  时间：2026-02-09 10:30│
+│  支付方式：行业支付     │
+│  付款方：张老板         │
+│  收款方：李大姐         │
+│                        │
+│  ┌────────────────────┐│
+│  │     查看订单        ││
+│  └────────────────────┘│
+│  ┌────────────────────┐│
+│  │     返回首页        ││
+│  └────────────────────┘│
+└────────────────────────┘</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-11 -->
+      <div id="us11" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-orange-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-orange-600 text-white rounded-lg font-serif font-bold text-sm">11</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">H5 收银台（PC 端）</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商 PC 端 → 调用我方支付接口 → 跳转 H5 收银台完成支付</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 收购商 PC 端系统调用我方支付接口 → 跳转 H5 收银台页面</div>
+                <div>• H5 收银台展示与小程序收银台<strong>功能一致</strong>：订单金额、收款方、支付方式选择</div>
+                <div>• 支付超时（30 分钟）→ 订单自动取消</div>
+                <div>• 原型演示入口统一为：<code>prototype/pc-cashier.html</code>（后续以当前目录页面为准）</div>
+              </div>
+            </div>
+            <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm text-blue-700">
+              <strong>技术备注：</strong>H5 收银台由我方提供，收购商 PC 端系统通过调用我方支付接口跳转到此页面。原型阶段已将 PC 收银台页面迁移到当前目录，便于统一演示与评审。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-12 -->
+      <div id="us12" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-orange-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-orange-600 text-white rounded-lg font-serif font-bold text-sm">12</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">农户收款综合页</h4>
+              <p class="text-xs text-gray-500 mt-0.5">农户 → 小程序 → 查看收款码、结算卡信息、收款记录入口</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 页面内容</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 页面结构调整为<strong>单列分组化</strong>：减少碎片小卡片，统一为少量主容器分段展示</div>
+                <div>• 顶部分组：农户名称、手机号（脱敏）、实名认证状态 + "今日收款概览"（笔数/金额/付款方）</div>
+                <div>• 收款码分组：固定<strong>收款码</strong>（终端码二维码），提示"扫一扫，向我付款"</div>
+                <div>• 收款码分组内提供两个并列操作：<strong>保存收款码</strong>、<strong>查看收款记录</strong></div>
+                <div>• 账户分组：<strong>结算卡信息</strong>（只读）— 收款账户（银行名称+尾号）、开户名，并提示联系客服修改</div>
+                <div>• 当日摘要按支付成功订单实时计算，无记录时展示 0</div>
+                <div>• 异常态：开户未完成时顶部提示；收款码加载失败时展示失败占位和重试文案</div>
+                <div>• 收购商扫描该二维码 → 识别农户信息 → 进入开单/收银台流程</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 阶段五：订单与记录查看 ==================== -->
+    <section class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="phase-badge bg-teal-600 text-white text-base px-5 py-2">📋 阶段五：订单与记录查看</div>
+      </div>
+
+      <!-- US-13 -->
+      <div id="us13" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-teal-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-teal-600 text-white rounded-lg font-serif font-bold text-sm">13</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">收购商订单列表与详情</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 查看所有订单，按状态筛选，查看详情</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 顶部状态筛选：<strong>全部 / 待支付 / 支付中 / 支付成功 / 支付失败 / 已取消</strong>（6种状态）</div>
+                <div>• 卡片展示：收款方名称、商品摘要、订单金额、下单时间、状态标签</div>
+                <div>• "待支付"状态 → 显示"继续支付"按钮（30分钟内有效）</div>
+                <div>• 详情页：状态提示区、收款方信息（名称+手机号脱敏）、商品明细、订单信息</div>
+                <div>• "待支付"详情页 → 底部"继续支付"按钮 + 倒计时</div>
+                <div>• "待支付"状态<strong>不展示</strong>支付方式，其他状态展示</div>
+                <div>• 超时文案统一口径：<strong>超时未支付，系统自动取消</strong>（收银台/订单列表/订单详情保持一致）</div>
+              </div>
+            </div>
+            <div>
+              <h5 class="font-serif font-bold text-sm text-gray-500 mb-3">🖼️ 页面线框图</h5>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div class="text-xs text-gray-400 mb-2 font-semibold">订单列表页</div>
+                  <div class="wireframe text-xs">┌────────────────────────┐
+│  订单                   │
+├────────────────────────┤
+│ [全部][待支付][支付中]  │
+│ [支付成功][失败][已取消]│
+├────────────────────────┤
+│ ┌──────────────────┐   │
+│ │ 李大姐      待支付│   │
+│ │ 苹果x50 樱桃x30  │   │
+│ │ 2026-02-09 10:30 │   │
+│ │ ¥5,000  [继续支付]│   │
+│ └──────────────────┘   │
+│ ┌──────────────────┐   │
+│ │ 张农户    支付成功│   │
+│ │ 大米x100斤       │   │
+│ │ 2026-02-08 14:20 │   │
+│ │ ¥3,200.00        │   │
+│ └──────────────────┘   │
+└────────────────────────┘</div>
+                </div>
+                <div>
+                  <div class="text-xs text-gray-400 mb-2 font-semibold">订单详情页（支付成功）</div>
+                  <div class="wireframe text-xs">┌────────────────────────┐
+│  ← 返回    订单详情     │
+├────────────────────────┤
+│ ┌──────────────────┐   │
+│ │ ✅ 支付成功       │   │
+│ │ 款项已到账        │   │
+│ └──────────────────┘   │
+│ ── 收款方信息 ──────   │
+│ 收款方：李大姐         │
+│ 手机号：138****8888    │
+│ ── 商品明细 ────────   │
+│ 苹果  50斤×¥5  ¥250   │
+│ 樱桃  30斤×¥50 ¥1,500 │
+│ ── 订单信息 ────────   │
+│ 订单号：SL20260209001 │
+│ 时间：2026-02-09 10:30│
+│ 支付方式：行业支付     │
+│ 订单金额：¥1,750.00   │
+└────────────────────────┘</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-14 -->
+      <div id="us14" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-teal-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-teal-600 text-white rounded-lg font-serif font-bold text-sm">14</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">农户收款记录</h4>
+              <p class="text-xs text-gray-500 mt-0.5">农户 → 小程序 → 查看支付成功的收款记录列表和详情</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 仅展示<strong>支付成功</strong>的订单，无状态筛选标签</div>
+                <div>• 与农户收款首页共用同一订单数据源（<code>BuyerMockStore</code>），按当前农户收款方过滤</div>
+                <div>• 页面结构调整为<strong>顶部统计 + 统一明细面板</strong>，不再使用“每条记录一张独立卡片”</div>
+                <div>• 顶部统计展示：收款笔数、收款总金额；附带数据口径提示（与收款首页同源、按时间倒序）</div>
+                <div>• 明细行展示：付款方名称、商品摘要、收款时间、收款金额、支付方式，点击进入详情页</div>
+                <div>• 按时间降序排列</div>
+                <div>• 空数据时在同一明细面板展示空态提示，不额外新增独立空态卡片</div>
+                <div>• 详情页：收款成功提示、付款方信息、商品明细、订单信息</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-15 -->
+      <div id="us15" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-teal-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-teal-600 text-white rounded-lg font-serif font-bold text-sm">15</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">个人中心（"我的"页面）</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 查看个人信息、消息通知、系统设置</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 页面内容</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 个人信息（只读）：名称、简称、负责人、手机号 — 修改需联系网点客户经理</div>
+                <div>• 消息通知入口、帮助与反馈、关于我们、退出登录</div>
+              </div>
+            </div>
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">🔔 消息通知场景（对接微信服务通知）</h5>
+              <div class="grid md:grid-cols-2 gap-3">
+                <div class="p-3 bg-purple-50 rounded-lg border border-purple-100">
+                  <div class="font-semibold text-sm text-purple-700">需求意向通知</div>
+                  <div class="text-xs text-gray-600 mt-1">收购商/农户 — 有人对你发布的需求感兴趣时推送</div>
+                </div>
+                <div class="p-3 bg-green-50 rounded-lg border border-green-100">
+                  <div class="font-semibold text-sm text-green-700">收款到账通知</div>
+                  <div class="text-xs text-gray-600 mt-1">农户 — 收购商支付成功，款项到账时推送</div>
+                </div>
+                <div class="p-3 bg-red-50 rounded-lg border border-red-100">
+                  <div class="font-semibold text-sm text-red-700">订单超时取消通知</div>
+                  <div class="text-xs text-gray-600 mt-1">收购商 — 待支付订单超过30分钟自动取消时推送</div>
+                </div>
+                <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                  <div class="font-semibold text-sm text-amber-700">关键词匹配通知</div>
+                  <div class="text-xs text-gray-600 mt-1">收购商/农户 — 新需求匹配关注关键词时推送</div>
+                </div>
+              </div>
+              <div class="mt-3 text-xs text-gray-400">* 原型示例口径：收购商侧重点展示“需求意向 / 订单超时 / 关键词 / 支付结果”，农户侧重点展示“收款到账 / 需求意向 / 关键词”。</div>
+            </div>
+            <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm text-blue-700">
+              <strong>导航备注：</strong>收购商底部导航为 首页/市场/开单/我的（4个），农户底部导航为 首页/市场/收款/我的（4个）。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 阶段六：平台管理与数据看板 ==================== -->
+    <section class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="phase-badge bg-blue-700 text-white text-base px-5 py-2">📊 阶段六：平台管理与数据看板</div>
+      </div>
+
+      <!-- US-16 -->
+      <div id="us16" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-amber-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-wheat-500 text-white rounded-lg font-serif font-bold text-sm">16</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">收购商首页</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 今日收购总额、品类明细、快捷入口、需求列表</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 页面模块</h5>
+              <div class="space-y-3">
+                <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                  <div class="font-semibold text-sm text-amber-700 mb-1">💰 今日收购总额 Hero</div>
+                  <div class="text-xs text-gray-600">展示今日收购总额 + 今日收购笔数 + 日环比，支持金额脱敏切换</div>
+                </div>
+                <div class="p-3 bg-green-50 rounded-lg border border-green-100">
+                  <div class="font-semibold text-sm text-green-700 mb-1">⚡ 快捷入口</div>
+                  <div class="text-xs text-gray-600">当前为 4 项：发布需求、常用人、订单查询、更多（占位）</div>
+                </div>
+                <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <div class="font-semibold text-sm text-blue-700 mb-1">📋 品类明细（可切换）</div>
+                  <div class="text-xs text-gray-600">支持 今日 / 本月 / 本年 切换，按品类展示金额与笔数，可点击查看详情</div>
+                </div>
+                <div class="p-3 bg-purple-50 rounded-lg border border-purple-100">
+                  <div class="font-semibold text-sm text-purple-700 mb-1">🔍 需求信息模块</div>
+                  <div class="text-xs text-gray-600">包含“我关注的销售需求”与“我发布的收购需求”两个列表，卡片下钻图标统一放在右侧垂直居中；其中“我发布的收购需求”卡片不展示距离信息</div>
+                </div>
+              </div>
+              <div class="mt-3 text-xs text-gray-500">MVP 口径：收购商首页暂不包含“采购趋势 / 品类占比”等数据洞察模块。</div>
+              <div class="mt-3 text-xs text-gray-400">* 当前以 <code>buyer-home.html</code> 页面为原型基准，后续调整以该页面为准同步 PRD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-17 -->
+      <div id="us17" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-green-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-forest-500 text-white rounded-lg font-serif font-bold text-sm">17</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">农户首页</h4>
+              <p class="text-xs text-gray-500 mt-0.5">农户 → 小程序 → 今日收款总额、来源明细、快捷入口、需求列表、数据洞察</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 页面模块</h5>
+              <div class="space-y-3">
+                <div class="p-3 bg-green-50 rounded-lg border border-green-100">
+                  <div class="font-semibold text-sm text-green-700 mb-1">💰 今日收款总额 Hero</div>
+                  <div class="text-xs text-gray-600">展示今日收款总额 + 今日收款笔数 + 本月累计金额，支持金额脱敏切换</div>
+                </div>
+                <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <div class="font-semibold text-sm text-blue-700 mb-1">📋 收款来源明细（可切换）</div>
+                  <div class="text-xs text-gray-600">支持 今日 / 本月 / 本年 切换，按付款方聚合展示收款金额与笔数，点击可进入收款记录页</div>
+                </div>
+                <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                  <div class="font-semibold text-sm text-amber-700 mb-1">⚡ 快捷入口</div>
+                  <div class="text-xs text-gray-600">当前为 4 项：发布销售、收款码、收款记录、我的需求</div>
+                </div>
+                <div class="p-3 bg-purple-50 rounded-lg border border-purple-100">
+                  <div class="font-semibold text-sm text-purple-700 mb-1">🔍 双列表模块</div>
+                  <div class="text-xs text-gray-600">包含“我关注的采购需求”（与关键词设置联动）和“我发布的销售需求”两个列表，采用统一明细容器 + 分割行布局，减少碎片化卡片</div>
+                </div>
+                <div class="p-3 bg-rose-50 rounded-lg border border-rose-100">
+                  <div class="font-semibold text-sm text-rose-700 mb-1">📈 数据洞察</div>
+                  <div class="text-xs text-gray-600">底部图表支持“收款趋势 / 方式占比”切换，默认按农户收款数据渲染</div>
+                </div>
+              </div>
+              <div class="mt-3 text-xs text-gray-400">* 当前以 <code>farmer-home.html</code> 页面为原型基准，布局骨架与收购商首页保持一致，后续调整以该页面为准同步 PRD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-18 -->
+      <div id="us18" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-blue-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-blue-700 text-white rounded-lg font-serif font-bold text-sm">18</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">开户申请记录</h4>
+              <p class="text-xs text-gray-500 mt-0.5">网点客户经理 → H5 管理页面 → 查看开户申请记录和审核状态</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 顶部 3 个 Tab：<strong>待审核 / 已通过 / 已驳回</strong></div>
+                <div>• 每个 Tab 下支持按角色筛选：全部 / 收购商 / 农户</div>
+                <div>• 列表按提交时间降序排列</div>
+                <div>• 卡片展示：名称、角色标签、负责人、手机号（脱敏）、提交时间、审核状态</div>
+                <div>• 点击卡片 → 查看申请详情（完整开户信息）</div>
+              </div>
+            </div>
+            <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-sm text-amber-800">
+              <strong>当前版本：</strong>提交进件后自动审核通过，"待审核"和"已驳回"Tab 暂无数据；页面默认落在"已通过"Tab，优先展示有效记录用于演示。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-19 -->
+      <div id="us19" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-blue-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-blue-700 text-white rounded-lg font-serif font-bold text-sm">19</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">用户信息查询</h4>
+              <p class="text-xs text-gray-500 mt-0.5">网点客户经理 → H5 管理页面 → 搜索和查看已开户用户信息</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div>• 搜索框：支持按<strong>名称或手机号</strong>搜索</div>
+                <div>• 角色筛选：全部 / 收购商 / 农户</div>
+                <div>• 卡片展示：名称、角色标签、负责人、手机号（脱敏）、开户时间</div>
+                <div>• 收购商详情：基本信息（名称/简称/负责人/手机号/身份证/营业执照）</div>
+                <div>• 农户详情：基本信息 + <strong>结算卡信息</strong>（结算类型/银行名称/卡号/开户行）</div>
+                <div>• 所有信息<strong>只读</strong>，不支持修改</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- US-20 -->
+      <div id="us20" class="card mb-5 overflow-hidden">
+        <div class="us-toggle p-5 flex items-center justify-between bg-gradient-to-r from-blue-50 to-transparent" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+          <div class="flex items-center gap-3">
+            <span class="inline-flex items-center justify-center w-10 h-10 bg-blue-700 text-white rounded-lg font-serif font-bold text-sm">20</span>
+            <div>
+              <h4 class="font-serif font-bold text-forest-800">数据看板与报表</h4>
+              <p class="text-xs text-gray-500 mt-0.5">网点客户经理 → H5 管理页面 → 发展情况/交易情况/品类情况三大看板</p>
+            </div>
+          </div>
+          <span class="arrow text-forest-400 text-xl">▶</span>
+        </div>
+        <div class="us-content">
+          <div class="p-5 border-t border-gray-100">
+            <div class="mb-5">
+              <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 三大看板 Tab</h5>
+              <div class="space-y-4">
+                <!-- Tab 1 -->
+                <div class="p-4 bg-green-50 rounded-xl border border-green-200">
+                  <h6 class="font-serif font-bold text-green-700 mb-2">📈 Tab 1 — 发展情况</h6>
+                  <div class="grid md:grid-cols-2 gap-2 text-sm text-gray-600">
+                    <div>• 新增收购商卡片：日新增、月新增、年新增</div>
+                    <div>• 新增农户卡片：日新增、月新增、年新增</div>
+                    <div>• 规模总量卡片：收购商总数、农户总数</div>
+                    <div>• 月度发展趋势柱状图：近12个月收购商和农户新增数量对比</div>
+                  </div>
+                </div>
+                <!-- Tab 2 -->
+                <div class="p-4 bg-amber-50 rounded-xl border border-amber-200">
+                  <h6 class="font-serif font-bold text-amber-700 mb-2">💰 Tab 2 — 交易情况</h6>
+                  <div class="grid md:grid-cols-2 gap-2 text-sm text-gray-600">
+                    <div>• 收购笔数卡片：日笔数、月笔数、年笔数</div>
+                    <div>• 收购金额卡片：日金额、月金额、年金额</div>
+                    <div>• 月度交易趋势柱状图：近12个月收购金额趋势</div>
+                  </div>
+                </div>
+                <!-- Tab 3 -->
+                <div class="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <h6 class="font-serif font-bold text-blue-700 mb-2">🥧 Tab 3 — 品类情况</h6>
+                  <div class="grid md:grid-cols-2 gap-2 text-sm text-gray-600">
+                    <div>• 品类收购占比图（饼图/环形图）</div>
+                    <div>• 品类明细列表：7个品类（水果/蔬菜/粮食/禽蛋/肉类/水产/其他）</div>
+                    <div>• 每个品类展示：收购商数、日/月/年收购金额</div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3 text-xs text-gray-400">* 所有数据为整个网点的汇总数据</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 底部总结 ========== -->
+    <section class="mb-16">
+      <div class="card p-8 bg-gradient-to-br from-forest-700 to-forest-900 text-white">
+        <h3 class="font-serif text-xl font-bold mb-4">📌 文档总结</h3>
+        <div class="grid md:grid-cols-3 gap-6 text-sm">
+          <div>
+            <h4 class="font-semibold text-wheat-400 mb-2">产品终端</h4>
+            <ul class="space-y-1 text-white/80">
+              <li>• 收粮小程序（农户+收购商）</li>
+              <li>• H5 管理页面（网点客户经理）</li>
+              <li>• H5 收银台（PC 端调用）</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-wheat-400 mb-2">核心流程</h4>
+            <ul class="space-y-1 text-white/80">
+              <li>• 入驻开户 → 信息发布 → 开单交易</li>
+              <li>• 支付结算 → 订单记录 → 数据看板</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-wheat-400 mb-2">关键特性</h4>
+            <ul class="space-y-1 text-white/80">
+              <li>• OCR 识别（营业执照/身份证/银行卡）</li>
+              <li>• 双支付方式（行业支付/订单付）</li>
+              <li>• 30分钟支付超时自动取消</li>
+              <li>• 微信服务通知推送</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="text-center py-8 text-sm text-gray-400 border-t border-gray-200">
+      <p>收粮平台 · 产品需求文档 V1.0</p>
+      <p class="mt-1">最近更新：2026-02-24 · 共 20 个用户故事 · 6 个业务阶段 · 3 个产品终端</p>
+    </footer>
+
+  </div><!-- /max-w-5xl -->
+</div><!-- /main-content -->
+
+<!-- Mermaid 初始化 -->
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#d8ecd9',
+      primaryTextColor: '#1a472a',
+      primaryBorderColor: '#4a9e56',
+      lineColor: '#7fbf87',
+      secondaryColor: '#faf0d4',
+      tertiaryColor: '#f0f7f1',
+      fontFamily: '"LXGW WenKai", sans-serif',
+      fontSize: '14px'
+    },
+    flowchart: { curve: 'basis', padding: 20 },
+    stateDiagram: { padding: 20 }
+  });
+</script>
+
+<!-- 导航高亮 + 滚动监听 -->
+<script>
+  // 侧边导航高亮
+  const navLinks = document.querySelectorAll('.side-nav a[href^="#"]');
+  const sections = [];
+  navLinks.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ el, link });
+  });
+
+  function updateActiveNav() {
+    const scrollY = window.scrollY + 120;
+    let current = sections[0];
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+    }
+    navLinks.forEach(l => l.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActiveNav);
+  updateActiveNav();
+
+  // 移动端点击导航后关闭菜单
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      document.querySelector('.side-nav').classList.remove('open');
+    });
+  });
+
+  // 全部展开/折叠
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'e' && e.altKey) {
+      const toggles = document.querySelectorAll('.us-toggle');
+      const contents = document.querySelectorAll('.us-content');
+      const allOpen = [...contents].every(c => c.classList.contains('open'));
+      toggles.forEach(t => allOpen ? t.classList.remove('open') : t.classList.add('open'));
+      contents.forEach(c => allOpen ? c.classList.remove('open') : c.classList.add('open'));
+    }
+  });
+</script>
+
+</body>
+</html>

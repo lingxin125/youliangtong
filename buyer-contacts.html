@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 常用人</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .contact-item {
+            transition: all 0.2s ease;
+        }
+        .contact-item.selected {
+            border-color: rgba(17, 166, 74, 0.35);
+            box-shadow: 0 4px 12px rgba(17, 166, 74, 0.12), 0 2px 4px rgba(0, 0, 0, 0.04);
+            background: rgba(240, 253, 244, 0.65);
+        }
+        .toast-tip {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 98px;
+            padding: 11px 14px;
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 11px;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.45;
+            z-index: 70;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(8px);
+            transition: all 0.2s ease;
+        }
+        .toast-tip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 搜索框 -->
+    <div class="px-4 mt-2 mb-3 shrink-0">
+        <div class="glass-card rounded-xl px-3.5 py-2.5 flex items-center gap-2.5">
+            <i class="fas fa-search text-gray-400 text-sm"></i>
+            <input id="searchInput" type="text" placeholder="搜索姓名或手机号..." class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
+        </div>
+    </div>
+
+    <!-- 常用人列表 -->
+    <div id="contactList" class="flex-1 overflow-y-auto no-scrollbar px-4 space-y-2.5" style="padding-bottom:130px;"></div>
+    <div id="emptyState" class="px-4" style="display:none;">
+        <div class="glass-card rounded-xl p-8 text-center">
+            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
+                <i class="fas fa-address-book text-gray-300 text-lg"></i>
+            </div>
+            <div class="text-sm text-gray-500 mb-1">暂无常用人，付款成功后自动添加</div>
+            <div class="text-[11px] text-gray-400">可先通过扫码完成首笔支付</div>
+        </div>
+    </div>
+
+    <div id="billingActions" class="absolute bottom-0 left-0 right-0 px-4 py-4 bg-gradient-to-t from-[#FFFBF0] via-[#FFFBF0] to-transparent" style="display:none;">
+        <div class="flex gap-2.5">
+            <a id="cancelBackBtn" href="buyer-billing.html" class="flex-1 py-3 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 font-medium text-center no-underline" style="text-decoration:none;">
+                取消
+            </a>
+            <button id="confirmPickBtn" class="flex-1 py-3 bg-primary text-white rounded-xl text-sm font-medium active:scale-95 transition-transform" onclick="confirmPick()">
+                确认选择
+            </button>
+        </div>
+    </div>
+
+
+    <div id="toastTip" class="toast-tip"></div>
+</div>
+
+<script>
+const query = new URLSearchParams(window.location.search);
+const fromBilling = query.get('from') === 'billing';
+const billingMode = query.get('mode') === 'quick' ? 'quick' : 'detail';
+const quickAmount = query.get('amount');
+const forceEmpty = query.get('empty') === '1';
+const mockStore = window.BuyerMockStore || null;
+
+const fallbackContacts = [
+    { id: 'c01', name: '李大姐', mobile: '13812342233', payCount: 12, bank: '邮储银行', card: '6221 4858 **** 2233' },
+    { id: 'c02', name: '王大哥', mobile: '13976545612', payCount: 8, bank: '邮储银行', card: '6221 8845 **** 5612' },
+    { id: 'c03', name: '赵师傅', mobile: '13688139801', payCount: 5, bank: '农业银行', card: '6228 4801 **** 9801' },
+    { id: 'c04', name: '孙阿姨', mobile: '13722553326', payCount: 3, bank: '农商银行', card: '6215 8533 **** 3326' },
+    { id: 'c05', name: '刘师傅', mobile: '13590007119', payCount: 2, bank: '邮储银行', card: '6221 0071 **** 7119' }
+];
+const contactSource = forceEmpty
+    ? []
+    : ((mockStore && typeof mockStore.getFrequentContacts === 'function')
+        ? mockStore.getFrequentContacts()
+        : fallbackContacts).sort((a, b) => b.payCount - a.payCount);
+
+let selectedId = null;
+
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader(
+    fromBilling ? '选择付款对象' : '常用人',
+    getBackHref()
+);
+
+document.getElementById('searchInput').addEventListener('input', renderList);
+
+if (fromBilling) {
+    document.getElementById('billingActions').style.display = '';
+    document.getElementById('normalActions').style.display = 'none';
+    document.getElementById('cancelBackBtn').href = getBackHref();
+}
+
+renderList();
+
+function getBackHref() {
+    if (!fromBilling) {
+        return 'buyer-home.html';
+    }
+    const params = new URLSearchParams({ mode: billingMode });
+    if (billingMode === 'quick' && quickAmount) {
+        params.set('amount', quickAmount);
+    }
+    return 'buyer-billing.html?' + params.toString();
+}
+
+function showToast(msg) {
+    const tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => tip.classList.remove('show'), 1800);
+}
+
+function renderList() {
+    const keyword = document.getElementById('searchInput').value.trim();
+    const list = contactSource.filter(item => {
+        if (!keyword) return true;
+        return item.name.includes(keyword) || item.mobile.includes(keyword) || item.card.includes(keyword);
+    });
+
+    const listContainer = document.getElementById('contactList');
+    const emptyState = document.getElementById('emptyState');
+
+    if (list.length === 0) {
+        listContainer.innerHTML = '';
+        emptyState.style.display = '';
+        return;
+    }
+    emptyState.style.display = 'none';
+
+    listContainer.innerHTML = list.map((item) => {
+        const selected = item.id === selectedId;
+        const rightButton = fromBilling
+            ? `<button class="px-3 py-1.5 ${selected ? 'bg-primary' : 'bg-white border border-primary/25 text-primary'} ${selected ? 'text-white' : ''} text-[11px] font-medium rounded-lg active:scale-95 transition-transform shrink-0" onclick="event.stopPropagation();pickContact('${item.id}')">${selected ? '已选中' : '选择'}</button>`
+            : `<button class="px-3 py-1.5 bg-primary text-white text-[11px] font-medium rounded-lg active:scale-95 transition-transform shrink-0" onclick="event.stopPropagation();goBilling('${item.id}')">去开单</button>`;
+        return `
+            <div class="contact-item glass-card rounded-xl p-3.5 flex items-start gap-3 ${selected ? 'selected' : ''}" onclick="pickContact('${item.id}')">
+                <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <i class="fas fa-user text-primary text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between mb-0.5">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-800">${item.name}</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-green-50 text-primary font-medium">付款${item.payCount}次</span>
+                        </div>
+                    </div>
+                    <div class="text-[12px] text-gray-600 font-medium" style="font-family:Poppins,monospace;">${item.mobile}</div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[10px] text-gray-500">${item.bank}</span>
+                        <span class="text-[10px] text-gray-400" style="font-family:Poppins,monospace;">${item.card}</span>
+                    </div>
+                </div>
+                <div class="self-center">
+                    ${rightButton}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function pickContact(id) {
+    if (!fromBilling) return;
+    selectedId = id;
+    renderList();
+}
+
+function goBilling(id) {
+    const contact = contactSource.find(item => item.id === id);
+    if (!contact) return;
+    const params = new URLSearchParams({
+        mode: 'detail',
+        picked: '1',
+        payeeName: contact.name,
+        payeeMobile: contact.mobile,
+        payeeBank: contact.bank,
+        payeeCard: contact.card
+    });
+    window.location.href = 'buyer-billing.html?' + params.toString();
+}
+
+function confirmPick() {
+    if (!selectedId) {
+        showToast('请选择付款对象');
+        return;
+    }
+    const contact = contactSource.find(item => item.id === selectedId);
+    if (!contact) return;
+
+    const params = new URLSearchParams({
+        mode: billingMode,
+        picked: '1',
+        payeeName: contact.name,
+        payeeMobile: contact.mobile,
+        payeeBank: contact.bank,
+        payeeCard: contact.card
+    });
+    if (billingMode === 'quick' && quickAmount) {
+        params.set('amount', quickAmount);
+    }
+    window.location.href = 'buyer-billing.html?' + params.toString();
+}
+</script>
+</body>
+</html>

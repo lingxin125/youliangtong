@@ -1,0 +1,763 @@
+/**
+ * 邮粮通 - 客户经理端邮政风格样式
+ * 风格定位：银行金融感、专业、简洁
+ * 主色调：邮政绿 #11A64A
+ * 背景色：纯白 #FFFFFF / 浅灰白 #F5F7FA
+ */
+
+/* ==================== CSS 变量定义 ==================== */
+:root {
+  /* 主色 - 邮政绿系 */
+  --postal-primary: #11A64A;
+  --postal-primary-dark: #0D8A3C;
+  --postal-primary-light: #4CAF50;
+  --postal-primary-fade: #E8F5E9;
+  --postal-primary-micro: #F1F8E9;
+
+  /* 辅助色 */
+  --postal-gold: #C9A227;
+  --postal-warning: #FF6B35;
+  --postal-info: #1976D2;
+  --postal-success: #2E7D32;
+  --postal-danger: #D32F2F;
+
+  /* 中性色 */
+  --postal-text-title: #1A1A1A;
+  --postal-text-body: #333333;
+  --postal-text-secondary: #666666;
+  --postal-text-muted: #999999;
+  --postal-border: #E8E8E8;
+  --postal-bg: #F5F7FA;
+  --postal-white: #FFFFFF;
+
+  /* 阴影 */
+  --shadow-elevation-1: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-elevation-2: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-elevation-3: 0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06);
+  --shadow-glow: 0 4px 20px rgba(17,166,74,0.20);
+
+  /* 间距 */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+
+  /* 圆角 */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+}
+
+/* ==================== 基础样式重置 ==================== */
+.postal-theme {
+  font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--postal-bg);
+  color: var(--postal-text-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.postal-theme *,
+.postal-theme *::before,
+.postal-theme *::after {
+  box-sizing: border-box;
+}
+
+/* ==================== 页面容器 ==================== */
+.postal-page {
+  min-height: 100vh;
+  background-color: var(--postal-bg);
+  padding-bottom: calc(64px + env(safe-area-inset-bottom));
+}
+
+.postal-content {
+  padding: var(--space-lg);
+}
+
+/* ==================== 导航栏 ==================== */
+.postal-nav {
+  background-color: var(--postal-white);
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--postal-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.postal-nav h1 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--postal-text-title);
+  margin: 0;
+}
+
+.postal-nav-back {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--postal-text-body);
+  cursor: pointer;
+}
+
+.postal-nav-action {
+  font-size: 14px;
+  color: var(--postal-primary);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* ==================== 卡片组件 ==================== */
+.postal-card {
+  background: var(--postal-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevation-1);
+  border: 1px solid rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+
+.postal-panel {
+  background: var(--postal-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-elevation-2);
+  border: 1px solid rgba(0,0,0,0.04);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.postal-hero-card {
+  background: linear-gradient(135deg, var(--postal-primary) 0%, var(--postal-primary-dark) 100%);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 8px 24px rgba(17,166,74,0.25);
+  padding: var(--space-xl);
+  color: var(--postal-white);
+  margin-bottom: var(--space-lg);
+}
+
+/* ==================== 按钮组件 ==================== */
+.postal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  outline: none;
+}
+
+.postal-btn:active {
+  transform: scale(0.98);
+}
+
+.postal-btn-primary {
+  background: linear-gradient(135deg, var(--postal-primary) 0%, var(--postal-primary-dark) 100%);
+  color: var(--postal-white);
+  box-shadow: var(--shadow-glow);
+}
+
+.postal-btn-primary:active {
+  box-shadow: 0 2px 10px rgba(17,166,74,0.15);
+}
+
+.postal-btn-secondary {
+  background: var(--postal-white);
+  color: var(--postal-primary);
+  border: 1px solid var(--postal-primary);
+}
+
+.postal-btn-secondary:active {
+  background: var(--postal-primary-fade);
+}
+
+.postal-btn-text {
+  color: var(--postal-primary);
+  background: transparent;
+  padding: 8px 12px;
+}
+
+.postal-btn-text:active {
+  background: var(--postal-primary-fade);
+}
+
+.postal-btn-disabled {
+  background: var(--postal-border);
+  color: var(--postal-text-muted);
+  cursor: not-allowed;
+}
+
+.postal-btn-disabled:active {
+  transform: none;
+}
+
+.postal-btn-block {
+  width: 100%;
+}
+
+.postal-btn-sm {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.postal-btn-lg {
+  padding: 14px 32px;
+  font-size: 16px;
+}
+
+/* ==================== 输入框组件 ==================== */
+.postal-input-group {
+  margin-bottom: var(--space-lg);
+}
+
+.postal-input-label {
+  display: block;
+  font-size: 14px;
+  color: var(--postal-text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.postal-input {
+  width: 100%;
+  background: var(--postal-white);
+  border: 1px solid var(--postal-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 15px;
+  color: var(--postal-text-body);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.postal-input:focus {
+  border-color: var(--postal-primary);
+  box-shadow: 0 0 0 3px rgba(17,166,74,0.10);
+}
+
+.postal-input::placeholder {
+  color: var(--postal-text-muted);
+}
+
+.postal-input:disabled {
+  background: var(--postal-bg);
+  color: var(--postal-text-muted);
+  cursor: not-allowed;
+}
+
+.postal-input-error {
+  border-color: var(--postal-danger);
+}
+
+.postal-input-error:focus {
+  box-shadow: 0 0 0 3px rgba(211,47,47,0.10);
+}
+
+.postal-input-hint {
+  font-size: 12px;
+  color: var(--postal-text-muted);
+  margin-top: var(--space-xs);
+}
+
+.postal-input-hint-error {
+  color: var(--postal-danger);
+}
+
+/* ==================== 列表组件 ==================== */
+.postal-list {
+  background: var(--postal-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevation-1);
+  border: 1px solid rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+
+.postal-list-item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--postal-bg);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.postal-list-item:last-child {
+  border-bottom: none;
+}
+
+.postal-list-item:active {
+  background: var(--postal-bg);
+}
+
+.postal-list-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--postal-primary-fade);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: var(--space-md);
+  color: var(--postal-primary);
+  font-size: 18px;
+}
+
+.postal-list-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.postal-list-item-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--postal-text-title);
+  margin-bottom: 2px;
+}
+
+.postal-list-item-desc {
+  font-size: 13px;
+  color: var(--postal-text-muted);
+}
+
+.postal-list-item-extra {
+  margin-left: var(--space-md);
+  text-align: right;
+}
+
+.postal-list-item-arrow {
+  margin-left: var(--space-sm);
+  color: var(--postal-text-muted);
+  font-size: 14px;
+}
+
+/* ==================== 标签组件 ==================== */
+.postal-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.postal-tag-success {
+  background: var(--postal-primary-fade);
+  color: var(--postal-success);
+}
+
+.postal-tag-warning {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+.postal-tag-processing {
+  background: #E3F2FD;
+  color: var(--postal-info);
+}
+
+.postal-tag-error {
+  background: #FFEBEE;
+  color: var(--postal-danger);
+}
+
+.postal-tag-default {
+  background: var(--postal-bg);
+  color: var(--postal-text-secondary);
+}
+
+/* ==================== 数据展示 ==================== */
+.postal-stat-row {
+  display: flex;
+  gap: var(--space-xl);
+}
+
+.postal-stat {
+  flex: 1;
+}
+
+.postal-stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.postal-stat-label {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.postal-stat-value-sm {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* ==================== 区块标题 ==================== */
+.postal-section-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--postal-text-title);
+  margin: 0 0 var(--space-md) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.postal-section-title-link {
+  font-size: 13px;
+  color: var(--postal-primary);
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.postal-section-subtitle {
+  font-size: 13px;
+  color: var(--postal-text-muted);
+  margin-top: -8px;
+  margin-bottom: var(--space-md);
+}
+
+/* ==================== 快捷入口网格 ==================== */
+.postal-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+.postal-quick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-md);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.postal-quick-item:active {
+  transform: scale(0.95);
+}
+
+.postal-quick-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--postal-primary-fade);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-sm);
+  color: var(--postal-primary);
+  font-size: 20px;
+}
+
+.postal-quick-icon-gold {
+  background: rgba(201,162,39,0.10);
+  color: var(--postal-gold);
+}
+
+.postal-quick-icon-blue {
+  background: rgba(25,118,210,0.10);
+  color: var(--postal-info);
+}
+
+.postal-quick-icon-orange {
+  background: rgba(255,107,53,0.10);
+  color: var(--postal-warning);
+}
+
+.postal-quick-label {
+  font-size: 13px;
+  color: var(--postal-text-body);
+  text-align: center;
+}
+
+/* ==================== 底部导航栏 ==================== */
+.postal-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--postal-white);
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  border-top: 1px solid var(--postal-bg);
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 1000;
+}
+
+.postal-tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-sm) 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.postal-tab-icon {
+  font-size: 20px;
+  margin-bottom: 2px;
+  color: var(--postal-text-muted);
+}
+
+.postal-tab-label {
+  font-size: 11px;
+  color: var(--postal-text-muted);
+}
+
+.postal-tab-item.active .postal-tab-icon,
+.postal-tab-item.active .postal-tab-label {
+  color: var(--postal-primary);
+}
+
+/* ==================== 空状态 ==================== */
+.postal-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3xl) var(--space-lg);
+  text-align: center;
+}
+
+.postal-empty-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  background: var(--postal-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-md);
+  color: var(--postal-text-muted);
+  font-size: 32px;
+}
+
+.postal-empty-title {
+  font-size: 15px;
+  color: var(--postal-text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.postal-empty-desc {
+  font-size: 13px;
+  color: var(--postal-text-muted);
+}
+
+/* ==================== 加载状态 ==================== */
+.postal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+}
+
+.postal-loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--postal-border);
+  border-top-color: var(--postal-primary);
+  border-radius: 50%;
+  animation: postal-spin 0.8s linear infinite;
+}
+
+@keyframes postal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==================== 分割线 ==================== */
+.postal-divider {
+  height: 1px;
+  background: var(--postal-border);
+  margin: var(--space-md) 0;
+}
+
+.postal-divider-vertical {
+  width: 1px;
+  height: 100%;
+  background: var(--postal-border);
+  margin: 0 var(--space-md);
+}
+
+/* ==================== 搜索栏 ==================== */
+.postal-search-bar {
+  display: flex;
+  align-items: center;
+  background: var(--postal-white);
+  border-radius: var(--radius-full);
+  padding: 8px 16px;
+  box-shadow: var(--shadow-elevation-1);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.postal-search-icon {
+  color: var(--postal-text-muted);
+  margin-right: var(--space-sm);
+  font-size: 16px;
+}
+
+.postal-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--postal-text-body);
+  outline: none;
+}
+
+.postal-search-input::placeholder {
+  color: var(--postal-text-muted);
+}
+
+/* ==================== 筛选标签栏 ==================== */
+.postal-filter-bar {
+  display: flex;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--postal-white);
+  border-bottom: 1px solid var(--postal-border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.postal-filter-item {
+  padding: 6px 14px;
+  font-size: 14px;
+  color: var(--postal-text-secondary);
+  background: var(--postal-bg);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.postal-filter-item.active {
+  background: var(--postal-primary);
+  color: var(--postal-white);
+}
+
+/* ==================== 信息卡片 ==================== */
+.postal-info-card {
+  background: var(--postal-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-elevation-1);
+  border: 1px solid rgba(0,0,0,0.04);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+
+.postal-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--postal-bg);
+}
+
+.postal-info-row:last-child {
+  border-bottom: none;
+}
+
+.postal-info-label {
+  font-size: 14px;
+  color: var(--postal-text-secondary);
+}
+
+.postal-info-value {
+  font-size: 14px;
+  color: var(--postal-text-body);
+  font-weight: 500;
+}
+
+/* ==================== 步骤条 ==================== */
+.postal-steps {
+  display: flex;
+  padding: var(--space-lg) 0;
+}
+
+.postal-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.postal-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  right: -50%;
+  width: 100%;
+  height: 2px;
+  background: var(--postal-border);
+}
+
+.postal-step.active:not(:last-child)::after,
+.postal-step.completed:not(:last-child)::after {
+  background: var(--postal-primary);
+}
+
+.postal-step-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--postal-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--postal-white);
+  margin-bottom: var(--space-xs);
+  position: relative;
+  z-index: 1;
+}
+
+.postal-step.active .postal-step-dot,
+.postal-step.completed .postal-step-dot {
+  background: var(--postal-primary);
+}
+
+.postal-step-label {
+  font-size: 12px;
+  color: var(--postal-text-muted);
+}
+
+.postal-step.active .postal-step-label {
+  color: var(--postal-primary);
+  font-weight: 500;
+}
+
+/* ==================== 响应式适配 ==================== */
+@media (max-width: 375px) {
+  .postal-quick-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .postal-stat-value {
+    font-size: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .postal-page {
+    max-width: 414px;
+    margin: 0 auto;
+    box-shadow: 0 0 40px rgba(0,0,0,0.1);
+  }
+}

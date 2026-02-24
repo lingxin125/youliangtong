@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮粮通 - 演示导航</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #11A64A;
+            --primary-dark: #388E3C;
+            --bg: #FFFBF0;
+            --bridge: rgba(200, 230, 201, 0.25);
+            --card: #FFFFFF;
+            --card-border: rgba(0, 0, 0, 0.04);
+            --text-main: #1F2937;
+            --text-sub: #6B7280;
+            --shadow-1: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-2: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-3: 0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Poppins", "Noto Sans SC", sans-serif;
+            color: var(--text-main);
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 18% 10%, var(--bridge) 0%, transparent 46%),
+                radial-gradient(ellipse at 82% 26%, rgba(200,230,201,0.14) 0%, transparent 42%),
+                linear-gradient(180deg, rgba(200,146,42,0.10) 0%, rgba(255,251,240,0) 520px);
+            min-height: 100vh;
+        }
+
+        .wrap {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 36px 18px 28px;
+        }
+
+        .hero {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-3);
+            border-radius: 24px;
+            padding: 28px 26px;
+            margin-bottom: 18px;
+        }
+
+        .title {
+            margin: 0;
+            font-size: 34px;
+            line-height: 1.1;
+            letter-spacing: 0.2px;
+        }
+
+        .subtitle {
+            margin: 10px 0 0;
+            color: var(--text-sub);
+            font-size: 14px;
+        }
+
+        .tags {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 12px;
+            color: var(--primary-dark);
+            background: #F0FDF4;
+            border: 1px solid rgba(17,166,74,0.25);
+            border-radius: 999px;
+            padding: 5px 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 12px;
+        }
+
+        .section {
+            margin-top: 18px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .section-desc {
+            margin: 7px 0 0;
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-2);
+            border-radius: 20px;
+            padding: 18px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-1px);
+            border-color: rgba(17,166,74,0.35);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08), 0 3px 7px rgba(0,0,0,0.04);
+        }
+
+        .card:active {
+            transform: scale(0.99);
+            box-shadow: var(--shadow-1);
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .icon-miniapp { background: #DCFCE7; color: #16A34A; }
+        .icon-admin { background: #DBEAFE; color: #2563EB; }
+        .icon-cashier-h5 { background: #FEF3C7; color: #D97706; }
+        .icon-cashier-pc { background: #F3E8FF; color: #7C3AED; }
+        .icon-mock { background: #FCE7F3; color: #BE185D; }
+        .icon-prd { background: #DCFCE7; color: #15803D; }
+        .icon-doc { background: #E0E7FF; color: #3730A3; }
+        .icon-memory { background: #FFF7ED; color: #C2410C; }
+
+        .arrow {
+            color: #9CA3AF;
+            font-size: 12px;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .card p {
+            margin: 8px 0 0;
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.55;
+        }
+
+        .footer {
+            margin-top: 16px;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-1);
+            border-radius: 16px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        @media (max-width: 768px) {
+            .wrap {
+                padding: 20px 14px;
+            }
+
+            .hero {
+                padding: 20px 16px;
+                border-radius: 18px;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="wrap">
+    <section class="hero">
+        <h1 class="title">邮粮通演示入口</h1>
+        <p class="subtitle">用于老板和技术评审的统一导航页。入口分为“原型端入口”和“PRD评审资料”，所有链接均新开页签，便于并行对照评审。</p>
+        <div class="tags">
+            <span class="tag">小程序端</span>
+            <span class="tag">客户经理H5</span>
+            <span class="tag">移动H5收银台</span>
+            <span class="tag">PC收银台</span>
+            <span class="tag">Mock控制台</span>
+            <span class="tag">PRD可视化</span>
+            <span class="tag">评审文档</span>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title"><i class="fas fa-diagram-project"></i>原型端入口</h2>
+        <p class="section-desc">用于流程演示和交互走查，覆盖小程序、管理端、收银台及 mock 控制台。</p>
+        <div class="grid">
+            <a class="card" href="login.html" target="_blank" rel="noopener noreferrer">
+                <div class="card-head">
+                    <div class="icon icon-miniapp"><i class="fas fa-mobile-screen-button"></i></div>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </div>
+                <h2>小程序端</h2>
+                <p>收购商/农户登录入口，覆盖首页、市场、发布、开单、订单、收款等主流程。</p>
+            </a>
+
+            <a class="card" href="#"  rel="noopener noreferrer">
+                <div class="card-head">
+                    <div class="icon icon-admin"><i class="fas fa-user-tie"></i></div>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </div>
+                <h2>客户经理 H5 端</h2>
+                <p>开户管理、申请记录、用户查询、数据看板等管理链路原型。</p>
+            </a>
+
+            <a class="card" href="buyer-cashier.html" target="_blank" rel="noopener noreferrer">
+                <div class="card-head">
+                    <div class="icon icon-cashier-h5"><i class="fas fa-receipt"></i></div>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </div>
+                <h2>移动收银台</h2>
+                <p>小程序内收银台支付页演示，包含支付方式选择与确认支付流程。</p>
+            </a>
+
+            <a class="card" href="pc-cashier.html" target="_blank" rel="noopener noreferrer">
+                <div class="card-head">
+                    <div class="icon icon-cashier-pc"><i class="fas fa-desktop"></i></div>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </div>
+                <h2>PC 收银台</h2>
+                <p>PC 端收银台原型（已迁移到当前 prototype 目录）。</p>
+            </a>
+
+            <a class="card" href="mock-control.html" target="_blank" rel="noopener noreferrer">
+                <div class="card-head">
+                    <div class="icon icon-mock"><i class="fas fa-sliders"></i></div>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </div>
+                <h2>Mock 数据控制台</h2>
+                <p>统一注入/重置收购商订单样例，支持跨页签演示订单状态变化。</p>
+            </a>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 class="section-title"><i class="fas fa-book-open"></i>PRD评审资料</h2>
+        <p class="section-desc">用于文字需求对照评审，可与原型页面并行打开。</p>
+        <div class="grid">
+            <a class="card" href="PRD-收粮平台-可视化.html" target="_blank" rel="noopener noreferrer">
+                <div class="card-head">
+                    <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </div>
+                <h2>PRD 可视化页面</h2>
+                <p>用于产品说明、功能逻辑确认、测试对照验收、流程图和用户故事评审。</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- <section class="footer">
+        当前主线改造范围：<strong>`prototype/` + `Docs/PRD-001-收粮平台.md` + `CLAUDE.md` + `warm-card-ui-style`</strong>
+    </section> -->
+</main>
+</body>
+</html>

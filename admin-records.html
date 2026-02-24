@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通管理端 - 开户申请记录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .tab-chip {
+            padding: 7px 12px;
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6B7280;
+            background: #F3F4F6;
+            border: 1px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .tab-chip.active {
+            color: #11A64A;
+            background: #F0FDF4;
+            border-color: #11A64A;
+        }
+        .type-chip {
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #6B7280;
+            background: #F3F4F6;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+        .type-chip.active {
+            color: #11A64A;
+            background: #F0FDF4;
+            border-color: rgba(17, 166, 74, 0.45);
+        }
+        .status-pill {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+        }
+        .status-pill.pending { color: #B45309; background: #FEF3C7; border-color: #FDE68A; }
+        .status-pill.approved { color: #166534; background: #DCFCE7; border-color: #BBF7D0; }
+        .status-pill.rejected { color: #B91C1C; background: #FEE2E2; border-color: #FECACA; }
+        .record-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.26s ease;
+        }
+        .record-detail.open {
+            max-height: 260px;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:80px;">
+        <div class="flex gap-2 mt-2 mb-3 overflow-x-auto no-scrollbar">
+            <div class="tab-chip" data-status="pending" onclick="switchStatus(this)">待审核</div>
+            <div class="tab-chip active" data-status="approved" onclick="switchStatus(this)">已通过</div>
+            <div class="tab-chip" data-status="rejected" onclick="switchStatus(this)">已驳回</div>
+        </div>
+
+        <div class="glass-card rounded-xl p-3 mb-3">
+            <div class="text-[11px] text-gray-500 mb-2">角色筛选</div>
+            <div class="flex gap-2">
+                <button class="type-chip active" data-role="all" onclick="switchRole(this)">全部</button>
+                <button class="type-chip" data-role="收购商" onclick="switchRole(this)">收购商</button>
+                <button class="type-chip" data-role="农户" onclick="switchRole(this)">农户</button>
+            </div>
+        </div>
+
+        <div class="relative mb-3">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+            <input id="searchInput" class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-gray-200 text-xs outline-none focus:border-primary" placeholder="搜索名称/负责人/手机号">
+        </div>
+
+        <div id="recordList" class="space-y-3"></div>
+
+        <div id="emptyState" class="glass-card rounded-xl p-8 text-center" style="display:none;">
+            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
+                <i class="fas fa-clipboard-list text-gray-300 text-lg"></i>
+            </div>
+            <div class="text-sm text-gray-500 mb-1">暂无申请记录</div>
+            <div class="text-[11px] text-gray-400">当前筛选条件下没有可展示的数据</div>
+        </div>
+    </div>
+
+    <div id="admin-tab-bar"></div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('开户申请记录');
+document.getElementById('admin-tab-bar').innerHTML = renderAdminTabBar('records');
+
+const records = [
+    { id: 'A20260213001', name: '张老板农贸', role: '收购商', owner: '张三', phone: '138****8888', submitTime: '2026-02-13 10:30', status: 'approved', note: '自动审核通过' },
+    { id: 'A20260213002', name: '李大姐果园', role: '农户', owner: '李四', phone: '139****6666', submitTime: '2026-02-13 09:15', status: 'approved', note: '自动审核通过' },
+    { id: 'A20260212007', name: '丰收粮油', role: '收购商', owner: '王五', phone: '137****5555', submitTime: '2026-02-12 16:20', status: 'approved', note: '自动审核通过' },
+    { id: 'A20260212003', name: '新田家庭农场', role: '农户', owner: '赵六', phone: '136****1122', submitTime: '2026-02-12 11:02', status: 'approved', note: '自动审核通过' }
+];
+
+let currentStatus = 'approved';
+let currentRole = 'all';
+let expandId = '';
+
+document.getElementById('searchInput').addEventListener('input', renderRecords);
+
+function switchStatus(el) {
+    document.querySelectorAll('.tab-chip').forEach(item => item.classList.remove('active'));
+    el.classList.add('active');
+    currentStatus = el.getAttribute('data-status') || 'pending';
+    expandId = '';
+    renderRecords();
+}
+
+function switchRole(el) {
+    document.querySelectorAll('.type-chip').forEach(item => item.classList.remove('active'));
+    el.classList.add('active');
+    currentRole = el.getAttribute('data-role') || 'all';
+    expandId = '';
+    renderRecords();
+}
+
+function statusLabel(status) {
+    if (status === 'approved') return '<span class="status-pill approved">已通过</span>';
+    if (status === 'rejected') return '<span class="status-pill rejected">已驳回</span>';
+    return '<span class="status-pill pending">待审核</span>';
+}
+
+function roleLabel(role) {
+    const farmer = role === '农户';
+    return `<span class="text-[10px] px-1.5 py-0.5 rounded ${farmer ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-600'}">${role}</span>`;
+}
+
+function toggleDetail(id) {
+    expandId = expandId === id ? '' : id;
+    renderRecords();
+}
+
+function renderRecords() {
+    const keyword = document.getElementById('searchInput').value.trim();
+    const list = records
+        .filter(item => item.status === currentStatus)
+        .filter(item => currentRole === 'all' || item.role === currentRole)
+        .filter(item => !keyword || item.name.includes(keyword) || item.owner.includes(keyword) || item.phone.includes(keyword))
+        .sort((a, b) => b.submitTime.localeCompare(a.submitTime));
+
+    const wrap = document.getElementById('recordList');
+    const empty = document.getElementById('emptyState');
+
+    if (list.length === 0) {
+        wrap.innerHTML = '';
+        empty.style.display = '';
+        return;
+    }
+    empty.style.display = 'none';
+
+    wrap.innerHTML = list.map(item => `
+        <div class="glass-card rounded-xl p-3.5 cursor-pointer" onclick="toggleDetail('${item.id}')">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-gray-800">${item.name}</span>
+                    ${roleLabel(item.role)}
+                </div>
+                ${statusLabel(item.status)}
+            </div>
+            <div class="text-[11px] text-gray-500 flex items-center gap-3 mb-1">
+                <span><i class="fas fa-user mr-1"></i>${item.owner}</span>
+                <span><i class="fas fa-phone mr-1"></i>${item.phone}</span>
+            </div>
+            <div class="text-[10px] text-gray-400">
+                <i class="far fa-clock mr-1"></i>提交时间：${item.submitTime}
+            </div>
+            <div class="record-detail ${expandId === item.id ? 'open' : ''}">
+                <div class="mt-3 pt-3 border-t border-gray-100 space-y-1.5 text-[11px]">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-400">申请单号</span>
+                        <span class="text-gray-700 font-mono">${item.id}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-400">审核说明</span>
+                        <span class="text-gray-700">${item.note}</span>
+                    </div>
+                    <div class="text-primary font-medium mt-1">
+                        <i class="fas fa-circle-info mr-1"></i>点击开户页可查看对应完整资料（原型示意）
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+renderRecords();
+</script>
+</body>
+</html>

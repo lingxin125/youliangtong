@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 方案B：深色玻璃态</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="shared.js"></script>
+    <!-- 方案B 样式覆盖：深色玻璃态 -->
+    <style>
+        /* ===== 方案标识 ===== */
+        .scheme-badge {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 9999;
+            background: linear-gradient(135deg, #1a472a, #0d2818);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            font-family: 'Noto Sans SC', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== 覆盖 mobile-container：恢复麦穗色底 + 保留装饰色块 ===== */
+        .mobile-container {
+            background: #FFFBF0 !important;
+            background-image: linear-gradient(180deg, rgba(200,146,42,0.10) 0%, rgba(255,251,240,0) 400px) !important;
+        }
+
+        /* 装饰性模糊色块 — 在麦穗底上提供微妙的色彩变化给玻璃态透视 */
+        .mobile-container::before {
+            content: '';
+            position: absolute;
+            top: 80px;
+            left: -40px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(17,166,74,0.12) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* 第二个装饰色块 */
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-orb-1 {
+            top: 200px;
+            right: -60px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(212,168,67,0.15) 0%, transparent 70%);
+        }
+        .bg-orb-2 {
+            top: 450px;
+            left: 50px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(17,166,74,0.08) 0%, transparent 70%);
+        }
+
+        /* ===== 覆盖 glass-panel：增强玻璃态 ===== */
+        .glass-panel {
+            background: rgba(255,255,255,0.55) !important;
+            backdrop-filter: blur(20px) saturate(1.4) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(1.4) !important;
+            border: 1px solid rgba(255,255,255,0.3) !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.4) !important;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== 覆盖 glass-card：增强玻璃态 ===== */
+        .glass-card {
+            background: rgba(255,255,255,0.50) !important;
+            backdrop-filter: blur(16px) saturate(1.3) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(1.3) !important;
+            border: 1px solid rgba(255,255,255,0.3) !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 1;
+        }
+        .glass-card:active {
+            transform: scale(0.98) !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+        }
+
+        /* ===== Hero 统计卡片：增强版玻璃态（麦穗底上不用深色） ===== */
+        .hero-dark {
+            background: rgba(255,255,255,0.60) !important;
+            backdrop-filter: blur(24px) saturate(1.5) !important;
+            -webkit-backdrop-filter: blur(24px) saturate(1.5) !important;
+            border: 1px solid rgba(255,255,255,0.4) !important;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.5) !important;
+        }
+        /* 麦穗底上文字保持深色，不需要反白 */
+        .hero-dark .text-gray-800 { color: #1f2937 !important; }
+        .hero-dark .text-gray-700 { color: #374151 !important; }
+        .hero-dark .text-gray-500 { color: #6b7280 !important; }
+        .hero-dark .text-gray-400 { color: #9ca3af !important; }
+        .hero-dark .text-primary { color: #11A64A !important; }
+        .hero-dark .bg-primary-bg { background: #F0FDF4 !important; }
+        .hero-dark .bg-blue-50 { background: #eff6ff !important; }
+        .hero-dark .bg-orange-50 { background: #fff7ed !important; }
+        .hero-dark .text-blue-500 { color: #3b82f6 !important; }
+        .hero-dark .text-orange-500 { color: #f97316 !important; }
+
+        /* ===== 快捷入口在深色区域的适配 ===== */
+        .grid-cols-4 .rounded-full {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            background: rgba(255,255,255,0.7) !important;
+            backdrop-filter: blur(8px);
+        }
+
+        /* ===== 内容区 z-index 确保在装饰色块之上 ===== */
+        .content-area {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== 修复遮罩层颜色：匹配麦穗色背景 ===== */
+        .mobile-container::after {
+            background: #FFFBF0 !important;
+        }
+
+        /* ===== 品类图标容器 ===== */
+        .cate-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .cate-icon.fruit  { background: rgba(46,125,50,0.12); color: #2E7D32; }
+        .cate-icon.veggie { background: rgba(230,81,0,0.10); color: #E65100; }
+        .cate-icon.grain  { background: rgba(245,127,23,0.10); color: #F57F17; }
+        .cate-icon.egg    { background: rgba(191,54,12,0.10); color: #BF360C; }
+    </style>
+</head>
+<body>
+<!-- 方案标识 -->
+<div class="scheme-badge">B · 深色玻璃态</div>
+
+<div class="mobile-container">
+    <!-- 装饰性色块 -->
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+
+    <!-- 状态栏 -->
+    <div id="statusBar"></div>
+    <!-- 导航栏 -->
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="content-area flex-1 overflow-y-auto no-scrollbar px-4 pb-4 space-y-4" style="padding-bottom:80px;">
+
+        <!-- 今日采购统计卡片 — 深色渐变 Hero -->
+        <div class="glass-panel hero-dark rounded-2xl p-5 mt-3">
+            <div class="flex items-center justify-between mb-1">
+                <span class="text-xs text-gray-500 font-medium">今日采购总额</span>
+                <span class="text-[10px] text-primary bg-primary-bg px-2 py-0.5 rounded-full font-medium">
+                    <i class="fas fa-arrow-up text-[8px] mr-0.5"></i>12.5% 环比
+                </span>
+            </div>
+            <div class="flex items-end gap-2 mb-3">
+                <span class="text-3xl font-bold text-gray-800" style="font-family:Poppins,sans-serif;">¥38,650</span>
+                <span class="text-xs text-gray-400 mb-1">.00</span>
+            </div>
+            <div class="flex gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <i class="fas fa-receipt text-blue-500 text-xs"></i>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400">采购笔数</div>
+                        <div class="text-sm font-bold text-gray-700">24笔</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                        <i class="fas fa-users text-orange-500 text-xs"></i>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400">供应商数</div>
+                        <div class="text-sm font-bold text-gray-700">8家</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 品类明细网格 -->
+        <div class="grid grid-cols-2 gap-3">
+            <div class="glass-card rounded-xl p-3.5">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="cate-icon fruit"><i class="fas fa-apple-whole"></i></div>
+                    <span class="text-xs font-medium text-gray-600">水果</span>
+                </div>
+                <div class="text-lg font-bold text-gray-800" style="font-family:Poppins;">¥12,400</div>
+                <div class="text-[10px] text-gray-400 mt-0.5">8笔交易</div>
+            </div>
+            <div class="glass-card rounded-xl p-3.5">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="cate-icon veggie"><i class="fas fa-carrot"></i></div>
+                    <span class="text-xs font-medium text-gray-600">蔬菜</span>
+                </div>
+                <div class="text-lg font-bold text-gray-800" style="font-family:Poppins;">¥9,800</div>
+                <div class="text-[10px] text-gray-400 mt-0.5">6笔交易</div>
+            </div>
+            <div class="glass-card rounded-xl p-3.5">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="cate-icon grain"><i class="fas fa-wheat-awn"></i></div>
+                    <span class="text-xs font-medium text-gray-600">粮食</span>
+                </div>
+                <div class="text-lg font-bold text-gray-800" style="font-family:Poppins;">¥11,250</div>
+                <div class="text-[10px] text-gray-400 mt-0.5">7笔交易</div>
+            </div>
+            <div class="glass-card rounded-xl p-3.5">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="cate-icon egg"><i class="fas fa-egg"></i></div>
+                    <span class="text-xs font-medium text-gray-600">禽蛋</span>
+                </div>
+                <div class="text-lg font-bold text-gray-800" style="font-family:Poppins;">¥5,200</div>
+                <div class="text-[10px] text-gray-400 mt-0.5">3笔交易</div>
+            </div>
+        </div>
+
+        <!-- 年度采购趋势图 -->
+        <div class="glass-panel rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-medium text-gray-700">采购趋势</span>
+                <span class="text-[10px] text-gray-400">近6个月</span>
+            </div>
+            <div id="trendChart" style="width:100%;height:180px;"></div>
+        </div>
+
+        <!-- 快捷入口 -->
+        <div class="grid grid-cols-4 gap-2 py-1">
+            <a href="buyer-market.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <i class="fas fa-bullhorn text-primary text-lg"></i>
+                </div>
+                <span class="text-[10px] text-gray-600 font-medium">发布需求</span>
+            </a>
+            <a href="buyer-contacts.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
+                    <i class="fas fa-address-book text-blue-500 text-lg"></i>
+                </div>
+                <span class="text-[10px] text-gray-600 font-medium">常用人</span>
+            </a>
+            <a href="buyer-orders.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                <div class="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center">
+                    <i class="fas fa-search text-orange-500 text-lg"></i>
+                </div>
+                <span class="text-[10px] text-gray-600 font-medium">订单查询</span>
+            </a>
+            <a href="#" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                <div class="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center">
+                    <i class="fas fa-qrcode text-purple-500 text-lg"></i>
+                </div>
+                <span class="text-[10px] text-gray-600 font-medium">收款码</span>
+            </a>
+        </div>
+
+        <!-- 我关注的 -->
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">我关注的</span>
+                <a href="buyer-market.html" class="text-[10px] text-primary no-underline" style="text-decoration:none;">查看更多 <i class="fas fa-chevron-right text-[8px]"></i></a>
+            </div>
+            <div class="space-y-2.5">
+                <!-- 推荐卡片1 -->
+                <a href="buyer-market.html" class="glass-card rounded-xl p-3.5 flex gap-3 no-underline" style="text-decoration:none;display:flex;">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">水果</span>
+                            <span class="text-[10px] text-gray-400">3分钟前</span>
+                        </div>
+                        <div class="text-sm text-gray-800 font-medium mb-1">收购红富士苹果 500斤</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥3.5/斤</span>
+                            <span class="text-[10px] text-gray-400"><i class="fas fa-map-marker-alt mr-0.5"></i>山东烟台</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            <i class="fas fa-user text-gray-400 text-sm"></i>
+                        </div>
+                        <span class="text-[9px] text-gray-400">张老板</span>
+                    </div>
+                </a>
+                <!-- 推荐卡片2 -->
+                <a href="buyer-market.html" class="glass-card rounded-xl p-3.5 flex gap-3 no-underline" style="text-decoration:none;display:flex;">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="text-[10px] bg-orange-500/10 text-orange-600 px-1.5 py-0.5 rounded font-medium">蔬菜</span>
+                            <span class="text-[10px] text-gray-400">15分钟前</span>
+                        </div>
+                        <div class="text-sm text-gray-800 font-medium mb-1">大量收购有机西红柿</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥2.8/斤</span>
+                            <span class="text-[10px] text-gray-400"><i class="fas fa-map-marker-alt mr-0.5"></i>河北保定</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            <i class="fas fa-user text-gray-400 text-sm"></i>
+                        </div>
+                        <span class="text-[9px] text-gray-400">李经理</span>
+                    </div>
+                </a>
+                <!-- 推荐卡片3 -->
+                <a href="buyer-market.html" class="glass-card rounded-xl p-3.5 flex gap-3 no-underline" style="text-decoration:none;display:flex;">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="text-[10px] bg-yellow-500/10 text-yellow-700 px-1.5 py-0.5 rounded font-medium">粮食</span>
+                            <span class="text-[10px] text-gray-400">1小时前</span>
+                        </div>
+                        <div class="text-sm text-gray-800 font-medium mb-1">收购东北大米 2000斤</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥2.2/斤</span>
+                            <span class="text-[10px] text-gray-400"><i class="fas fa-map-marker-alt mr-0.5"></i>黑龙江哈尔滨</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            <i class="fas fa-user text-gray-400 text-sm"></i>
+                        </div>
+                        <span class="text-[9px] text-gray-400">王大哥</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div id="tabBar"></div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('邮粮通 · 方案B');
+document.getElementById('tabBar').innerHTML = renderBuyerTabBar('home');
+
+// ECharts 采购趋势图
+const chart = echarts.init(document.getElementById('trendChart'));
+chart.setOption({
+    grid: { left: 0, right: 0, top: 10, bottom: 20, containLabel: true },
+    xAxis: {
+        type: 'category',
+        data: ['9月', '10月', '11月', '12月', '1月', '2月'],
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { fontSize: 10, color: '#9CA3AF' }
+    },
+    yAxis: { type: 'value', show: false },
+    series: [{
+        type: 'bar',
+        data: [82, 93, 78, 105, 120, 115],
+        barWidth: 28,
+        itemStyle: {
+            borderRadius: [6, 6, 0, 0],
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#60A5FA' },
+                { offset: 1, color: '#3B82F6' }
+            ])
+        },
+        emphasis: {
+            itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#93C5FD' },
+                    { offset: 1, color: '#60A5FA' }
+                ])
+            }
+        }
+    }],
+    tooltip: {
+        trigger: 'axis',
+        formatter: '{b}<br/>采购额: ¥{c}万',
+        backgroundColor: 'rgba(255,255,255,0.9)',
+        borderColor: '#E5E7EB',
+        textStyle: { color: '#374151', fontSize: 11 }
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 农户首页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4 space-y-4" style="padding-bottom:80px;">
+
+        <!-- Hero: 今日收款总额 (品牌绿渐变 + 白色文字) -->
+        <div class="rounded-2xl p-4 mt-3" style="background:linear-gradient(135deg,#11A64A 0%,#2EBD5E 100%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 8px 24px rgba(17,166,74,0.20),0 4px 8px rgba(17,166,74,0.10);">
+            <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs text-white/70 font-medium">今日收款总额</span>
+                    <i id="eyeIcon" class="fas fa-eye text-white/50 text-[10px] cursor-pointer" onclick="toggleMask()"></i>
+                </div>
+                <span class="text-[10px] text-white bg-white/15 px-2 py-0.5 rounded-full font-medium">
+                    <i class="fas fa-arrow-up text-[8px] mr-0.5"></i>12.3% 日环比
+                </span>
+            </div>
+            <div class="flex items-center">
+                <span id="heroAmount" class="text-3xl font-bold text-white" style="font-family:Poppins,sans-serif;">¥8,650</span>
+                <span id="heroCent" class="text-xs text-white/50 self-end mb-0.5">.00</span>
+                <span class="self-end mb-0.5 ml-2">
+                    <span class="text-[10px] text-white/60">收款</span>
+                    <span id="heroCountNum" class="text-[11px] font-bold text-white mx-0.5" style="font-family:Poppins;">12</span>
+                    <span class="text-[10px] text-white/60">笔</span>
+                </span>
+            </div>
+
+            <!-- 本月 & 本年统计 -->
+            <div class="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-white/10">
+                <!-- 本月 -->
+                <div>
+                    <div class="text-[10px] text-white/50 mb-1">本月累计收款</div>
+                    <div class="text-base font-bold text-white" style="font-family:Poppins;">¥128,500</div>
+                    <div class="text-[11px] text-white/70 mt-0.5">共 <span class="text-white" style="font-family:Poppins;">156</span> 笔</div>
+                </div>
+                <!-- 本年 -->
+                <div class="border-l border-white/10 pl-4">
+                    <div class="text-[10px] text-white/50 mb-1">本年累计收款</div>
+                    <div class="text-base font-bold text-white" style="font-family:Poppins;">¥1,256,000</div>
+                    <div class="text-[11px] text-white/70 mt-0.5">共 <span class="text-white" style="font-family:Poppins;">1,892</span> 笔</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快捷入口（4列网格，卡片包裹） -->
+        <div class="glass-panel rounded-2xl py-4 px-2">
+            <div class="grid grid-cols-4">
+                <a href="farmer-publish.html?source=home" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                    <div class="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
+                        <i class="fas fa-bullhorn text-primary text-base"></i>
+                    </div>
+                    <span class="text-[10px] text-gray-600 font-medium">发布销售</span>
+                </a>
+                <a href="farmer-collection.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                    <div class="w-11 h-11 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                        <i class="fas fa-qrcode text-emerald-600 text-base"></i>
+                    </div>
+                    <span class="text-[10px] text-gray-600 font-medium">收款码</span>
+                </a>
+                <a href="farmer-collection-records.html?source=home" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                    <div class="w-11 h-11 rounded-full bg-blue-500/10 flex items-center justify-center">
+                        <i class="fas fa-list-alt text-blue-500 text-base"></i>
+                    </div>
+                    <span class="text-[10px] text-gray-600 font-medium">收款记录</span>
+                </a>
+                <a href="farmer-notifications.html?source=home" class="flex flex-col items-center gap-1.5 no-underline relative" style="text-decoration:none;">
+                    <div class="w-11 h-11 rounded-full bg-orange-50 flex items-center justify-center">
+                        <i class="fas fa-bell text-orange-500 text-base"></i>
+                        <span class="absolute top-1 right-1 min-w-[16px] h-4 bg-red-500 rounded-full text-white text-[10px] font-medium flex items-center justify-center px-1">3</span>
+                    </div>
+                    <span class="text-[10px] text-gray-600 font-medium">消息通知</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 我关注的采购需求 -->
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                    <div class="w-[3px] h-[14px] rounded-sm bg-primary"></div>
+                    <span class="text-sm font-medium text-gray-700">我关注的采购需求</span>
+                </div>
+                <a href="farmer-market.html?focus=1" class="text-[10px] text-primary no-underline" style="text-decoration:none;">查看更多 <i class="fas fa-chevron-right text-[8px]"></i></a>
+            </div>
+            <div id="followedDemandsContainer">
+                <!-- 动态内容由 renderFollowedDemands() 渲染 -->
+            </div>
+        </div>
+
+        <!-- 我发布的销售需求 -->
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                    <div class="w-[3px] h-[14px] rounded-sm bg-primary"></div>
+                    <span class="text-sm font-medium text-gray-700">我发布的销售需求</span>
+                </div>
+                <a href="farmer-demand-manage.html" class="text-[10px] text-primary no-underline" style="text-decoration:none;">查看更多 <i class="fas fa-chevron-right text-[8px]"></i></a>
+            </div>
+            <div class="space-y-2.5">
+                <!-- 需求1：有咨询（高优先级） -->
+                <a href="farmer-publish.html?mode=edit&id=F1&source=home" class="glass-card rounded-xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
+                    <div class="flex justify-between items-start mb-1.5">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] bg-red-50 text-red-500 px-1.5 py-0.5 rounded font-medium">水果</span>
+                            <span class="text-[10px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded flex items-center gap-0.5"><i class="fas fa-weight-hanging text-[8px]"></i>5000斤</span>
+                        </div>
+                        <span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium absolute right-3 top-3.5">进行中</span>
+                    </div>
+                    <div class="text-sm text-gray-800 font-medium mb-1 truncate">出售红富士苹果 5000斤</div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥2.6/斤</span>
+                        <span class="text-[10px] text-gray-400 absolute right-3 bottom-3.5">5分钟前</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>
+                </a>
+                <!-- 需求2：普通状态 -->
+                <a href="farmer-publish.html?mode=edit&id=F2&source=home" class="glass-card rounded-xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
+                    <div class="flex justify-between items-start mb-1.5">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded font-medium">蔬菜</span>
+                            <span class="text-[10px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded flex items-center gap-0.5"><i class="fas fa-weight-hanging text-[8px]"></i>3000斤</span>
+                        </div>
+                        <span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium absolute right-3 top-3.5">进行中</span>
+                    </div>
+                    <div class="text-sm text-gray-800 font-medium mb-1 truncate">出售有机西红柿 3000斤</div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥2.3/斤</span>
+                        <span class="text-[10px] text-gray-400 absolute right-3 bottom-3.5">18分钟前</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>
+                </a>
+                <!-- 需求3：已下架 -->
+                <a href="farmer-publish.html?mode=edit&id=F3&source=home" class="glass-card rounded-xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
+                    <div class="flex justify-between items-start mb-1.5">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded font-medium">粮油</span>
+                            <span class="text-[10px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded flex items-center gap-0.5"><i class="fas fa-weight-hanging text-[8px]"></i>2000斤</span>
+                        </div>
+                        <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium absolute right-3 top-3.5">已下架</span>
+                    </div>
+                    <div class="text-sm text-gray-800 font-medium mb-1 truncate">出售东北大米 2000斤</div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥2.2/斤</span>
+                        <span class="text-[10px] text-gray-400 absolute right-3 bottom-3.5">1小时前</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+    <div id="tabBar"></div>
+</div>
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('邮粮通');
+document.getElementById('tabBar').innerHTML = renderFarmerTabBar('home');
+
+// ==================== 金额脱敏切换 ====================
+var _masked = false;
+function toggleMask() {
+    _masked = !_masked;
+    var icon = document.getElementById('eyeIcon');
+    var amount = document.getElementById('heroAmount');
+    var cent = document.getElementById('heroCent');
+    var countNum = document.getElementById('heroCountNum');
+    icon.className = _masked ? 'fas fa-eye-slash text-white/50 text-[10px] cursor-pointer' : 'fas fa-eye text-white/50 text-[10px] cursor-pointer';
+    // 脱敏时隐藏 ¥ 符号，只显示 ****
+    amount.textContent = _masked ? '****' : '¥8,650';
+    cent.textContent = _masked ? '' : '.00';
+    countNum.textContent = _masked ? '***' : '12';
+}
+
+// ==================== 我关注的采购需求模块 ====================
+var KEYWORD_STORAGE_KEY = 'ylt_keywords_farmer_v1';
+
+function loadKeywords() {
+    try {
+        var raw = window.localStorage.getItem(KEYWORD_STORAGE_KEY);
+        if (!raw) return [];
+        var parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map(function(k) { return String(k || '').trim(); }).filter(Boolean);
+    } catch (err) {
+        return [];
+    }
+}
+
+function getCategoryByKeyword(keyword) {
+    var map = {
+        '苹果': '水果', '葡萄': '水果', '猕猴桃': '水果', '橙子': '水果', '梨': '水果',
+        '西红柿': '蔬菜', '黄瓜': '蔬菜', '茄子': '蔬菜', '辣椒': '蔬菜', '大蒜': '蔬菜', '木耳': '蔬菜',
+        '小麦': '粮油', '玉米': '粮油', '大米': '粮油', '花生': '粮油',
+        '鸡蛋': '禽蛋', '鸭蛋': '禽蛋', '鹅蛋': '禽蛋',
+        '猪肉': '肉类', '牛肉': '肉类', '羊肉': '肉类', '鸡肉': '肉类'
+    };
+    for (var k in map) {
+        if (keyword.indexOf(k) !== -1) return map[k];
+    }
+    return '其他';
+}
+
+function getCategoryClass(category) {
+    var classes = {
+        '水果': 'bg-red-50 text-red-500',
+        '蔬菜': 'bg-green-50 text-green-500',
+        '粮油': 'bg-amber-50 text-amber-500',
+        '禽蛋': 'bg-violet-50 text-violet-500',
+        '肉类': 'bg-orange-50 text-orange-500',
+        '其他': 'bg-gray-100 text-gray-400'
+    };
+    return classes[category] || 'bg-gray-100 text-gray-400';
+}
+
+function renderFollowedDemands() {
+    var keywords = loadKeywords();
+    var container = document.getElementById('followedDemandsContainer');
+
+    if (keywords.length === 0) {
+        // 空状态
+        container.innerHTML = '<div class="glass-card rounded-xl p-5 text-center">' +
+            '<div class="text-sm text-gray-500 mb-1">未设置关注关键词</div>' +
+            '<div class="text-[11px] text-gray-400 mb-3">设置关键词后，可快速查看相关采购需求</div>' +
+            '<a href="farmer-keywords.html?source=home" class="inline-block text-[11px] text-primary font-medium bg-green-50 border border-green-200 rounded-full px-4 py-1.5 no-underline" style="text-decoration:none;">去设置关键词 ></a>' +
+            '</div>';
+        return;
+    }
+
+    // 根据关键词生成模拟数据
+    var mockDemands = [
+        { id: 'B1', keyword: '小麦', content: '大量收购优质小麦 5000斤', qty: 5000, unit: '斤', price: 1.8, location: '河南郑州', distanceKm: 9.2, time: '10分钟前' },
+        { id: 'B2', keyword: '苹果', content: '收购红富士苹果 2000斤', qty: 2000, unit: '斤', price: 3.2, location: '山东烟台', distanceKm: 2.6, time: '28分钟前' },
+        { id: 'B3', keyword: '西红柿', content: '收购有机西红柿 800斤', qty: 800, unit: '斤', price: 2.5, location: '河北保定', distanceKm: 12.4, time: '1小时前' }
+    ];
+
+    // 过滤匹配关键词的数据
+    var matchedDemands = mockDemands.filter(function(item) {
+        return keywords.some(function(kw) {
+            return item.content.indexOf(kw) !== -1 || item.keyword.indexOf(kw) !== -1;
+        });
+    });
+
+    // 如果没有匹配数据，展示空状态但提示已设置关键词
+    if (matchedDemands.length === 0) {
+        matchedDemands = mockDemands.slice(0, 2); // 默认展示2条示例
+    }
+
+    var html = '<div class="space-y-2.5">';
+    html += matchedDemands.map(function(item) {
+        var category = getCategoryByKeyword(item.keyword);
+        var catClass = getCategoryClass(category);
+        return '<a href="farmer-demand-detail.html?source=home" class="glass-card rounded-xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">' +
+            '<div class="flex justify-between items-start mb-1.5">' +
+            '<div class="flex items-center gap-1.5">' +
+            '<span class="text-[10px] ' + catClass + ' px-1.5 py-0.5 rounded font-medium">' + category + '</span>' +
+            '<span class="text-[10px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded flex items-center gap-0.5"><i class="fas fa-weight-hanging text-[8px]"></i>' + item.qty + item.unit + '</span>' +
+            '</div>' +
+            '<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium absolute right-3 top-3.5">进行中</span>' +
+            '</div>' +
+            '<div class="text-sm text-gray-800 font-medium mb-1 truncate">' + item.content + '</div>' +
+            '<div class="flex items-center justify-between">' +
+            '<div class="flex items-center gap-3">' +
+            '<span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥' + item.price + '/斤</span>' +
+            '<span class="text-[10px] text-gray-400"><i class="fas fa-location-dot mr-0.5"></i>' + item.distanceKm + 'km</span>' +
+            '</div>' +
+            '<span class="text-[10px] text-gray-400 absolute right-3 bottom-3.5">' + item.time + '</span>' +
+            '</div>' +
+            '<i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>' +
+            '</a>';
+    }).join('');
+    html += '</div>';
+
+    container.innerHTML = html;
+}
+
+// 页面加载时渲染
+document.addEventListener('DOMContentLoaded', function() {
+    renderFollowedDemands();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 商户查询</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .postal-bg { background: #F5F7FA; }
+
+        .search-box {
+            background: #fff;
+            border-radius: 24px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        .filter-tab {
+            padding: 6px 14px;
+            font-size: 13px;
+            color: #666;
+            background: #fff;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .filter-tab.active {
+            background: #11A64A;
+            color: #fff;
+        }
+
+        .user-item {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.04);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .user-item:active {
+            transform: scale(0.98);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .type-tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .type-tag.buyer {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        .type-tag.farmer {
+            background: #FFF3E0;
+            color: #F59E0B;
+        }
+
+        .status-tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .status-tag.pending {
+            background: #FFF3E0;
+            color: #F59E0B;
+        }
+        .status-tag.completed {
+            background: #E8F5E9;
+            color: #11A64A;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container postal-bg">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:20px;">
+
+        <!-- 搜索框 -->
+        <div class="search-box mt-3">
+            <i class="fas fa-search text-gray-400 mr-3"></i>
+            <input type="text" class="flex-1 bg-transparent outline-none text-sm" placeholder="搜索商户名称/手机号" id="searchInput" oninput="searchUsers()">
+        </div>
+
+        <!-- 筛选标签：审核中/已进件 -->
+        <div class="flex gap-2 mt-3">
+            <div class="filter-tab active" onclick="filterStatus(this, 'all')">全部</div>
+            <div class="filter-tab" onclick="filterStatus(this, 'pending')">审核中</div>
+            <div class="filter-tab" onclick="filterStatus(this, 'completed')">已进件</div>
+        </div>
+
+        <!-- 用户列表 -->
+        <div id="userList" class="mt-4">
+            <!-- 动态渲染 -->
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('商户查询', 'manager-home.html');
+
+// Mock 数据
+const users = [
+    { name: '丰收粮油贸易有限公司', short: '丰收粮油', type: 'buyer', person: '张明', phone: '138****5678', time: '2024-12-20', status: 'completed', trades: 156, amount: '328.5万', avatar: '#3B82F6' },
+    { name: '王建国家庭农场', short: '王大叔农场', type: 'farmer', person: '王建国', phone: '139****1234', time: '2024-11-15', status: 'completed', trades: 89, amount: '45.2万', avatar: '#F59E0B' },
+    { name: '绿源蔬菜批发有限公司', short: '绿源蔬菜', type: 'buyer', person: '李芳', phone: '137****9876', time: '2024-10-08', status: 'pending', trades: 234, amount: '512.8万', avatar: '#10B981' },
+    { name: '李大伟果园', short: '李家果园', type: 'farmer', person: '李大伟', phone: '136****5432', time: '2024-09-22', status: 'pending', trades: 67, amount: '28.6万', avatar: '#8B5CF6' },
+    { name: '金穗米业有限公司', short: '金穗米业', type: 'buyer', person: '陈志强', phone: '135****8765', time: '2024-08-10', status: 'completed', trades: 312, amount: '876.3万', avatar: '#EF4444' },
+];
+
+let currentStatus = 'all';
+let searchKey = '';
+
+function filterStatus(el, status) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    currentStatus = status;
+    renderUsers();
+}
+
+function searchUsers() {
+    searchKey = document.getElementById('searchInput').value.trim().toLowerCase();
+    renderUsers();
+}
+
+function renderUsers() {
+    let filtered = users.filter(u => {
+        if (currentStatus !== 'all' && u.status !== currentStatus) return false;
+        if (searchKey && !u.name.toLowerCase().includes(searchKey) && !u.short.toLowerCase().includes(searchKey) && !u.phone.includes(searchKey)) return false;
+        return true;
+    });
+
+    const html = filtered.map(u => `
+        <div class="user-item" onclick="goDetail('${u.name}')">
+            <div class="flex items-center gap-3">
+                <div class="avatar" style="background:${u.avatar}">${u.short[0]}</div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-sm font-medium text-gray-800">${u.short}</span>
+                        <span class="type-tag ${u.type}">${u.type === 'buyer' ? '收购商' : '农户'}</span>
+                        <span class="status-tag ${u.status}">${u.status === 'pending' ? '审核中' : '已进件'}</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs text-gray-500">
+                        <span><i class="fas fa-user mr-1"></i>${u.person}</span>
+                        <span><i class="fas fa-phone mr-1"></i>${u.phone}</span>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-1"><i class="far fa-clock mr-1"></i>开户时间: ${u.time}</div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300"></i>
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('userList').innerHTML = html || '<div class="text-center text-gray-400 text-sm py-10">暂无商户</div>';
+}
+
+function goDetail(name) {
+    const u = users.find(x => x.name === name);
+    const params = new URLSearchParams({
+        name: u.name, short: u.short, type: u.type, person: u.person,
+        phone: u.phone, time: u.time, status: u.status,
+        trades: u.trades, amount: u.amount
+    });
+    window.location.href = 'manager-user-detail.html?' + params.toString();
+}
+
+renderUsers();
+</script>
+</body>
+</html>

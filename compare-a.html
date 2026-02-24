@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 方案A：温润实体卡片</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="shared.js"></script>
+    <!-- 方案A 样式覆盖：温润实体卡片 -->
+    <style>
+        /* ===== 方案标识 ===== */
+        .scheme-badge {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            z-index: 9999;
+            background: linear-gradient(135deg, #11A64A, #2E7D32);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(17,166,74,0.3);
+            font-family: 'Noto Sans SC', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== 三级 Elevation 阴影体系 ===== */
+        .elevation-1 {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .elevation-2 {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .elevation-3 {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06);
+        }
+
+        /* ===== 覆盖 mobile-container：增加背景纹理层次 ===== */
+        .mobile-container {
+            background: #FFFBF0;
+            /* 叠加淡绿径向渐变作为桥梁色 + 原有的顶部暖金渐变 */
+            background-image:
+                radial-gradient(ellipse at 30% 20%, rgba(200,230,201,0.25) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(200,230,201,0.15) 0%, transparent 45%),
+                linear-gradient(180deg, rgba(200,146,42,0.10) 0%, rgba(255,251,240,0) 400px);
+        }
+
+        /* ===== 覆盖 glass-panel：纯白不透明 + Level 3 阴影 ===== */
+        .glass-panel {
+            background: #FFFFFF !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1px solid rgba(0,0,0,0.04) !important;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06) !important;
+        }
+
+        /* ===== 覆盖 glass-card：纯白不透明 + Level 1 阴影 ===== */
+        .glass-card {
+            background: #FFFFFF !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: 1px solid rgba(0,0,0,0.04) !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== glass-card active 态：阴影收缩 + 物理按压反馈 ===== */
+        .glass-card:active {
+            transform: scale(0.98) !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+        }
+
+        /* ===== 品类网格卡片提升为 Level 2 ===== */
+        .grid .glass-card {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04) !important;
+        }
+        .grid .glass-card:active {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+        }
+
+        /* ===== 图表面板：Level 2 ===== */
+        .glass-panel + .glass-panel,
+        .glass-panel:last-of-type {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04) !important;
+        }
+
+        /* ===== 第一个 glass-panel（Hero 统计卡片）保持 Level 3 ===== */
+        .glass-panel:first-child {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06) !important;
+        }
+
+        /* ===== 快捷入口圆形按钮增加微阴影 ===== */
+        .grid-cols-4 .rounded-full {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.2s ease;
+        }
+        .grid-cols-4 a:active .rounded-full {
+            transform: scale(0.92);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        /* ===== 桥梁色：hover 态淡绿背景（触摸设备用 active 模拟） ===== */
+        .glass-card:hover {
+            background: #FAFFFE !important;
+        }
+
+        /* ===== 留白节奏优化 ===== */
+        /* Hero 统计卡片增加底部间距 */
+        .glass-panel:first-child {
+            margin-bottom: 4px;
+        }
+
+        /* ===== 品类图标容器 ===== */
+        .cate-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .cate-icon.fruit  { background: #E8F5E9; color: #2E7D32; }
+        .cate-icon.veggie { background: #FFF3E0; color: #E65100; }
+        .cate-icon.grain  { background: #FFF8E1; color: #F57F17; }
+        .cate-icon.egg    { background: #FBE9E7; color: #BF360C; }
+    </style>
+</head>
+<body>
+<!-- 方案标识 -->
+<div class="scheme-badge">A · 温润实体卡片</div>
+
+<div class="mobile-container">
+    <!-- 状态栏 -->
+    <div id="statusBar"></div>
+    <!-- 导航栏 -->
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4 space-y-4" style="padding-bottom:80px;">
+
+        <!-- 今日采购统计卡片 — Level 3 Elevation -->
+        <div class="glass-panel rounded-2xl p-5 mt-3">
+            <div class="flex items-center justify-between mb-1">
+                <span class="text-xs text-gray-500 font-medium">今日采购总额</span>
+                <span class="text-[10px] text-primary bg-primary-bg px-2 py-0.5 rounded-full font-medium">
+                    <i class="fas fa-arrow-up text-[8px] mr-0.5"></i>12.5% 环比
+                </span>
+            </div>
+            <div class="flex items-end gap-2 mb-3">
+                <span class="text-3xl font-bold text-gray-800" style="font-family:Poppins,sans-serif;">¥38,650</span>
+                <span class="text-xs text-gray-400 mb-1">.00</span>
+            </div>
+            <div class="flex gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <i class="fas fa-receipt text-blue-500 text-xs"></i>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400">采购笔数</div>
+                        <div class="text-sm font-bold text-gray-700">24笔</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                        <i class="fas fa-users text-orange-500 text-xs"></i>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-400">供应商数</div>
+                        <div class="text-sm font-bold text-gray-700">8家</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 品类明细网格 — Level 2 Elevation -->
+        <div class="grid grid-cols-2 gap-3">
+            <div class="glass-card rounded-xl p-3.5">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="cate-icon fruit"><i class="fas fa-apple-whole"></i></div>
+                    <span class="text-xs font-medium text-gray-600">水果</span>
+                </div>
+                <div class="text-lg font-bold text-gray-800" style="font-family:Poppins;">¥12,400</div>
+                <div class="text-[10px] text-gray-400 mt-0.5">8笔交易</div>
+            </div>
+            <div class="glass-card rounded-xl p-3.5">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="cate-icon veggie"><i class="fas fa-carrot"></i></div>
+                    <span class="text-xs font-medium text-gray-600">蔬菜</span>
+                </div>
+                <div class="text-lg font-bold text-gray-800" style="font-family:Poppins;">¥9,800</div>
+                <div class="text-[10px] text-gray-400 mt-0.5">6笔交易</div>
+            </div>
+            <div class="glass-card rounded-xl p-3.5">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="cate-icon grain"><i class="fas fa-wheat-awn"></i></div>
+                    <span class="text-xs font-medium text-gray-600">粮食</span>
+                </div>
+                <div class="text-lg font-bold text-gray-800" style="font-family:Poppins;">¥11,250</div>
+                <div class="text-[10px] text-gray-400 mt-0.5">7笔交易</div>
+            </div>
+            <div class="glass-card rounded-xl p-3.5">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="cate-icon egg"><i class="fas fa-egg"></i></div>
+                    <span class="text-xs font-medium text-gray-600">禽蛋</span>
+                </div>
+                <div class="text-lg font-bold text-gray-800" style="font-family:Poppins;">¥5,200</div>
+                <div class="text-[10px] text-gray-400 mt-0.5">3笔交易</div>
+            </div>
+        </div>
+
+        <!-- 年度采购趋势图 — Level 2 Elevation -->
+        <div class="glass-panel rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-medium text-gray-700">采购趋势</span>
+                <span class="text-[10px] text-gray-400">近6个月</span>
+            </div>
+            <div id="trendChart" style="width:100%;height:180px;"></div>
+        </div>
+
+        <!-- 快捷入口 -->
+        <div class="grid grid-cols-4 gap-2 py-1">
+            <a href="buyer-market.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <i class="fas fa-bullhorn text-primary text-lg"></i>
+                </div>
+                <span class="text-[10px] text-gray-600 font-medium">发布需求</span>
+            </a>
+            <a href="buyer-contacts.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
+                    <i class="fas fa-address-book text-blue-500 text-lg"></i>
+                </div>
+                <span class="text-[10px] text-gray-600 font-medium">常用人</span>
+            </a>
+            <a href="buyer-orders.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                <div class="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center">
+                    <i class="fas fa-search text-orange-500 text-lg"></i>
+                </div>
+                <span class="text-[10px] text-gray-600 font-medium">订单查询</span>
+            </a>
+            <a href="#" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                <div class="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center">
+                    <i class="fas fa-qrcode text-purple-500 text-lg"></i>
+                </div>
+                <span class="text-[10px] text-gray-600 font-medium">收款码</span>
+            </a>
+        </div>
+
+        <!-- 我关注的 -->
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">我关注的</span>
+                <a href="buyer-market.html" class="text-[10px] text-primary no-underline" style="text-decoration:none;">查看更多 <i class="fas fa-chevron-right text-[8px]"></i></a>
+            </div>
+            <div class="space-y-2.5">
+                <!-- 推荐卡片1 -->
+                <a href="buyer-market.html" class="glass-card rounded-xl p-3.5 flex gap-3 no-underline" style="text-decoration:none;display:flex;">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">水果</span>
+                            <span class="text-[10px] text-gray-400">3分钟前</span>
+                        </div>
+                        <div class="text-sm text-gray-800 font-medium mb-1">收购红富士苹果 500斤</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥3.5/斤</span>
+                            <span class="text-[10px] text-gray-400"><i class="fas fa-map-marker-alt mr-0.5"></i>山东烟台</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            <i class="fas fa-user text-gray-400 text-sm"></i>
+                        </div>
+                        <span class="text-[9px] text-gray-400">张老板</span>
+                    </div>
+                </a>
+                <!-- 推荐卡片2 -->
+                <a href="buyer-market.html" class="glass-card rounded-xl p-3.5 flex gap-3 no-underline" style="text-decoration:none;display:flex;">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="text-[10px] bg-orange-500/10 text-orange-600 px-1.5 py-0.5 rounded font-medium">蔬菜</span>
+                            <span class="text-[10px] text-gray-400">15分钟前</span>
+                        </div>
+                        <div class="text-sm text-gray-800 font-medium mb-1">大量收购有机西红柿</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥2.8/斤</span>
+                            <span class="text-[10px] text-gray-400"><i class="fas fa-map-marker-alt mr-0.5"></i>河北保定</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            <i class="fas fa-user text-gray-400 text-sm"></i>
+                        </div>
+                        <span class="text-[9px] text-gray-400">李经理</span>
+                    </div>
+                </a>
+                <!-- 推荐卡片3 -->
+                <a href="buyer-market.html" class="glass-card rounded-xl p-3.5 flex gap-3 no-underline" style="text-decoration:none;display:flex;">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <span class="text-[10px] bg-yellow-500/10 text-yellow-700 px-1.5 py-0.5 rounded font-medium">粮食</span>
+                            <span class="text-[10px] text-gray-400">1小时前</span>
+                        </div>
+                        <div class="text-sm text-gray-800 font-medium mb-1">收购东北大米 2000斤</div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥2.2/斤</span>
+                            <span class="text-[10px] text-gray-400"><i class="fas fa-map-marker-alt mr-0.5"></i>黑龙江哈尔滨</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            <i class="fas fa-user text-gray-400 text-sm"></i>
+                        </div>
+                        <span class="text-[9px] text-gray-400">王大哥</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div id="tabBar"></div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('邮粮通 · 方案A');
+document.getElementById('tabBar').innerHTML = renderBuyerTabBar('home');
+
+// ECharts 采购趋势图
+const chart = echarts.init(document.getElementById('trendChart'));
+chart.setOption({
+    grid: { left: 0, right: 0, top: 10, bottom: 20, containLabel: true },
+    xAxis: {
+        type: 'category',
+        data: ['9月', '10月', '11月', '12月', '1月', '2月'],
+        axisLine: { show: false },
+        axisTick: { show: false },
+        axisLabel: { fontSize: 10, color: '#9CA3AF' }
+    },
+    yAxis: { type: 'value', show: false },
+    series: [{
+        type: 'bar',
+        data: [82, 93, 78, 105, 120, 115],
+        barWidth: 28,
+        itemStyle: {
+            borderRadius: [6, 6, 0, 0],
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#60A5FA' },
+                { offset: 1, color: '#3B82F6' }
+            ])
+        },
+        emphasis: {
+            itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#93C5FD' },
+                    { offset: 1, color: '#60A5FA' }
+                ])
+            }
+        }
+    }],
+    tooltip: {
+        trigger: 'axis',
+        formatter: '{b}<br/>采购额: ¥{c}万',
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        borderColor: '#E5E7EB',
+        textStyle: { color: '#374151', fontSize: 11 }
+    }
+});
+</script>
+</body>
+</html>

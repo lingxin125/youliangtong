@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 我的</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="shared.js"></script>
+</head>
+<body>
+<div class="mobile-container">
+    <!-- 状态栏 -->
+    <div id="statusBar"></div>
+    <!-- 导航栏 -->
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4 space-y-4" style="padding-bottom:80px;">
+
+        <!-- 用户信息卡片 -->
+        <a href="buyer-profile.html" class="glass-panel rounded-2xl p-5 mt-3 block no-underline active:scale-[0.98] transition-transform" style="text-decoration:none;">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face" alt="头像" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-base font-bold text-gray-800">张伟</span>
+                        <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">收购商</span>
+                    </div>
+                    <div class="text-xs text-gray-400" style="font-family:Poppins;">6026245559 | 张三的粮站</div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+            </div>
+        </a>
+
+        <!-- 功能菜单 -->
+        <div class="bg-white rounded-2xl overflow-hidden border border-black/[0.04]">
+            <!-- 消息通知 -->
+            <a href="buyer-notifications.html?source=my" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                        <i class="fas fa-bell text-orange-500 text-sm"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">消息通知</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
+            </a>
+            <div class="h-px bg-gray-100 mx-4"></div>
+            <!-- 收购需求管理 -->
+            <a href="buyer-demand-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+                        <i class="fas fa-list-check text-green-600 text-sm"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">收购需求管理</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-100 mx-4"></div>
+            <!-- 帮助与反馈 -->
+            <a href="#" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <i class="fas fa-question-circle text-primary text-sm"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">帮助与反馈</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-100 mx-4"></div>
+            <!-- 关于我们 -->
+            <a href="#" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                        <i class="fas fa-info-circle text-purple-500 text-sm"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">关于我们</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+        </div>
+
+        <!-- 服务通知设置 -->
+        <div class="bg-white rounded-2xl p-4 border border-black/[0.04] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+                        <i class="fab fa-weixin text-green-500 text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-700">微信服务通知</div>
+                        <div class="text-[11px] text-gray-400">开启后接收订单、支付等通知</div>
+                    </div>
+                </div>
+                <!-- 开关 -->
+                <div class="relative inline-block w-11 h-6 cursor-pointer" onclick="toggleWechatNotify()">
+                    <input type="checkbox" id="wechatNotifySwitch" class="peer sr-only">
+                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-primary transition-colors duration-300"></div>
+                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300 peer-checked:translate-x-5"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 退出登录 -->
+        <div class="pt-4">
+            <a href="login.html" class="block w-full py-3 rounded-xl bg-white border border-black/[0.04] text-red-500 text-sm font-medium text-center no-underline" style="text-decoration:none;">
+                退出登录
+            </a>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div id="tabBar"></div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('我的');
+document.getElementById('tabBar').innerHTML = renderBuyerTabBar('mine');
+
+// 微信服务通知开关
+function toggleWechatNotify() {
+    var checkbox = document.getElementById('wechatNotifySwitch');
+    checkbox.checked = !checkbox.checked;
+
+    // 保存状态到本地存储
+    try {
+        localStorage.setItem('ylt_wechat_notify_enabled', checkbox.checked ? '1' : '0');
+    } catch (e) {}
+
+    // 显示提示
+    showToast(checkbox.checked ? '已开启微信服务通知' : '已关闭微信服务通知');
+}
+
+// 初始化开关状态
+function initWechatNotify() {
+    var checkbox = document.getElementById('wechatNotifySwitch');
+    try {
+        var enabled = localStorage.getItem('ylt_wechat_notify_enabled');
+        checkbox.checked = enabled === '1';
+    } catch (e) {
+        checkbox.checked = false;
+    }
+}
+
+// Toast 提示
+function showToast(msg) {
+    var existing = document.querySelector('.toast-msg');
+    if (existing) existing.remove();
+
+    var div = document.createElement('div');
+    div.className = 'toast-msg fixed left-1/2 -translate-x-1/2 bottom-24 px-4 py-2 bg-black/80 text-white text-xs rounded-lg z-50';
+    div.textContent = msg;
+    document.body.appendChild(div);
+
+    setTimeout(function() {
+        div.style.opacity = '0';
+        div.style.transition = 'opacity 0.3s';
+        setTimeout(function() { div.remove(); }, 300);
+    }, 1500);
+}
+
+// 页面加载时初始化
+initWechatNotify();
+</script>
+</body>
+</html>

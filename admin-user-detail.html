@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通管理端 - 用户详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .detail-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            font-size: 12px;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4 space-y-3" style="padding-bottom:80px;">
+        <div class="glass-panel rounded-2xl p-4 mt-2">
+            <div class="flex items-center gap-3">
+                <div id="avatar" class="w-11 h-11 rounded-full flex items-center justify-center text-white text-base font-bold"></div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                        <span id="shortName" class="text-base font-medium text-gray-800"></span>
+                        <span id="roleTag" class="text-[10px] px-1.5 py-0.5 rounded font-medium"></span>
+                    </div>
+                    <div class="text-[10px] text-gray-400 mt-1">开户时间：<span id="openTime"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-2.5">
+                <div class="w-1 h-4 bg-primary rounded-full"></div>
+                <span class="text-sm font-medium text-gray-700">基本信息（只读）</span>
+            </div>
+            <div id="basicInfo"></div>
+        </div>
+
+        <div class="glass-card rounded-xl p-4">
+            <div class="flex items-center gap-2 mb-2.5">
+                <div class="w-1 h-4 bg-primary rounded-full"></div>
+                <span class="text-sm font-medium text-gray-700">交易概览</span>
+            </div>
+            <div id="tradeInfo"></div>
+        </div>
+
+        <div id="settlementCard" class="glass-card rounded-xl p-4" style="display:none;">
+            <div class="flex items-center gap-2 mb-2.5">
+                <div class="w-1 h-4 bg-primary rounded-full"></div>
+                <span class="text-sm font-medium text-gray-700">结算卡信息（只读）</span>
+            </div>
+            <div id="settlementInfo"></div>
+        </div>
+    </div>
+
+    <div id="admin-tab-bar"></div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('用户详情', 'admin-users.html');
+document.getElementById('admin-tab-bar').innerHTML = renderAdminTabBar('users');
+
+const q = new URLSearchParams(window.location.search);
+const state = {
+    name: q.get('name') || '未命名用户',
+    short: q.get('short') || '未知',
+    type: q.get('type') || '收购商',
+    person: q.get('person') || '-',
+    phone: q.get('phone') || '-',
+    time: q.get('time') || '-',
+    industry: q.get('industry') || '-',
+    address: q.get('address') || '-',
+    trades: q.get('trades') || '0',
+    amount: q.get('amount') || '0',
+    idNo: q.get('idNo') || '-',
+    license: q.get('license') || '有',
+    bank: q.get('bank') || '-',
+    branch: q.get('branch') || '-',
+    cardNo: q.get('cardNo') || '-',
+    settleType: q.get('settleType') || '-'
+};
+
+function roleTagStyle(role) {
+    if (role === '农户') {
+        return { cls: 'text-amber-700 bg-amber-50', avatar: '#F59E0B' };
+    }
+    return { cls: 'text-blue-600 bg-blue-50', avatar: '#3B82F6' };
+}
+
+function row(label, value) {
+    return `
+        <div class="detail-row">
+            <span class="text-gray-400">${label}</span>
+            <span class="text-gray-700 font-medium text-right">${value}</span>
+        </div>
+    `;
+}
+
+const roleStyle = roleTagStyle(state.type);
+document.getElementById('avatar').style.background = roleStyle.avatar;
+document.getElementById('avatar').textContent = state.short.slice(0, 1);
+document.getElementById('shortName').textContent = state.short;
+document.getElementById('openTime').textContent = state.time;
+
+const roleTag = document.getElementById('roleTag');
+roleTag.className = 'text-[10px] px-1.5 py-0.5 rounded font-medium ' + roleStyle.cls;
+roleTag.textContent = state.type;
+
+document.getElementById('basicInfo').innerHTML = [
+    row('用户全称', state.name),
+    row('负责人', state.person),
+    row('手机号', state.phone),
+    row('行业类型', state.industry),
+    row('身份证号', state.idNo),
+    row('营业执照', state.license),
+    row('经营地址', state.address)
+].join('');
+
+document.getElementById('tradeInfo').innerHTML = [
+    row('累计交易笔数', state.trades + ' 笔'),
+    row('累计交易金额', '¥' + state.amount)
+].join('');
+
+if (state.type === '农户') {
+    document.getElementById('settlementCard').style.display = '';
+    document.getElementById('settlementInfo').innerHTML = [
+        row('结算类型', state.settleType),
+        row('银行名称', state.bank),
+        row('开户支行', state.branch),
+        row('银行卡号', state.cardNo)
+    ].join('');
+}
+</script>
+</body>
+</html>

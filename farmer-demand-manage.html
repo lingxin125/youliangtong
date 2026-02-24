@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 销售需求管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        /* Tab切换样式 - 下划线风格 */
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #E5E7EB;
+            background: transparent;
+        }
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6B7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .tab-item.active {
+            color: #11A64A;
+            font-weight: 600;
+        }
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: #11A64A;
+            border-radius: 2px 2px 0 0;
+        }
+
+        /* 关闭按钮 */
+        .close-btn {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #FEF2F2;
+            color: #EF4444;
+            border: none;
+        }
+        .close-btn:active {
+            background: #FEE2E2;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:20px;">
+
+        <!-- Tab切换 -->
+        <div class="mt-2 mb-3 -mx-4">
+            <div class="tab-container">
+                <div id="tabActive" class="tab-item active" onclick="switchTab('active')">
+                    进行中 (<span id="activeCount">0</span>)
+                </div>
+                <div id="tabHistory" class="tab-item" onclick="switchTab('history')">
+                    已下架 (<span id="historyCount">0</span>)
+                </div>
+            </div>
+        </div>
+
+        <!-- 需求列表 -->
+        <div id="listBox" class="space-y-2.5"></div>
+    </div>
+
+    <!-- 确认关闭弹窗 -->
+    <div id="confirmMask" class="absolute inset-0 bg-black/30 z-[70] hidden" onclick="closeConfirm()"></div>
+    <div id="confirmSheet" class="absolute left-0 right-0 bottom-0 z-[71] bg-white rounded-t-2xl p-4 hidden">
+        <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-3"></div>
+        <div class="text-sm font-semibold text-gray-800 mb-1">下架需求</div>
+        <div class="text-xs text-gray-500 mb-4">下架后该需求将从市场下架，并转入已下架列表。</div>
+        <div class="flex gap-2">
+            <button class="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-sm font-semibold" onclick="closeConfirm()">取消</button>
+            <button class="flex-1 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold" onclick="confirmClose()">确认下架</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+
+// 支持source参数返回
+var urlParams = new URLSearchParams(window.location.search);
+var source = urlParams.get('source') || 'my';
+var backLink = 'farmer-my.html';
+if (source === 'home') {
+    backLink = 'farmer-home.html';
+} else if (source === 'my') {
+    backLink = 'farmer-my.html';
+} else if (/\.html(\?|$)/.test(source)) {
+    backLink = source;
+}
+document.getElementById('navBar').innerHTML = renderHeader('销售需求管理', backLink);
+
+var currentTab = 'active';
+var pendingCloseId = null;
+
+// 迁移旧品类名称
+(function migrateCategories() {
+    try {
+        var key = 'ylt_demand_mock_v1';
+        var data = localStorage.getItem(key);
+        if (data) {
+            var demands = JSON.parse(data);
+            var changed = false;
+            demands.forEach(function(d) {
+                if (d.category === '粮食') {
+                    d.category = '粮油';
+                    changed = true;
+                }
+                if (d.category === '水产') {
+                    d.category = '其他';
+                    changed = true;
+                }
+            });
+            if (changed) {
+                localStorage.setItem(key, JSON.stringify(demands));
+            }
+        }
+    } catch (e) {}
+})();
+
+var demandStore = window.DemandMockStore || null;
+var fallbackActiveList = [
+    { id: 'F1', category: '水果', title: '出售红富士苹果 3000斤', content: '自家果园直供，果径80mm以上', qty: 3000, unit: '斤', price: 2.8, updatedAt: new Date(Date.now() - 3 * 60 * 1000).toISOString() },
+    { id: 'F2', category: '蔬菜', title: '出售有机西红柿', content: '有机认证，支持分批装车', qty: 1800, unit: '斤', price: 2.4, updatedAt: new Date(Date.now() - 15 * 60 * 1000).toISOString() },
+    { id: 'F3', category: '粮油', title: '出售优质小麦', content: '水分含量低于14%', qty: 7000, unit: '斤', price: 1.7, updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() }
+];
+var fallbackHistoryList = [
+    { id: 'F4', category: '禽蛋', title: '出售土鸡蛋 2000枚', content: '散养土鸡蛋，新鲜直供', qty: 2000, unit: '枚', price: 1.1, updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() },
+    { id: 'F5', category: '水果', title: '出售砂糖橘', content: '甜度足，皮薄易剥', qty: 1500, unit: '斤', price: 3.5, updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() }
+];
+
+function colorClass(cat) {
+    if (cat === '水果') return 'bg-red-50 text-red-500';
+    if (cat === '蔬菜') return 'bg-green-50 text-green-600';
+    if (cat === '粮油' || cat === '粮食') return 'bg-amber-50 text-amber-600';
+    if (cat === '禽蛋') return 'bg-violet-50 text-violet-500';
+    if (cat === '肉类') return 'bg-orange-50 text-orange-600';
+    if (cat === '其他' || cat === '水产') return 'bg-gray-100 text-gray-500';
+    return 'bg-gray-100 text-gray-500';
+}
+
+function formatTime(iso, isHistory) {
+    var d = new Date(iso || '');
+    if (Number.isNaN(d.getTime())) return '-';
+
+    if (isHistory) {
+        // 已下架：显示完整时间 YYYY-MM-DD HH:mm:ss
+        var y = d.getFullYear();
+        var m = String(d.getMonth() + 1).padStart(2, '0');
+        var day = String(d.getDate()).padStart(2, '0');
+        var hh = String(d.getHours()).padStart(2, '0');
+        var mm = String(d.getMinutes()).padStart(2, '0');
+        var ss = String(d.getSeconds()).padStart(2, '0');
+        return y + '-' + m + '-' + day + ' ' + hh + ':' + mm + ':' + ss;
+    }
+
+    // 进行中：显示相对时间
+    var now = new Date();
+    var diff = now - d;
+    var minutes = Math.floor(diff / 60000);
+    var hours = Math.floor(diff / 3600000);
+    var days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return '刚刚';
+    if (minutes < 60) return minutes + '分钟前';
+    if (hours < 24) return hours + '小时前';
+    if (days < 30) return days + '天前';
+    return Math.floor(days / 30) + '个月前';
+}
+
+function readList(status) {
+    if (demandStore && typeof demandStore.getDemands === 'function') {
+        return demandStore.getDemands({ role: 'farmer', status: status });
+    }
+    return status === 'active' ? fallbackActiveList.slice() : fallbackHistoryList.slice();
+}
+
+function formatPrice(item) {
+    if (item.price === null || item.price === undefined || item.price === '') return '面议';
+    var unit = item.unit || '斤';
+    return '¥' + Number(item.price).toFixed(2) + '/' + unit;
+}
+
+function updateTabText() {
+    var activeCount = readList('active').length;
+    var historyCount = readList('closed').length;
+    document.getElementById('activeCount').textContent = activeCount;
+    document.getElementById('historyCount').textContent = historyCount;
+}
+
+function renderList() {
+    var list = readList(currentTab === 'active' ? 'active' : 'closed');
+    var box = document.getElementById('listBox');
+    var isHistory = currentTab === 'history';
+    if (!list.length) {
+        box.innerHTML = '<div class="glass-card rounded-xl p-8 text-center"><div class="text-xs text-gray-400">暂无' + (isHistory ? '已下架' : '进行中') + '的销售需求</div></div>';
+        return;
+    }
+    box.innerHTML = list.map(function(item) {
+        var detailHref = !isHistory
+            ? 'farmer-publish.html?mode=edit&id=' + item.id + '&from=manage'
+            : 'farmer-publish.html?mode=view&id=' + item.id + '&from=manage';
+        var statusTag = !isHistory
+            ? '<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">进行中</span>'
+            : '<span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium">已下架</span>';
+
+        // 关闭按钮和时间
+        var timeText = !isHistory
+            ? formatTime(item.updatedAt || item.createdAt, false)
+            : formatTime(item.updatedAt || item.createdAt, true);
+        var closeButton = !isHistory
+            ? '<button class="close-btn" data-id="' + item.id + '">下架</button>'
+            : '';
+
+        return '<div class="glass-card rounded-xl p-3.5 relative pr-10" style="position:relative;">' +
+            '<a href="' + detailHref + '" class="block no-underline" style="text-decoration:none;">' +
+                '<div class="flex justify-between items-start mb-1.5">' +
+                    '<div class="flex items-center gap-1.5">' +
+                        '<span class="text-[10px] ' + colorClass(item.category) + ' px-1.5 py-0.5 rounded font-medium">' + item.category + '</span>' +
+                        '<span class="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">约' + String(item.qty || 0) + (item.unit || '斤') + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="text-sm text-gray-800 font-medium mb-1 truncate pr-16">' + (item.title || item.content) + '</div>' +
+                '<div class="flex items-center justify-between">' +
+                    '<span class="text-xs text-primary font-bold" style="font-family:Poppins;">' + formatPrice(item) + '</span>' +
+                '</div>' +
+            '</a>' +
+            '<div class="absolute right-3 top-3.5">' + statusTag + '</div>' +
+            '<div class="absolute right-3 bottom-3.5 flex items-center gap-2">' + closeButton + '<span class="text-[10px] text-gray-400">' + timeText + '</span></div>' +
+            '<a href="' + detailHref + '" class="absolute right-3 top-1/2 -translate-y-1/2" style="text-decoration:none;">' +
+                '<i class="fas fa-chevron-right text-xs text-gray-300"></i>' +
+            '</a>' +
+        '</div>';
+    }).join('');
+
+    // 绑定关闭按钮事件（事件委托）
+    if (!isHistory) {
+        box.querySelectorAll('.close-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var id = this.getAttribute('data-id');
+                openConfirm(id);
+            });
+        });
+    }
+}
+
+function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tabActive').classList.toggle('active', tab === 'active');
+    document.getElementById('tabHistory').classList.toggle('active', tab === 'history');
+    renderList();
+}
+
+function openConfirm(id) {
+    pendingCloseId = id;
+    document.getElementById('confirmMask').classList.remove('hidden');
+    document.getElementById('confirmSheet').classList.remove('hidden');
+}
+
+function closeConfirm() {
+    pendingCloseId = null;
+    document.getElementById('confirmMask').classList.add('hidden');
+    document.getElementById('confirmSheet').classList.add('hidden');
+}
+
+function confirmClose() {
+    if (pendingCloseId === null) return;
+    if (demandStore && typeof demandStore.closeDemand === 'function') {
+        demandStore.closeDemand(String(pendingCloseId));
+    } else {
+        var idx = fallbackActiveList.findIndex(function(i) { return i.id === pendingCloseId; });
+        if (idx >= 0) {
+            var item = fallbackActiveList.splice(idx, 1)[0];
+            item.updatedAt = new Date().toISOString();
+            fallbackHistoryList.unshift(item);
+        }
+    }
+    updateTabText();
+    renderList();
+    closeConfirm();
+}
+
+updateTabText();
+renderList();
+</script>
+</body>
+</html>

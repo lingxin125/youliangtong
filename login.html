@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 登录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        /* 角色选择 segment control */
+        .segment-control {
+            position: relative;
+            display: flex;
+            background: #F3F4F6;
+            border-radius: 10px;
+            padding: 3px;
+        }
+        .segment-control .slider {
+            position: absolute;
+            top: 3px; left: 3px;
+            width: calc(50% - 3px);
+            height: calc(100% - 6px);
+            background: #11A64A;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+            z-index: 0;
+        }
+        .segment-control .slider.right {
+            transform: translateX(100%);
+        }
+        .segment-control button {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            padding: 8px 0;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: color 0.3s;
+            color: #6B7280;
+        }
+        .segment-control button.active {
+            color: #fff;
+        }
+        /* 输入框样式 */
+        .login-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 0 14px;
+            height: 48px;
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .login-input:focus-within {
+            border-color: #11A64A;
+            box-shadow: 0 0 0 3px rgba(17,166,74,0.08);
+        }
+        .login-input i {
+            color: #9CA3AF;
+            font-size: 14px;
+            width: 18px;
+            text-align: center;
+        }
+        .login-input input {
+            flex: 1;
+            min-width: 0;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            color: #1F2937;
+            font-family: inherit;
+        }
+        .login-input input::placeholder {
+            color: #D1D5DB;
+        }
+        .login-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            gap: 10px;
+            margin: 2px 2px 12px;
+        }
+        .mode-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            background: transparent;
+            color: #11A64A;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0;
+            white-space: nowrap;
+        }
+        .mode-switch i {
+            font-size: 11px;
+            color: #11A64A;
+        }
+        .forgot-link {
+            font-size: 12px;
+            color: #9CA3AF;
+            text-decoration: none;
+            transition: color 0.2s;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        .forgot-link:hover {
+            color: #11A64A;
+        }
+        .agreement {
+            margin-top: 14px;
+            font-size: 10px;
+            color: #9CA3AF;
+            line-height: 1.5;
+        }
+        .agreement-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        .agreement input[type="checkbox"] {
+            margin-top: 1px;
+            width: 12px;
+            height: 12px;
+            accent-color: #11A64A;
+            cursor: pointer;
+        }
+        .agreement a {
+            color: #6B7280;
+            text-decoration: none;
+        }
+        .agreement a:hover {
+            color: #11A64A;
+        }
+        .toast-tip {
+            position: absolute;
+            left: 50%;
+            right: auto;
+            bottom: 70px;
+            padding: 11px 14px;
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 11px;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.45;
+            width: fit-content;
+            max-width: calc(100% - 32px);
+            text-align: center;
+            z-index: 80;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, 8px);
+            transition: all 0.2s ease;
+        }
+        .toast-tip.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <!-- 状态栏 -->
+    <div id="statusBar"></div>
+
+    <!-- 登录内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar flex flex-col items-center px-8 pt-6">
+
+        <!-- Logo 区域 -->
+        <div class="flex flex-col items-center mb-6">
+            <img src="logo.png" alt="邮粮通" class="w-20 h-20 rounded-2xl shadow-card mb-4" />
+            <h1 class="text-2xl font-bold text-gray-800 tracking-wide" style="font-family:Poppins,'Noto Sans SC',sans-serif;">邮粮通</h1>
+            <p class="text-xs text-gray-400 mt-1 tracking-widest">农产品收购交易平台</p>
+        </div>
+
+        <!-- 角色选择 -->
+        <div class="w-full mb-5">
+            <div class="segment-control" id="roleSegment">
+                <div class="slider" id="roleSlider"></div>
+                <button class="active" id="roleBuyer" onclick="switchRole('buyer')">我是收购商</button>
+                <button id="roleFarmer" onclick="switchRole('farmer')">我是农户</button>
+            </div>
+        </div>
+
+        <!-- 登录表单卡片 -->
+        <div class="glass-panel rounded-2xl p-5 w-full">
+            <div id="modeTitle" class="text-center text-[16px] font-semibold text-gray-700 mb-4">账号密码登录</div>
+
+            <!-- 手机号输入 -->
+            <div class="login-input mb-3">
+                <i class="fas fa-mobile-alt"></i>
+                <input type="tel" placeholder="请输入手机号" maxlength="11" id="phoneInput" />
+            </div>
+
+            <!-- 密码输入（密码模式） -->
+            <div class="login-input mb-4" id="passwordField">
+                <i class="fas fa-lock"></i>
+                <input type="password" placeholder="请输入密码" id="pwdInput" />
+                <i class="fas fa-eye-slash text-gray-300 cursor-pointer" id="togglePwd" onclick="togglePassword()"></i>
+            </div>
+
+            <!-- 验证码输入（验证码模式，默认隐藏） -->
+            <div class="login-input mb-4" id="smsField" style="display:none;">
+                <i class="fas fa-shield-alt"></i>
+                <input type="text" placeholder="请输入验证码" maxlength="6" id="smsInput" />
+                <button onclick="getSmsCode()" id="smsBtn"
+                    class="shrink-0 text-xs font-medium text-primary whitespace-nowrap rounded-lg bg-primary-bg border border-primary/20 hover:bg-primary/10 transition-colors"
+                    style="padding: 6px 12px; line-height: 1; height: 32px;">
+                    获取验证码
+                </button>
+            </div>
+
+            <div class="login-actions">
+                <button type="button" class="mode-switch" id="modeSwitchBtn" onclick="toggleLoginMode()">
+                    <i class="fas fa-right-left"></i>
+                    <span id="modeSwitchText">切换验证码登录</span>
+                </button>
+                <a href="#" class="forgot-link" id="forgotPwdLink" onclick="showForgetTip(event)">忘记密码?</a>
+            </div>
+
+            <!-- 登录按钮 -->
+            <button onclick="doLogin()" id="loginBtn"
+                class="login-btn w-full h-12 rounded-xl text-white font-semibold text-[15px] shadow-glow transition-all active:scale-[0.98]"
+                style="background:linear-gradient(135deg,#11A64A 0%,#0D8A3C 100%);">
+                登 录
+            </button>
+        </div>
+
+        <div class="agreement w-full px-2">
+            <div class="agreement-row">
+                <input type="checkbox" id="agreeTermsCheckbox" />
+                <label for="agreeTermsCheckbox">
+                    登录前请先阅读并同意
+                    <a href="#">《用户服务协议》</a>和<a href="#">《隐私政策》</a>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastTip" class="toast-tip"></div>
+</div>
+
+<script>
+// 渲染状态栏
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+
+// 当前状态
+var currentRole = 'buyer';
+var currentMode = 'password';
+var pwdVisible = false;
+
+// 角色切换
+function switchRole(role) {
+    currentRole = role;
+    var slider = document.getElementById('roleSlider');
+    var btnBuyer = document.getElementById('roleBuyer');
+    var btnFarmer = document.getElementById('roleFarmer');
+    if (role === 'farmer') {
+        slider.classList.add('right');
+        btnBuyer.classList.remove('active');
+        btnFarmer.classList.add('active');
+    } else {
+        slider.classList.remove('right');
+        btnBuyer.classList.add('active');
+        btnFarmer.classList.remove('active');
+    }
+}
+
+// 登录方式切换
+function switchLoginMode(mode) {
+    currentMode = mode;
+    document.getElementById('passwordField').style.display = mode === 'password' ? 'flex' : 'none';
+    document.getElementById('smsField').style.display = mode === 'sms' ? 'flex' : 'none';
+    updateModeSwitchUI();
+}
+
+function toggleLoginMode() {
+    switchLoginMode(currentMode === 'password' ? 'sms' : 'password');
+}
+
+function updateModeSwitchUI() {
+    document.getElementById('modeSwitchText').textContent = currentMode === 'password'
+        ? '切换验证码登录'
+        : '切换账号密码登录';
+    document.getElementById('modeTitle').textContent = currentMode === 'password'
+        ? '账号密码登录'
+        : '手机号登录';
+    document.getElementById('forgotPwdLink').style.display = currentMode === 'password' ? '' : 'none';
+}
+
+// 密码显示/隐藏切换
+function togglePassword() {
+    pwdVisible = !pwdVisible;
+    var inp = document.getElementById('pwdInput');
+    var icon = document.getElementById('togglePwd');
+    inp.type = pwdVisible ? 'text' : 'password';
+    icon.classList.toggle('fa-eye', pwdVisible);
+    icon.classList.toggle('fa-eye-slash', !pwdVisible);
+}
+
+// 获取验证码（模拟60秒倒计时）
+function getSmsCode() {
+    var btn = document.getElementById('smsBtn');
+    var sec = 60;
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.textContent = sec + 's';
+    var timer = setInterval(function() {
+        sec--;
+        btn.textContent = sec + 's';
+        if (sec <= 0) {
+            clearInterval(timer);
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.textContent = '获取验证码';
+        }
+    }, 1000);
+}
+
+function showForgetTip(event) {
+    event.preventDefault();
+    showToast('忘记密码流程待接入（原型示意）');
+}
+
+function showToast(msg) {
+    var tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() {
+        tip.classList.remove('show');
+    }, 1800);
+}
+
+// 登录 - 根据角色跳转对应首页
+function doLogin() {
+    if (!document.getElementById('agreeTermsCheckbox').checked) {
+        showToast('请先勾选并同意用户协议与隐私政策');
+        return;
+    }
+    var target = currentRole === 'buyer' ? 'buyer-home.html' : 'farmer-home.html';
+    _navigateTo(target);
+}
+
+updateModeSwitchUI();
+</script>
+</body>
+</html>

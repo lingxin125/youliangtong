@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 付款记录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500,700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js?v=2"></script>
+    <style>
+        /* ========== 基础样式 ========== */
+        .amount-paid { color: #1F2937; }
+        .amount-pending { color: #D97706; }
+        .amount-cancelled { color: #9CA3AF; text-decoration: line-through; }
+
+        .status-paid { background: #DCFCE7; color: #166534; }
+        .status-pending { background: #23221e; color: #92400E; }
+        .status-cancelled { background: #F3F4F6; color: #6B7280; }
+        .status-failed { background: #FEE2E2; color: #DC2626; }
+
+        /* ========== 筛选面板 ========== */
+        .filter-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .filter-overlay.show { opacity: 1; pointer-events: auto; }
+
+        .filter-sheet {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            z-index: 101;
+            background: white;
+            border-radius: 16px 16px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 70%;
+            display: flex; flex-direction: column;
+        }
+        .filter-sheet.show { transform: translateY(0); }
+
+        .filter-option {
+            font-size: 12px; padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+            background: white; color: #4B5563;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .filter-option.active {
+            background: #F0FDF4;
+            border-color: #11A64A;
+            color: #11A64A;
+            font-weight: 500;
+        }
+
+        .date-input {
+            flex: 1; height: 36px; padding: 0 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 12px; color: #374151;
+            background: white;
+        }
+
+        /* ========== 日期分组 ========== */
+        .date-group-card {
+            background: linear-gradient(145deg, rgba(17, 166, 74, 0.06) 0%, #FFFFFF 100%) !important;
+            border: 1px solid rgba(17, 166, 74, 0.12);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .order-list {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0;
+        }
+        .order-list.expanded {
+            max-height: 2000px;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s ease;
+        }
+
+        /* ========== 订单项 ========== */
+        .order-item {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        .order-item + .order-item {
+            margin-top: 8px;
+        }
+
+        .method-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; flex-shrink: 0;
+        }
+        .method-industry { background: #E0F2FE; color: #0284C7; }
+        .method-guarantee { background: #F3E8FF; color: #9333EA; }
+
+        .countdown {
+            font-size: 11px; color: #EF4444;
+            font-family: Poppins, monospace;
+        }
+
+        .btn-primary-sm {
+            font-size: 11px; font-weight: 500;
+            color: white; background: #11A64A;
+            padding: 4px 12px; border-radius: 6px;
+            border: none; cursor: pointer;
+            transition: background 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn-primary-sm:active { background: #0D8A3D; }
+
+        /* ========== Toast提示 ========== */
+        .toast-tip {
+            position: absolute; left: 16px; right: 16px; bottom: 88px;
+            padding: 11px 14px;
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 11px;
+            color: #fff; font-size: 12px; line-height: 1.45;
+            z-index: 70;
+            opacity: 0; pointer-events: none;
+            transform: translateY(8px);
+            transition: all 0.2s ease;
+        }
+        .toast-tip.show { opacity: 1; transform: translateY(0); }
+
+        .filter-group-title {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 500;
+            color: #374151; margin-bottom: 10px;
+        }
+        .filter-group-title i { color: #9CA3AF; font-size: 14px; }
+
+        .filter-content { flex: 1; overflow-y: auto; padding: 16px; }
+    </style>
+</head>
+<body>
+<div class="mobile-container" style="position: relative; overflow: hidden;">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 统计栏 -->
+    <div class="px-4 mb-3 shrink-0 flex items-center justify-between">
+        <div class="text-[13px] text-gray-500">
+            共 <span class="text-primary font-semibold" id="orderCount">0</span> 条订单
+        </div>
+        <button id="filterBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 active:bg-gray-100" onclick="FilterPanel.open()">
+            <i class="fas fa-filter text-gray-600 text-xs"></i>
+            <span class="text-[12px] text-gray-600">筛选</span>
+        </button>
+    </div>
+
+    <!-- 筛选结果汇总（仅筛选时显示） -->
+    <div id="filterResult" class="px-4 mb-3 shrink-0 hidden">
+        <div class="glass-card rounded-xl p-4 bg-gradient-to-r from-green-50 to-white border border-green-100">
+            <div class="text-[14px] font-semibold text-gray-800 mb-3">筛选结果</div>
+            <div class="flex items-center">
+                <div class="flex-1 text-center">
+                    <div class="text-[12px] text-gray-500 mb-0.5">付款总额</div>
+                    <div class="text-[18px] font-bold text-gray-900" style="font-family:Poppins;">
+                        ¥<span id="filterTotalAmount">0.00</span>
+                    </div>
+                </div>
+                <div class="w-px h-10 bg-gray-200"></div>
+                <div class="flex-1 text-center">
+                    <div class="text-[12px] text-gray-500 mb-0.5">交易笔数</div>
+                    <div class="text-[18px] font-bold text-gray-900">
+                        <span id="filterOrderCount">0</span>笔
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 空状态 -->
+    <div id="emptyState" class="px-4 pt-8 hidden">
+        <div class="text-center">
+            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-receipt text-gray-300 text-2xl"></i>
+            </div>
+            <div class="text-[15px] font-medium text-gray-600">暂无订单记录</div>
+        </div>
+    </div>
+
+    <!-- 订单列表 -->
+    <div id="orderList" class="flex-1 overflow-y-auto no-scrollbar px-4 space-y-3" style="padding-bottom:80px;"></div>
+
+    <!-- Toast提示 -->
+    <div id="toastTip" class="toast-tip"></div>
+
+    <!-- 底部导航栏 -->
+    <div id="tabBar"></div>
+
+    <!-- 筛选弹窗 -->
+    <div id="filterOverlay" class="filter-overlay" onclick="FilterPanel.close()"></div>
+    <div id="filterSheet" class="filter-sheet">
+        <div class="flex justify-center pt-2 pb-1">
+            <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
+        </div>
+        <div class="px-4 py-3 border-b border-gray-100 flex-shrink-0">
+            <div class="flex items-center justify-between">
+                <h3 class="text-[15px] font-semibold text-gray-800">筛选订单</h3>
+                <button class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="FilterPanel.close()">
+                    <i class="fas fa-times text-gray-400 text-sm"></i>
+                </button>
+            </div>
+        </div>
+        <div class="filter-content space-y-5">
+            <!-- 时间范围 -->
+            <div>
+                <div class="filter-group-title">
+                    <i class="far fa-calendar-alt"></i><span>时间范围</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-option active" data-type="time" data-value="all">全部</button>
+                    <button class="filter-option" data-type="time" data-value="today">今天</button>
+                    <button class="filter-option" data-type="time" data-value="week">近7天</button>
+                    <button class="filter-option" data-type="time" data-value="month">近30天</button>
+                    <button class="filter-option" data-type="time" data-value="custom">自定义日期</button>
+                </div>
+                <div id="customDateRange" class="mt-3 hidden">
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="startDate" class="date-input">
+                        <span class="text-gray-400">至</span>
+                        <input type="date" id="endDate" class="date-input">
+                    </div>
+                </div>
+            </div>
+            <!-- 支付状态 -->
+            <div>
+                <div class="filter-group-title">
+                    <i class="fas fa-check-circle"></i><span>支付状态</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-option active" data-type="status" data-value="all">全部</button>
+                    <button class="filter-option" data-type="status" data-value="pending">待支付</button>
+                    <button class="filter-option" data-type="status" data-value="success">支付成功</button>
+                    <button class="filter-option" data-type="status" data-value="failed">支付失败</button>
+                    <button class="filter-option" data-type="status" data-value="canceled">已撤销</button>
+                </div>
+            </div>
+            <!-- 支付方式 -->
+            <div>
+                <div class="filter-group-title">
+                    <i class="fas fa-credit-card"></i><span>支付方式</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-option active" data-type="method" data-value="all">全部</button>
+                    <button class="filter-option" data-type="method" data-value="industry">行业支付</button>
+                    <button class="filter-option" data-type="method" data-value="guarantee">订单付</button>
+                </div>
+            </div>
+        </div>
+        <div class="px-4 py-3 border-t border-gray-100 flex gap-3 flex-shrink-0">
+            <button class="flex-1 h-10 rounded-xl border border-gray-200 text-[13px] font-medium text-gray-600 bg-white" onclick="FilterPanel.reset()">重置</button>
+            <button class="flex-1 h-10 rounded-xl text-[13px] font-medium text-white bg-primary" onclick="FilterPanel.confirm()">确定</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ==================== 数据服务层 ====================
+const OrderService = {
+    mockStore: window.BuyerMockStore || null,
+
+    getOrders() {
+        if (this.mockStore?.getOrders) {
+            return this.mockStore.getOrders();
+        }
+        return [];
+    },
+
+    syncTimeout() {
+        if (this.mockStore?.markExpiredOrders) {
+            return this.mockStore.markExpiredOrders(30);
+        }
+        return false;
+    },
+
+    getRemainingMs(order) {
+        if (this.mockStore?.getOrderRemainingMs) {
+            return this.mockStore.getOrderRemainingMs(order, 30);
+        }
+        const created = new Date(order.createdAt).getTime();
+        return created + 30 * 60 * 1000 - Date.now();
+    },
+
+    findById(orderId) {
+        return this.getOrders().find(o => o.id === orderId);
+    },
+
+    updateStatus(orderId, status, failReason = '') {
+        if (this.mockStore?.updateOrder) {
+            this.mockStore.updateOrder(orderId, { status, failReason });
+        }
+    }
+};
+
+// ==================== 筛选服务层 ====================
+const FilterService = {
+    state: {
+        timeRange: 'all',
+        startDate: null,
+        endDate: null,
+        statuses: [],
+        payMethods: []
+    },
+
+    isActive() {
+        return this.state.timeRange !== 'all' ||
+               this.state.statuses.length > 0 ||
+               this.state.payMethods.length > 0;
+    },
+
+    setTimeRange(value) {
+        this.state.timeRange = value;
+    },
+
+    setStatus(value) {
+        this.state.statuses = value === 'all' ? [] : [value];
+    },
+
+    setMethod(value) {
+        this.state.payMethods = value === 'all' ? [] : [value];
+    },
+
+    setCustomDates(start, end) {
+        this.state.startDate = start;
+        this.state.endDate = end;
+    },
+
+    reset() {
+        this.state = {
+            timeRange: 'all',
+            startDate: null,
+            endDate: null,
+            statuses: [],
+            payMethods: []
+        };
+    },
+
+    apply(orders) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        return orders.filter(order => {
+            const orderDate = new Date(order.createdAt);
+            const orderDay = new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate());
+
+            // 时间筛选
+            let timeMatch = true;
+            const { timeRange, startDate, endDate } = this.state;
+
+            if (timeRange === 'today') {
+                timeMatch = orderDay.getTime() === today.getTime();
+            } else if (timeRange === 'week') {
+                const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                timeMatch = orderDay >= weekAgo;
+            } else if (timeRange === 'month') {
+                const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+                timeMatch = orderDay >= monthAgo;
+            } else if (timeRange === 'custom' && startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                timeMatch = orderDay >= start && orderDay <= end;
+            }
+
+            // 状态筛选
+            let statusMatch = this.state.statuses.length === 0 ||
+                              this.state.statuses.includes(order.status);
+
+            // 支付方式筛选
+            let methodMatch = this.state.payMethods.length === 0 ||
+                              this.state.payMethods.includes(order.payMethod) ||
+                              (this.state.payMethods.includes('') && order.payMethod === '');
+
+            return timeMatch && statusMatch && methodMatch;
+        }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+};
+
+// ==================== 分组服务层 ====================
+const GroupService = {
+    expanded: {},
+
+    group(orders) {
+        const groups = {};
+
+        orders.forEach(order => {
+            const date = new Date(order.createdAt);
+            const dateKey = this.formatDateKey(date);
+            const displayDate = this.formatDisplayDate(date);
+
+            if (!groups[dateKey]) {
+                groups[dateKey] = {
+                    dateKey,
+                    displayDate,
+                    orders: [],
+                    totalAmount: 0
+                };
+            }
+            groups[dateKey].orders.push(order);
+            groups[dateKey].totalAmount += order.amount;
+        });
+
+        return Object.values(groups).sort((a, b) => b.dateKey.localeCompare(a.dateKey));
+    },
+
+    formatDateKey(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    },
+
+    formatDisplayDate(date) {
+        return `${date.getFullYear()}年${String(date.getMonth() + 1).padStart(2, '0')}月${String(date.getDate()).padStart(2, '0')}日`;
+    },
+
+    isExpanded(dateKey) {
+        // 默认都是收起的，只有点击后才展开
+        return this.expanded[dateKey] === true;
+    },
+
+    toggle(dateKey) {
+        this.expanded[dateKey] = !this.isExpanded(dateKey, false);
+        return this.expanded[dateKey];
+    }
+};
+
+// ==================== 格式化服务层 ====================
+const FormatService = {
+    // 智能时间格式：今天/昨天/前天/MM-DD/YYYY-MM-DD HH:MM:SS
+    smartTime(iso) {
+        const now = new Date();
+        const date = new Date(iso);
+        const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+        const diffYears = now.getFullYear() - date.getFullYear();
+
+        const h = String(date.getHours()).padStart(2, '0');
+        const m = String(date.getMinutes()).padStart(2, '0');
+        const s = String(date.getSeconds()).padStart(2, '0');
+        const mo = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        const y = date.getFullYear();
+
+        if (diffDays === 0) return `${h}:${m}:${s}`;
+        if (diffDays === 1) return `昨天 ${h}:${m}:${s}`;
+        if (diffDays === 2) return `前天 ${h}:${m}:${s}`;
+        if (diffYears === 0) return `${mo}-${d} ${h}:${m}:${s}`;
+        return `${y}-${mo}-${d} ${h}:${m}:${s}`;
+    },
+
+    amount(value) {
+        return value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    },
+
+    countdown(ms) {
+        const min = Math.floor(Math.max(ms, 0) / 60000);
+        const sec = Math.floor((Math.max(ms, 0) % 60000) / 1000);
+        return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    }
+};
+
+// ==================== 状态映射 ====================
+const StatusMap = {
+    success: { class: 'status-paid', text: '支付成功', amountClass: 'amount-paid' },
+    pending: { class: 'status-pending', text: '待支付', amountClass: 'amount-pending' },
+    canceled: { class: 'status-cancelled', text: '已取消', amountClass: 'amount-cancelled' },
+    failed: { class: 'status-failed', text: '支付失败', amountClass: 'amount-cancelled' }
+};
+
+const MethodMap = {
+    industry: { icon: 'fa-building-columns', text: '行业支付', class: 'method-industry' },
+    guarantee: { icon: 'fa-file-invoice-dollar', text: '订单付', class: 'method-guarantee' },
+    '': { icon: 'fa-clock', text: '未支付', class: '' }
+};
+
+// ==================== UI 渲染层 ====================
+const RenderService = {
+    renderOrderItem(order, isLast) {
+        const status = StatusMap[order.status] || StatusMap.canceled;
+        const method = MethodMap[order.payMethod] || MethodMap[''];
+        const timeStr = FormatService.smartTime(order.createdAt);
+        const remMs = OrderService.getRemainingMs(order);
+        const isPending = order.status === 'pending' && remMs > 0;
+
+        const methodHtml = method.class
+            ? `<div class="method-icon ${method.class}"><i class="fas ${method.icon}"></i></div>`
+            : `<div class="method-icon" style="background:#F3F4F6;color:#9CA3AF;"><i class="fas ${method.icon}"></i></div>`;
+
+        // 不显示倒计时
+
+        const borderClass = isLast ? '' : 'border-b border-gray-100';
+
+        return `
+            <div class="p-3 ${borderClass} cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors" onclick="Actions.goDetail('${order.id}')">
+                <div class="flex items-center gap-3">
+                    ${methodHtml}
+                    <div class="flex-1 min-w-0">
+                        <div class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100">
+                            <span class="text-[12px] font-semibold text-gray-700">${timeStr}</span>
+                        </div>
+                        <div class="text-[14px] text-gray-500 mt-1">付给 ${order.payeeName}</div>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-[18px] font-bold ${status.amountClass}" style="font-family:Poppins;">¥${FormatService.amount(order.amount)}</span>
+                        <span class="status-tag ${status.class} mt-1 text-[11px] px-2 py-0.5 rounded-full font-medium">${status.text}</span>
+                    </div>
+                </div>
+                </div>
+        `;
+    },
+
+    renderOrderItemsWithDividers(orders) {
+        return orders.map((o, index) => this.renderOrderItem(o, index === orders.length - 1)).join('');
+    },
+
+    renderDateGroup(group, isExpanded) {
+        const arrowIcon = isExpanded ? 'fa-chevron-up' : 'fa-chevron-down';
+
+        return `
+            <div class="date-group-card" id="group-${group.dateKey}">
+                <div class="px-4 py-3 cursor-pointer" onclick="Actions.toggleGroup('${group.dateKey}')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[15px] font-semibold text-gray-800">${group.displayDate}</span>
+                            <div class="flex items-center gap-1 text-[13px] text-gray-600">
+                                <span>付款：</span>
+                                <span class="font-bold text-gray-900" style="font-family:Poppins;">${FormatService.amount(group.totalAmount)}</span>
+                                <span>元，共</span>
+                                <span class="font-bold text-gray-900">${group.orders.length}</span>
+                                <span>笔</span>
+                            </div>
+                        </div>
+                        <i id="icon-${group.dateKey}" class="fas ${arrowIcon} text-gray-400 text-sm expand-icon"></i>
+                    </div>
+                </div>
+                <div id="list-${group.dateKey}" class="order-list ${isExpanded ? 'expanded' : ''}">
+                    <div class="bg-white px-3 pb-3 rounded-b-xl">
+                        ${this.renderOrderItemsWithDividers(group.orders)}
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    renderEmpty() {
+        document.getElementById('orderList').innerHTML = '';
+        document.getElementById('emptyState').classList.remove('hidden');
+        document.getElementById('filterResult').classList.add('hidden');
+        document.getElementById('orderCount').textContent = '0';
+    },
+
+    renderList(groups) {
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('filterResult').classList.add('hidden');
+
+        const totalCount = groups.reduce((sum, g) => sum + g.orders.length, 0);
+        document.getElementById('orderCount').textContent = totalCount;
+
+        const html = groups.map((group) => {
+            const isExpanded = GroupService.isExpanded(group.dateKey);
+            return this.renderDateGroup(group, isExpanded);
+        }).join('');
+
+        document.getElementById('orderList').innerHTML = html;
+    },
+
+    renderFlatList(orders) {
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('filterResult').classList.remove('hidden');
+
+        const totalCount = orders.length;
+        const totalAmount = orders.reduce((sum, o) => sum + o.amount, 0);
+
+        document.getElementById('orderCount').textContent = totalCount;
+        document.getElementById('filterTotalAmount').textContent = FormatService.amount(totalAmount);
+        document.getElementById('filterOrderCount').textContent = totalCount;
+
+        // 平铺展示也使用统一卡片+分割线样式
+        document.getElementById('orderList').innerHTML = `
+            <div class="glass-card rounded-xl overflow-hidden">
+                <div class="bg-white px-3 pb-3 rounded-b-xl">
+                    ${this.renderOrderItemsWithDividers(orders)}
+                </div>
+            </div>
+        `;
+    },
+
+    updateCountdowns() {
+        const orders = OrderService.getOrders();
+        orders.forEach(order => {
+            if (order.status !== 'pending') return;
+            const el = document.getElementById(`count-${order.id}`);
+            if (!el) return;
+
+            const remMs = OrderService.getRemainingMs(order);
+            if (remMs > 0) {
+                el.textContent = FormatService.countdown(remMs);
+            }
+        });
+    }
+};
+
+// ==================== 筛选面板控制 ====================
+const FilterPanel = {
+    open() {
+        document.getElementById('filterOverlay').classList.add('show');
+        document.getElementById('filterSheet').classList.add('show');
+    },
+
+    close() {
+        document.getElementById('filterOverlay').classList.remove('show');
+        document.getElementById('filterSheet').classList.remove('show');
+    },
+
+    reset() {
+        FilterService.reset();
+        document.querySelectorAll('.filter-option').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.value === 'all');
+        });
+        document.getElementById('customDateRange').classList.add('hidden');
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+    },
+
+    confirm() {
+        if (FilterService.state.timeRange === 'custom') {
+            FilterService.setCustomDates(
+                document.getElementById('startDate').value,
+                document.getElementById('endDate').value
+            );
+        }
+        this.close();
+        App.refresh();
+    },
+
+
+    init() {
+        // 筛选按钮点击事件委托
+        document.querySelectorAll('.filter-option').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const type = e.target.dataset.type;
+                const value = e.target.dataset.value;
+
+                // 同组其他按钮取消激活
+                document.querySelectorAll(`[data-type="${type}"]`).forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+
+                // 更新筛选状态
+                if (type === 'time') {
+                    FilterService.setTimeRange(value);
+                    document.getElementById('customDateRange').classList.toggle('hidden', value !== 'custom');
+                } else if (type === 'status') {
+                    FilterService.setStatus(value);
+                } else if (type === 'method') {
+                    FilterService.setMethod(value);
+                }
+            });
+        });
+    }
+};
+
+// ==================== 用户操作 ====================
+const Actions = {
+    toggleGroup(dateKey) {
+        const isExpanded = GroupService.toggle(dateKey);
+        const listEl = document.getElementById(`list-${dateKey}`);
+        const iconEl = document.getElementById(`icon-${dateKey}`);
+
+        listEl.classList.toggle('expanded', isExpanded);
+        iconEl.className = `fas fa-chevron-${isExpanded ? 'up' : 'down'} text-gray-400 text-sm expand-icon`;
+    },
+
+    goDetail(orderId) {
+        const order = OrderService.findById(orderId);
+        if (!order) return;
+
+        const params = new URLSearchParams({
+            source: 'orders',
+            status: order.status,
+            orderNo: order.id,
+            amount: order.amount.toFixed(2),
+            payeeName: order.payeeName,
+            payeeMobile: order.payeeMobile,
+            payeeBank: order.payeeBank,
+            payeeCard: order.payeeCard,
+            summary: order.summary,
+            createdAt: order.createdAt,
+            payMethod: order.payMethod || '',
+            failReason: order.failReason || '',
+            paidAt: order.paidAt || '',
+            items: JSON.stringify(order.items || [])
+        });
+
+        window.location.href = 'buyer-order-detail.html?' + params.toString();
+    },
+
+    continuePay(orderId) {
+        const order = OrderService.findById(orderId);
+        if (!order) return;
+
+        if (order.status !== 'pending') {
+            App.showToast('当前订单状态不可继续支付');
+            return;
+        }
+
+        if (OrderService.getRemainingMs(order) <= 0) {
+            OrderService.updateStatus(orderId, 'canceled', '超时未支付，系统自动取消');
+            App.refresh();
+            App.showToast('该订单已超时自动取消');
+            return;
+        }
+
+        const params = new URLSearchParams({
+            source: 'orders',
+            orderNo: order.id,
+            amount: order.amount.toFixed(2),
+            payeeName: order.payeeName,
+            payeeMobile: order.payeeMobile,
+            payeeBank: order.payeeBank,
+            payeeCard: order.payeeCard,
+            summary: order.summary,
+            createdAt: order.createdAt,
+            mode: 'detail',
+            items: JSON.stringify(order.items || [])
+        });
+
+        window.location.href = 'buyer-cashier.html?' + params.toString();
+    }
+};
+
+// ==================== 应用主控 ====================
+const App = {
+    init() {
+        // 读取来源参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const sourcePage = urlParams.get('source') || 'my';
+        const backLink = sourcePage === 'home' ? 'buyer-home.html' : 'buyer-my.html';
+
+        // 初始化UI组件
+        document.getElementById('statusBar').innerHTML = renderStatusBar();
+        document.getElementById('navBar').innerHTML = renderHeader('付款记录', backLink);
+        document.getElementById('tabBar').innerHTML = renderBuyerTabBar('mine');
+
+        // 初始化筛选面板
+        FilterPanel.init();
+
+        // 首次渲染
+        this.refresh();
+
+        // 启动定时器
+        this.startTimer();
+    },
+
+    refresh() {
+        // 同步超时订单
+        OrderService.syncTimeout();
+
+        // 获取并筛选订单
+        const orders = OrderService.getOrders();
+        const filtered = FilterService.apply(orders);
+
+        // 空状态处理
+        if (filtered.length === 0) {
+            RenderService.renderEmpty();
+            return;
+        }
+
+        // 有筛选条件时平铺展示，无筛选时按天分组展示
+        if (FilterService.isActive()) {
+            RenderService.renderFlatList(filtered);
+        } else {
+            const groups = GroupService.group(filtered);
+            RenderService.renderList(groups);
+        }
+    },
+
+    startTimer() {
+        setInterval(() => {
+            const changed = OrderService.syncTimeout();
+            if (changed) {
+                this.refresh();
+            } else {
+                RenderService.updateCountdowns();
+            }
+        }, 1000);
+    },
+
+    showToast(msg) {
+        const tip = document.getElementById('toastTip');
+        tip.textContent = msg;
+        tip.classList.add('show');
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => tip.classList.remove('show'), 1800);
+    }
+};
+
+// 启动应用
+App.init();
+</script>
+</body>
+</html>

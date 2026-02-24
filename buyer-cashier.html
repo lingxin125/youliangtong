@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 收银台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .pay-option {
+            transition: all 0.2s ease;
+        }
+        .pay-option.active {
+            border-color: #11A64A;
+            background: rgba(240, 253, 244, 0.6);
+        }
+        .pay-option .radio-circle {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            border: 2px solid #D1D5DB;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pay-option.active .radio-circle {
+            border-color: #11A64A;
+            background: #11A64A;
+        }
+        .pay-option.active .radio-circle::after {
+            content: '';
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+        .toast-tip {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 100px;
+            padding: 11px 14px;
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 11px;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.45;
+            z-index: 80;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(8px);
+            transition: all 0.2s ease;
+        }
+        .toast-tip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4" style="padding-bottom:100px;">
+
+        <!-- 付款金额卡片 -->
+        <div class="glass-panel rounded-2xl p-6 text-center">
+            <div id="mainPayee" class="text-sm text-gray-600 mb-2">-</div>
+            <div id="mainAmount" class="text-4xl font-bold text-gray-800 mb-2" style="font-family:Poppins;">¥ 0.00</div>
+            <div class="text-xs text-gray-400">付款金额</div>
+        </div>
+
+        <!-- 支付方式选择 -->
+        <div class="glass-card rounded-xl p-4">
+            <div class="text-xs text-gray-500 font-medium mb-3">选择支付方式</div>
+            <div class="space-y-2.5">
+                <!-- 行业支付 -->
+                <div class="pay-option border border-gray-200 rounded-xl p-3.5 flex items-center gap-3 cursor-pointer" data-method="industry" onclick="selectPay(this)">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                        <i class="fas fa-university text-blue-500"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-sm font-medium text-gray-800">行业支付</span>
+                            <span class="text-[8px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">推荐</span>
+                        </div>
+                        <div class="text-[10px] text-gray-400 mt-0.5">银行转账，安全可靠</div>
+                    </div>
+                    <div class="radio-circle"></div>
+                </div>
+
+                <!-- 订单付 -->
+                <div class="pay-option border border-gray-200 rounded-xl p-3.5 flex items-center gap-3 cursor-pointer" data-method="guarantee" onclick="selectPay(this)">
+                    <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                        <i class="fas fa-file-invoice-dollar text-orange-500"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-800">订单付</div>
+                        <div class="text-[10px] text-gray-400 mt-0.5">大额担保，资金冻结待确认放款</div>
+                    </div>
+                    <div class="radio-circle"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 倒计时提示 -->
+        <div class="flex items-center gap-2 px-2">
+            <i class="fas fa-clock text-orange-500/70 text-xs"></i>
+            <span id="countdownText" class="text-[11px] text-orange-600">请在30分钟内完成支付</span>
+        </div>
+    </div>
+
+    <!-- 底部确认支付 -->
+    <div class="absolute bottom-0 left-0 right-0 px-4 py-4 bg-gradient-to-t from-[#FFFBF0] via-[#FFFBF0] to-transparent">
+        <button id="confirmPayBtn" class="w-full py-3 bg-primary text-white font-medium text-[15px] rounded-xl shadow-glow active:scale-[0.98] transition-transform" onclick="confirmPay()">
+            <i class="fas fa-lock mr-1.5"></i>确认付款
+        </button>
+    </div>
+
+    <div id="toastTip" class="toast-tip"></div>
+
+    <div id="bankModal" class="absolute inset-0 bg-black/35 z-[75] items-end" style="display:none;">
+        <div class="glass-panel rounded-t-3xl p-5 w-full">
+            <div class="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-4"></div>
+            <div class="text-base font-semibold text-gray-800 mb-1">已跳转银行 APP</div>
+            <div class="text-[11px] text-gray-500 mb-4">原型演示：请选择本次支付结果</div>
+            <div class="space-y-2.5">
+                <button class="w-full py-3 bg-primary text-white rounded-xl text-sm font-medium" onclick="finishPay('success')">支付成功</button>
+                <button class="w-full py-3 bg-red-50 text-red-500 rounded-xl text-sm font-medium border border-red-100" onclick="finishPay('failed')">支付失败</button>
+                <button class="w-full py-3 bg-gray-100 text-gray-600 rounded-xl text-sm font-medium" onclick="finishPay('pending')">中途退出（待支付）</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const fallbackNow = new Date();
+const mockStore = window.BuyerMockStore || null;
+const payerProfile = (mockStore && typeof mockStore.getPayer === 'function')
+    ? mockStore.getPayer()
+    : { name: '张老板', org: '保定收购站' };
+const state = {
+    source: params.get('source') || 'billing',
+    orderNo: params.get('orderNo') || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
+    amount: parseFloat(params.get('amount')) || 5000,
+    payeeName: params.get('payeeName') || '李大姐',
+    payeeMobile: params.get('payeeMobile') || '138****8888',
+    payeeBank: params.get('payeeBank') || '中国邮政储蓄银行',
+    payeeCard: params.get('payeeCard') || '尾号 8888',
+    summary: params.get('summary') || '苹果 x 50斤',
+    createdAt: params.get('createdAt') || fallbackNow.toISOString(),
+    mode: params.get('mode') || 'detail',
+    items: parseItems(params.get('items')),
+    payMethod: ''
+};
+
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader(
+    '收银台',
+    state.source === 'orders' ? 'buyer-orders.html' : 'buyer-billing.html'
+);
+
+function selectPay(el) {
+    document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('active'));
+    el.classList.add('active');
+    state.payMethod = el.getAttribute('data-method') || '';
+}
+
+function showToast(msg) {
+    const tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => tip.classList.remove('show'), 1800);
+}
+
+function formatMoney(amount) {
+    return '¥ ' + amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function parseItems(raw) {
+    if (!raw) return [];
+    try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+        return [];
+    }
+}
+
+function fillPage() {
+    ensureOrderInStore();
+    document.getElementById('mainAmount').textContent = formatMoney(state.amount);
+    document.getElementById('mainPayee').textContent = '向 ' + state.payeeName + ' 付款';
+}
+
+function ensureOrderInStore() {
+    if (!mockStore || typeof mockStore.upsertOrder !== 'function') return;
+    mockStore.upsertOrder({
+        id: state.orderNo,
+        status: 'pending',
+        payeeName: state.payeeName,
+        payeeMobile: state.payeeMobile,
+        payeeBank: state.payeeBank,
+        payeeCard: state.payeeCard,
+        summary: state.summary,
+        amount: Number(state.amount.toFixed(2)),
+        createdAt: state.createdAt,
+        payerName: payerProfile.name,
+        payerOrg: payerProfile.org,
+        payerMobile: payerProfile.mobile || '',
+        payMethod: '',
+        paidAt: '',
+        failReason: '',
+        items: state.items
+    });
+}
+
+function syncOrderToStore(status, extra) {
+    if (!mockStore || typeof mockStore.updateOrder !== 'function') return;
+    const patch = Object.assign({
+        status: status,
+        payMethod: state.payMethod || ''
+    }, extra || {});
+    mockStore.updateOrder(state.orderNo, patch);
+}
+
+let expired = false;
+let countdownTimer = null;
+let expiredSynced = false;
+function startCountdown() {
+    const createdAt = new Date(state.createdAt);
+    const expireAt = new Date(createdAt.getTime() + 30 * 60 * 1000);
+    const countdownText = document.getElementById('countdownText');
+    const confirmBtn = document.getElementById('confirmPayBtn');
+
+    function renderCountdown() {
+        const diff = expireAt.getTime() - Date.now();
+        if (diff <= 0) {
+            expired = true;
+            clearInterval(countdownTimer);
+            countdownText.className = 'text-[11px] text-red-500';
+            countdownText.textContent = '订单已超时，系统已自动取消';
+            confirmBtn.classList.remove('bg-primary');
+            confirmBtn.classList.add('bg-gray-300');
+            confirmBtn.disabled = true;
+            if (!expiredSynced) {
+                syncOrderToStore('canceled', { failReason: '超时未支付，系统自动取消' });
+                expiredSynced = true;
+            }
+            return;
+        }
+        const m = Math.floor(diff / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        countdownText.className = 'text-[11px] text-orange-600';
+        countdownText.textContent = '请在 ' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + ' 内完成支付';
+    }
+
+    renderCountdown();
+    countdownTimer = setInterval(renderCountdown, 1000);
+}
+
+function confirmPay() {
+    if (expired) {
+        syncOrderToStore('canceled', { failReason: '超时未支付，系统自动取消' });
+        goOrderDetail('canceled', { failReason: '超时未支付，系统自动取消' });
+        return;
+    }
+    if (!state.payMethod) {
+        showToast('请选择支付方式');
+        return;
+    }
+    document.getElementById('bankModal').style.display = 'flex';
+}
+
+function finishPay(result) {
+    document.getElementById('bankModal').style.display = 'none';
+    if (result === 'success') {
+        const paidAt = new Date().toISOString();
+        syncOrderToStore('success', { paidAt: paidAt });
+        goOrderDetail('success', { paidAt: paidAt });
+        return;
+    }
+    if (result === 'failed') {
+        syncOrderToStore('failed', { failReason: '银行返回失败，请重试' });
+        goOrderDetail('failed', { failReason: '银行返回失败，请重试' });
+        return;
+    }
+    syncOrderToStore('pending');
+    goOrderDetail('pending');
+}
+
+function goOrderDetail(status, extra) {
+    const p = new URLSearchParams({
+        source: 'cashier',
+        status: status,
+        orderNo: state.orderNo,
+        amount: state.amount.toFixed(2),
+        payeeName: state.payeeName,
+        payeeMobile: state.payeeMobile,
+        payeeBank: state.payeeBank,
+        payeeCard: state.payeeCard,
+        summary: state.summary,
+        createdAt: state.createdAt,
+        mode: state.mode,
+        items: JSON.stringify(state.items),
+        payMethod: state.payMethod
+    });
+
+    if (extra) {
+        Object.keys(extra).forEach(key => {
+            if (extra[key] !== undefined && extra[key] !== null) {
+                p.set(key, String(extra[key]));
+            }
+        });
+    }
+
+    window.location.href = 'buyer-order-detail.html?' + p.toString();
+}
+
+fillPage();
+startCountdown();
+</script>
+</body>
+</html>

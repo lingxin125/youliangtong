@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 我的信息</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #FFFBF0;
+        }
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: #fff;
+        }
+        .info-row:not(:last-child) {
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .info-label {
+            font-size: 15px;
+            color: #1F2937;
+            font-weight: 400;
+        }
+        .info-value {
+            font-size: 15px;
+            color: #6B7280;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .role-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #DCFCE7;
+            color: #16A34A;
+            font-size: 12px;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .copy-icon {
+            color: #9CA3AF;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .copy-icon:active {
+            color: #11A64A;
+        }
+        .chevron {
+            color: #D1D5DB;
+            font-size: 14px;
+            margin-left: 4px;
+        }
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <!-- 状态栏 -->
+    <div id="statusBar"></div>
+    <!-- 导航栏 -->
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar pb-4" style="padding-bottom:80px;">
+
+        <!-- 信息列表 -->
+        <div class="mt-3 mx-4 rounded-xl overflow-hidden shadow-sm" style="background:#fff; border:1px solid rgba(0,0,0,0.04);">
+            <!-- 我的头像 -->
+            <div class="info-row">
+                <span class="info-label">我的头像</span>
+                <span class="info-value">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face"
+                         alt="头像" class="avatar-img">
+                    <i class="fas fa-chevron-right chevron"></i>
+                </span>
+            </div>
+
+            <!-- 名字 -->
+            <div class="info-row">
+                <span class="info-label">名字</span>
+                <span class="info-value">
+                    张伟
+                    <i class="fas fa-chevron-right chevron"></i>
+                </span>
+            </div>
+
+            <!-- 当前角色 -->
+            <div class="info-row">
+                <span class="info-label">当前角色</span>
+                <span class="info-value">
+                    <span class="role-tag">收购商</span>
+                </span>
+            </div>
+
+            <!-- 商户号 -->
+            <div class="info-row">
+                <span class="info-label">商户号</span>
+                <span class="info-value" style="font-family:Poppins;">
+                    6026245559
+                    <i class="far fa-copy copy-icon" onclick="copyMerchantNo()"></i>
+                </span>
+            </div>
+
+            <!-- 商户名称 -->
+            <div class="info-row">
+                <span class="info-label">商户名称</span>
+                <span class="info-value">张三的粮站</span>
+            </div>
+
+            <!-- 创建日期 -->
+            <div class="info-row">
+                <span class="info-label">创建日期</span>
+                <span class="info-value" style="font-family:Poppins;">2024-03-15</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div id="tabBar"></div>
+</div>
+
+<!-- Toast 提示 -->
+<div id="toast" class="toast"></div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('我的信息', 'buyer-my.html');
+document.getElementById('tabBar').innerHTML = renderBuyerTabBar('mine');
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2000);
+}
+
+function copyMerchantNo() {
+    const merchantNo = '6026245559';
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(merchantNo).then(() => {
+            showToast('商户号已复制');
+        }).catch(() => {
+            showToast('复制失败');
+        });
+    } else {
+        const input = document.createElement('input');
+        input.value = merchantNo;
+        document.body.appendChild(input);
+        input.select();
+        try {
+            document.execCommand('copy');
+            showToast('商户号已复制');
+        } catch (e) {
+            showToast('复制失败');
+        }
+        document.body.removeChild(input);
+    }
+}
+</script>
+</body>
+</html>

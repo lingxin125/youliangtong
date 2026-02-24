@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 关注关键词</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4">
+        <!-- 关键词设置区 -->
+        <div class="glass-panel rounded-2xl p-4 mt-2">
+            <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-1">
+                <i class="fas fa-tags text-gray-400"></i>
+                <span>我的关键词</span>
+            </div>
+            <div class="text-xs text-gray-400 mb-3">已添加 <span id="keywordCount">0</span>/10</div>
+
+            <div id="keywordBox" class="flex flex-wrap gap-2 mb-3"></div>
+
+            <div class="flex gap-2">
+                <input id="keywordInput" class="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-primary bg-white" placeholder="输入关键词，例如 玉米">
+                <button class="px-4 py-2.5 bg-primary text-white rounded-lg text-sm font-medium" onclick="addKeyword()">添加</button>
+            </div>
+        </div>
+
+        <!-- 规则说明 -->
+        <div class="glass-card rounded-xl p-4 mt-3">
+            <div class="flex items-center gap-2 mb-2">
+                <i class="fas fa-circle-info text-primary/60 text-xs"></i>
+                <span class="text-xs font-medium text-gray-600">关键词说明</span>
+            </div>
+            <div class="space-y-1.5 text-xs text-gray-500 leading-relaxed">
+                <div>• 设置关键词后，市场页面将优先展示包含关键词的收购商求购信息</div>
+                <div>• 点击"只看关注"标签可单独筛选展示相关采购需求</div>
+                <div>• 支持添加多个关键词，最多10个</div>
+                <div>• 点击关键词上的 × 可删除</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastTip" class="absolute left-4 right-4 bottom-[88px] px-3.5 py-2.5 bg-black/85 text-white text-xs rounded-lg opacity-0 pointer-events-none transition-all duration-200 z-[72]"></div>
+</div>
+
+<script>
+// 读取来源参数，动态设置返回链接
+var urlParams = new URLSearchParams(window.location.search);
+var sourcePage = urlParams.get('source') || 'my';
+var backLink = 'farmer-my.html';
+if (sourcePage === 'market') {
+    backLink = 'farmer-market.html';
+} else if (sourcePage === 'home') {
+    backLink = 'farmer-home.html';
+}
+
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('关注关键词', backLink);
+
+var STORAGE_KEY = 'ylt_keywords_farmer_v1';
+var defaultKeywords = ['小麦', '玉米', '西红柿'];
+var keywords = loadKeywords();
+
+// 更新关键词计数
+function updateCount() {
+    document.getElementById('keywordCount').textContent = keywords.length;
+}
+
+document.getElementById('keywordInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        addKeyword();
+    }
+});
+
+function renderKeywords() {
+    var box = document.getElementById('keywordBox');
+    if (!keywords.length) {
+        box.innerHTML = '<div class="text-xs text-gray-400 py-2">暂无关键词，请添加</div>';
+        updateCount();
+        return;
+    }
+    box.innerHTML = keywords.map(function(k, idx) {
+        return '<span class="inline-flex items-center gap-1.5 text-sm bg-primary/10 text-primary px-3 py-1.5 rounded-lg">' + k +
+            '<button class="text-primary/60 hover:text-primary" onclick="removeKeyword(' + idx + ')"><i class="fas fa-times text-xs"></i></button>' +
+        '</span>';
+    }).join('');
+    updateCount();
+}
+
+function addKeyword() {
+    var input = document.getElementById('keywordInput');
+    var val = input.value.trim();
+    if (!val) {
+        showToast('请输入关键词');
+        return;
+    }
+    if (keywords.indexOf(val) !== -1) {
+        input.value = '';
+        showToast('该关键词已存在');
+        return;
+    }
+    if (keywords.length >= 10) {
+        showToast('最多添加10个关键词');
+        return;
+    }
+    keywords.push(val);
+    input.value = '';
+    renderKeywords();
+    saveKeywords();
+    showToast('已添加');
+}
+
+function removeKeyword(idx) {
+    keywords.splice(idx, 1);
+    renderKeywords();
+    saveKeywords();
+    showToast('已移除');
+}
+
+function saveKeywords() {
+    try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(keywords));
+    } catch (err) {
+        showToast('保存失败，请稍后重试');
+    }
+}
+
+function loadKeywords() {
+    try {
+        var raw = window.localStorage.getItem(STORAGE_KEY);
+        if (!raw) return defaultKeywords.slice();
+        var parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return defaultKeywords.slice();
+        return parsed.filter(function(item) { return typeof item === 'string' && item.trim(); }).slice(0, 10);
+    } catch (err) {
+        return defaultKeywords.slice();
+    }
+}
+
+function showToast(msg) {
+    var tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.remove('opacity-0');
+    tip.classList.add('opacity-100');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() {
+        tip.classList.remove('opacity-100');
+        tip.classList.add('opacity-0');
+    }, 1700);
+}
+
+renderKeywords();
+</script>
+</body>
+</html>

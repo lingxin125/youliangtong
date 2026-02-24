@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 消息通知</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .tab-item {
+            position: relative;
+            padding: 10px 18px;
+            font-size: 15px;
+            color: #6B7280;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .tab-item.active {
+            color: #111827;
+            font-weight: 700;
+        }
+        .tab-item .badge {
+            position: absolute;
+            top: 4px;
+            right: 0px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            background: #EF4444;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tab-item .badge.hidden {
+            display: none;
+        }
+        .tab-item .badge-dot {
+            position: absolute;
+            top: 6px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: #EF4444;
+            border-radius: 50%;
+        }
+        .tab-item .badge-dot.hidden {
+            display: none;
+        }
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 16px;
+            right: 16px;
+            height: 2px;
+            background: #11A64A;
+            border-radius: 1px;
+        }
+        .notif-card {
+            transition: all 0.2s ease;
+        }
+        .notif-card:active {
+            transform: scale(0.98);
+        }
+        .notif-card.unread {
+            background: #FFFFFF;
+        }
+        .unread-dot {
+            width: 6px;
+            height: 6px;
+            background: #EF4444;
+            border-radius: 50%;
+        }
+        .mark-read-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: #11A64A;
+            background: #F0FDF4;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .mark-read-btn:active {
+            background: #DCFCE7;
+        }
+        .notif-card.hidden {
+            display: none;
+        }
+        .type-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <!-- 自定义导航栏 -->
+    <div class="flex items-center justify-between px-4 py-3 shrink-0">
+        <a href="buyer-my.html" class="w-8 h-8 flex items-center justify-center rounded-full active:bg-gray-100">
+            <i class="fas fa-chevron-left text-gray-800 text-lg"></i>
+        </a>
+        <div class="text-gray-800 font-medium text-[16px]" style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;">消息通知</div>
+        <div class="w-8"></div>
+    </div>
+
+    <!-- Tab 切换 + 全部已读 -->
+    <div class="flex items-center justify-between px-4 border-b border-gray-100 shrink-0">
+        <div class="flex items-center">
+            <div class="tab-item active" data-type="business" onclick="switchTab(this)">
+                业务通知
+                <span class="badge" id="business-badge">2</span>
+                <span class="badge-dot hidden" id="business-dot"></span>
+            </div>
+            <div class="tab-item" data-type="system" onclick="switchTab(this)">
+                系统通知
+                <span class="badge hidden" id="system-badge">1</span>
+                <span class="badge-dot" id="system-dot"></span>
+            </div>
+        </div>
+        <div class="mark-read-btn" onclick="markAllRead()">
+            <i class="fas fa-check-double text-[10px]"></i>
+            <span>全部已读</span>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 py-3" style="padding-bottom:20px;">
+
+        <!-- 业务通知 -->
+        <div id="business-list">
+            <!-- 消息1 - 业务通知（未读） -->
+            <div class="notif-card glass-card rounded-xl p-4 mb-3 unread" data-type="business">
+                <div class="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                            <i class="fas fa-bell text-primary text-[10px]"></i>
+                        </div>
+                        <span class="type-label">业务通知</span>
+                        <div class="unread-dot"></div>
+                    </div>
+                    <span class="text-[11px] text-gray-400" style="font-family: Poppins, monospace;">2026-02-23 14:32:05</span>
+                </div>
+                <div class="text-[15px] font-semibold text-gray-800 mb-1.5">订单超时取消通知</div>
+                <div class="text-xs text-gray-500 leading-relaxed mb-2">订单 <span class="text-primary font-medium">SL20260220091501</span> 超过30分钟未支付，系统已自动取消，可重新开单发起支付。</div>
+                <div class="flex items-center justify-end">
+                    <span class="text-[11px] text-primary font-medium">查看详情</span>
+                    <i class="fas fa-chevron-right text-primary text-[10px] ml-1"></i>
+                </div>
+            </div>
+
+            <!-- 消息2 - 业务通知（未读） -->
+            <div class="notif-card glass-card rounded-xl p-4 mb-3 unread" data-type="business">
+                <div class="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                            <i class="fas fa-bell text-primary text-[10px]"></i>
+                        </div>
+                        <span class="type-label">业务通知</span>
+                        <div class="unread-dot"></div>
+                    </div>
+                    <span class="text-[11px] text-gray-400" style="font-family: Poppins, monospace;">2026-02-23 14:05:18</span>
+                </div>
+                <div class="text-[15px] font-semibold text-gray-800 mb-1.5">需求意向通知</div>
+                <div class="text-xs text-gray-500 leading-relaxed mb-2">农户李大姐对您发布的求购需求感兴趣，建议尽快联系确认供货明细。</div>
+                <div class="flex items-center justify-end">
+                    <span class="text-[11px] text-primary font-medium">查看详情</span>
+                    <i class="fas fa-chevron-right text-primary text-[10px] ml-1"></i>
+                </div>
+            </div>
+
+            <!-- 消息5 - 业务通知（已读） -->
+            <div class="notif-card glass-card rounded-xl p-4 mb-3" data-type="business">
+                <div class="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                            <i class="fas fa-bell text-primary text-[10px]"></i>
+                        </div>
+                        <span class="type-label">业务通知</span>
+                    </div>
+                    <span class="text-[11px] text-gray-400" style="font-family: Poppins, monospace;">2026-02-09 10:15:30</span>
+                </div>
+                <div class="text-[15px] font-semibold text-gray-800 mb-1.5">认证审核通过</div>
+                <div class="text-xs text-gray-500 leading-relaxed mb-2">您的收购商身份认证已审核通过，现在可以使用平台开单、收银台与订单功能。</div>
+                <div class="flex items-center justify-end">
+                    <span class="text-[11px] text-primary font-medium">查看详情</span>
+                    <i class="fas fa-chevron-right text-primary text-[10px] ml-1"></i>
+                </div>
+            </div>
+
+            <!-- 消息6 - 业务通知（已读） -->
+            <div class="notif-card glass-card rounded-xl p-4 mb-3" data-type="business">
+                <div class="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                            <i class="fas fa-bell text-primary text-[10px]"></i>
+                        </div>
+                        <span class="type-label">业务通知</span>
+                    </div>
+                    <span class="text-[11px] text-gray-400" style="font-family: Poppins, monospace;">2026-02-08 16:45:22</span>
+                </div>
+                <div class="text-[15px] font-semibold text-gray-800 mb-1.5">订单支付成功通知</div>
+                <div class="text-xs text-gray-500 leading-relaxed mb-2">订单 <span class="text-primary font-medium">SL20260218103022</span> 已支付成功，金额 <span class="text-primary font-medium">¥2,100.00</span>，可在订单详情查看。</div>
+                <div class="flex items-center justify-end">
+                    <span class="text-[11px] text-primary font-medium">查看详情</span>
+                    <i class="fas fa-chevron-right text-primary text-[10px] ml-1"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 系统通知 -->
+        <div id="system-list" class="hidden">
+            <!-- 消息3 - 系统通知（已读） -->
+            <div class="notif-card glass-card rounded-xl p-4 mb-3" data-type="system">
+                <div class="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                            <i class="fas fa-bell text-primary text-[10px]"></i>
+                        </div>
+                        <span class="type-label">系统通知</span>
+                    </div>
+                    <span class="text-[11px] text-gray-400" style="font-family: Poppins, monospace;">2026-02-23 12:45:33</span>
+                </div>
+                <div class="text-[15px] font-bold text-gray-900 mb-1.5">关键词匹配提醒</div>
+                <div class="text-xs text-gray-500 leading-relaxed mb-2">关注关键词"玉米"有3条新匹配的采购需求，点击查看详情。</div>
+                <div class="flex items-center justify-end">
+                    <span class="text-[11px] text-primary font-medium">查看详情</span>
+                    <i class="fas fa-chevron-right text-primary text-[10px] ml-1"></i>
+                </div>
+            </div>
+
+            <!-- 消息4 - 系统通知（已读） -->
+            <div class="notif-card glass-card rounded-xl p-4 mb-3" data-type="system">
+                <div class="flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                            <i class="fas fa-bell text-primary text-[10px]"></i>
+                        </div>
+                        <span class="type-label">系统通知</span>
+                    </div>
+                    <span class="text-[11px] text-gray-400" style="font-family: Poppins, monospace;">2026-02-22 22:00:15</span>
+                </div>
+                <div class="text-[15px] font-bold text-gray-900 mb-1.5">平台维护通知</div>
+                <div class="text-xs text-gray-500 leading-relaxed mb-2">平台将于2月12日凌晨2:00-4:00进行系统升级维护，届时部分功能可能暂时不可用。</div>
+                <div class="flex items-center justify-end">
+                    <span class="text-[11px] text-primary font-medium">查看详情</span>
+                    <i class="fas fa-chevron-right text-primary text-[10px] ml-1"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// 读取来源参数，动态设置返回链接
+const urlParams = new URLSearchParams(window.location.search);
+const sourcePage = urlParams.get('source') || 'my';
+const backLink = sourcePage === 'home' ? 'buyer-home.html' : 'buyer-my.html';
+
+// 更新返回按钮链接
+document.querySelector('a[href="buyer-my.html"]').setAttribute('href', backLink);
+
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+
+// Tab 切换
+function switchTab(el) {
+    // 切换 Tab 样式
+    document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
+    el.classList.add('active');
+
+    // 获取选中的类型
+    const type = el.getAttribute('data-type');
+
+    // 显示/隐藏对应列表
+    if (type === 'business') {
+        document.getElementById('business-list').classList.remove('hidden');
+        document.getElementById('system-list').classList.add('hidden');
+        // 业务通知激活：显示数字badge，隐藏红点
+        document.getElementById('business-badge').classList.remove('hidden');
+        document.getElementById('business-dot').classList.add('hidden');
+        // 系统通知非激活：隐藏数字badge，显示红点
+        document.getElementById('system-badge').classList.add('hidden');
+        document.getElementById('system-dot').classList.remove('hidden');
+    } else {
+        document.getElementById('business-list').classList.add('hidden');
+        document.getElementById('system-list').classList.remove('hidden');
+        // 业务通知非激活：隐藏数字badge，显示红点
+        document.getElementById('business-badge').classList.add('hidden');
+        document.getElementById('business-dot').classList.remove('hidden');
+        // 系统通知激活：显示数字badge，隐藏红点
+        document.getElementById('system-badge').classList.remove('hidden');
+        document.getElementById('system-dot').classList.add('hidden');
+    }
+}
+
+// 全部已读
+function markAllRead() {
+    document.querySelectorAll('.unread-dot').forEach(dot => dot.style.display = 'none');
+    document.querySelectorAll('.unread').forEach(card => card.classList.remove('unread'));
+    // 隐藏所有tab上的badge和dot
+    document.querySelectorAll('.tab-item .badge').forEach(badge => badge.classList.add('hidden'));
+    document.querySelectorAll('.tab-item .badge-dot').forEach(dot => dot.classList.add('hidden'));
+    try {
+        localStorage.setItem('ylt_message_badge_count', '0');
+    } catch (e) {}
+}
+
+// 清除未读消息红点
+(function clearMessageBadge() {
+    try {
+        localStorage.setItem('ylt_message_badge_count', '0');
+    } catch (e) {}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 发布需求</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        /* 品类标签 - 与开单页保持一致 */
+        .category-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+        .category-tag:active {
+            transform: scale(0.95);
+        }
+        /* 品类颜色 - 未选中状态 */
+        .category-tag.bg-red-50 { background: #FEE2E2; color: #EF4444; }
+        .category-tag.bg-green-50 { background: #DCFCE7; color: #22C55E; }
+        .category-tag.bg-amber-50 { background: #FEF3C7; color: #F59E0B; }
+        .category-tag.bg-violet-50 { background: #EDE9FE; color: #8B5CF6; }
+        .category-tag.bg-orange-50 { background: #FFE4D6; color: #F97316; }
+        .category-tag.bg-gray-100 { background: #F3F4F6; color: #6B7280; }
+        /* 选中状态 - 保持品类颜色 + 边框 + 阴影 */
+        .category-tag.active {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            font-weight: 600;
+        }
+        .category-tag.active.border-red-200 { border-color: #FECACA; }
+        .category-tag.active.border-green-200 { border-color: #BBF7D0; }
+        .category-tag.active.border-amber-200 { border-color: #FDE68A; }
+        .category-tag.active.border-violet-200 { border-color: #DDD6FE; }
+        .category-tag.active.border-orange-200 { border-color: #FED7AA; }
+        .category-tag.active.border-gray-200 { border-color: #E5E7EB; }
+
+        /* 输入框样式 */
+        .custom-input {
+            width: 100%;
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #1F2937;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .custom-input:focus {
+            border-color: #11A64A;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(17, 166, 74, 0.08);
+        }
+        .custom-input::placeholder {
+            color: #9CA3AF;
+        }
+
+        /* Toast 提示 */
+        .toast-tip {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            padding: 12px 20px;
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .toast-tip.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:80px;">
+
+        <!-- 单一卡片容器 -->
+        <div class="glass-panel rounded-2xl mt-3 overflow-hidden">
+
+            <!-- 区块1：品类选择 -->
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-apple-whole text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700">选择品类 <span class="text-red-400">*</span></span>
+                </div>
+                <div class="grid grid-cols-4 gap-2" id="cateGrid">
+                    <div class="category-tag bg-red-50 text-red-500" data-cate="水果" data-border="border-red-200" onclick="selectCate(this)">
+                        <i class="fas fa-apple-whole text-xs"></i>水果
+                    </div>
+                    <div class="category-tag bg-green-50 text-green-500" data-cate="蔬菜" data-border="border-green-200" onclick="selectCate(this)">
+                        <i class="fas fa-carrot text-xs"></i>蔬菜
+                    </div>
+                    <div class="category-tag bg-amber-50 text-amber-500" data-cate="粮油" data-border="border-amber-200" onclick="selectCate(this)">
+                        <i class="fas fa-wheat-awn text-xs"></i>粮油
+                    </div>
+                    <div class="category-tag bg-violet-50 text-violet-500" data-cate="禽蛋" data-border="border-violet-200" onclick="selectCate(this)">
+                        <i class="fas fa-egg text-xs"></i>禽蛋
+                    </div>
+                    <div class="category-tag bg-orange-50 text-orange-500" data-cate="肉类" data-border="border-orange-200" onclick="selectCate(this)">
+                        <i class="fas fa-drumstick-bite text-xs"></i>肉类
+                    </div>
+                    <div class="category-tag bg-gray-100 text-gray-500" data-cate="其他" data-border="border-gray-200" onclick="selectCate(this)">
+                        <i class="fas fa-box-open text-xs"></i>其他
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分割线 -->
+            <div class="border-t border-gray-100"></div>
+
+            <!-- 区块2：需求内容 -->
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-edit text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700">需求内容 <span class="text-red-400">*</span></span>
+                </div>
+                <input type="text" id="titleInput" class="custom-input mb-2" placeholder="如：收购红富士苹果" maxlength="20">
+                <div class="flex justify-end">
+                    <span class="text-[10px] text-gray-400" id="titleCount">0/20</span>
+                </div>
+                <textarea id="contentInput" rows="2" class="custom-input resize-none" placeholder="补充描述品种、规格、质量要求等"></textarea>
+            </div>
+
+            <!-- 分割线 -->
+            <div class="border-t border-gray-100"></div>
+
+            <!-- 区块3：数量 -->
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-weight-hanging text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700">收购数量 <span class="text-red-400">*</span></span>
+                </div>
+                <div class="flex gap-3">
+                    <input type="number" id="qtyInput" class="custom-input flex-1" placeholder="请输入数量">
+                    <select id="unitSelect" class="custom-input w-24 text-center" onchange="updatePricePlaceholder()">
+                        <option value="斤">斤</option>
+                        <option value="公斤">公斤</option>
+                        <option value="吨">吨</option>
+                        <option value="箱">箱</option>
+                        <option value="袋">袋</option>
+                        <option value="个">个</option>
+                        <option value="件">件</option>
+                        <option value="捆">捆</option>
+                        <option value="框">框</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 分割线 -->
+            <div class="border-t border-gray-100"></div>
+
+            <!-- 区块4：意向价格（选填） -->
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-tag text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700">意向单价 <span class="text-gray-400 text-xs font-normal">（选填）</span></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-400 text-sm">¥</span>
+                    <input type="number" id="priceInput" step="0.01" class="custom-input" placeholder="元/斤，不填表示面议">
+                </div>
+                <p class="text-[10px] text-gray-400 mt-2">
+                    <i class="fas fa-info-circle mr-0.5"></i>
+                    价格为每<span id="unitLabel">斤</span>的单价，不填表示面议
+                </p>
+            </div>
+
+        </div>
+
+        <!-- 提示文字 -->
+        <div class="mt-3 px-1">
+            <p class="text-xs text-gray-400">
+                <i class="fas fa-info-circle mr-0.5"></i>
+                最多同时发布20条进行中需求
+            </p>
+        </div>
+
+    </div>
+
+    <!-- 底部发布按钮 -->
+    <div id="submitBar" class="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-[#FFFBF0] via-[#FFFBF0] to-transparent">
+        <button id="submitBtn" class="w-full py-2.5 bg-primary text-white font-medium text-sm rounded-xl shadow-glow active:scale-[0.98] transition-transform" onclick="submitDemand()">
+            <i class="fas fa-paper-plane mr-1"></i>发布求购需求
+        </button>
+    </div>
+
+    <div id="toastTip" class="toast-tip"></div>
+</div>
+
+<script>
+const demandStore = window.DemandMockStore || null;
+const q = new URLSearchParams(window.location.search);
+const mode = q.get('mode') || '';
+const isEdit = mode === 'edit';
+const isView = mode === 'view';
+const editId = q.get('id');
+const fromPage = q.get('from') || '';
+const sourcePage = q.get('source') || '';
+const editingDemand = (isEdit || isView) && demandStore && typeof demandStore.findDemandById === 'function'
+    ? demandStore.findDemandById(editId)
+    : null;
+let selectedCategory = '';
+
+// 动态返回链接优先级：from > source > 默认
+let backLink = 'buyer-market.html';
+if ((isEdit || isView) && fromPage === 'manage') {
+    backLink = 'buyer-demand-manage.html';
+} else if (sourcePage === 'home') {
+    backLink = 'buyer-home.html';
+} else if (sourcePage === 'my') {
+    backLink = 'buyer-my.html';
+}
+
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader(isView ? '需求详情' : (isEdit ? '编辑需求' : '发布需求'), backLink);
+
+if (isEdit) {
+    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save mr-1"></i>保存需求';
+}
+
+if (isView) {
+    lockReadonlyView();
+}
+
+// 标题字数统计
+document.getElementById('titleInput').addEventListener('input', function() {
+    const count = this.value.length;
+    document.getElementById('titleCount').textContent = count + '/20';
+    if (count >= 20) {
+        document.getElementById('titleCount').classList.add('text-red-400');
+        document.getElementById('titleCount').classList.remove('text-gray-400');
+    } else {
+        document.getElementById('titleCount').classList.remove('text-red-400');
+        document.getElementById('titleCount').classList.add('text-gray-400');
+    }
+});
+
+if (editingDemand && editingDemand.role === 'buyer') {
+    hydrateForm(editingDemand);
+}
+
+function lockReadonlyView() {
+    var submitBar = document.getElementById('submitBar');
+    if (submitBar) submitBar.classList.add('hidden');
+
+    document.querySelectorAll('.category-tag').forEach(function(tag) {
+        tag.removeAttribute('onclick');
+        tag.classList.remove('active:scale-95');
+        tag.style.cursor = 'default';
+    });
+
+    var titleInput = document.getElementById('titleInput');
+    var contentInput = document.getElementById('contentInput');
+    var qtyInput = document.getElementById('qtyInput');
+    var priceInput = document.getElementById('priceInput');
+    var unitSelect = document.getElementById('unitSelect');
+
+    if (titleInput) titleInput.readOnly = true;
+    if (contentInput) contentInput.readOnly = true;
+    if (qtyInput) qtyInput.readOnly = true;
+    if (priceInput) priceInput.readOnly = true;
+    if (unitSelect) unitSelect.disabled = true;
+}
+
+function selectCate(el) {
+    if (isView) return;
+    document.querySelectorAll('.category-tag').forEach(b => {
+        b.classList.remove('active');
+        // 移除所有可能的边框类
+        b.classList.remove('border-red-200', 'border-green-200', 'border-amber-200', 'border-violet-200', 'border-orange-200', 'border-gray-200');
+    });
+    el.classList.add('active');
+    // 添加对应的边框类
+    const borderClass = el.getAttribute('data-border');
+    if (borderClass) {
+        el.classList.add(borderClass);
+    }
+    selectedCategory = el.getAttribute('data-cate') || '';
+}
+
+function updatePricePlaceholder() {
+    const unit = document.getElementById('unitSelect').value;
+    document.getElementById('unitLabel').textContent = unit;
+    document.getElementById('priceInput').placeholder = '元/' + unit + '，不填表示面议';
+}
+
+function hydrateForm(demand) {
+    selectedCategory = demand.category || '';
+    document.querySelectorAll('.category-tag').forEach(btn => {
+        const isActive = (btn.getAttribute('data-cate') || '') === selectedCategory;
+        btn.classList.toggle('active', isActive);
+        // 移除所有边框类
+        btn.classList.remove('border-red-200', 'border-green-200', 'border-amber-200', 'border-violet-200', 'border-orange-200', 'border-gray-200');
+        // 如果选中，添加对应的边框类
+        if (isActive) {
+            const borderClass = btn.getAttribute('data-border');
+            if (borderClass) {
+                btn.classList.add(borderClass);
+            }
+        }
+    });
+
+    document.getElementById('unitSelect').value = demand.unit || '斤';
+    updatePricePlaceholder();
+
+    document.getElementById('titleInput').value = demand.title || '';
+    document.getElementById('titleCount').textContent = (demand.title || '').length + '/20';
+    document.getElementById('contentInput').value = demand.content || '';
+    document.getElementById('qtyInput').value = demand.qty || '';
+    document.getElementById('priceInput').value = demand.price === null || demand.price === undefined ? '' : demand.price;
+}
+
+function showToast(msg) {
+    const tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => tip.classList.remove('show'), 2000);
+}
+
+function submitDemand() {
+    if (isView) return;
+    const title = document.getElementById('titleInput').value.trim();
+    const content = document.getElementById('contentInput').value.trim();
+    const qty = Number(document.getElementById('qtyInput').value);
+    const priceRaw = document.getElementById('priceInput').value.trim();
+    const unit = document.getElementById('unitSelect').value;
+
+    if (!selectedCategory) {
+        showToast('请选择品类');
+        return;
+    }
+    if (!title) {
+        showToast('请填写需求内容');
+        return;
+    }
+    if (!qty || qty <= 0) {
+        showToast('请输入有效数量');
+        return;
+    }
+
+    const payload = {
+        role: 'buyer',
+        category: selectedCategory,
+        title: title,
+        content: content,
+        qty: qty,
+        unit: unit,
+        price: priceRaw ? Number(priceRaw) : null
+    };
+
+    if (demandStore && typeof demandStore.createDemand === 'function') {
+        if (isEdit && editingDemand && editingDemand.role === 'buyer' && typeof demandStore.updateDemand === 'function') {
+            demandStore.updateDemand(editingDemand.id, payload);
+        } else {
+            demandStore.createDemand(payload);
+        }
+    }
+
+    const jump = new URLSearchParams({ saved: '1' });
+    if (isEdit) jump.set('mode', 'edit');
+    window.location.href = 'buyer-demand-manage.html?' + jump.toString();
+}
+</script>
+</body>
+</html>

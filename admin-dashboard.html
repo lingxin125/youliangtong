@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通管理端 - 数据看板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="shared.js"></script>
+    <style>
+        .tab-chip {
+            padding: 7px 12px;
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6B7280;
+            background: #F3F4F6;
+            border: 1px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .tab-chip.active {
+            color: #11A64A;
+            background: #F0FDF4;
+            border-color: #11A64A;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+        .kpi-card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.04);
+            border-radius: 12px;
+            padding: 10px 6px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .kpi-card .label {
+            font-size: 10px;
+            color: #6B7280;
+        }
+        .kpi-card .value {
+            margin-top: 3px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+            font-family: 'Poppins', sans-serif;
+        }
+        .panel-section { display: none; }
+        .panel-section.active { display: block; }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:80px;">
+        <div class="flex gap-2 mt-2 mb-3 overflow-x-auto no-scrollbar">
+            <div class="tab-chip active" data-tab="development" onclick="switchTab(this)">发展情况</div>
+            <div class="tab-chip" data-tab="transaction" onclick="switchTab(this)">交易情况</div>
+            <div class="tab-chip" data-tab="category" onclick="switchTab(this)">品类情况</div>
+        </div>
+
+        <section id="tabDevelopment" class="panel-section active space-y-3">
+            <div class="glass-panel rounded-xl p-3.5">
+                <div class="text-xs text-gray-500 mb-2">新增收购商</div>
+                <div class="kpi-grid">
+                    <div class="kpi-card"><div class="label">日新增</div><div class="value">3户</div></div>
+                    <div class="kpi-card"><div class="label">月新增</div><div class="value">28户</div></div>
+                    <div class="kpi-card"><div class="label">年新增</div><div class="value">156户</div></div>
+                </div>
+            </div>
+            <div class="glass-panel rounded-xl p-3.5">
+                <div class="text-xs text-gray-500 mb-2">新增农户</div>
+                <div class="kpi-grid">
+                    <div class="kpi-card"><div class="label">日新增</div><div class="value">12户</div></div>
+                    <div class="kpi-card"><div class="label">月新增</div><div class="value">186户</div></div>
+                    <div class="kpi-card"><div class="label">年新增</div><div class="value">1245户</div></div>
+                </div>
+            </div>
+            <div class="glass-panel rounded-xl p-3.5">
+                <div class="text-xs text-gray-500 mb-2">规模总量</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="kpi-card"><div class="label">收购商总数</div><div class="value">156户</div></div>
+                    <div class="kpi-card"><div class="label">农户总数</div><div class="value">2847户</div></div>
+                </div>
+            </div>
+            <div class="glass-panel rounded-xl p-3.5">
+                <div class="text-sm font-medium text-gray-700 mb-2">月度发展趋势（近12个月）</div>
+                <div id="devChart" style="width:100%;height:220px;"></div>
+            </div>
+        </section>
+
+        <section id="tabTransaction" class="panel-section space-y-3">
+            <div class="glass-panel rounded-xl p-3.5">
+                <div class="text-xs text-gray-500 mb-2">收购笔数</div>
+                <div class="kpi-grid">
+                    <div class="kpi-card"><div class="label">日笔数</div><div class="value">86笔</div></div>
+                    <div class="kpi-card"><div class="label">月笔数</div><div class="value">1245笔</div></div>
+                    <div class="kpi-card"><div class="label">年笔数</div><div class="value">12580笔</div></div>
+                </div>
+            </div>
+            <div class="glass-panel rounded-xl p-3.5">
+                <div class="text-xs text-gray-500 mb-2">收购金额</div>
+                <div class="kpi-grid">
+                    <div class="kpi-card"><div class="label">日金额</div><div class="value">¥28.6万</div></div>
+                    <div class="kpi-card"><div class="label">月金额</div><div class="value">¥386.5万</div></div>
+                    <div class="kpi-card"><div class="label">年金额</div><div class="value">¥2458万</div></div>
+                </div>
+            </div>
+            <div class="glass-panel rounded-xl p-3.5">
+                <div class="text-sm font-medium text-gray-700 mb-2">月度交易趋势（近12个月）</div>
+                <div id="txnChart" style="width:100%;height:220px;"></div>
+            </div>
+        </section>
+
+        <section id="tabCategory" class="panel-section space-y-3">
+            <div class="glass-panel rounded-xl p-3.5">
+                <div class="text-sm font-medium text-gray-700 mb-2">品类收购占比</div>
+                <div id="catChart" style="width:100%;height:220px;"></div>
+            </div>
+            <div class="glass-panel rounded-xl p-3.5">
+                <div class="text-sm font-medium text-gray-700 mb-2">品类明细（日/月/年）</div>
+                <div class="space-y-2" id="catList"></div>
+            </div>
+        </section>
+    </div>
+
+    <div id="admin-tab-bar"></div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('数据看板');
+document.getElementById('admin-tab-bar').innerHTML = renderAdminTabBar('dashboard');
+
+const devChart = echarts.init(document.getElementById('devChart'));
+const txnChart = echarts.init(document.getElementById('txnChart'));
+const catChart = echarts.init(document.getElementById('catChart'));
+
+const monthLabels = ['3月','4月','5月','6月','7月','8月','9月','10月','11月','12月','1月','2月'];
+
+devChart.setOption({
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['收购商新增', '农户新增'], top: 0, textStyle: { fontSize: 10, color: '#6B7280' } },
+    grid: { left: 36, right: 8, top: 28, bottom: 24 },
+    xAxis: { type: 'category', data: monthLabels, axisLabel: { fontSize: 10, color: '#9CA3AF' }, axisLine: { show: false }, axisTick: { show: false } },
+    yAxis: { type: 'value', axisLabel: { fontSize: 10, color: '#9CA3AF' }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } } },
+    series: [
+        { name: '收购商新增', type: 'bar', data: [8, 10, 9, 11, 13, 12, 14, 15, 12, 16, 18, 19], barWidth: 7, itemStyle: { color: '#3B82F6', borderRadius: [3,3,0,0] } },
+        { name: '农户新增', type: 'bar', data: [56, 62, 71, 88, 95, 102, 116, 121, 133, 141, 152, 168], barWidth: 7, itemStyle: { color: '#11A64A', borderRadius: [3,3,0,0] } }
+    ]
+});
+
+txnChart.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: 36, right: 8, top: 16, bottom: 24 },
+    xAxis: { type: 'category', data: monthLabels, axisLabel: { fontSize: 10, color: '#9CA3AF' }, axisLine: { show: false }, axisTick: { show: false } },
+    yAxis: { type: 'value', axisLabel: { fontSize: 10, color: '#9CA3AF', formatter: '{value}' }, splitLine: { lineStyle: { color: 'rgba(0,0,0,0.04)' } } },
+    series: [{
+        name: '收购金额(万元)',
+        type: 'bar',
+        data: [168, 190, 205, 214, 238, 259, 272, 301, 318, 339, 362, 386],
+        barWidth: 12,
+        itemStyle: {
+            borderRadius: [4,4,0,0],
+            color: new echarts.graphic.LinearGradient(0,0,0,1,[{ offset:0, color:'#22C55E' }, { offset:1, color:'#86EFAC' }])
+        }
+    }]
+});
+
+const catData = [
+    { name: '水果', value: 32, color: '#EF4444', merchants: 68, day: '¥8.2万', month: '¥126万', year: '¥856万' },
+    { name: '蔬菜', value: 28, color: '#22C55E', merchants: 52, day: '¥12.5万', month: '¥168万', year: '¥1025万' },
+    { name: '粮食', value: 22, color: '#F59E0B', merchants: 36, day: '¥7.9万', month: '¥92.5万', year: '¥577万' },
+    { name: '禽蛋', value: 8, color: '#8B5CF6', merchants: 24, day: '¥2.4万', month: '¥32万', year: '¥216万' },
+    { name: '肉类', value: 6, color: '#F97316', merchants: 18, day: '¥1.8万', month: '¥26万', year: '¥180万' },
+    { name: '水产', value: 3, color: '#06B6D4', merchants: 11, day: '¥1.2万', month: '¥15万', year: '¥108万' },
+    { name: '其他', value: 1, color: '#9CA3AF', merchants: 6, day: '¥0.6万', month: '¥7万', year: '¥42万' }
+];
+
+catChart.setOption({
+    tooltip: { trigger: 'item', formatter: '{b}: {d}%' },
+    legend: { bottom: 0, textStyle: { fontSize: 10, color: '#6B7280' } },
+    series: [{
+        type: 'pie',
+        radius: ['38%', '62%'],
+        center: ['50%', '42%'],
+        label: { fontSize: 10, formatter: '{b} {d}%' },
+        data: catData.map(item => ({ name: item.name, value: item.value, itemStyle: { color: item.color } }))
+    }]
+});
+
+document.getElementById('catList').innerHTML = catData.map(item => `
+    <div class="glass-card rounded-xl p-3">
+        <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full" style="background:${item.color}"></span>
+                <span class="text-sm font-medium text-gray-800">${item.name}</span>
+            </div>
+            <span class="text-[10px] text-gray-400">收购商 ${item.merchants} 户</span>
+        </div>
+        <div class="text-[10px] text-gray-500 flex items-center justify-between">
+            <span>日：${item.day}</span>
+            <span>月：${item.month}</span>
+            <span>年：${item.year}</span>
+        </div>
+    </div>
+`).join('');
+
+function switchTab(el) {
+    document.querySelectorAll('.tab-chip').forEach(item => item.classList.remove('active'));
+    el.classList.add('active');
+    const tab = el.getAttribute('data-tab');
+    document.getElementById('tabDevelopment').classList.toggle('active', tab === 'development');
+    document.getElementById('tabTransaction').classList.toggle('active', tab === 'transaction');
+    document.getElementById('tabCategory').classList.toggle('active', tab === 'category');
+    setTimeout(() => {
+        devChart.resize();
+        txnChart.resize();
+        catChart.resize();
+    }, 40);
+}
+</script>
+</body>
+</html>

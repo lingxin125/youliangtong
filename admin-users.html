@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通管理端 - 用户查询</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- 状态栏 -->
+        <div id="statusBar"></div>
+        <!-- 导航栏 -->
+        <div id="navBar"></div>
+
+        <!-- 主内容区 -->
+        <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4">
+            <!-- 搜索框 -->
+            <div class="relative mt-2 mb-3">
+                <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input class="w-full pl-10 pr-4 py-3 rounded-2xl bg-white/70 border border-gray-200/60 text-sm outline-none focus:border-primary" placeholder="搜索商户名称/手机号" oninput="searchUsers(this.value)">
+            </div>
+            <!-- 用户类型筛选 -->
+            <div class="flex gap-2 mb-3">
+                <div class="filter-chip active" onclick="filterType(this, 'all')">全部</div>
+                <div class="filter-chip" onclick="filterType(this, '收购商')">收购商</div>
+                <div class="filter-chip" onclick="filterType(this, '农户')">农户</div>
+            </div>
+            <!-- 用户列表 -->
+            <div id="users-list" class="space-y-3"></div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div id="admin-tab-bar"></div>
+    </div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('用户查询');
+document.getElementById('admin-tab-bar').innerHTML = renderAdminTabBar('users');
+
+const users = [
+    { name:'丰收粮油贸易有限公司', short:'丰收粮油', type:'收购商', person:'张明', phone:'138****5678', time:'2024-12-20', industry:'粮食收购', address:'安徽省合肥市蜀山区长江路88号', trades:156, amount:'328.5万', idNo:'3401****6678', license:'有', avatar:'#3B82F6' },
+    { name:'王建国家庭农场', short:'王大叔农场', type:'农户', person:'王建国', phone:'139****1234', time:'2024-11-15', industry:'粮食种植', address:'安徽省六安市霍邱县新店镇', trades:89, amount:'45.2万', idNo:'3415****2321', license:'有', bank:'中国农业银行', branch:'霍邱县支行', cardNo:'6228****8901', settleType:'对法人', avatar:'#F59E0B' },
+    { name:'绿源蔬菜批发有限公司', short:'绿源蔬菜', type:'收购商', person:'李芳', phone:'137****9876', time:'2024-10-08', industry:'蔬菜批发', address:'安徽省合肥市包河区农贸市场A区', trades:234, amount:'512.8万', idNo:'3401****7856', license:'有', avatar:'#10B981' },
+    { name:'李大伟果园', short:'李家果园', type:'农户', person:'李大伟', phone:'136****5432', time:'2024-09-22', industry:'水果种植', address:'安徽省宿州市砀山县良梨镇', trades:67, amount:'28.6万', idNo:'3413****9987', license:'有', bank:'中国邮政储蓄银行', branch:'砀山县支行', cardNo:'6217****3456', settleType:'对公', avatar:'#8B5CF6' },
+    { name:'金穗米业有限公司', short:'金穗米业', type:'收购商', person:'陈志强', phone:'135****8765', time:'2024-08-10', industry:'粮食收购', address:'安徽省芜湖市南陵县籍山镇', trades:312, amount:'876.3万', idNo:'3402****5611', license:'有', avatar:'#EF4444' },
+];
+
+let currentType = 'all';
+let searchKey = '';
+
+function typeLabel(t) {
+    const isFarmer = t === '农户';
+    return `<span class="px-1.5 py-0.5 rounded text-[10px] font-medium" style="color:${isFarmer?'#F59E0B':'#3B82F6'};background:${isFarmer?'#FFFBEB':'#EFF6FF'}">${t}</span>`;
+}
+
+function buildDetailHref(u) {
+    const p = new URLSearchParams({
+        name: u.name || '',
+        short: u.short || '',
+        type: u.type || '',
+        person: u.person || '',
+        phone: u.phone || '',
+        time: u.time || '',
+        industry: u.industry || '',
+        address: u.address || '',
+        trades: String(u.trades || 0),
+        amount: u.amount || '0',
+        idNo: u.idNo || '',
+        license: u.license || '',
+        bank: u.bank || '',
+        branch: u.branch || '',
+        cardNo: u.cardNo || '',
+        settleType: u.settleType || ''
+    });
+    return 'admin-user-detail.html?' + p.toString();
+}
+
+function renderUsers() {
+    const filtered = users.filter(u => {
+        if (currentType !== 'all' && u.type !== currentType) return false;
+        if (searchKey && !u.name.includes(searchKey) && !u.short.includes(searchKey) && !u.phone.includes(searchKey)) return false;
+        return true;
+    });
+    const html = filtered.map(u => `
+        <a href="${buildDetailHref(u)}" class="glass-card rounded-2xl p-4 block no-underline" style="text-decoration:none;">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0" style="background:${u.avatar}">${u.short[0]}</div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-0.5">
+                        <span class="text-sm font-medium text-gray-800 truncate">${u.short}</span>
+                        ${typeLabel(u.type)}
+                    </div>
+                    <div class="flex items-center gap-3 text-[11px] text-gray-500">
+                        <span><i class="fas fa-user mr-1"></i>${u.person}</span>
+                        <span><i class="fas fa-phone mr-1"></i>${u.phone}</span>
+                    </div>
+                    <div class="text-[10px] text-gray-400 mt-0.5"><i class="far fa-clock mr-1"></i>开户时间: ${u.time}</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-[11px] text-primary font-medium">查看详情</div>
+                    <i class="fas fa-chevron-right text-gray-300 text-[10px] mt-1"></i>
+                </div>
+            </div>
+        </a>
+    `).join('');
+    document.getElementById('users-list').innerHTML = html || '<div class="text-center text-gray-400 text-xs py-10">暂无用户</div>';
+}
+
+function filterType(el, type) {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    currentType = type;
+    renderUsers();
+}
+
+function searchUsers(val) {
+    searchKey = val.trim();
+    renderUsers();
+}
+
+renderUsers();
+</script>
+</body>
+</html>

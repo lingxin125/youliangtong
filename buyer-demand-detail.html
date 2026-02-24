@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 销售详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-6">
+
+        <!-- 销售信息卡片 -->
+        <div class="glass-panel rounded-2xl p-5 mb-4">
+            <!-- 品类标签 + 状态 -->
+            <div class="flex items-center justify-between mb-3">
+                <span id="categoryTag" class="text-[11px] bg-amber-50 text-amber-600 px-2.5 py-1 rounded-md font-medium">粮油</span>
+                <span id="statusTag" class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded font-medium">进行中</span>
+            </div>
+
+            <!-- 标题 -->
+            <h1 id="demandTitle" class="text-lg font-bold text-gray-800 mb-2 leading-relaxed">优质东北大米，2024年新米，含水量14%以下</h1>
+
+            <!-- 描述（浅绿色容器） -->
+            <div class="bg-green-50/60 rounded-lg p-3 mb-4">
+                <p id="demandDesc" class="text-sm text-gray-700 leading-relaxed">粒粒饱满，口感香糯，产地直供，可提供质检报告</p>
+            </div>
+
+            <!-- 数量 & 单价 -->
+            <div class="flex items-center py-4 border-y border-gray-100 mb-4">
+                <div class="flex-1 text-center">
+                    <div class="text-[10px] text-gray-400 mb-1">销售数量</div>
+                    <div class="text-base font-semibold text-gray-800" style="font-family:Poppins;">
+                        <span id="quantity">5000</span><span id="unit" class="text-sm ml-0.5">斤</span>
+                    </div>
+                </div>
+                <div class="w-px h-10 bg-gray-200"></div>
+                <div class="flex-1 text-center">
+                    <div class="text-[10px] text-gray-400 mb-1">销售价格</div>
+                    <div class="text-base font-semibold text-primary" style="font-family:Poppins;">
+                        ¥<span id="price">2.8</span>/<span id="priceUnit">斤</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 距离（左下） + 时间（右下） -->
+            <div class="flex items-center justify-between text-[11px] text-gray-500">
+                <div class="flex items-center gap-1">
+                    <i class="fas fa-location-dot text-primary/60"></i>
+                    <span id="distance" class="font-medium text-primary">距您12.5km</span>
+                </div>
+                <span id="publishTime">2小时前</span>
+            </div>
+        </div>
+
+        <!-- 农户信息卡片 -->
+        <div class="glass-panel rounded-2xl p-4 mb-4">
+            <div class="text-xs font-medium text-gray-700 mb-3">农户信息</div>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <i class="fas fa-user text-primary text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-0.5">
+                        <span id="farmerName" class="text-sm font-medium text-gray-800">王大哥</span>
+                        <span class="text-[9px] bg-green-50 text-primary px-1.5 py-0.5 rounded">农户</span>
+                    </div>
+                    <div id="farmerPhone" class="text-sm text-gray-600 font-medium" style="font-family:Poppins;">138****8888</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 联系按钮 - 小按钮 -->
+        <button id="contactBtn" class="w-full h-11 bg-primary text-white font-medium text-sm rounded-lg shadow-glow active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
+            <i class="fas fa-phone text-sm"></i>
+            <span>联系农户</span>
+        </button>
+
+    </div>
+
+    <!-- 联系确认弹窗 -->
+    <div id="contactMask" class="absolute inset-0 bg-black/30 z-[70] hidden" onclick="closeContact()"></div>
+    <div id="contactSheet" class="absolute left-0 right-0 bottom-0 z-[71] bg-white rounded-t-2xl p-4 hidden">
+        <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-3"></div>
+        <div class="text-sm font-semibold text-gray-800 mb-1" id="contactName">农户</div>
+        <div class="text-xs text-gray-500 mb-4">手机号：<span id="contactPhone" class="font-medium text-gray-700"></span></div>
+        <div class="flex gap-2">
+            <a id="callLink" href="javascript:void(0)" class="flex-1 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold text-center no-underline" style="text-decoration:none;">
+                <i class="fas fa-phone mr-1"></i>拨打电话
+            </a>
+            <button class="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-sm font-semibold" onclick="copyContact()">复制号码</button>
+        </div>
+    </div>
+
+    <div id="toastTip" class="absolute left-4 right-4 bottom-[84px] px-3.5 py-2.5 bg-black/85 text-white text-xs rounded-lg opacity-0 pointer-events-none transition-all duration-200 z-[72]"></div>
+
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('销售详情', 'buyer-market.html');
+
+// 品类颜色映射
+function getCategoryColor(cat) {
+    var colors = {
+        '水果': { bg: 'bg-red-50', text: 'text-red-500' },
+        '蔬菜': { bg: 'bg-green-50', text: 'text-green-600' },
+        '粮油': { bg: 'bg-amber-50', text: 'text-amber-600' },
+        '禽蛋': { bg: 'bg-violet-50', text: 'text-violet-500' },
+        '肉类': { bg: 'bg-orange-50', text: 'text-orange-600' },
+        '其他': { bg: 'bg-gray-100', text: 'text-gray-500' }
+    };
+    return colors[cat] || colors['其他'];
+}
+
+// 格式化时间
+function formatTime(iso) {
+    var d = new Date(iso || '');
+    if (Number.isNaN(d.getTime())) return '-';
+    var now = new Date();
+    var diff = Math.floor((now - d) / 1000);
+
+    if (diff < 60) return '刚刚';
+    if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
+    if (diff < 86400) return Math.floor(diff / 3600) + '小时前';
+    if (diff < 604800) return Math.floor(diff / 86400) + '天前';
+
+    var m = d.getMonth() + 1;
+    var day = d.getDate();
+    return m + '月' + day + '日';
+}
+
+// 格式化价格
+function formatPrice(price, unit) {
+    if (price === null || price === undefined) return '面议';
+    return '¥' + Number(price).toFixed(2) + '/' + (unit || '斤');
+}
+
+// 与 buyer-market.html 保持一致的数据源
+var fallbackList = [
+    { id: 'F1', category: '水果', content: '出售红富士苹果，果径80mm以上，自家果园直发', qty: 5000, unit: '斤', price: 2.6, location: '山东烟台', distanceKm: 3.2, ownerName: '李大姐果园', ownerMobile: '138****1234', createdAt: new Date(Date.now() - 30 * 1000).toISOString(), status: 'active' },
+    { id: 'F2', category: '蔬菜', content: '新鲜采摘黄瓜，长度25cm左右，现摘现发', qty: 2000, unit: '斤', price: 1.8, location: '山东潍坊', distanceKm: 2.1, ownerName: '张大哥菜棚', ownerMobile: '136****8888', createdAt: new Date(Date.now() - 45 * 1000).toISOString(), status: 'active' },
+    { id: 'F3', category: '粮油', content: '出售优质小麦，含水量13%以内，可提供质检', qty: 20000, unit: '斤', price: 1.9, location: '河南周口', distanceKm: 7.5, ownerName: '王建国家庭农场', ownerMobile: '139****5678', createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F4', category: '蔬菜', content: '自种有机西红柿，今天可采摘，支持当天装车', qty: 3000, unit: '斤', price: 2.3, location: '河北保定', distanceKm: 12.0, ownerName: '老周蔬菜棚', ownerMobile: '137****6002', createdAt: new Date(Date.now() - 18 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F5', category: '禽蛋', content: '散养土鸡蛋，蛋黄饱满，50枚/箱，100箱起批', qty: 5000, unit: '枚', price: 1.2, location: '江苏南通', distanceKm: 8.3, ownerName: '赵姐养殖场', ownerMobile: '150****2345', createdAt: new Date(Date.now() - 32 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F6', category: '水果', content: '巨峰葡萄自然成熟，甜度18+，5斤起售', qty: 3000, unit: '斤', price: 4.5, location: '浙江金华', distanceKm: 15.6, ownerName: '刘庄主葡萄园', ownerMobile: '139****7777', createdAt: new Date(Date.now() - 48 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F7', category: '肉类', content: '散养黑猪肉，当天宰杀，排骨五花肉齐全', qty: 800, unit: '斤', price: 28.0, location: '安徽阜阳', distanceKm: 22.0, ownerName: '老李养猪场', ownerMobile: '138****6666', createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F8', category: '其他', content: '鲜活草鱼，规格2-3斤/条，塘口直发', qty: 1500, unit: '斤', price: 8.5, location: '湖北荆州', distanceKm: 35.0, ownerName: '周师傅鱼塘', ownerMobile: '137****5555', createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F9', category: '粮油', content: '新榨花生油，纯物理压榨，5L/桶', qty: 200, unit: '桶', price: 85.0, location: '山东临沂', distanceKm: 18.5, ownerName: '孙家油坊', ownerMobile: '136****4444', createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F10', category: '蔬菜', content: '紫皮大蒜头，蒜头饱满，适合储存', qty: 5000, unit: '斤', price: 3.2, location: '河南商丘', distanceKm: 28.0, ownerName: '大蒜种植合作社', ownerMobile: '135****3333', createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F11', category: '水果', content: '黄心猕猴桃，单果90g+，甜度高', qty: 2500, unit: '斤', price: 5.8, location: '陕西周至', distanceKm: 42.0, ownerName: '杨氏果园', ownerMobile: '134****2222', createdAt: new Date(Date.now() - 11 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F12', category: '禽蛋', content: '老鸭蛋，腌制咸鸭蛋原料，个大壳青', qty: 3000, unit: '枚', price: 2.0, location: '江西九江', distanceKm: 55.0, ownerName: '鸭蛋批发部', ownerMobile: '133****1111', createdAt: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F13', category: '粮油', content: '糯玉米棒子，甜糯可口，适合煮食', qty: 8000, unit: '斤', price: 1.5, location: '河北张家口', distanceKm: 62.0, ownerName: '王大爷农场', ownerMobile: '132****0000', createdAt: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F14', category: '肉类', content: '山羊羊肉，放养草饲，肉质鲜嫩', qty: 600, unit: '斤', price: 35.0, location: '内蒙古赤峰', distanceKm: 120.0, ownerName: '草原牧业', ownerMobile: '131****9999', createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F15', category: '水果', content: '冰糖心苹果，甜脆多汁，糖心率高', qty: 10000, unit: '斤', price: 3.8, location: '新疆阿克苏', distanceKm: 350.0, ownerName: '疆果直发', ownerMobile: '130****8888', createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F16', category: '其他', content: '干海带丝，无沙免洗，泡发率高', qty: 500, unit: '斤', price: 12.0, location: '福建宁德', distanceKm: 180.0, ownerName: '海产品批发', ownerMobile: '129****7777', createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F17', category: '蔬菜', content: '东北黑木耳，肉厚朵大，泡发率高', qty: 300, unit: '斤', price: 45.0, location: '黑龙江牡丹江', distanceKm: 280.0, ownerName: '山珍特产店', ownerMobile: '128****6666', createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F18', category: '其他', content: '干香菇，香味浓郁，无硫熏', qty: 400, unit: '斤', price: 38.0, location: '湖北随州', distanceKm: 95.0, ownerName: '香菇种植基地', ownerMobile: '127****5555', createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' }
+];
+
+// 加载销售详情
+function loadSupplyDetail() {
+    var params = new URLSearchParams(window.location.search);
+    var id = params.get('id');
+
+    // 从 fallbackList 查找对应数据
+    var supply = fallbackList.find(function(item) { return item.id === id; });
+
+    // 如果没有找到，使用第一条数据
+    if (!supply) {
+        supply = fallbackList[0];
+    }
+
+    // 应用品类颜色
+    var color = getCategoryColor(supply.category);
+    var tagEl = document.getElementById('categoryTag');
+    tagEl.textContent = supply.category;
+    tagEl.className = 'text-[11px] ' + color.bg + ' ' + color.text + ' px-2.5 py-1 rounded-md font-medium';
+
+    // 状态标签
+    var statusTag = document.getElementById('statusTag');
+    if (supply.status === 'active') {
+        statusTag.textContent = '进行中';
+        statusTag.className = 'text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded font-medium';
+    } else {
+        statusTag.textContent = '已下架';
+        statusTag.className = 'text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-medium';
+    }
+
+    // 填充数据
+    document.getElementById('demandTitle').textContent = supply.content || '';
+    document.getElementById('distance').textContent = '距您' + (supply.distanceKm || 0).toFixed(1) + 'km';
+    document.getElementById('publishTime').textContent = formatTime(supply.createdAt);
+    document.getElementById('quantity').textContent = supply.qty || 0;
+    document.getElementById('unit').textContent = supply.unit || '斤';
+    document.getElementById('price').textContent = supply.price || 0;
+    document.getElementById('priceUnit').textContent = supply.unit || '斤';
+    document.getElementById('demandDesc').textContent = supply.content || '';
+    document.getElementById('farmerName').textContent = supply.ownerName || '未知';
+    document.getElementById('farmerPhone').textContent = maskPhone(supply.ownerMobile) || '暂无电话';
+
+    // 存储完整电话用于弹窗
+    document.getElementById('contactBtn').dataset.phone = supply.ownerMobile || '';
+    document.getElementById('contactBtn').dataset.name = supply.ownerName || '农户';
+}
+
+// 手机号脱敏
+function maskPhone(phone) {
+    if (!phone || phone.length !== 11) return phone;
+    return phone.substring(0, 3) + '****' + phone.substring(7);
+}
+
+// 联系弹窗
+var currentContactPhone = '';
+
+function openContactModal() {
+    var btn = document.getElementById('contactBtn');
+    var phone = btn.dataset.phone || '';
+    var name = btn.dataset.name || '农户';
+
+    if (!phone) {
+        showToast('暂无联系方式');
+        return;
+    }
+
+    currentContactPhone = phone;
+    document.getElementById('contactName').textContent = name;
+    document.getElementById('contactPhone').textContent = phone;
+    document.getElementById('callLink').setAttribute('href', 'tel:' + phone.replace(/\*/g, ''));
+    document.getElementById('contactMask').classList.remove('hidden');
+    document.getElementById('contactSheet').classList.remove('hidden');
+}
+
+function closeContact() {
+    document.getElementById('contactMask').classList.add('hidden');
+    document.getElementById('contactSheet').classList.add('hidden');
+}
+
+function copyContact() {
+    if (!currentContactPhone || currentContactPhone === '-') return;
+    var text = currentContactPhone;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            showToast('号码已复制');
+        }).catch(function() {
+            showToast('复制失败，请手动复制');
+        });
+        return;
+    }
+    showToast('当前环境不支持自动复制');
+}
+
+function showToast(msg) {
+    var tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.remove('opacity-0');
+    tip.classList.add('opacity-100');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() {
+        tip.classList.remove('opacity-100');
+        tip.classList.add('opacity-0');
+    }, 1700);
+}
+
+// 绑定事件
+document.getElementById('contactBtn').addEventListener('click', openContactModal);
+
+// 初始化
+loadSupplyDetail();
+</script>
+</body>
+</html>

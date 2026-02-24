@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>收购商与农户端 - HTML需求标注文档</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f3f6fb;
+      color: #1f2937;
+    }
+    .topbar {
+      position: relative;
+      z-index: 1000;
+      background: linear-gradient(135deg, #1f6f4a, #2f855a);
+      color: #fff;
+      padding: 12px 18px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    }
+    .topbar h1 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .topbar p {
+      margin: 0;
+      font-size: 12px;
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      position: relative;
+      z-index: 999;
+    }
+    .tab-btn {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      color: #374151;
+      padding: 7px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .tab-btn.active {
+      background: #1f6f4a;
+      border-color: #1f6f4a;
+      color: #fff;
+    }
+    .page-select {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      color: #374151;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 13px;
+      min-width: 220px;
+      font-weight: 600;
+    }
+    .add-btn {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+      color: #1f6f4a;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .toolbar .inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 10px;
+      font-size: 12px;
+      color: #4b5563;
+    }
+    .toolbar input[type="number"] {
+      width: 58px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 12px;
+      background: #fff;
+    }
+    .toolbar .reset-btn {
+      margin-left: auto;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      color: #374151;
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .board-wrap {
+      padding: 8px 12px 16px;
+      overflow: auto;
+    }
+    .board {
+      position: relative;
+      width: max(1300px, calc(100vw - 24px));
+      height: 930px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #dbe3ee;
+      border-radius: 14px;
+      box-shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
+      overflow: hidden;
+    }
+    .scene-badge {
+      position: absolute;
+      top: 10px;
+      left: 14px;
+      z-index: 7;
+      background: rgba(17, 24, 39, 0.82);
+      color: #fff;
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(2px);
+    }
+    .phone-shell {
+      position: absolute;
+      left: 470px;
+      top: 42px;
+      width: 360px;
+      height: 800px;
+      border: 10px solid #111827;
+      border-radius: 38px;
+      background: #0b1220;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+      overflow: hidden;
+      z-index: 2;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 148px;
+      height: 22px;
+      background: #111827;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      z-index: 4;
+    }
+    .phone-shell iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #f8fafc;
+      pointer-events: none;
+    }
+    .frame-fallback {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      color: #6b7280;
+      font-size: 13px;
+      background: linear-gradient(160deg, #f8fafc 0%, #eef2ff 100%);
+      z-index: 3;
+    }
+    .links-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      width: 100%;
+      height: 100%;
+      pointer-events: auto;
+    }
+    .link-path {
+      fill: none;
+      stroke: #1f6f4a;
+      stroke-width: 2;
+      opacity: 0.95;
+      pointer-events: none;
+    }
+    .dot {
+      fill: #fff;
+      stroke: #1f6f4a;
+      stroke-width: 2;
+      pointer-events: all;
+      cursor: grab;
+    }
+    .dot.selected {
+      stroke: #ef4444;
+      fill: #fff5f5;
+    }
+    .notes-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .note-box {
+      position: absolute;
+      border: 1px solid #cfe6d8;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(31, 111, 74, 0.1);
+      min-height: 72px;
+      padding: 10px 10px 8px 10px;
+      pointer-events: all;
+      cursor: default;
+      user-select: text;
+    }
+    .note-box.selected {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.18);
+    }
+    .note-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      cursor: grab;
+    }
+    .note-index {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #1f6f4a;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .note-title {
+      font-weight: 700;
+      color: #14532d;
+      font-size: 13px;
+      line-height: 1.4;
+      border-radius: 4px;
+      padding: 1px 2px;
+      flex: 1;
+      cursor: text;
+      user-select: text;
+    }
+    .note-desc {
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.5;
+      border-radius: 4px;
+      padding: 2px;
+      word-break: break-word;
+      white-space: pre-wrap;
+      cursor: text;
+      user-select: text;
+    }
+    [contenteditable="true"]:focus {
+      outline: 1px dashed #16a34a;
+      background: #f0fdf4;
+    }
+    .move-pad {
+      position: absolute;
+      z-index: 8;
+      display: none;
+      grid-template-columns: repeat(3, 28px);
+      grid-template-rows: repeat(3, 28px);
+      gap: 4px;
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 10px;
+      padding: 8px;
+      backdrop-filter: blur(3px);
+    }
+    .move-pad button {
+      border: none;
+      border-radius: 6px;
+      background: #1f2937;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      padding: 0;
+    }
+    .move-pad button:hover {
+      background: #374151;
+    }
+    .move-pad .center {
+      font-size: 10px;
+      font-weight: 700;
+      background: #065f46;
+    }
+    .tips {
+      width: max(1300px, calc(100vw - 24px));
+      margin: 0 auto;
+      padding: 8px 16px 10px;
+      color: #4b5563;
+      font-size: 12px;
+      line-height: 1.6;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>收购商与农户端 · HTML需求标注文档</h1>
+    <p>支持拖动文字框、拖动连线端点、点击上下左右按钮微调、点击文字直接编辑。文案已覆盖正常逻辑与边界逻辑（如果...则...）。</p>
+  </div>
+
+  <div class="toolbar">
+    <button class="tab-btn active" data-scene="buyer">收购商端标注</button>
+    <button class="tab-btn" data-scene="farmer">农户端标注</button>
+    <select id="pageSelect" class="page-select"></select>
+    <button id="addItemBtn" class="add-btn">新增标注</button>
+    <span class="inline">微调步长(px)
+      <input id="stepInput" type="number" min="1" max="40" value="6">
+    </span>
+    <button class="reset-btn" id="resetBtn">重置当前页标注</button>
+  </div>
+
+  <div class="tips">
+    操作说明：1) 按住文字框或端点拖拽可移动；2) 点击文字框或端点会出现方向按钮；3) 连线尾端始终贴合文字框边缘，避免出现空白间距；4) 可直接编辑每段标注文本。
+  </div>
+
+  <div class="board-wrap">
+    <div id="board" class="board">
+      <div id="sceneBadge" class="scene-badge">当前：收购商端首页（标注）</div>
+      <div class="phone-shell">
+        <div class="phone-notch"></div>
+        <iframe id="uiFrame" src="./buyer-home.html"></iframe>
+        <div id="frameFallback" class="frame-fallback">未能加载页面预览。<br>你仍可继续编辑标注坐标和文本。</div>
+      </div>
+      <svg id="linksLayer" class="links-layer"></svg>
+      <div id="notesLayer" class="notes-layer"></div>
+
+      <div id="movePad" class="move-pad">
+        <div></div>
+        <button data-dx="0" data-dy="-1">↑</button>
+        <div></div>
+        <button data-dx="-1" data-dy="0">←</button>
+        <button class="center" id="closePad">关</button>
+        <button data-dx="1" data-dy="0">→</button>
+        <div></div>
+        <button data-dx="0" data-dy="1">↓</button>
+        <div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BOARD = { width: 1300, height: 930 };
+    const PHONE = { x: 470, y: 42, width: 360, height: 800 };
+
+    const TERMINALS = {
+      buyer: {
+        label: "收购商端",
+        pages: [
+          { path: "buyer-home.html", title: "首页" },
+          { path: "buyer-market.html", title: "市场" },
+          { path: "buyer-publish.html", title: "发布求购" },
+          { path: "buyer-demand-manage.html", title: "收购需求管理" },
+          { path: "buyer-demand-detail.html", title: "收购需求详情" },
+          { path: "buyer-billing.html", title: "开单" },
+          { path: "buyer-cashier.html", title: "收银台" },
+          { path: "buyer-orders.html", title: "订单列表" },
+          { path: "buyer-order-detail.html", title: "订单详情" },
+          { path: "buyer-contacts.html", title: "常用商户" },
+          { path: "buyer-keywords.html", title: "关键词设置" },
+          { path: "buyer-my.html", title: "我的" },
+          { path: "buyer-profile.html", title: "个人信息" },
+          { path: "buyer-notifications.html", title: "消息通知" }
+        ]
+      },
+      farmer: {
+        label: "农户端",
+        pages: [
+          { path: "farmer-home.html", title: "首页" },
+          { path: "farmer-market.html", title: "市场" },
+          { path: "farmer-publish.html", title: "发布销售" },
+          { path: "farmer-demand-manage.html", title: "销售需求管理" },
+          { path: "farmer-demand-detail.html", title: "销售需求详情" },
+          { path: "farmer-collection.html", title: "收款综合页" },
+          { path: "farmer-collection-records.html", title: "收款记录" },
+          { path: "farmer-collection-detail.html", title: "收款详情" },
+          { path: "farmer-keywords.html", title: "关键词设置" },
+          { path: "farmer-my.html", title: "我的" },
+          { path: "farmer-profile.html", title: "个人信息" },
+          { path: "farmer-notifications.html", title: "消息通知" }
+        ]
+      }
+    };
+
+    const HOME_PRESETS = {
+      buyer: [
+        { id: "b01", title: "状态栏（时间/信号/电量）", desc: "正常显示系统时间、网络与电量状态；如果系统能力受限无法获取状态栏信息，则按静态占位样式展示且不影响业务操作。", anchor: { x: 650, y: 62 }, note: { x: 26, y: 28, w: 390 } },
+        { id: "b02", title: "页面标题与角色标识", desc: "正常展示“收购商首页”及当前登录角色；如果角色信息为空，则展示“收购商”默认文案并记录埋点用于排查。", anchor: { x: 630, y: 98 }, note: { x: 26, y: 118, w: 390 } },
+        { id: "b03", title: "顶部快捷图标（消息/搜索）", desc: "点击进入通知或搜索能力；如果接口未返回消息数量，则仅展示图标不展示红点；如果未登录则点击后先跳转登录。", anchor: { x: 790, y: 100 }, note: { x: 910, y: 34, w: 366 } },
+        { id: "b04", title: "今日收购总额卡（Hero）", desc: "正常展示今日总额、笔数、环比；如果无交易数据则金额显示0并展示“今日暂无交易”；如果网络失败则显示重试提示。", anchor: { x: 650, y: 174 }, note: { x: 910, y: 120, w: 366 } },
+        { id: "b05", title: "金额主数字区域", desc: "正常展示精确金额并支持千分位；如果金额字段为空或非法，则显示“--”并触发数据告警日志。", anchor: { x: 650, y: 212 }, note: { x: 26, y: 210, w: 390 } },
+        { id: "b06", title: "时间维度切换（今日/本月/本年）", desc: "点击切换统计口径并刷新下方数据；如果切换请求超时，则保持上一次成功结果并提示“加载失败，请重试”。", anchor: { x: 650, y: 252 }, note: { x: 910, y: 208, w: 366 } },
+        { id: "b07", title: "快捷入口容器", desc: "正常展示4个核心入口并支持点击；如果某入口权限关闭，则该入口置灰并提示“暂未开通”。", anchor: { x: 650, y: 318 }, note: { x: 26, y: 302, w: 390 } },
+        { id: "b08", title: "快捷入口：发布求购", desc: "点击进入发布求购流程；如果草稿存在则优先恢复草稿；如果发布次数达到上限，则提示上限并引导去管理页。", anchor: { x: 542, y: 352 }, note: { x: 910, y: 294, w: 366 } },
+        { id: "b09", title: "快捷入口：常用商户", desc: "点击进入常用商户列表并按交易次数排序；如果暂无历史交易，则展示空态并说明“支付成功后自动累计”。", anchor: { x: 615, y: 352 }, note: { x: 26, y: 388, w: 390 } },
+        { id: "b10", title: "“我关注的销售需求”标题", desc: "正常展示关注列表总数和入口；如果关键词未配置，则显示“请先设置关键词”并提供跳转。", anchor: { x: 556, y: 414 }, note: { x: 910, y: 384, w: 366 } },
+        { id: "b11", title: "关注筛选标签（只看关注/排序）", desc: "点击标签立即筛选列表并刷新卡片；如果筛选条件冲突导致无结果，则显示空态并支持一键清空。", anchor: { x: 728, y: 414 }, note: { x: 26, y: 476, w: 390 } },
+        { id: "b12", title: "关注需求卡片主体信息", desc: "正常展示品类、数量、价格、发布时间、距离；如果距离信息缺失，则展示“距离未知”且不影响联系按钮可用。", anchor: { x: 640, y: 500 }, note: { x: 910, y: 472, w: 366 } },
+        { id: "b13", title: "卡片操作：联系按钮", desc: "点击弹出联系方式并支持拨号/复制；如果号码为空，则按钮置灰并提示“暂无法联系，请查看详情”。", anchor: { x: 744, y: 546 }, note: { x: 26, y: 562, w: 390 } },
+        { id: "b14", title: "卡片下钻箭头（详情入口）", desc: "点击进入需求详情页；如果当前需求已下架，则进入只读详情并展示状态“已下架”。", anchor: { x: 816, y: 506 }, note: { x: 910, y: 564, w: 366 } },
+        { id: "b15", title: "“我发布的收购需求”标题", desc: "正常展示我发布需求数量；如果数量为0，则显示空态文案并引导“去发布求购”。", anchor: { x: 560, y: 612 }, note: { x: 26, y: 650, w: 390 } },
+        { id: "b16", title: "我发布需求卡片（不展示距离）", desc: "正常展示品类、数量、价格、发布时间和状态；如果状态为已下架，则卡片点击进入只读详情而非编辑态。", anchor: { x: 650, y: 690 }, note: { x: 910, y: 652, w: 366 } },
+        { id: "b17", title: "需求状态标签（进行中/已下架）", desc: "正常按状态着色区分；如果状态字段异常，则默认展示“进行中”并上报数据异常。", anchor: { x: 532, y: 664 }, note: { x: 910, y: 748, w: 366 } },
+        { id: "b18", title: "底部导航（首页/市场/开单/我的）", desc: "点击切换一级模块并保留当前滚动状态；如果目标页面加载失败，则停留当前页并弹出“切换失败，请重试”。", anchor: { x: 650, y: 834 }, note: { x: 26, y: 744, w: 390 } }
+      ],
+      farmer: [
+        { id: "f01", title: "状态栏（时间/信号/电量）", desc: "正常显示系统状态信息；如果状态栏数据不可读，则显示默认占位，不影响页面核心功能交互。", anchor: { x: 650, y: 62 }, note: { x: 24, y: 26, w: 392 } },
+        { id: "f02", title: "页面标题与农户身份信息", desc: "正常展示农户端首页标题与昵称；如果昵称为空，则展示“农户用户”默认值并保持布局稳定。", anchor: { x: 628, y: 98 }, note: { x: 24, y: 116, w: 392 } },
+        { id: "f03", title: "顶部操作区（消息/设置）", desc: "点击进入通知与设置；如果消息接口失败，则只展示图标且不展示未读角标，点击后允许重试拉取。", anchor: { x: 792, y: 102 }, note: { x: 910, y: 34, w: 366 } },
+        { id: "f04", title: "今日收款总额卡（Hero）", desc: "正常展示今日收款金额、笔数、到账状态；如果今日无收款，则金额为0并显示“今日暂无到账”。", anchor: { x: 650, y: 174 }, note: { x: 910, y: 122, w: 366 } },
+        { id: "f05", title: "收款金额主数字", desc: "正常显示到账金额并千分位格式化；如果金额字段缺失，则显示“--”并提示稍后刷新。", anchor: { x: 650, y: 214 }, note: { x: 24, y: 206, w: 392 } },
+        { id: "f06", title: "时间维度切换（今日/本月/本年）", desc: "点击切换统计口径并联动来源明细；如果请求超时，则保留旧数据并显示“更新失败”。", anchor: { x: 650, y: 254 }, note: { x: 910, y: 212, w: 366 } },
+        { id: "f07", title: "快捷入口容器", desc: "正常展示发布销售、收款码、收款记录、我的需求入口；如果某入口权限关闭，则该入口置灰且不可点击。", anchor: { x: 650, y: 320 }, note: { x: 24, y: 296, w: 392 } },
+        { id: "f08", title: "快捷入口：发布销售", desc: "点击进入发布销售需求表单；如果存在未提交草稿，则优先加载草稿并提示“已恢复上次内容”。", anchor: { x: 540, y: 352 }, note: { x: 910, y: 302, w: 366 } },
+        { id: "f09", title: "快捷入口：收款码", desc: "点击进入收款综合页并展示固定收款码；如果收款码生成失败，则显示重试按钮和客服提示。", anchor: { x: 614, y: 352 }, note: { x: 24, y: 388, w: 392 } },
+        { id: "f10", title: "快捷入口：收款记录", desc: "点击进入收款记录列表；如果没有支付成功记录，则展示空态并提示“完成交易后自动展示”。", anchor: { x: 692, y: 352 }, note: { x: 910, y: 392, w: 366 } },
+        { id: "f11", title: "“我关注的采购需求”标题", desc: "正常展示关注需求数量；如果关键词未设置，则显示“请先设置关键词”并提供设置入口。", anchor: { x: 560, y: 414 }, note: { x: 24, y: 480, w: 392 } },
+        { id: "f12", title: "关注需求卡片主体信息", desc: "正常展示品类、数量、报价、发布时间、距离；如果价格为空，则显示“面议”并保留联系动作可点击。", anchor: { x: 648, y: 500 }, note: { x: 910, y: 482, w: 366 } },
+        { id: "f13", title: "关注卡片联系按钮", desc: "点击展示采购方联系方式；如果联系方式缺失，则按钮禁用并提示“暂无法联系”。", anchor: { x: 744, y: 548 }, note: { x: 24, y: 572, w: 392 } },
+        { id: "f14", title: "“我发布的销售需求”标题", desc: "正常展示农户已发布需求总数；如果总数为0，则展示空态卡并引导立即发布。", anchor: { x: 560, y: 612 }, note: { x: 910, y: 572, w: 366 } },
+        { id: "f15", title: "我发布需求卡片主体", desc: "正常展示销售单价、数量、更新时间、状态；如果状态为已下架，则点击进入只读详情页。", anchor: { x: 648, y: 688 }, note: { x: 24, y: 664, w: 392 } },
+        { id: "f16", title: "卡片下钻箭头（详情入口）", desc: "点击进入需求详情或管理态详情；如果来源是首页，则返回时应回首页而非管理页。", anchor: { x: 816, y: 688 }, note: { x: 910, y: 664, w: 366 } },
+        { id: "f17", title: "数据洞察模块（趋势/占比）", desc: "正常展示趋势与占比图；如果当前版本关闭该模块，则展示“敬请期待”占位且不影响主流程。", anchor: { x: 648, y: 760 }, note: { x: 910, y: 752, w: 366 } },
+        { id: "f18", title: "底部导航（首页/市场/收款/我的）", desc: "点击切换一级页面并保持导航高亮；如果目标页接口失败，则保持当前页并提示“请检查网络后重试”。", anchor: { x: 650, y: 834 }, note: { x: 24, y: 756, w: 392 } }
+      ]
+    };
+
+    function deepClone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function toSafeId(sceneKey, pagePath, idx) {
+      const slug = pagePath.replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "");
+      return `${sceneKey}_${slug}_${String(idx + 1).padStart(2, "0")}`;
+    }
+
+    function d(title, desc, x, y, side) {
+      return { title, desc, anchor: { x, y }, side };
+    }
+
+    function buildMarketDefs(sceneKey) {
+      const role = sceneKey === "buyer" ? "收购商" : "农户";
+      const opposite = sceneKey === "buyer" ? "农户销售需求" : "收购商求购需求";
+      const nav = sceneKey === "buyer" ? "首页/市场/开单/我的" : "首页/市场/收款/我的";
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态信息；如果终端无法读取系统状态，则显示静态占位状态栏且不影响页面主流程。", 650, 62, "left"),
+        d("页面标题与返回入口", `正常显示${role}端市场标题和返回入口；如果来源路由缺失，则点击返回时统一回${role}首页并提示“已回默认页”。`, 650, 98, "left"),
+        d("搜索框", `正常按关键字过滤${opposite}；如果关键字为空，则默认展示全量可见数据。`, 646, 146, "left"),
+        d("筛选按钮", "点击打开底部筛选抽屉；如果筛选抽屉已打开，则再次点击关闭抽屉避免层叠。", 796, 146, "right"),
+        d("筛选标签与已筛选计数", "正常展示筛选标签与“已筛选N”计数；如果无筛选条件，则不显示计数标签。", 650, 198, "left"),
+        d("发布需求入口", "点击进入发布需求页；如果当前账号发布数量达到上限，则拦截并提示“请先下架历史需求”。", 784, 198, "right"),
+        d("关键词入口与只看关注开关", "正常支持跳转关键词配置并切换“只看关注”；如果未保存关键词，则只看关注开关不可用并提示先配置。", 548, 242, "left"),
+        d("需求卡片主信息", "正常展示品类、数量、价格、发布时间、距离；如果价格为空则显示“面议”，如果距离缺失则显示“距离未知”。", 650, 352, "right"),
+        d("联系按钮", "点击弹出联系方式并支持拨号/复制；如果号码为空，则按钮置灰并提示“暂无法联系”。", 744, 414, "right"),
+        d("卡片下钻入口（>）", "点击进入详情页；如果该需求状态变更为已下架，则进入只读详情并展示状态提示。", 812, 352, "right"),
+        d("空态与异常态", "正常无数据时展示空态引导；如果网络异常则展示错误态并提供“重试”按钮。", 650, 610, "left"),
+        d(`底部导航（${nav}）`, "正常点击切换一级模块并保持高亮；如果目标页加载失败，则停留当前页并提示“切换失败，请重试”。", 650, 834, "right")
+      ];
+    }
+
+    function buildPublishDefs(sceneKey) {
+      const role = sceneKey === "buyer" ? "收购商" : "农户";
+      const typeName = sceneKey === "buyer" ? "求购" : "销售";
+      const priceName = sceneKey === "buyer" ? "期望单价（选填）" : "销售单价";
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态；如果读取失败，则显示静态占位且不影响表单录入。", 650, 62, "left"),
+        d("页面标题与返回入口", `正常显示“发布${typeName}需求”标题；如果表单有未保存内容，则返回前二次确认避免误丢失。`, 650, 98, "left"),
+        d("角色与需求类型提示", `正常提示当前是${role}身份，发布类型固定为${typeName}；如果角色信息异常，则禁用提交并提示刷新。`, 650, 146, "right"),
+        d("品类选择器", "点击打开品类选择弹层；如果未选择品类则提交时阻断并高亮品类字段。", 650, 206, "left"),
+        d(`${typeName}标题`, "正常输入简短标题并用于列表摘要；如果超过长度上限，则实时截断并提示剩余字数。", 650, 262, "left"),
+        d("描述（选填）", "正常填写补充说明并用于详情展示；如果为空，则列表只展示标题和核心交易字段。", 650, 322, "right"),
+        d("数量输入", "正常输入数量并校验正数；如果输入0或负数，则提示“数量需大于0”并阻止提交。", 650, 398, "left"),
+        d(priceName, "正常输入单价并参与卡片展示；如果输入非法字符，则自动过滤并提示正确格式。", 650, 458, "right"),
+        d("提交按钮", "点击后进行校验并提交；如果校验通过则提示发布成功并返回列表，如果失败则定位首个错误字段。", 650, 742, "right"),
+        d("提交中状态", "正常提交时按钮置灰并显示Loading；如果请求超时，则恢复按钮并提示“提交失败，请重试”。", 650, 784, "left"),
+        d("草稿恢复机制", "正常离开页面自动保存草稿；如果下次进入检测到草稿，则提示是否恢复。", 538, 690, "left"),
+        d("底部安全区域", "正常保证底部按钮不被系统手势区遮挡；如果屏幕高度较小，则允许页面滚动露出完整按钮。", 650, 834, "right")
+      ];
+    }
+
+    function buildDemandManageDefs(sceneKey) {
+      const role = sceneKey === "buyer" ? "收购商" : "农户";
+      const demandName = sceneKey === "buyer" ? "收购需求" : "销售需求";
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态栏；如果系统状态不可用，则展示占位且不影响列表功能。", 650, 62, "left"),
+        d("页面标题与返回入口", `正常显示“${demandName}管理”标题；如果从首页进入详情后返回，则按来源参数回首页。`, 650, 98, "left"),
+        d("分段切换（进行中/已下架）", "正常切换两类数据分组；如果某分组为空，则展示分组空态不影响另一分组。", 650, 152, "right"),
+        d("进行中需求卡片", "正常展示进行中需求并可进入编辑态；如果状态已被后台更新，则进入前先刷新状态。", 650, 256, "left"),
+        d("已下架需求卡片", "正常展示已下架需求并仅允许查看；如果尝试编辑，则提示“已下架需求仅支持查看”。", 650, 356, "right"),
+        d("编辑入口", "点击进入编辑页并携带mode=edit；如果需求不存在，则提示并返回管理页。", 810, 258, "right"),
+        d("只读入口", "点击进入详情页并携带mode=view；如果数据异常，则展示兜底详情结构。", 810, 358, "right"),
+        d("下架操作按钮", "点击触发二次确认；如果确认下架成功，则卡片从进行中移动到已下架分组。", 736, 308, "left"),
+        d("列表排序与刷新", "正常按最近更新时间倒序；如果下拉刷新失败，则保留旧数据并提示刷新失败。", 650, 520, "left"),
+        d("空态与异常态", "正常无数据时显示空态引导；如果接口报错，则显示错误态并提供重试。", 650, 620, "right"),
+        d("回跳来源控制", `正常根据source参数返回${role}首页、市场或管理；如果source非法，则回管理页默认入口。`, 650, 716, "left"),
+        d("底部安全区域", "正常保证底部内容可滚动可见；如果机型安全区较高，则自动增加底部留白。", 650, 834, "right")
+      ];
+    }
+
+    function buildDemandDetailDefs(sceneKey) {
+      const role = sceneKey === "buyer" ? "收购商" : "农户";
+      const opposite = sceneKey === "buyer" ? "农户" : "收购商";
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态信息；如果读取失败，则展示静态占位状态栏。", 650, 62, "left"),
+        d("标题栏与返回按钮", "正常显示详情页标题并支持返回；如果来源参数缺失，则回默认列表页。", 650, 98, "left"),
+        d("状态标签（进行中/已下架）", "正常展示当前需求状态；如果状态字段为空，则默认展示“进行中”并上报异常。", 744, 142, "right"),
+        d("需求主标题", "正常展示需求标题并支持换行；如果标题过长，则最多两行并省略。", 650, 212, "left"),
+        d("核心交易信息（品类/数量/价格）", "正常展示关键交易字段；如果价格为空则显示“面议”，如果数量为空则显示“--”。", 650, 304, "right"),
+        d("补充描述区", "正常展示补充说明；如果无描述则隐藏该区并保证上下间距不塌陷。", 650, 380, "left"),
+        d(`${opposite}信息区`, `正常展示${opposite}名称与联系方式摘要；如果联系方式受限，则仅展示脱敏信息。`, 650, 510, "right"),
+        d("联系按钮", "点击拉起联系弹层；如果号码不可用，则显示不可联系提示并禁用拨号。", 738, 556, "right"),
+        d("编辑/查看模式控制", `正常依据mode参数区分编辑态与只读态；如果mode非法，则默认进入${role}侧只读态。`, 650, 660, "left"),
+        d("时间信息（发布时间/更新时间）", "正常展示时间戳；如果时间格式异常，则按本地格式兜底渲染。", 650, 724, "left"),
+        d("异常态占位", "正常数据加载失败时展示错误态；如果连续重试失败，则提供返回入口避免死循环。", 650, 778, "right"),
+        d("底部安全区域", "正常保证操作按钮和说明在安全区内可见；如果屏幕过小则允许滚动查看完整内容。", 650, 834, "right")
+      ];
+    }
+
+    function buildBillingDefs() {
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态；如果读取失败，则展示占位状态栏，不影响开单录入。", 650, 62, "left"),
+        d("标题栏与返回入口", "正常展示“开单”标题；如果当前内容未保存则返回前提示确认。", 650, 98, "left"),
+        d("模式切换（明细开单/快捷开单）", "正常切换开单模式并重算金额；如果切换时有未保存商品，则提示确认后再切换。", 650, 150, "right"),
+        d("品类选择触发区", "点击打开品类选择底部弹层；如果弹层已打开则再次点击关闭，保持互斥。", 650, 214, "left"),
+        d("商品明细列表", "正常新增、编辑、删除商品并实时计算小计；如果字段缺失则该行标红并禁止提交。", 650, 312, "right"),
+        d("总金额区", "正常汇总商品总价并展示；如果金额计算异常，则展示“--”并提示检查明细。", 650, 444, "left"),
+        d("扫码付款入口", "点击进入扫码流程；如果相机权限被拒绝，则提示授权并提供手动输入方案。", 542, 520, "left"),
+        d("常用商户入口", "点击打开常用商户底部弹层；如果无常用数据则展示空态并提示支付后自动积累。", 736, 520, "right"),
+        d("常用商户弹层", "正常展示列表并支持选择；如果与其他弹层冲突，则先关闭旧弹层再打开当前弹层。", 650, 628, "right"),
+        d("去收银台按钮", "点击校验通过后生成订单并跳转收银台；如果校验失败则定位错误项并阻止跳转。", 650, 742, "left"),
+        d("提交中与防重入", "正常提交期间按钮禁用防止重复下单；如果请求失败则恢复按钮并提示重试。", 650, 786, "left"),
+        d("底部导航（首页/市场/开单/我的）", "正常切换一级模块；如果切换中有未完成提交，则先弹确认框。", 650, 834, "right")
+      ];
+    }
+
+    function buildCashierDefs() {
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态信息；如果读取失败，则使用静态占位状态栏。", 650, 62, "left"),
+        d("标题栏与返回入口", "正常显示收银台标题；如果订单待支付则返回后订单仍保留待支付状态。", 650, 98, "left"),
+        d("订单金额主卡", "正常展示订单应付金额；如果金额字段异常则显示“--”并阻止支付。", 650, 172, "right"),
+        d("付款方/收款方信息", "正常展示交易双方信息；如果某字段缺失则展示脱敏兜底字段并记录异常日志。", 650, 252, "left"),
+        d("支付方式列表", "正常展示行业支付、订单付、数字人民币；如果某通道不可用，则置灰并显示不可用原因。", 650, 340, "right"),
+        d("支付倒计时（30分钟）", "正常倒计时并在超时后自动取消订单；如果计时服务异常，则以服务端状态为准。", 650, 434, "left"),
+        d("确认付款按钮", "点击发起支付并进入支付中状态；如果发起失败则提示错误并保留重试入口。", 650, 724, "right"),
+        d("支付结果态（成功/失败/取消）", "正常按回调更新结果页；如果回调延迟则展示“支付结果确认中”并轮询。", 650, 778, "left"),
+        d("失败重试入口", "支付失败时允许重试；如果重试次数超过阈值，则建议更换支付方式。", 746, 778, "right"),
+        d("已取消提示", "超时或主动取消后展示已取消文案；如果用户返回继续支付，则引导重新开单。", 546, 778, "left"),
+        d("帮助与客服入口", "正常展示支付帮助入口；如果客服服务不可用，则提示稍后再试。", 792, 120, "right"),
+        d("底部安全区", "正常保证按钮不被手势区遮挡；如果机型安全区较高则自动加底部留白。", 650, 834, "right")
+      ];
+    }
+
+    function buildOrdersDefs() {
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态；如果读取失败则展示占位状态栏且不影响列表浏览。", 650, 62, "left"),
+        d("标题与返回入口", "正常显示订单列表标题；如果来源参数缺失则返回首页默认入口。", 650, 98, "left"),
+        d("订单状态筛选标签", "正常按状态筛选（全部/待支付/成功等）；如果状态无数据则展示该状态空态。", 650, 154, "right"),
+        d("订单卡片主信息", "正常展示订单号、金额、时间、收款方；如果字段缺失则显示“--”并不影响点击详情。", 650, 248, "left"),
+        d("订单状态标签", "正常展示当前状态颜色；如果状态异常则显示“状态未知”并标记数据异常。", 810, 248, "right"),
+        d("继续支付按钮（待支付）", "待支付订单显示继续支付；如果超时已取消则按钮隐藏并展示已取消提示。", 744, 298, "right"),
+        d("订单卡片下钻", "点击进入订单详情；如果订单不存在则提示并刷新列表。", 810, 350, "right"),
+        d("下拉刷新", "正常下拉刷新列表；如果刷新失败则保留原数据并提示“刷新失败”。", 650, 520, "left"),
+        d("分页/加载更多", "滚动到底部加载更多；如果无更多数据则展示“没有更多了”。", 650, 582, "left"),
+        d("空态与异常态", "正常无订单时展示空态引导开单；如果网络异常则展示错误态并支持重试。", 650, 654, "right"),
+        d("搜索入口（按订单号）", "正常按订单号模糊查询；如果关键字为空则恢复当前状态下全量数据。", 790, 154, "right"),
+        d("底部导航（首页/市场/开单/我的）", "正常切换一级模块并保持高亮；如果切换失败则保持当前页并提示。", 650, 834, "right")
+      ];
+    }
+
+    function buildOrderDetailDefs() {
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态；如果读取失败则展示静态占位。", 650, 62, "left"),
+        d("标题栏与返回入口", "正常显示订单详情标题；如果来源参数缺失则返回订单列表默认状态。", 650, 98, "left"),
+        d("订单状态主横幅", "正常展示待支付/成功/失败/取消状态；如果状态未知则展示“状态异常，请刷新”。", 650, 170, "right"),
+        d("交易双方信息", "正常展示付款方与收款方信息；如果手机号缺失则展示脱敏占位。", 650, 254, "left"),
+        d("商品明细区", "正常展示商品名称、数量、单价、小计；如果明细为空则展示“无商品明细”。", 650, 346, "right"),
+        d("订单信息区（订单号/创建时间）", "正常展示订单关键信息；如果时间格式异常则本地化格式兜底显示。", 650, 444, "left"),
+        d("支付信息区（支付方式/支付时间）", "正常在非待支付状态显示支付信息；如果状态为待支付则隐藏支付方式字段。", 650, 520, "right"),
+        d("继续支付按钮（仅待支付）", "待支付状态展示继续支付；如果订单已取消则按钮不展示并提示重新开单。", 650, 740, "right"),
+        d("联系客服入口", "正常展示客服入口；如果客服服务异常则提示稍后重试。", 794, 122, "right"),
+        d("错误态兜底", "详情加载失败时展示错误态；如果重试失败则允许返回列表继续操作。", 650, 644, "left"),
+        d("回跳策略", "正常根据source返回对应页面；如果source非法则默认回订单列表。", 650, 696, "left"),
+        d("底部安全区", "正常保证底部按钮完整可见；如果安全区较高则自动添加底部内边距。", 650, 834, "right")
+      ];
+    }
+
+    function buildContactsDefs() {
+      return [
+        d("状态栏（时间/网络/电量）", "正常展示系统状态；如果状态信息不可用则显示静态占位。", 650, 62, "left"),
+        d("标题栏与返回入口", "正常显示常用商户标题并支持返回；如果来源缺失则回开单页默认入口。", 650, 98, "left"),
+        d("搜索框（姓名/手机号）", "正常按姓名或手机号过滤列表；如果关键字为空则恢复全量列表。", 650, 146, "left"),
+        d("排序规则提示", "正常按交易次数倒序；如果次数相同则按最近交易时间倒序。", 650, 190, "right"),
+        d("商户列表项信息", "正常展示名称、手机号脱敏、最近交易；如果手机号缺失则显示“号码未知”。", 650, 286, "left"),
+        d("交易次数标签", "正常展示历史交易次数；如果次数为空则显示0且标记为新商户。", 778, 286, "right"),
+        d("选择按钮", "点击选中商户并返回开单页；如果当前商户状态异常则禁止选择并提示。", 742, 332, "right"),
+        d("多项列表滚动区", "正常支持滚动浏览更多商户；如果无更多则显示“已到底部”。", 650, 472, "left"),
+        d("空态引导", "无常用商户时展示空态并提示“支付成功后自动加入”。", 650, 580, "right"),
+        d("刷新机制", "下拉刷新拉取最新交易频次；如果刷新失败则保留旧数据并提示。", 650, 640, "left"),
+        d("异常态兜底", "接口报错时展示异常态和重试按钮；如果连续失败则允许返回开单页。", 650, 704, "right"),
+        d("底部安全区", "正常保证底部内容可见；如果系统手势区较高则自动增加留白。", 650, 834, "right")
+      ];
+    }
+
+    function buildKeywordsDefs(sceneKey) {
+      const role = sceneKey === "buyer" ? "收购商" : "农户";
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态；如果读取失败则展示占位状态栏。", 650, 62, "left"),
+        d("标题栏与返回入口", `正常显示${role}关键词设置标题；如果有未保存变更则返回前提示确认。`, 650, 98, "left"),
+        d("关键词输入框", "正常输入关键词并支持回车添加；如果输入为空则禁止添加。", 650, 162, "left"),
+        d("添加按钮", "点击添加关键词到待保存列表；如果关键词重复则提示“关键词已存在”。", 792, 162, "right"),
+        d("推荐关键词区域", "正常展示推荐词并支持一键添加；如果推荐接口失败则展示默认推荐词。", 650, 238, "right"),
+        d("已选关键词列表", "正常展示已选关键词并支持删除；如果数量达到上限则禁用继续添加。", 650, 328, "left"),
+        d("关键词数量上限提示", "正常提示最多可配置数量；如果超限则阻止保存并提示删除后再试。", 650, 398, "left"),
+        d("保存按钮", "点击保存关键词并同步到市场与首页关注模块；如果保存失败则保留本地修改并提示重试。", 650, 742, "right"),
+        d("保存中状态", "保存中按钮置灰并显示loading；如果超时则恢复可点状态并提示“保存失败”。", 650, 786, "left"),
+        d("同步结果提示", "保存成功后提示“已生效”；如果同步延迟则提示“稍后生效”并不阻断返回。", 650, 694, "right"),
+        d("空态文案", "未配置关键词时展示空态说明；如果用户清空全部关键词则保存后仍保持空态。", 650, 520, "left"),
+        d("底部安全区", "正常保证底部按钮完整可见；如果小屏机型则允许页面滚动。", 650, 834, "right")
+      ];
+    }
+
+    function buildMyDefs(sceneKey) {
+      const role = sceneKey === "buyer" ? "收购商" : "农户";
+      const nav = sceneKey === "buyer" ? "首页/市场/开单/我的" : "首页/市场/收款/我的";
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态；如果读取失败则展示静态占位。", 650, 62, "left"),
+        d("页面标题与头像卡片", `正常展示${role}身份卡片与基础信息；如果头像缺失则展示默认头像占位。`, 650, 144, "left"),
+        d("个人信息入口", "点击进入个人信息页；如果个人信息接口失败则展示兜底字段并允许重试。", 650, 250, "right"),
+        d("消息通知入口", "点击进入通知列表；如果无消息则展示空态并可标记全部已读。", 650, 318, "left"),
+        d("帮助与反馈入口", "点击进入帮助反馈；如果外部链接不可达则提示稍后再试。", 650, 386, "right"),
+        d("关于我们入口", "点击进入关于页；如果版本信息为空则展示“--”。", 650, 452, "left"),
+        d("退出登录按钮", "点击退出当前账号并回登录页；如果退出请求失败则保留登录态并提示重试。", 650, 740, "right"),
+        d("账号状态提示", "正常显示实名认证/绑定状态；如果状态未知则展示“待确认”。", 744, 144, "right"),
+        d("安全设置入口", "点击进入安全设置；如果未开通则显示“暂未开放”。", 650, 520, "left"),
+        d("缓存清理入口", "点击清理本地缓存；如果清理失败则提示“请稍后再试”。", 650, 584, "right"),
+        d("版本号信息", "正常显示当前应用版本；如果版本字段缺失则显示“未知版本”。", 650, 654, "left"),
+        d(`底部导航（${nav}）`, "正常切换一级模块并保持高亮；如果切换失败则停留当前页并提示。", 650, 834, "right")
+      ];
+    }
+
+    function buildProfileDefs(sceneKey) {
+      const role = sceneKey === "buyer" ? "收购商" : "农户";
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态；如果读取失败则展示占位。", 650, 62, "left"),
+        d("标题栏与返回入口", "正常显示个人信息标题并支持返回；如果来源缺失则回“我的”页。", 650, 98, "left"),
+        d("主体名称字段", `正常展示${role}主体名称；如果名称为空则显示“未完善”并提示联系管理员。`, 650, 186, "left"),
+        d("负责人字段", "正常展示负责人姓名；如果字段缺失则显示“--”。", 650, 250, "right"),
+        d("手机号字段", "正常展示脱敏手机号；如果未绑定手机号则提示“请联系管理员绑定”。", 650, 316, "left"),
+        d("证件/营业信息字段", "正常展示证件或营业信息摘要；如果权限不足则仅展示脱敏片段。", 650, 382, "right"),
+        d("结算信息字段", "正常展示结算账号关键字段；如果结算资料不完整则显示“待补充”。", 650, 452, "left"),
+        d("只读提示文案", "正常提示个人信息不可直接修改；如果用户尝试编辑则提示联系管理员。", 650, 520, "right"),
+        d("复制按钮（号码/账号）", "点击复制对应信息；如果复制失败则提示“复制失败，请手动记录”。", 764, 454, "right"),
+        d("异常态占位", "接口异常时展示错误态和重试按钮；如果重试失败则允许返回“我的”页。", 650, 650, "left"),
+        d("信息更新时间", "正常显示最近更新时间；如果时间缺失则显示“未知”。", 650, 710, "right"),
+        d("底部安全区", "正常保证内容不被底部手势区遮挡；如果屏幕较小则支持滚动。", 650, 834, "right")
+      ];
+    }
+
+    function buildNotificationsDefs(sceneKey) {
+      const role = sceneKey === "buyer" ? "收购商" : "农户";
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态信息；如果读取失败则展示静态占位。", 650, 62, "left"),
+        d("标题栏与返回入口", `正常显示${role}消息通知标题；如果来源缺失则返回“我的”页。`, 650, 98, "left"),
+        d("消息分类标签", "正常切换全部/系统/交易通知；如果某分类无数据则展示分类空态。", 650, 152, "right"),
+        d("消息卡片标题", "正常展示通知标题；如果标题过长则两行省略并可进详情。", 650, 246, "left"),
+        d("消息正文摘要", "正常展示摘要文案；如果摘要为空则显示“暂无内容”。", 650, 300, "right"),
+        d("消息时间", "正常展示通知时间；如果时间格式异常则按本地兜底格式显示。", 742, 246, "right"),
+        d("未读红点", "正常未读消息显示红点；如果已读则红点隐藏。", 808, 246, "right"),
+        d("消息下钻入口", "点击进入通知详情；如果消息失效则提示“消息已过期”。", 810, 300, "right"),
+        d("下拉刷新", "正常下拉刷新消息列表；如果刷新失败则保留原列表并提示。", 650, 452, "left"),
+        d("一键已读入口", "点击将可见消息标为已读；如果请求失败则回滚已读状态并提示。", 790, 152, "right"),
+        d("空态与异常态", "正常无消息时展示空态；如果接口异常则显示错误态并支持重试。", 650, 620, "left"),
+        d("底部安全区", "正常保证底部消息内容可见；如果内容过长则允许滚动。", 650, 834, "right")
+      ];
+    }
+
+    function buildCollectionDefs() {
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态；如果读取失败则展示静态占位。", 650, 62, "left"),
+        d("标题栏与返回入口", "正常显示收款标题并支持返回；如果来源参数缺失则回首页默认入口。", 650, 98, "left"),
+        d("今日收款概览卡", "正常展示今日收款金额与笔数；如果今日无收款则显示0并提示暂无记录。", 650, 176, "right"),
+        d("收款码主区域", "正常展示固定收款码；如果二维码生成失败则展示占位并提供重试。", 650, 302, "left"),
+        d("保存收款码按钮", "点击保存到相册；如果相册权限拒绝则提示授权后重试。", 552, 418, "left"),
+        d("查看收款记录按钮", "点击进入收款记录页；如果无数据则进入后展示空态。", 744, 418, "right"),
+        d("结算卡信息区", "正常展示结算银行与尾号；如果信息缺失则显示“待补充”并提示联系客服。", 650, 522, "right"),
+        d("收款说明文案", "正常展示收款流程说明；如果文案配置为空则展示默认说明。", 650, 612, "left"),
+        d("二维码加载状态", "加载中展示骨架；如果超时则切换错误态并展示刷新按钮。", 650, 348, "right"),
+        d("异常态与客服入口", "异常时展示客服入口；如果客服服务不可用则提示稍后再试。", 650, 704, "left"),
+        d("快捷入口区", "正常展示与收款相关的快捷跳转；如果某入口关闭则置灰。", 650, 762, "right"),
+        d("底部导航（首页/市场/收款/我的）", "正常切换一级模块并保持高亮；如果切换失败则保持当前页。", 650, 834, "right")
+      ];
+    }
+
+    function buildCollectionRecordsDefs() {
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态；如果读取失败则展示占位状态栏。", 650, 62, "left"),
+        d("标题栏与返回入口", "正常显示收款记录标题并支持返回；如果来源缺失则回收款综合页。", 650, 98, "left"),
+        d("收款统计区（笔数/总额）", "正常展示统计数据；如果统计接口失败则显示“--”并提示重试。", 650, 166, "right"),
+        d("时间筛选入口", "正常按时间区间筛选记录；如果筛选无结果则显示空态。", 650, 226, "left"),
+        d("记录明细行A", "正常展示付款方、时间、金额、支付方式；如果字段缺失则展示占位符。", 650, 312, "right"),
+        d("记录明细行B", "正常展示第二条明细并可点击查看详情；如果订单失效则提示已失效。", 650, 392, "left"),
+        d("金额高亮区", "正常高亮展示收款金额；如果金额异常则显示“--”并标记异常。", 744, 312, "right"),
+        d("下钻详情入口", "点击进入收款详情；如果详情接口失败则保留当前列表并提示。", 812, 352, "right"),
+        d("分页/加载更多", "正常滚动到底加载更多；如果没有更多则显示“已到底部”。", 650, 546, "left"),
+        d("空态与异常态", "无记录时展示空态；网络异常时展示错误态并支持重试。", 650, 630, "right"),
+        d("刷新机制", "下拉刷新同步最新到账记录；如果刷新失败则保持旧数据并提示。", 650, 700, "left"),
+        d("底部安全区", "正常保证最后一条记录可见；如果安全区较高则自动增加底部留白。", 650, 834, "right")
+      ];
+    }
+
+    function buildCollectionDetailDefs() {
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态信息；如果读取失败则展示占位状态栏。", 650, 62, "left"),
+        d("标题栏与返回入口", "正常显示收款详情标题并支持返回；如果来源缺失则返回收款记录列表。", 650, 98, "left"),
+        d("收款成功状态横幅", "正常展示收款成功标识；如果状态异常则展示“状态待确认”。", 650, 166, "right"),
+        d("收款金额主数字", "正常展示本笔到账金额；如果金额字段缺失则显示“--”。", 650, 224, "left"),
+        d("付款方信息区", "正常展示付款方名称与手机号脱敏；如果付款方缺失则展示未知付款方。", 650, 308, "right"),
+        d("交易明细区", "正常展示交易品类、数量、单价等；如果明细为空则展示“无明细”。", 650, 392, "left"),
+        d("订单信息区", "正常展示订单号、支付方式、支付时间；如果字段缺失则显示占位符。", 650, 484, "right"),
+        d("复制订单号按钮", "点击复制订单号；如果复制失败则提示“复制失败，请手动记录”。", 792, 484, "right"),
+        d("联系客服入口", "点击联系客服处理异常；如果客服不可用则提示稍后再试。", 790, 122, "right"),
+        d("异常态占位", "详情请求失败时展示错误态；如果重试失败则允许返回列表。", 650, 624, "left"),
+        d("返回收款记录按钮", "点击返回记录列表；如果回跳路径失效则回收款综合页。", 650, 736, "left"),
+        d("底部安全区", "正常保证底部按钮不被遮挡；如果小屏机型则允许滚动。", 650, 834, "right")
+      ];
+    }
+
+    function buildPageDetailDefs(sceneKey, pagePath) {
+      if (pagePath === `${sceneKey}-home.html`) return null;
+      if (pagePath.endsWith("market.html")) return buildMarketDefs(sceneKey);
+      if (pagePath.endsWith("publish.html")) return buildPublishDefs(sceneKey);
+      if (pagePath.endsWith("demand-manage.html")) return buildDemandManageDefs(sceneKey);
+      if (pagePath.endsWith("demand-detail.html")) return buildDemandDetailDefs(sceneKey);
+      if (pagePath === "buyer-billing.html") return buildBillingDefs();
+      if (pagePath === "buyer-cashier.html") return buildCashierDefs();
+      if (pagePath === "buyer-orders.html") return buildOrdersDefs();
+      if (pagePath === "buyer-order-detail.html") return buildOrderDetailDefs();
+      if (pagePath === "buyer-contacts.html") return buildContactsDefs();
+      if (pagePath.endsWith("keywords.html")) return buildKeywordsDefs(sceneKey);
+      if (pagePath.endsWith("-my.html")) return buildMyDefs(sceneKey);
+      if (pagePath.endsWith("profile.html")) return buildProfileDefs(sceneKey);
+      if (pagePath.endsWith("notifications.html")) return buildNotificationsDefs(sceneKey);
+      if (pagePath === "farmer-collection.html") return buildCollectionDefs();
+      if (pagePath === "farmer-collection-records.html") return buildCollectionRecordsDefs();
+      if (pagePath === "farmer-collection-detail.html") return buildCollectionDetailDefs();
+      return [
+        d("状态栏（时间/网络/电量）", "正常显示系统状态信息；如果读取失败，则展示静态占位且不影响页面操作。", 650, 62, "left"),
+        d("页面主标题", "正常展示页面标题；如果标题配置为空，则显示默认标题并记录异常日志。", 650, 98, "left"),
+        d("页面核心信息区", "正常展示页面核心数据；如果接口返回空数据，则展示空态并提供刷新入口。", 650, 300, "right"),
+        d("关键操作区", "正常执行关键按钮操作；如果网络异常，则阻断提交并提示重试。", 650, 742, "left"),
+        d("底部安全区", "正常保证底部内容不被手势区遮挡；如果屏幕较小，则允许滚动查看。", 650, 834, "right")
+      ];
+    }
+
+    function buildDetailedItems(sceneKey, pagePath) {
+      const defs = buildPageDetailDefs(sceneKey, pagePath);
+      if (!defs) return deepClone(HOME_PRESETS[sceneKey]);
+      const dynamicBoardWidth = Math.max(1300, (window.innerWidth || 1324) - 24);
+      const rightX = Math.max(910, dynamicBoardWidth - 366 - 24);
+      const leftCount = defs.filter(it => it.side === "left").length || 1;
+      const rightCount = defs.filter(it => it.side === "right").length || 1;
+      const leftGap = Math.max(68, Math.floor((900 - 36) / leftCount));
+      const rightGap = Math.max(68, Math.floor((900 - 36) / rightCount));
+      let leftY = 24;
+      let rightY = 24;
+      return defs.map((it, idx) => {
+        const side = it.side || "right";
+        const note = side === "left"
+          ? { x: 24, y: leftY, w: 392 }
+          : { x: rightX, y: rightY, w: 366 };
+        if (side === "left") leftY += leftGap;
+        else rightY += rightGap;
+        return {
+          id: toSafeId(sceneKey, pagePath, idx),
+          title: it.title,
+          desc: it.desc,
+          anchor: it.anchor,
+          note
+        };
+      });
+    }
+
+    function buildInitialState() {
+      const draft = { buyer: { pages: {} }, farmer: { pages: {} } };
+      Object.keys(TERMINALS).forEach(sceneKey => {
+        TERMINALS[sceneKey].pages.forEach(page => {
+          draft[sceneKey].pages[page.path] = {
+            title: page.title,
+            frameSrc: `./${page.path}`,
+            items: buildDetailedItems(sceneKey, page.path)
+          };
+        });
+      });
+      return draft;
+    }
+
+    const STORAGE_KEY = "annotator:grain-platform:buyer-farmer:v1";
+    const initialState = buildInitialState();
+    let state = deepClone(initialState);
+
+    let currentScene = "buyer";
+    let currentPage = TERMINALS.buyer.pages[0].path;
+    let selected = null; // { type: 'note'|'anchor'|'end', id }
+    let runtimeMap = {};
+    let dragging = null; // { type, id, lastX, lastY, moved }
+    let saveTimer = null;
+
+    const boardEl = document.getElementById("board");
+    const uiFrame = document.getElementById("uiFrame");
+    const notesLayer = document.getElementById("notesLayer");
+    const linksLayer = document.getElementById("linksLayer");
+    const movePad = document.getElementById("movePad");
+    const stepInput = document.getElementById("stepInput");
+    const sceneBadge = document.getElementById("sceneBadge");
+    const frameFallback = document.getElementById("frameFallback");
+    const pageSelect = document.getElementById("pageSelect");
+    const addItemBtn = document.getElementById("addItemBtn");
+
+    function normalizeItem(item, fallbackId) {
+      if (!item || typeof item !== "object") return null;
+      const id = typeof item.id === "string" && item.id ? item.id : fallbackId;
+      const title = typeof item.title === "string" && item.title.trim() ? item.title : "未命名元素";
+      const desc = typeof item.desc === "string" && item.desc.trim() ? item.desc : "如果数据为空，则显示默认占位。";
+      const anchorX = Number(item?.anchor?.x);
+      const anchorY = Number(item?.anchor?.y);
+      const noteX = Number(item?.note?.x);
+      const noteY = Number(item?.note?.y);
+      const noteW = Number(item?.note?.w);
+      if (![anchorX, anchorY, noteX, noteY, noteW].every(Number.isFinite)) return null;
+      return {
+        id,
+        title,
+        desc,
+        anchor: {
+          x: clamp(anchorX, PHONE.x + 6, PHONE.x + PHONE.width - 6),
+          y: clamp(anchorY, PHONE.y + 6, PHONE.y + PHONE.height - 6)
+        },
+        note: {
+          x: clamp(noteX, 4, Math.max(4, boardWidth() - 120)),
+          y: clamp(noteY, 4, Math.max(4, boardHeight() - 60)),
+          w: clamp(noteW, 260, 480)
+        }
+      };
+    }
+
+    function persistNow() {
+      try {
+        const payload = {
+          version: 1,
+          currentScene,
+          currentPage,
+          step: getStep(),
+          state
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (err) {
+        // ignore storage errors (quota/private mode)
+      }
+    }
+
+    function scheduleSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(persistNow, 120);
+    }
+
+    function restoreFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!parsed || parsed.version !== 1 || !parsed.state) return;
+
+        const restored = deepClone(initialState);
+        Object.keys(TERMINALS).forEach(sceneKey => {
+          TERMINALS[sceneKey].pages.forEach((page, pageIdx) => {
+            const savedPage = parsed?.state?.[sceneKey]?.pages?.[page.path];
+            if (!savedPage || !Array.isArray(savedPage.items)) return;
+            const normalized = savedPage.items
+              .map((it, itemIdx) => normalizeItem(it, toSafeId(sceneKey, page.path, itemIdx)))
+              .filter(Boolean);
+            if (normalized.length > 0) {
+              restored[sceneKey].pages[page.path].items = normalized;
+            }
+          });
+        });
+        state = restored;
+
+        if (typeof parsed.step === "number" && Number.isFinite(parsed.step)) {
+          stepInput.value = String(clamp(Math.round(parsed.step), 1, 40));
+        }
+
+        if (parsed.currentScene && TERMINALS[parsed.currentScene]) {
+          currentScene = parsed.currentScene;
+        }
+        const validPages = TERMINALS[currentScene].pages.map(p => p.path);
+        if (parsed.currentPage && validPages.includes(parsed.currentPage)) {
+          currentPage = parsed.currentPage;
+        } else {
+          currentPage = validPages[0];
+        }
+      } catch (err) {
+        // ignore malformed storage
+      }
+    }
+
+    function getCurrentPageState() {
+      return state[currentScene].pages[currentPage];
+    }
+
+    function boardWidth() {
+      return boardEl.clientWidth || BOARD.width;
+    }
+
+    function boardHeight() {
+      return boardEl.clientHeight || BOARD.height;
+    }
+
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function getStep() {
+      const val = parseInt(stepInput.value, 10);
+      return Number.isFinite(val) ? clamp(val, 1, 40) : 6;
+    }
+
+    function distance(a, b) {
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function computeEndPoint(anchor, noteRect) {
+      const left = noteRect.x;
+      const right = noteRect.x + noteRect.w;
+      const top = noteRect.y;
+      const bottom = noteRect.y + noteRect.h;
+      const candidates = [
+        { x: left, y: clamp(anchor.y, top + 8, bottom - 8) },
+        { x: right, y: clamp(anchor.y, top + 8, bottom - 8) },
+        { x: clamp(anchor.x, left + 8, right - 8), y: top },
+        { x: clamp(anchor.x, left + 8, right - 8), y: bottom }
+      ];
+      let best = candidates[0];
+      let bestDist = distance(anchor, best);
+      for (let i = 1; i < candidates.length; i++) {
+        const d = distance(anchor, candidates[i]);
+        if (d < bestDist) {
+          bestDist = d;
+          best = candidates[i];
+        }
+      }
+      return best;
+    }
+
+    function buildPath(anchor, end) {
+      const dx = Math.abs(anchor.x - end.x);
+      if (dx > 120) {
+        const midX = (anchor.x + end.x) / 2;
+        return `${anchor.x},${anchor.y} ${midX},${anchor.y} ${midX},${end.y} ${end.x},${end.y}`;
+      }
+      const midY = (anchor.y + end.y) / 2;
+      return `${anchor.x},${anchor.y} ${anchor.x},${midY} ${end.x},${midY} ${end.x},${end.y}`;
+    }
+
+    function hidePad() {
+      movePad.style.display = "none";
+    }
+
+    function showPad(x, y) {
+      const w = 112;
+      const h = 112;
+      const padX = clamp(x + 12, 0, boardWidth() - w);
+      const padY = clamp(y - h / 2, 0, boardHeight() - h);
+      movePad.style.left = `${padX}px`;
+      movePad.style.top = `${padY}px`;
+      movePad.style.display = "grid";
+    }
+
+    function findCurrentItem(id) {
+      return getCurrentPageState().items.find(i => i.id === id);
+    }
+
+    function selectTarget(type, id, opts = {}) {
+      selected = { type, id };
+      const rt = runtimeMap[id];
+      if (rt) {
+        if (type === "anchor") showPad(rt.anchor.x, rt.anchor.y);
+        else if (type === "end") showPad(rt.end.x, rt.end.y);
+        else showPad(rt.noteRect.x + rt.noteRect.w, rt.noteRect.y + 10);
+      } else {
+        hidePad();
+      }
+      if (!opts.noRender) render(false);
+    }
+
+    function moveSelected(dx, dy) {
+      if (!selected) return;
+      const item = findCurrentItem(selected.id);
+      if (!item) return;
+      if (selected.type === "anchor") {
+        item.anchor.x = clamp(item.anchor.x + dx, PHONE.x + 6, PHONE.x + PHONE.width - 6);
+        item.anchor.y = clamp(item.anchor.y + dy, PHONE.y + 6, PHONE.y + PHONE.height - 6);
+      } else {
+        item.note.x = clamp(item.note.x + dx, 4, boardWidth() - item.note.w - 4);
+        item.note.y = clamp(item.note.y + dy, 4, boardHeight() - 60);
+      }
+      render(false);
+      scheduleSave();
+    }
+
+    function beginDrag(type, id, pointerEvent) {
+      dragging = {
+        type,
+        id,
+        lastX: pointerEvent.clientX,
+        lastY: pointerEvent.clientY,
+        moved: false
+      };
+      window.addEventListener("pointermove", onPointerMove, { passive: false });
+      window.addEventListener("pointerup", onPointerUp);
+      window.addEventListener("pointercancel", onPointerUp);
+    }
+
+    function onPointerMove(e) {
+      if (!dragging) return;
+      e.preventDefault();
+      const dx = e.clientX - dragging.lastX;
+      const dy = e.clientY - dragging.lastY;
+      if (dx === 0 && dy === 0) return;
+      dragging.lastX = e.clientX;
+      dragging.lastY = e.clientY;
+      if (Math.abs(dx) + Math.abs(dy) > 1) dragging.moved = true;
+
+      const item = findCurrentItem(dragging.id);
+      if (!item) return;
+      if (dragging.type === "anchor") {
+        item.anchor.x = clamp(item.anchor.x + dx, PHONE.x + 6, PHONE.x + PHONE.width - 6);
+        item.anchor.y = clamp(item.anchor.y + dy, PHONE.y + 6, PHONE.y + PHONE.height - 6);
+      } else {
+        item.note.x = clamp(item.note.x + dx, 4, boardWidth() - item.note.w - 4);
+        item.note.y = clamp(item.note.y + dy, 4, boardHeight() - 60);
+      }
+      render(false);
+      scheduleSave();
+    }
+
+    function onPointerUp() {
+      dragging = null;
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
+    }
+
+    function createSvg(tag, attrs = {}) {
+      const ns = "http://www.w3.org/2000/svg";
+      const el = document.createElementNS(ns, tag);
+      Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
+      return el;
+    }
+
+    function render(keepFrame = true) {
+      const pageState = getCurrentPageState();
+      sceneBadge.textContent = `当前：${TERMINALS[currentScene].label} · ${pageState.title}`;
+      if (!keepFrame) {
+        // 保持当前iframe
+      }
+
+      notesLayer.innerHTML = "";
+      linksLayer.innerHTML = "";
+      runtimeMap = {};
+
+      pageState.items.forEach((item, idx) => {
+        const note = document.createElement("div");
+        note.className = "note-box";
+        note.style.left = `${item.note.x}px`;
+        note.style.top = `${item.note.y}px`;
+        note.style.width = `${item.note.w}px`;
+        if (selected && selected.type === "note" && selected.id === item.id) note.classList.add("selected");
+
+        const head = document.createElement("div");
+        head.className = "note-head";
+        const idxDot = document.createElement("span");
+        idxDot.className = "note-index";
+        idxDot.textContent = String(idx + 1);
+
+        const title = document.createElement("div");
+        title.className = "note-title";
+        title.contentEditable = "true";
+        title.textContent = item.title;
+
+        const desc = document.createElement("div");
+        desc.className = "note-desc";
+        desc.contentEditable = "true";
+        desc.textContent = item.desc;
+
+        head.appendChild(idxDot);
+        head.appendChild(title);
+        note.appendChild(head);
+        note.appendChild(desc);
+        notesLayer.appendChild(note);
+
+        const noteRect = {
+          x: item.note.x,
+          y: item.note.y,
+          w: note.offsetWidth,
+          h: note.offsetHeight
+        };
+        const anchor = { x: item.anchor.x, y: item.anchor.y };
+        const end = computeEndPoint(anchor, noteRect);
+        runtimeMap[item.id] = { anchor, end, noteRect };
+
+        const poly = createSvg("polyline", {
+          points: buildPath(anchor, end),
+          class: "link-path"
+        });
+        linksLayer.appendChild(poly);
+
+        const startDot = createSvg("circle", {
+          cx: anchor.x,
+          cy: anchor.y,
+          r: 5,
+          class: "dot start-dot"
+        });
+        const endDot = createSvg("circle", {
+          cx: end.x,
+          cy: end.y,
+          r: 5,
+          class: "dot end-dot"
+        });
+        if (selected && selected.id === item.id && selected.type === "anchor") startDot.classList.add("selected");
+        if (selected && selected.id === item.id && selected.type === "end") endDot.classList.add("selected");
+
+        startDot.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          selectTarget("anchor", item.id);
+          beginDrag("anchor", item.id, e);
+        });
+        endDot.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          selectTarget("end", item.id);
+          beginDrag("end", item.id, e);
+        });
+        linksLayer.appendChild(startDot);
+        linksLayer.appendChild(endDot);
+
+        head.addEventListener("pointerdown", (e) => {
+          if (e.target.closest("[contenteditable='true']")) return;
+          e.preventDefault();
+          e.stopPropagation();
+          selectTarget("note", item.id);
+          beginDrag("note", item.id, e);
+        });
+
+        note.addEventListener("click", (e) => {
+          if (e.target.closest("[contenteditable='true']")) return;
+          e.stopPropagation();
+          selectTarget("note", item.id);
+        });
+
+        title.addEventListener("focus", (e) => {
+          e.stopPropagation();
+          selectTarget("note", item.id, { noRender: true });
+        });
+        desc.addEventListener("focus", (e) => {
+          e.stopPropagation();
+          selectTarget("note", item.id, { noRender: true });
+        });
+
+        title.addEventListener("input", () => {
+          item.title = title.textContent;
+          scheduleSave();
+        });
+        desc.addEventListener("input", () => {
+          item.desc = desc.textContent;
+          scheduleSave();
+        });
+
+        title.addEventListener("blur", () => {
+          item.title = (title.textContent || "").trim() || "未命名元素";
+          render(false);
+          scheduleSave();
+        });
+        desc.addEventListener("blur", () => {
+          item.desc = (desc.textContent || "").trim() || "如果数据为空，则显示默认占位。";
+          render(false);
+          scheduleSave();
+        });
+      });
+
+      if (selected) {
+        const rt = runtimeMap[selected.id];
+        if (!rt) hidePad();
+        else if (selected.type === "anchor") showPad(rt.anchor.x, rt.anchor.y);
+        else if (selected.type === "end") showPad(rt.end.x, rt.end.y);
+        else showPad(rt.noteRect.x + rt.noteRect.w, rt.noteRect.y + 10);
+      } else {
+        hidePad();
+      }
+    }
+
+    function populatePageSelect() {
+      pageSelect.innerHTML = "";
+      TERMINALS[currentScene].pages.forEach(page => {
+        const option = document.createElement("option");
+        option.value = page.path;
+        option.textContent = page.title;
+        pageSelect.appendChild(option);
+      });
+      pageSelect.value = currentPage;
+    }
+
+    function switchPage(pagePath) {
+      const exists = TERMINALS[currentScene].pages.some(p => p.path === pagePath);
+      if (!exists) return;
+      currentPage = pagePath;
+      selected = null;
+      hidePad();
+      uiFrame.src = getCurrentPageState().frameSrc;
+      frameFallback.style.display = "none";
+      render(true);
+      pageSelect.value = currentPage;
+      scheduleSave();
+    }
+
+    function switchScene(sceneKey, targetPage = null) {
+      currentScene = sceneKey;
+      const scenePages = TERMINALS[sceneKey].pages.map(p => p.path);
+      currentPage = targetPage && scenePages.includes(targetPage) ? targetPage : scenePages[0];
+      selected = null;
+      hidePad();
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.scene === sceneKey);
+      });
+      populatePageSelect();
+      switchPage(currentPage);
+      scheduleSave();
+    }
+
+    function addNewItem() {
+      const pageState = getCurrentPageState();
+      const idx = pageState.items.length;
+      const id = `${currentScene}_${Date.now().toString(36)}_${idx}`;
+      const dynamicBoardWidth = Math.max(1300, boardWidth());
+      const rightX = Math.max(910, dynamicBoardWidth - 366 - 24);
+      const item = {
+        id,
+        title: `新增标注 ${idx + 1}`,
+        desc: "正常展示对应元素；如果数据为空、无网络或权限不足，则展示默认占位并提供可恢复操作。",
+        anchor: { x: 650, y: 450 },
+        note: { x: idx % 2 === 0 ? 26 : rightX, y: 80 + (idx * 28 % 700), w: idx % 2 === 0 ? 390 : 366 }
+      };
+      pageState.items.push(item);
+      selectTarget("note", id);
+      render(false);
+      scheduleSave();
+    }
+
+    uiFrame.addEventListener("load", () => {
+      frameFallback.style.display = "none";
+    });
+
+    setTimeout(() => {
+      if (!uiFrame.contentWindow) {
+        frameFallback.style.display = "flex";
+      }
+    }, 1600);
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => switchScene(btn.dataset.scene));
+    });
+
+    pageSelect.addEventListener("change", () => {
+      switchPage(pageSelect.value);
+    });
+
+    stepInput.addEventListener("change", () => {
+      stepInput.value = String(getStep());
+      scheduleSave();
+    });
+
+    addItemBtn.addEventListener("click", () => {
+      addNewItem();
+    });
+
+    document.querySelectorAll("#movePad button[data-dx]").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const dx = Number(btn.dataset.dx) * getStep();
+        const dy = Number(btn.dataset.dy) * getStep();
+        moveSelected(dx, dy);
+      });
+    });
+
+    document.getElementById("closePad").addEventListener("click", (e) => {
+      e.stopPropagation();
+      selected = null;
+      hidePad();
+      render(false);
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      const ok = window.confirm("确认重置当前页面的标注位置和文案到初始状态？");
+      if (!ok) return;
+      state[currentScene].pages[currentPage] = deepClone(initialState[currentScene].pages[currentPage]);
+      selected = null;
+      hidePad();
+      render(false);
+      scheduleSave();
+    });
+
+    boardEl.addEventListener("click", (e) => {
+      const inNote = e.target.closest(".note-box");
+      const inDot = e.target.closest(".dot");
+      const inPad = e.target.closest(".move-pad");
+      if (!inNote && !inDot && !inPad) {
+        selected = null;
+        hidePad();
+        render(false);
+      }
+    });
+
+    window.addEventListener("beforeunload", persistNow);
+
+    restoreFromStorage();
+    switchScene(currentScene, currentPage);
+  </script>
+</body>
+</html>

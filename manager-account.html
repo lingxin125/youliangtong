@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 开户申请</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .postal-bg { background: #F5F7FA; }
+
+        .segment-control {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: #E8E8E8;
+            border-radius: 10px;
+        }
+        .segment-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .segment-item.active {
+            background: #11A64A;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(17,166,74,0.3);
+        }
+
+        .upload-zone {
+            border: 2px dashed #E8E8E8;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+            min-height: 120px;
+        }
+        .upload-zone:hover {
+            border-color: #11A64A;
+            background: #F0FDF4;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #E8E8E8;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .form-input:focus {
+            border-color: #11A64A;
+            box-shadow: 0 0 0 3px rgba(17,166,74,0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .radio-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            border: 1px solid #E8E8E8;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+        }
+        .radio-btn.active {
+            background: #F0FDF4;
+            color: #11A64A;
+            border-color: #11A64A;
+            font-weight: 600;
+        }
+
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container postal-bg">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:80px;">
+
+        <!-- Segment Control -->
+        <div class="segment-control mt-3">
+            <div class="segment-item active" onclick="switchTab('buyer')" id="seg-buyer">
+                <i class="fas fa-store mr-1"></i>收购商开户
+            </div>
+            <div class="segment-item" onclick="switchTab('farmer')" id="seg-farmer">
+                <i class="fas fa-tractor mr-1"></i>农户开户
+            </div>
+        </div>
+
+        <!-- 收购商表单 -->
+        <div id="form-buyer" class="form-section active mt-4">
+            <!-- 营业执照 -->
+            <div class="glass-panel rounded-2xl p-4 mb-3">
+                <div class="text-sm font-medium text-gray-800 mb-3">
+                    <i class="fas fa-building text-primary mr-1"></i>营业执照
+                </div>
+                <div class="upload-zone">
+                    <i class="fas fa-camera text-3xl text-gray-300 mb-2"></i>
+                    <span class="text-sm text-gray-500">点击拍照或上传营业执照</span>
+                    <span class="text-xs text-primary mt-1"><i class="fas fa-magic mr-1"></i>支持OCR识别</span>
+                </div>
+            </div>
+
+            <!-- 基础信息 -->
+            <div class="glass-panel rounded-2xl p-4 mb-3">
+                <div class="text-sm font-medium text-gray-800 mb-3">
+                    <i class="fas fa-info-circle text-primary mr-1"></i>基础信息
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">商户名称</label>
+                        <input class="form-input" placeholder="请输入商户全称">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">商户简称</label>
+                        <input class="form-input" placeholder="请输入商户简称">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">负责人姓名</label>
+                        <input class="form-input" placeholder="请输入负责人姓名">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">手机号码</label>
+                        <input class="form-input" type="tel" placeholder="请输入手机号码">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">行业类型</label>
+                        <select class="form-input text-gray-600">
+                            <option>请选择行业类型</option>
+                            <option>粮食收购</option>
+                            <option>蔬菜批发</option>
+                            <option>水果批发</option>
+                            <option>禽蛋收购</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">经营地址</label>
+                        <input class="form-input" placeholder="请输入经营地址">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 身份证 -->
+            <div class="glass-panel rounded-2xl p-4 mb-3">
+                <div class="text-sm font-medium text-gray-800 mb-3">
+                    <i class="fas fa-id-card text-primary mr-1"></i>身份证信息
+                </div>
+                <div class="flex gap-3">
+                    <div class="flex-1 upload-zone" style="min-height:96px;">
+                        <i class="fas fa-id-card text-2xl text-gray-300 mb-1"></i>
+                        <span class="text-xs text-gray-500">身份证正面</span>
+                    </div>
+                    <div class="flex-1 upload-zone" style="min-height:96px;">
+                        <i class="fas fa-id-card text-2xl text-gray-300 mb-1"></i>
+                        <span class="text-xs text-gray-500">身份证反面</span>
+                    </div>
+                </div>
+                <div class="text-center mt-2">
+                    <span class="text-xs text-primary"><i class="fas fa-magic mr-1"></i>支持OCR自动识别</span>
+                </div>
+            </div>
+
+            <button class="w-full py-3 rounded-lg text-white font-medium text-sm mb-4" style="background:#11A64A;box-shadow:0 4px 12px rgba(17,166,74,0.3);">
+                提交开户申请
+            </button>
+        </div>
+
+        <!-- 农户表单 -->
+        <div id="form-farmer" class="form-section mt-4">
+            <!-- 营业执照 -->
+            <div class="glass-panel rounded-2xl p-4 mb-3">
+                <div class="text-sm font-medium text-gray-800 mb-3">
+                    <i class="fas fa-building text-primary mr-1"></i>营业执照
+                </div>
+                <div class="upload-zone">
+                    <i class="fas fa-camera text-3xl text-gray-300 mb-2"></i>
+                    <span class="text-sm text-gray-500">点击拍照或上传营业执照</span>
+                    <span class="text-xs text-primary mt-1"><i class="fas fa-magic mr-1"></i>支持OCR识别</span>
+                </div>
+            </div>
+
+            <!-- 基础信息 -->
+            <div class="glass-panel rounded-2xl p-4 mb-3">
+                <div class="text-sm font-medium text-gray-800 mb-3">
+                    <i class="fas fa-info-circle text-primary mr-1"></i>基础信息
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">商户名称</label>
+                        <input class="form-input" placeholder="请输入商户全称">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">商户简称</label>
+                        <input class="form-input" placeholder="请输入商户简称">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">负责人姓名</label>
+                        <input class="form-input" placeholder="请输入负责人姓名">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">手机号码</label>
+                        <input class="form-input" type="tel" placeholder="请输入手机号码">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">行业类型</label>
+                        <select class="form-input text-gray-600">
+                            <option>请选择行业类型</option>
+                            <option>粮食种植</option>
+                            <option>蔬菜种植</option>
+                            <option>水果种植</option>
+                            <option>禽蛋养殖</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">经营地址</label>
+                        <input class="form-input" placeholder="请输入经营地址">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 身份证 -->
+            <div class="glass-panel rounded-2xl p-4 mb-3">
+                <div class="text-sm font-medium text-gray-800 mb-3">
+                    <i class="fas fa-id-card text-primary mr-1"></i>身份证信息
+                </div>
+                <div class="flex gap-3">
+                    <div class="flex-1 upload-zone" style="min-height:96px;">
+                        <i class="fas fa-id-card text-2xl text-gray-300 mb-1"></i>
+                        <span class="text-xs text-gray-500">身份证正面</span>
+                    </div>
+                    <div class="flex-1 upload-zone" style="min-height:96px;">
+                        <i class="fas fa-id-card text-2xl text-gray-300 mb-1"></i>
+                        <span class="text-xs text-gray-500">身份证反面</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 银行卡 -->
+            <div class="glass-panel rounded-2xl p-4 mb-3">
+                <div class="text-sm font-medium text-gray-800 mb-3">
+                    <i class="fas fa-credit-card text-primary mr-1"></i>结算银行卡
+                </div>
+                <div class="upload-zone mb-3">
+                    <i class="fas fa-credit-card text-2xl text-gray-300 mb-2"></i>
+                    <span class="text-sm text-gray-500">点击拍照或上传银行卡</span>
+                    <span class="text-xs text-primary mt-1"><i class="fas fa-magic mr-1"></i>支持OCR识别</span>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">银行名称</label>
+                        <input class="form-input" placeholder="请输入银行名称">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">开户支行</label>
+                        <input class="form-input" placeholder="请输入开户支行">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">银行卡号</label>
+                        <input class="form-input" placeholder="请输入银行卡号">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结算类型 -->
+            <div class="glass-panel rounded-2xl p-4 mb-3">
+                <div class="text-sm font-medium text-gray-800 mb-3">
+                    <i class="fas fa-exchange-alt text-primary mr-1"></i>结算类型
+                </div>
+                <div class="radio-group mb-3">
+                    <div class="radio-btn active" onclick="selectSettle(this,'public')">对公</div>
+                    <div class="radio-btn" onclick="selectSettle(this,'legal')">对法人</div>
+                    <div class="radio-btn" onclick="selectSettle(this,'nonlegal')">对非法人</div>
+                </div>
+                <div id="settle-public" class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">对公账户名</label>
+                        <input class="form-input" placeholder="请输入对公账户名">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">对公账号</label>
+                        <input class="form-input" placeholder="请输入对公账号">
+                    </div>
+                </div>
+                <div id="settle-legal" class="space-y-3 hidden">
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">法人姓名</label>
+                        <input class="form-input" placeholder="请输入法人姓名">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">法人身份证号</label>
+                        <input class="form-input" placeholder="请输入法人身份证号">
+                    </div>
+                </div>
+                <div id="settle-nonlegal" class="space-y-3 hidden">
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">收款人姓名</label>
+                        <input class="form-input" placeholder="请输入收款人姓名">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 mb-1 block">收款人身份证号</label>
+                        <input class="form-input" placeholder="请输入收款人身份证号">
+                    </div>
+                </div>
+            </div>
+
+            <button class="w-full py-3 rounded-lg text-white font-medium text-sm mb-4" style="background:#11A64A;box-shadow:0 4px 12px rgba(17,166,74,0.3);">
+                提交开户申请
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('开户申请', 'manager-home.html');
+
+function switchTab(tab) {
+    document.getElementById('form-buyer').style.display = tab === 'buyer' ? 'block' : 'none';
+    document.getElementById('form-farmer').style.display = tab === 'farmer' ? 'block' : 'none';
+    document.getElementById('seg-buyer').classList.toggle('active', tab === 'buyer');
+    document.getElementById('seg-farmer').classList.toggle('active', tab === 'farmer');
+}
+
+function selectSettle(el, type) {
+    el.parentElement.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    ['public','legal','nonlegal'].forEach(t => {
+        document.getElementById('settle-' + t).style.display = t === type ? 'block' : 'none';
+    });
+}
+</script>
+</body>
+</html>
