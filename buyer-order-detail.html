@@ -451,8 +451,8 @@ function renderBottomActions() {
         box.innerHTML = `
             <div class="space-y-2.5">
                 <div class="flex gap-3">
-                    <button class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold text-sm rounded-xl active:scale-[0.98] transition-transform" onclick="cancelOrder()">取消订单</button>
-                    <a href="${buildCashierHref(false)}" class="flex-1 py-3 bg-primary text-white font-bold text-sm rounded-xl shadow-glow active:scale-[0.98] transition-transform text-center no-underline" style="text-decoration:none;">
+                    <button class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold text-sm rounded-2xl active:scale-[0.98] transition-transform" onclick="cancelOrder()">取消订单</button>
+                    <a href="${buildCashierHref(false)}" class="flex-1 py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow active:scale-[0.98] transition-transform text-center no-underline" style="text-decoration:none;">
                         继续支付
                     </a>
                 </div>
@@ -464,7 +464,7 @@ function renderBottomActions() {
 
     if (state.status === 'failed') {
         box.innerHTML = `
-            <a href="${buildCashierHref(true)}" class="block w-full py-3 bg-primary text-white font-bold text-sm rounded-xl shadow-glow text-center no-underline" style="text-decoration:none;">
+            <a href="${buildCashierHref(true)}" class="block w-full py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow text-center no-underline" style="text-decoration:none;">
                 重新支付
             </a>
         `;
@@ -472,7 +472,7 @@ function renderBottomActions() {
     }
 
     box.innerHTML = `
-        <a href="${backLink}" class="block w-full py-3 bg-primary text-white font-bold text-sm rounded-xl shadow-glow text-center no-underline" style="text-decoration:none;">
+        <a href="${backLink}" class="block w-full py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow text-center no-underline" style="text-decoration:none;">
             ${state.source === 'orders' ? '返回订单列表' : '返回首页'}
         </a>
     `;

@@ -339,7 +339,7 @@ function renderInfo() {
 function renderBottomActions() {
     const box = document.getElementById('bottomActions');
     box.innerHTML = `
-        <a href="${backLink}" class="block w-full py-3 bg-primary text-white font-bold text-sm rounded-xl shadow-glow text-center no-underline" style="text-decoration:none;">
+        <a href="${backLink}" class="block w-full py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow text-center no-underline" style="text-decoration:none;">
             ${state.source === 'records' ? '返回收款记录' : '返回首页'}
         </a>
     `;

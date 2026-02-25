@@ -20,7 +20,12 @@
     <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4 space-y-4" style="padding-bottom:80px;">
 
         <!-- Hero: 今日收购总额 (品牌绿渐变 + 白色文字) -->
-        <div class="rounded-2xl p-4 mt-3" style="background:linear-gradient(135deg,#11A64A 0%,#2EBD5E 100%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 8px 24px rgba(17,166,74,0.20),0 4px 8px rgba(17,166,74,0.10);">
+        <div class="rounded-2xl p-4 mt-3 relative overflow-hidden" style="background:linear-gradient(135deg,#11A64A 0%,#0a7532 100%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 8px 24px rgba(17,166,74,0.20),0 4px 8px rgba(17,166,74,0.10);">
+            <!-- 液态黄光晕修饰 -->
+            <!-- 农业麦穗视觉修饰 -->
+            <i class="fas fa-wheat-awn absolute -right-6 -bottom-8 text-8xl text-amber-400 opacity-20 transform -rotate-15 pointer-events-none"></i>
+            <!-- 底部细微暖黄反光 -->
+            <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-400/30 to-transparent pointer-events-none"></div>
             <div class="flex items-center justify-between mb-1">
                 <div class="flex items-center gap-1.5">
                     <span class="text-xs text-white/70 font-medium">今日收购总额</span>
@@ -181,13 +186,13 @@
             </div>
             <div class="space-y-2.5">
                 <!-- 需求1 -->
-                <a href="buyer-demand-detail.html" class="glass-card rounded-xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
+                <a href="buyer-demand-detail.html" class="glass-card rounded-2xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
                     <div class="flex justify-between items-start mb-1.5">
                         <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] bg-red-50 text-red-500 px-1.5 py-0.5 rounded font-medium">水果</span>
-                            <span class="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">约500斤</span>
+                            <span class="text-[10px] bg-red-50 text-red-500 px-2 py-0.5 rounded-full font-medium">水果</span>
+                            <span class="text-[10px] text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">约500斤</span>
                         </div>
-                        <span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium absolute right-3 top-3.5">进行中</span>
+                        <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">进行中</span>
                     </div>
                     <div class="text-sm text-gray-800 font-medium mb-1 truncate">收购红富士苹果 500斤</div>
                     <div class="flex items-center justify-between">
@@ -197,13 +202,13 @@
                     <i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>
                 </a>
                 <!-- 需求2 -->
-                <a href="buyer-demand-detail.html" class="glass-card rounded-xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
+                <a href="buyer-demand-detail.html" class="glass-card rounded-2xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
                     <div class="flex justify-between items-start mb-1.5">
                         <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded font-medium">蔬菜</span>
-                            <span class="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">约3000斤</span>
+                            <span class="text-[10px] bg-green-50 text-green-600 px-2 py-0.5 rounded-full font-medium">蔬菜</span>
+                            <span class="text-[10px] text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">约3000斤</span>
                         </div>
-                        <span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium absolute right-3 top-3.5">进行中</span>
+                        <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">进行中</span>
                     </div>
                     <div class="text-sm text-gray-800 font-medium mb-1 truncate">大量收购有机西红柿</div>
                     <div class="flex items-center justify-between">
@@ -213,13 +218,13 @@
                     <i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>
                 </a>
                 <!-- 需求3 -->
-                <a href="buyer-demand-detail.html" class="glass-card rounded-xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
+                <a href="buyer-demand-detail.html" class="glass-card rounded-2xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
                     <div class="flex justify-between items-start mb-1.5">
                         <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded font-medium">粮油</span>
-                            <span class="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">约2000斤</span>
+                            <span class="text-[10px] bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full font-medium">粮油</span>
+                            <span class="text-[10px] text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">约2000斤</span>
                         </div>
-                        <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium absolute right-3 top-3.5">已下架</span>
+                        <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">已下架</span>
                     </div>
                     <div class="text-sm text-gray-800 font-medium mb-1 truncate">收购东北大米 2000斤</div>
                     <div class="flex items-center justify-between">
@@ -490,7 +495,7 @@ function renderFollowedDemands() {
 
     if (keywords.length === 0) {
         // 空状态
-        container.innerHTML = '<div class="glass-card rounded-xl p-5 text-center">' +
+        container.innerHTML = '<div class="glass-card rounded-2xl p-5 text-center">' +
             '<div class="text-sm text-gray-500 mb-1">未设置关注关键词</div>' +
             '<div class="text-[11px] text-gray-400 mb-3">设置关键词后，可快速查看相关销售需求</div>' +
             '<a href="buyer-keywords.html?source=home" class="inline-block text-[11px] text-primary font-medium bg-green-50 border border-green-200 rounded-full px-4 py-1.5 no-underline" style="text-decoration:none;">去设置关键词 ></a>' +
@@ -521,13 +526,13 @@ function renderFollowedDemands() {
     html += matchedDemands.map(function(item) {
         var category = getCategoryByKeyword(item.keyword);
         var catClass = getCategoryClass(category);
-        return '<a href="buyer-demand-detail.html" class="glass-card rounded-xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">' +
+        return '<a href="buyer-demand-detail.html" class="glass-card rounded-2xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">' +
             '<div class="flex justify-between items-start mb-1.5">' +
             '<div class="flex items-center gap-1.5">' +
-            '<span class="text-[10px] ' + catClass + ' px-1.5 py-0.5 rounded font-medium">' + item.keyword + '</span>' +
-            '<span class="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">余' + item.qty + item.unit + '</span>' +
+            '<span class="text-[10px] ' + catClass + ' px-2 py-0.5 rounded-full font-medium">' + item.keyword + '</span>' +
+            '<span class="text-[10px] text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">余' + item.qty + item.unit + '</span>' +
             '</div>' +
-            '<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium absolute right-3 top-3.5">进行中</span>' +
+            '<span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">进行中</span>' +
             '</div>' +
             '<div class="text-sm text-gray-800 font-medium mb-1 truncate">' + item.content + '</div>' +
             '<div class="flex items-center justify-between">' +

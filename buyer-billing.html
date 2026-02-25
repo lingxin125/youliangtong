@@ -156,8 +156,8 @@
         /* 输入框样式 */
         .custom-input {
             width: 100%;
-            background: #F9FAFB;
-            border: 1px solid #E5E7EB;
+            background: #F3F4F6;
+            border: 1px solid transparent;
             border-radius: 10px;
             padding: 10px 14px;
             font-size: 14px;
@@ -344,7 +344,7 @@
                     </div>
 
                     <!-- 添加商品按钮 -->
-                    <button onclick="openAddProductSheet()" class="w-full py-2.5 border border-dashed border-gray-300 rounded-xl text-sm text-gray-500 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                    <button onclick="openAddProductSheet()" class="w-full py-2.5 border border-dashed border-gray-300 rounded-2xl text-sm text-gray-500 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
                         <i class="fas fa-plus-circle"></i>
                         添加商品
                     </button>
@@ -377,7 +377,7 @@
                     <!-- 选择选项（未选择时显示） -->
                     <div id="payeeOptions">
                         <!-- 扫码付款选项 -->
-                        <div onclick="pickByScan()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl mb-2 cursor-pointer hover:bg-gray-100 transition-colors">
+                        <div onclick="pickByScan()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl mb-2 cursor-pointer hover:bg-gray-100 transition-colors">
                             <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                                 <i class="fas fa-qrcode text-green-500 text-sm"></i>
                             </div>
@@ -389,7 +389,7 @@
                         </div>
 
                         <!-- 选择常用人选项 -->
-                        <div onclick="openContactSheet()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                        <div onclick="openContactSheet()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
                             <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
                                 <i class="fas fa-address-book text-blue-500 text-sm"></i>
                             </div>
@@ -402,7 +402,7 @@
                     </div>
 
                     <!-- 未选择状态（保留但隐藏） -->
-                    <div id="payeeEmpty" class="text-xs text-gray-400 bg-gray-50 rounded-xl p-3 text-center hidden mt-4">
+                    <div id="payeeEmpty" class="text-xs text-gray-400 bg-gray-50 rounded-2xl p-3 text-center hidden mt-4">
                         请先选择付款对象
                     </div>
 
@@ -426,7 +426,7 @@
 
                 <!-- 立即付款按钮 -->
                 <div class="p-4">
-                    <button onclick="goCashier()" class="w-full py-3 bg-primary text-white font-semibold text-sm rounded-xl active:scale-[0.98] transition-transform shadow-glow flex items-center justify-center gap-2">
+                    <button onclick="goCashier()" class="w-full py-3 bg-primary text-white font-semibold text-sm rounded-2xl active:scale-[0.98] transition-transform shadow-glow flex items-center justify-center gap-2">
                         <i class="fas fa-credit-card"></i>
                         立即付款
                     </button>
@@ -476,7 +476,7 @@
                     <!-- 选择选项（未选择时显示） -->
                     <div id="payeeOptionsQuick">
                         <!-- 扫码付款选项 -->
-                        <div onclick="pickByScan()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl mb-2 cursor-pointer hover:bg-gray-100 transition-colors">
+                        <div onclick="pickByScan()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl mb-2 cursor-pointer hover:bg-gray-100 transition-colors">
                             <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                                 <i class="fas fa-qrcode text-green-500 text-sm"></i>
                             </div>
@@ -488,7 +488,7 @@
                         </div>
 
                         <!-- 选择常用人选项 -->
-                        <div onclick="openContactSheet()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                        <div onclick="openContactSheet()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
                             <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
                                 <i class="fas fa-address-book text-blue-500 text-sm"></i>
                             </div>
@@ -501,7 +501,7 @@
                     </div>
 
                     <!-- 未选择状态（保留但隐藏） -->
-                    <div id="payeeEmptyQuick" class="text-xs text-gray-400 bg-gray-50 rounded-xl p-3 text-center hidden mt-4">
+                    <div id="payeeEmptyQuick" class="text-xs text-gray-400 bg-gray-50 rounded-2xl p-3 text-center hidden mt-4">
                         请先选择付款对象
                     </div>
 
@@ -525,7 +525,7 @@
 
                 <!-- 立即付款按钮 -->
                 <div class="p-4">
-                    <button onclick="goCashier()" class="w-full py-3 bg-primary text-white font-semibold text-sm rounded-xl active:scale-[0.98] transition-transform shadow-glow flex items-center justify-center gap-2">
+                    <button onclick="goCashier()" class="w-full py-3 bg-primary text-white font-semibold text-sm rounded-2xl active:scale-[0.98] transition-transform shadow-glow flex items-center justify-center gap-2">
                         <i class="fas fa-credit-card"></i>
                         立即付款
                     </button>
@@ -595,10 +595,10 @@
 
             <!-- 按钮 -->
             <div class="flex gap-3">
-                <button onclick="closeAddProductSheet()" class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl active:scale-[0.98] transition-transform text-sm">
+                <button onclick="closeAddProductSheet()" class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-2xl active:scale-[0.98] transition-transform text-sm">
                     取消
                 </button>
-                <button onclick="confirmAddProduct()" class="flex-1 py-3 bg-primary text-white font-medium rounded-xl active:scale-[0.98] transition-transform shadow-glow text-sm">
+                <button onclick="confirmAddProduct()" class="flex-1 py-3 bg-primary text-white font-medium rounded-2xl active:scale-[0.98] transition-transform shadow-glow text-sm">
                     添加
                 </button>
             </div>
@@ -622,10 +622,10 @@
             </div>
 
             <div class="flex gap-3">
-                <button onclick="closeAddCustomProductSheet()" class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl active:scale-[0.98] transition-transform text-sm">
+                <button onclick="closeAddCustomProductSheet()" class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-2xl active:scale-[0.98] transition-transform text-sm">
                     取消
                 </button>
-                <button onclick="confirmAddCustomProduct()" class="flex-1 py-3 bg-primary text-white font-medium rounded-xl active:scale-[0.98] transition-transform shadow-glow text-sm">
+                <button onclick="confirmAddCustomProduct()" class="flex-1 py-3 bg-primary text-white font-medium rounded-2xl active:scale-[0.98] transition-transform shadow-glow text-sm">
                     添加
                 </button>
             </div>
@@ -645,7 +645,7 @@
 
             <!-- 搜索框 -->
             <div class="mb-4">
-                <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5">
+                <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-2xl px-3 py-2.5">
                     <i class="fas fa-search text-gray-400 text-sm"></i>
                     <input type="text" id="contactSearchInput" placeholder="搜索姓名、手机号..." class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400" oninput="filterContactList()">
                 </div>
@@ -1120,7 +1120,7 @@ function renderContactList() {
     }
 
     container.innerHTML = filteredContacts.map((contact, index) => `
-        <div onclick="selectContact(${state.payeePool.indexOf(contact)})" class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+        <div onclick="selectContact(${state.payeePool.indexOf(contact)})" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
             <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
                 <i class="fas fa-user text-blue-500 text-sm"></i>
             </div>

@@ -147,7 +147,7 @@
 
     <!-- 筛选结果汇总（仅筛选时显示） -->
     <div id="filterResult" class="px-4 mb-3 shrink-0 hidden">
-        <div class="glass-card rounded-xl p-4 bg-gradient-to-r from-green-50 to-white border border-green-100">
+        <div class="glass-card rounded-2xl p-4 bg-gradient-to-r from-green-50 to-white border border-green-100">
             <div class="text-[14px] font-semibold text-gray-800 mb-3">筛选结果</div>
             <div class="flex items-center">
                 <div class="flex-1 text-center">
@@ -235,8 +235,8 @@
             </div>
         </div>
         <div class="px-4 py-3 border-t border-gray-100 flex gap-3 flex-shrink-0">
-            <button class="flex-1 h-10 rounded-xl border border-gray-200 text-[13px] font-medium text-gray-600 bg-white" onclick="FilterPanel.reset()">重置</button>
-            <button class="flex-1 h-10 rounded-xl text-[13px] font-medium text-white bg-primary" onclick="FilterPanel.confirm()">确定</button>
+            <button class="flex-1 h-10 rounded-2xl border border-gray-200 text-[13px] font-medium text-gray-600 bg-white" onclick="FilterPanel.reset()">重置</button>
+            <button class="flex-1 h-10 rounded-2xl text-[13px] font-medium text-white bg-primary" onclick="FilterPanel.confirm()">确定</button>
         </div>
     </div>
 </div>
@@ -574,7 +574,7 @@ const RenderService = {
 
         // 平铺展示也使用统一卡片+分割线样式
         document.getElementById('recordList').innerHTML = `
-            <div class="glass-card rounded-xl overflow-hidden">
+            <div class="glass-card rounded-2xl overflow-hidden">
                 <div class="bg-white px-3 pb-3 rounded-b-xl">
                     ${this.renderRecordItemsWithDividers(records)}
                 </div>

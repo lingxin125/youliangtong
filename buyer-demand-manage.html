@@ -88,8 +88,8 @@
         <div class="text-sm font-semibold text-gray-800 mb-1">下架需求</div>
         <div class="text-xs text-gray-500 mb-4">下架后该需求将从市场下架，并转入已下架列表。</div>
         <div class="flex gap-2">
-            <button class="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-sm font-semibold" onclick="closeConfirm()">取消</button>
-            <button class="flex-1 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold" onclick="confirmClose()">确认下架</button>
+            <button class="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-2xl text-sm font-semibold" onclick="closeConfirm()">取消</button>
+            <button class="flex-1 py-2.5 bg-primary text-white rounded-2xl text-sm font-semibold" onclick="confirmClose()">确认下架</button>
         </div>
     </div>
 </div>
@@ -202,7 +202,7 @@ function renderList() {
     var box = document.getElementById('listBox');
     var isHistory = currentTab === 'history';
     if (!list.length) {
-        box.innerHTML = '<div class="glass-card rounded-xl p-8 text-center"><div class="text-xs text-gray-400">暂无' + (isHistory ? '已下架' : '进行中') + '的需求</div></div>';
+        box.innerHTML = '<div class="glass-card rounded-2xl p-8 text-center"><div class="text-xs text-gray-400">暂无' + (isHistory ? '已下架' : '进行中') + '的需求</div></div>';
         return;
     }
     box.innerHTML = list.map(function(item) {
@@ -210,8 +210,8 @@ function renderList() {
             ? 'buyer-publish.html?mode=edit&id=' + item.id + '&from=manage'
             : 'buyer-publish.html?mode=view&id=' + item.id + '&from=manage';
         var statusTag = !isHistory
-            ? '<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">进行中</span>'
-            : '<span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium">已下架</span>';
+            ? '<span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">进行中</span>'
+            : '<span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">已下架</span>';
 
         // 关闭按钮和时间
         var timeText = !isHistory
@@ -221,12 +221,12 @@ function renderList() {
             ? '<button class="close-btn" data-id="' + item.id + '">下架</button>'
             : '';
 
-        return '<div class="glass-card rounded-xl p-3.5 relative pr-10" style="position:relative;">' +
+        return '<div class="glass-card rounded-2xl p-3.5 relative pr-10" style="position:relative;">' +
             '<a href="' + detailHref + '" class="block no-underline" style="text-decoration:none;">' +
                 '<div class="flex justify-between items-start mb-1.5">' +
                     '<div class="flex items-center gap-1.5">' +
-                        '<span class="text-[10px] ' + colorClass(item.category) + ' px-1.5 py-0.5 rounded font-medium">' + item.category + '</span>' +
-                        '<span class="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">约' + String(item.qty || 0) + (item.unit || '斤') + '</span>' +
+                        '<span class="text-[10px] ' + colorClass(item.category) + ' px-2 py-0.5 rounded-full font-medium">' + item.category + '</span>' +
+                        '<span class="text-[10px] text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">约' + String(item.qty || 0) + (item.unit || '斤') + '</span>' +
                     '</div>' +
                 '</div>' +
                 '<div class="text-sm text-gray-800 font-medium mb-1 truncate pr-16">' + (item.title || item.content) + '</div>' +

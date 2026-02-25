@@ -74,18 +74,18 @@
         </div>
 
         <!-- 支付方式选择 -->
-        <div class="glass-card rounded-xl p-4">
+        <div class="glass-card rounded-2xl p-4">
             <div class="text-xs text-gray-500 font-medium mb-3">选择支付方式</div>
             <div class="space-y-2.5">
                 <!-- 行业支付 -->
-                <div class="pay-option border border-gray-200 rounded-xl p-3.5 flex items-center gap-3 cursor-pointer" data-method="industry" onclick="selectPay(this)">
-                    <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                <div class="pay-option border border-gray-200 rounded-2xl p-3.5 flex items-center gap-3 cursor-pointer" data-method="industry" onclick="selectPay(this)">
+                    <div class="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0">
                         <i class="fas fa-university text-blue-500"></i>
                     </div>
                     <div class="flex-1">
                         <div class="flex items-center gap-1.5">
                             <span class="text-sm font-medium text-gray-800">行业支付</span>
-                            <span class="text-[8px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">推荐</span>
+                            <span class="text-[8px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">推荐</span>
                         </div>
                         <div class="text-[10px] text-gray-400 mt-0.5">银行转账，安全可靠</div>
                     </div>
@@ -93,8 +93,8 @@
                 </div>
 
                 <!-- 订单付 -->
-                <div class="pay-option border border-gray-200 rounded-xl p-3.5 flex items-center gap-3 cursor-pointer" data-method="guarantee" onclick="selectPay(this)">
-                    <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                <div class="pay-option border border-gray-200 rounded-2xl p-3.5 flex items-center gap-3 cursor-pointer" data-method="guarantee" onclick="selectPay(this)">
+                    <div class="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
                         <i class="fas fa-file-invoice-dollar text-orange-500"></i>
                     </div>
                     <div class="flex-1">
@@ -115,7 +115,7 @@
 
     <!-- 底部确认支付 -->
     <div class="absolute bottom-0 left-0 right-0 px-4 py-4 bg-gradient-to-t from-[#FFFBF0] via-[#FFFBF0] to-transparent">
-        <button id="confirmPayBtn" class="w-full py-3 bg-primary text-white font-medium text-[15px] rounded-xl shadow-glow active:scale-[0.98] transition-transform" onclick="confirmPay()">
+        <button id="confirmPayBtn" class="w-full py-3 bg-primary text-white font-medium text-[15px] rounded-2xl shadow-glow active:scale-[0.98] transition-transform" onclick="confirmPay()">
             <i class="fas fa-lock mr-1.5"></i>确认付款
         </button>
     </div>
@@ -128,9 +128,9 @@
             <div class="text-base font-semibold text-gray-800 mb-1">已跳转银行 APP</div>
             <div class="text-[11px] text-gray-500 mb-4">原型演示：请选择本次支付结果</div>
             <div class="space-y-2.5">
-                <button class="w-full py-3 bg-primary text-white rounded-xl text-sm font-medium" onclick="finishPay('success')">支付成功</button>
-                <button class="w-full py-3 bg-red-50 text-red-500 rounded-xl text-sm font-medium border border-red-100" onclick="finishPay('failed')">支付失败</button>
-                <button class="w-full py-3 bg-gray-100 text-gray-600 rounded-xl text-sm font-medium" onclick="finishPay('pending')">中途退出（待支付）</button>
+                <button class="w-full py-3 bg-primary text-white rounded-2xl text-sm font-medium" onclick="finishPay('success')">支付成功</button>
+                <button class="w-full py-3 bg-red-50 text-red-500 rounded-2xl text-sm font-medium border border-red-100" onclick="finishPay('failed')">支付失败</button>
+                <button class="w-full py-3 bg-gray-100 text-gray-600 rounded-2xl text-sm font-medium" onclick="finishPay('pending')">中途退出（待支付）</button>
             </div>
         </div>
     </div>
