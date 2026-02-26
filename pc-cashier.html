@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>邮粮通 - PC 收银台</title>
+    <title>微邮付 - PC 收银台</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -55,16 +55,23 @@
         }
 
         .brand-mark {
-            width: 40px;
-            height: 40px;
+            width: 46px;
+            height: 46px;
             border-radius: 12px;
-            background: linear-gradient(135deg, var(--brand), #21a34f);
-            color: #fff;
+            background: #fff;
+            border: 1px solid #e6e8ee;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            font-weight: 700;
+            overflow: hidden;
+            padding: 4px;
+        }
+
+        .brand-mark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
         }
 
         .brand-title {
@@ -80,18 +87,12 @@
             font-size: 13px;
         }
 
-        .service-info {
-            text-align: right;
+        .topbar-note {
             font-size: 12px;
             color: var(--muted);
             line-height: 1.6;
-        }
-
-        .service-info strong {
-            color: var(--brand-strong);
-            font-size: 16px;
-            font-family: "Poppins", sans-serif;
-            margin-left: 6px;
+            text-align: right;
+            white-space: nowrap;
         }
 
         .layout {
@@ -406,6 +407,59 @@
             grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
             gap: 20px;
             align-items: center;
+        }
+
+        .guide-area {
+            border: 1px solid #e8e3d8;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #fff, #f9fafb);
+            padding: 20px 16px;
+            min-height: 286px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left;
+        }
+
+        .guide-kicker {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            margin-bottom: 12px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(17, 122, 55, 0.22);
+            background: rgba(17, 122, 55, 0.08);
+            color: var(--brand-strong);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        .guide-title {
+            margin: 0 0 8px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .guide-message {
+            margin: 0 0 12px;
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.7;
+        }
+
+        .guide-message strong {
+            color: #111827;
+        }
+
+        .guide-steps {
+            margin: 0;
+            padding-left: 18px;
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.8;
         }
 
         .qr-area {
@@ -753,8 +807,9 @@
                 align-items: flex-start;
             }
 
-            .service-info {
+            .topbar-note {
                 text-align: left;
+                white-space: normal;
             }
 
             .qr-box {
@@ -777,16 +832,13 @@
     <div class="page-shell">
         <header class="topbar">
             <div class="brand">
-                <div class="brand-mark">邮</div>
+                <div class="brand-mark"><img src="./logo.svg" alt="微邮付 Logo"></div>
                 <div>
-                    <h1 class="brand-title">邮粮通收银台</h1>
-                    <div class="brand-sub">农产品交易结算中心 · PC 端</div>
+                    <h1 class="brand-title">微邮付收银台</h1>
+                    <div class="brand-sub">农产品交易结算中心</div>
                 </div>
             </div>
-            <div class="service-info">
-                <div>邮政金融服务热线<strong>95580</strong></div>
-                <div>交易全程加密，请在有效期内完成支付</div>
-            </div>
+            <div class="topbar-note">交易全程加密，请在有效期内完成支付</div>
         </header>
 
         <main class="layout">
@@ -805,39 +857,9 @@
                     <div class="info-list">
                         <div class="info-item"><span class="info-label">订单号</span><span id="orderNo" class="info-value">-</span></div>
                         <div class="info-item"><span class="info-label">下单时间</span><span id="orderTime" class="info-value">-</span></div>
-                        <div class="info-item"><span class="info-label">订单摘要</span><span id="orderSummary" class="info-value">-</span></div>
-                        <div class="info-item"><span class="info-label">付款方</span><span id="payerInfo" class="info-value">收购商账号</span></div>
-                    </div>
-                </section>
-
-                <section class="panel">
-                    <h2 class="panel-title">收款方信息</h2>
-                    <div class="info-list">
-                        <div class="info-item"><span class="info-label">收款人</span><span id="sellerName" class="info-value">-</span></div>
-                        <div class="info-item"><span class="info-label">手机号</span><span id="sellerPhone" class="info-value">-</span></div>
-                        <div class="info-item"><span class="info-label">结算银行</span><span id="sellerBank" class="info-value">-</span></div>
-                        <div class="info-item"><span class="info-label">地区</span><span id="sellerArea" class="info-value">-</span></div>
-                    </div>
-                </section>
-
-                <section class="panel">
-                    <h2 class="panel-title">商品明细（<span id="itemCount">0</span>项）</h2>
-                    <div class="items-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>商品</th>
-                                    <th>数量</th>
-                                    <th>单价</th>
-                                    <th>小计</th>
-                                </tr>
-                            </thead>
-                            <tbody id="itemsBody"></tbody>
-                        </table>
-                    </div>
-                    <div class="item-total">
-                        <span>合计金额</span>
-                        <strong id="itemTotalAmount">¥ 0.00</strong>
+                        <div class="info-item"><span class="info-label">付款人</span><span id="payerName" class="info-value">-</span></div>
+                        <div class="info-item"><span class="info-label">付款卡号</span><span id="payerCard" class="info-value">-</span></div>
+                        <div class="info-item"><span class="info-label">付款银行</span><span id="payerBank" class="info-value">-</span></div>
                     </div>
                 </section>
             </aside>
@@ -845,13 +867,11 @@
             <section class="panel">
                 <div class="payment-head">
                     <h2 class="payment-title">选择支付方式</h2>
-                    <p class="payment-sub">参考移动端收银台流程：选择支付方式 → 完成支付 → 进入支付结果页</p>
                 </div>
 
                 <div class="method-tabs">
-                    <button class="tab-btn active" data-tab="bank">行业支付（推荐）</button>
+                    <button class="tab-btn active" data-tab="bank">行业支付</button>
                     <button class="tab-btn" data-tab="orderpay">订单付</button>
-                    <button class="tab-btn" data-tab="dcep">数字人民币</button>
                 </div>
 
                 <div id="panel-bank" class="pay-panel active">
@@ -859,14 +879,14 @@
                         <div class="qr-area">
                             <div class="qr-box">银行转账二维码</div>
                             <div class="qr-amount">¥ <span class="pay-amount">0.00</span></div>
-                            <div class="qr-tip">请使用手机银行扫描二维码完成付款</div>
+                            <div class="qr-tip">请使用邮储银行APP扫描上方二维码完成付款</div>
                         </div>
                         <div>
                             <div class="channel-meta">
                                 <h4>行业支付信息</h4>
                                 <div class="meta-row"><span class="k">收款人</span><span id="bankSellerName" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款银行</span><span id="bankSellerBank" class="v">-</span></div>
-                                <div class="meta-row"><span class="k">订单金额</span><span class="v strong">¥ <span class="pay-amount">0.00</span></span></div>
+                                <div class="meta-row"><span class="k">收款人卡号</span><span class="v" id="bankSellerCard">-</span></div>
                             </div>
                             <div class="action-row">
                                 <button class="btn btn-primary" data-pay-action onclick="openScanResult('bank')">已完成支付</button>
@@ -877,49 +897,27 @@
                 </div>
 
                 <div id="panel-orderpay" class="pay-panel">
-                    <div class="form-grid">
-                        <div class="form-card">
-                            <h4>订单付账户</h4>
-                            <div class="meta-row"><span class="k">账户名称</span><span id="orderPayAccountName" class="v">-</span></div>
-                            <div class="meta-row"><span class="k">可用余额</span><span id="orderPayBalance" class="v">-</span></div>
-                            <div class="meta-row"><span class="k">收款人</span><span id="orderPaySellerName" class="v">-</span></div>
-                            <div class="meta-row"><span class="k">收款账号</span><span class="v" id="orderPaySellerCard">-</span></div>
-                        </div>
-                        <div class="form-card">
-                            <h4>确认支付</h4>
-                            <div class="pay-note">订单付用于担保场景，支付后订单状态将实时更新并可在订单详情追踪。</div>
-                            <div class="meta-row" style="margin-top:10px;">
-                                <span class="k">支付金额</span>
-                                <span class="v strong">¥ <span class="pay-amount">0.00</span></span>
-                            </div>
-                            <div class="input-group">
-                                <label for="orderPayPassword">支付密码</label>
-                                <input id="orderPayPassword" type="password" placeholder="请输入支付密码">
-                            </div>
-                            <div class="action-row">
-                                <button class="btn btn-primary" data-pay-action onclick="confirmOrderPay()">确认支付</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="panel-dcep" class="pay-panel">
                     <div class="pay-grid">
-                        <div class="qr-area">
-                            <div class="qr-box">数字人民币二维码</div>
-                            <div class="qr-amount">¥ <span class="pay-amount">0.00</span></div>
-                            <div class="qr-tip">请使用数字人民币 APP 扫码完成付款</div>
+                        <div class="guide-area">
+                            <div class="guide-kicker">企业网银支付引导</div>
+                            <h3 class="guide-title">订单已发起</h3>
+                            <p class="guide-message">请 <strong id="orderPayCompanyName">“--”</strong> 登录企业网银完成订单支付。</p>
+                            <ol class="guide-steps">
+                                <li>进入企业网银，选择“待支付订单”。</li>
+                                <li>核对订单号与金额后完成支付。</li>
+                                <li>支付完成后返回本页刷新支付状态。</li>
+                            </ol>
                         </div>
                         <div>
                             <div class="channel-meta">
-                                <h4>数字人民币支付信息</h4>
-                                <div class="meta-row"><span class="k">收款人</span><span id="dcepSellerName" class="v">-</span></div>
-                                <div class="meta-row"><span class="k">钱包渠道</span><span class="v">邮储数字钱包</span></div>
-                                <div class="meta-row"><span class="k">订单金额</span><span class="v strong">¥ <span class="pay-amount">0.00</span></span></div>
+                                <h4>收款人信息</h4>
+                                <div class="meta-row"><span class="k">收款人</span><span id="orderPaySellerName" class="v">-</span></div>
+                                <div class="meta-row"><span class="k">收款银行</span><span id="orderPaySellerBank" class="v">-</span></div>
+                                <div class="meta-row"><span class="k">收款人卡号</span><span id="orderPaySellerCard" class="v">-</span></div>
                             </div>
                             <div class="action-row">
-                                <button class="btn btn-primary" data-pay-action onclick="openScanResult('dcep')">已完成支付</button>
-                                <button class="btn btn-secondary" data-pay-action onclick="openScanResult('dcep')">查看支付状态</button>
+                                <button class="btn btn-primary" data-pay-action onclick="openScanResult('orderpay')">已在企业网银完成支付</button>
+                                <button class="btn btn-secondary" data-pay-action onclick="openScanResult('orderpay')">刷新支付状态</button>
                             </div>
                         </div>
                     </div>
@@ -927,7 +925,7 @@
             </section>
         </main>
 
-        <div class="footer">© 2026 邮粮通 · 农产品交易结算演示页面</div>
+        <div class="footer">© 2026 微邮付</div>
     </div>
 
     <div class="preset-float" id="presetFloat">
@@ -994,19 +992,17 @@
             returnUrl: '',
             seller: {
                 name: '李大姐',
-                phone: '138****2233',
-                area: '山东省济南市历城区',
                 bankName: '邮储银行济南历城支行',
-                card: '6228****8901'
+                card: '6228********8901'
             },
             payer: {
                 name: '张老板',
-                org: '保定收购站'
+                company: '保定收购站有限公司',
+                card: '6210********7288',
+                bank: '邮储银行保定清苑支行'
             },
             orderpay: {
-                accountName: '订单付担保账户',
-                account: '3705****7890',
-                balance: 125800.00
+                channel: '企业网银'
             },
             items: [
                 { name: '小麦', qty: 800, unit: '斤', price: 1.45, subtotal: 1160.00 },
@@ -1025,10 +1021,8 @@
                 summary: '小麦、玉米等 3 项商品',
                 seller: {
                     name: '李大姐',
-                    phone: '138****2233',
-                    area: '山东省济南市历城区',
                     bankName: '邮储银行济南历城支行',
-                    card: '6228****8901'
+                    card: '6228********8901'
                 },
                 items: [
                     { name: '小麦', qty: 800, unit: '斤', price: 1.45, subtotal: 1160.00 },
@@ -1045,10 +1039,8 @@
                 summary: '秋粮大宗订单 4 项商品',
                 seller: {
                     name: '赵师傅',
-                    phone: '136****9801',
-                    area: '河北省保定市清苑区',
                     bankName: '邮储银行保定清苑支行',
-                    card: '6221****6608'
+                    card: '6221********6608'
                 },
                 items: [
                     { name: '玉米', qty: 28000, unit: '斤', price: 1.52, subtotal: 42560.00 },
@@ -1066,10 +1058,8 @@
                 summary: '果蔬混采订单 3 项商品',
                 seller: {
                     name: '王大哥',
-                    phone: '139****5612',
-                    area: '山东省潍坊市寒亭区',
                     bankName: '邮储银行潍坊寒亭支行',
-                    card: '6210****1258'
+                    card: '6210********1258'
                 },
                 items: [
                     { name: '西红柿', qty: 1600, unit: '斤', price: 2.20, subtotal: 3520.00 },
@@ -1086,10 +1076,8 @@
                 summary: '蔬菜订单支付失败示例',
                 seller: {
                     name: '孙阿姨',
-                    phone: '137****3326',
-                    area: '山东省德州市齐河县',
                     bankName: '邮储银行德州齐河支行',
-                    card: '6228****5721'
+                    card: '6228********5721'
                 },
                 items: [
                     { name: '大白菜', qty: 3000, unit: '斤', price: 1.35, subtotal: 4050.00 },
@@ -1100,16 +1088,14 @@
             canceled_case: {
                 label: '超时取消',
                 status: 'canceled',
-                tab: 'dcep',
+                tab: 'bank',
                 timeout: 600,
                 amount: 4380.00,
                 summary: '超时未支付示例订单',
                 seller: {
                     name: '刘师傅',
-                    phone: '135****7119',
-                    area: '山东省临沂市兰山区',
                     bankName: '邮储银行临沂兰山支行',
-                    card: '6217****9813'
+                    card: '6217********9813'
                 },
                 items: [
                     { name: '苹果', qty: 1200, unit: '斤', price: 2.10, subtotal: 2520.00 },
@@ -1158,10 +1144,12 @@
             }
 
             Config.seller.name = p.get('payeeName') || p.get('sellerName') || Config.seller.name;
-            Config.seller.phone = p.get('payeeMobile') || p.get('sellerPhone') || Config.seller.phone;
-            Config.seller.area = p.get('sellerArea') || Config.seller.area;
             Config.seller.bankName = p.get('payeeBank') || p.get('bankName') || Config.seller.bankName;
             Config.seller.card = p.get('payeeCard') || Config.seller.card;
+            Config.payer.name = p.get('payerName') || Config.payer.name;
+            Config.payer.company = p.get('payerCompany') || p.get('companyName') || p.get('payerOrg') || Config.payer.company;
+            Config.payer.card = p.get('payerCard') || p.get('payerAcct') || Config.payer.card;
+            Config.payer.bank = p.get('payerBank') || Config.payer.bank;
 
             const rawItems = p.get('items');
             if (rawItems) {
@@ -1262,29 +1250,22 @@
             setText('totalAmount', formatNum(Config.amount));
             setText('orderNo', Config.orderNo);
             setText('orderTime', Config.createTime);
-            setText('orderSummary', Config.summary);
-            setText('payerInfo', Config.payer.name + '（' + Config.payer.org + '）');
-
-            setText('sellerName', Config.seller.name);
-            setText('sellerPhone', Config.seller.phone);
-            setText('sellerBank', Config.seller.bankName);
-            setText('sellerArea', Config.seller.area);
+            setText('payerName', Config.payer.name);
+            setText('payerCard', Config.payer.card);
+            setText('payerBank', Config.payer.bank);
 
             setText('bankSellerName', Config.seller.name);
             setText('bankSellerBank', Config.seller.bankName);
-            setText('dcepSellerName', Config.seller.name);
+            setText('bankSellerCard', Config.seller.card);
 
-            setText('orderPayAccountName', Config.orderpay.accountName);
-            setText('orderPayBalance', formatMoney(Config.orderpay.balance));
+            setText('orderPayCompanyName', '“' + Config.payer.company + '”');
             setText('orderPaySellerName', Config.seller.name);
+            setText('orderPaySellerBank', Config.seller.bankName);
             setText('orderPaySellerCard', Config.seller.card);
 
             document.querySelectorAll('.pay-amount').forEach(el => {
                 el.textContent = formatNum(Config.amount);
             });
-            setText('itemTotalAmount', formatMoney(Config.amount));
-
-            renderItems();
         }
 
         function bindPresetState() {
@@ -1366,7 +1347,6 @@
         }
 
         function clearModalAndInputs() {
-            document.getElementById('orderPayPassword').value = '';
             document.getElementById('modalProcessing').classList.remove('show');
             document.getElementById('modalScan').classList.remove('show');
             document.getElementById('modalResult').classList.remove('show');
@@ -1408,26 +1388,6 @@
             isExpired = true;
             hint.classList.add('expired');
             hint.textContent = '订单已超时，系统已自动取消';
-        }
-
-        function renderItems() {
-            const tbody = document.getElementById('itemsBody');
-            if (!tbody) return;
-            setText('itemCount', String(Config.items.length));
-            tbody.innerHTML = Config.items.map(item => {
-                const qtyText = typeof item.qty === 'string'
-                    ? escapeHtml(item.qty)
-                    : (Number.isFinite(Number(item.qty)) ? (Number(item.qty) + (item.unit || '')) : '-');
-                const priceText = Number.isFinite(Number(item.price)) && Number(item.price) > 0
-                    ? ('¥' + formatNum(item.price))
-                    : '-';
-                return '<tr>' +
-                    '<td>' + escapeHtml(item.name) + '</td>' +
-                    '<td>' + qtyText + '</td>' +
-                    '<td>' + priceText + '</td>' +
-                    '<td>¥' + formatNum(item.subtotal || 0) + '</td>' +
-                '</tr>';
-            }).join('');
         }
 
         function startTimer() {
@@ -1526,29 +1486,6 @@
             }, 1100);
         }
 
-        function confirmOrderPay() {
-            if (isExpired) {
-                showToast('订单已超时，无法继续支付');
-                return;
-            }
-
-            const pwd = document.getElementById('orderPayPassword').value.trim();
-            if (!pwd) {
-                showToast('请输入支付密码');
-                return;
-            }
-            if (Config.orderpay.balance < Config.amount) {
-                showToast('订单付账户余额不足');
-                return;
-            }
-
-            showProcessing();
-            setTimeout(() => {
-                hideProcessing();
-                showResult('success', '订单付', '');
-            }, 1100);
-        }
-
         function showProcessing() {
             document.getElementById('modalProcessing').classList.add('show');
         }
@@ -1631,7 +1568,6 @@
             const map = {
                 bank: '行业支付',
                 orderpay: '订单付',
-                dcep: '数字人民币',
             };
             return map[channel] || '支付';
         }
