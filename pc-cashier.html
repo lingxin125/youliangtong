@@ -28,12 +28,18 @@
             font-family: "Poppins", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
             background: var(--bg);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .page-shell {
             max-width: 1240px;
             margin: 0 auto;
             padding: 24px;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .topbar {
@@ -651,7 +657,8 @@
         }
 
         .footer {
-            margin-top: 16px;
+            margin-top: auto;
+            padding-top: 16px;
             text-align: center;
             font-size: 12px;
             color: #8b8f97;
