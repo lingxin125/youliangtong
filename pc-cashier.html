@@ -57,14 +57,14 @@
         .brand-mark {
             width: 46px;
             height: 46px;
-            border-radius: 12px;
-            background: #fff;
-            border: 1px solid #e6e8ee;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            background: #fff;
+            border: 1px solid #e6e8ee;
+            border-radius: 12px;
             padding: 4px;
+            overflow: hidden;
         }
 
         .brand-mark img {
@@ -89,7 +89,8 @@
 
         .topbar-note {
             font-size: 12px;
-            color: var(--muted);
+            color: var(--brand);
+            font-weight: 700;
             line-height: 1.6;
             text-align: right;
             white-space: nowrap;
@@ -450,8 +451,8 @@
             line-height: 1.7;
         }
 
-        .guide-message strong {
-            color: #111827;
+        #orderPayCompanyName {
+            color: var(--danger);
         }
 
         .guide-steps {
@@ -849,7 +850,7 @@
                     <div class="amount-value">
                         <span class="currency">¥</span><span id="totalAmount">0.00</span>
                     </div>
-                    <div id="countdownHint" class="countdown-row">请在 15:00 内完成支付</div>
+                    <div id="countdownHint" class="countdown-row">请在 10天内完成支付</div>
                 </section>
 
                 <section class="panel">
@@ -901,7 +902,7 @@
                         <div class="guide-area">
                             <div class="guide-kicker">企业网银支付引导</div>
                             <h3 class="guide-title">订单已发起</h3>
-                            <p class="guide-message">请 <strong id="orderPayCompanyName">“--”</strong> 登录企业网银完成订单支付。</p>
+                            <p class="guide-message">请 <strong id="orderPayCompanyName" >“--”</strong> 登录企业网银完成订单支付。</p>
                             <ol class="guide-steps">
                                 <li>进入企业网银，选择“待支付订单”。</li>
                                 <li>核对订单号与金额后完成支付。</li>
@@ -987,7 +988,7 @@
             orderNo: 'PO202602240001',
             amount: 2580.00,
             createTime: formatTimeForView(new Date().toISOString()),
-            timeout: 900,
+            timeout: 864000,
             summary: '小麦、玉米等 3 项商品',
             returnUrl: '',
             seller: {
@@ -1016,7 +1017,7 @@
                 label: '标准待支付',
                 status: 'pending',
                 tab: 'bank',
-                timeout: 900,
+                timeout: 864000,
                 amount: 2580.00,
                 summary: '小麦、玉米等 3 项商品',
                 seller: {
@@ -1034,7 +1035,7 @@
                 label: '大额订单付',
                 status: 'pending',
                 tab: 'orderpay',
-                timeout: 1800,
+                timeout: 864000,
                 amount: 128600.00,
                 summary: '秋粮大宗订单 4 项商品',
                 seller: {
@@ -1359,7 +1360,7 @@
             if (status === 'pending') {
                 isExpired = false;
                 hint.classList.remove('expired');
-                hint.textContent = '请在 15:00 内完成支付';
+                hint.textContent = '请在 ' + getTimeoutWindowLabel(Config.timeout) + '内完成支付';
                 enablePayActions();
                 return;
             }
@@ -1423,10 +1424,13 @@
                 return;
             }
 
-            const m = Math.floor(diff / 60000);
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff % 86400000) / 3600000);
+            const m = Math.floor((diff % 3600000) / 60000);
             const s = Math.floor((diff % 60000) / 1000);
             hint.classList.remove('expired');
-            hint.textContent = '请在 ' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + ' 内完成支付';
+            const remain = d + '天 ' + String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+            hint.textContent = '请在 ' + remain + ' 内完成支付';
         }
 
         function updateStatusBadge(status) {
@@ -1592,6 +1596,14 @@
 
         function formatMoney(value) {
             return '¥ ' + formatNum(value);
+        }
+
+        function getTimeoutWindowLabel(timeoutSec) {
+            const sec = Number(timeoutSec) || 0;
+            if (sec >= 86400 && sec % 86400 === 0) return (sec / 86400) + '天';
+            if (sec >= 3600 && sec % 3600 === 0) return (sec / 3600) + '小时';
+            if (sec >= 60) return Math.floor(sec / 60) + '分钟';
+            return sec + '秒';
         }
 
         function parseToDate(raw) {
