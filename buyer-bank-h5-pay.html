@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>手机银行支付</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="shared.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f7f8fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .cashier-header-bg {
+            position: absolute;
+            top: 48px;
+            left: 0;
+            right: 0;
+            height: 160px;
+            background: linear-gradient(135deg, #13b15a 0%, #0d964a 100%);
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            z-index: 0;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Information Rows */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px dashed #f1f5f9;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-size: 14px;
+            color: #64748b;
+            flex-shrink: 0;
+            width: 80px;
+        }
+        .info-value {
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 500;
+            text-align: right;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 20px;
+            height: 20px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast */
+        .toast-tip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+            white-space: nowrap;
+        }
+        .toast-tip.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container relative flex flex-col overflow-hidden" id="appContainer">
+    <!-- 原生黑色状态栏 -->
+    <div id="statusBar" class="relative z-20"></div>
+
+    <!-- 模拟银行的沉浸式高级蓝/绿色背景 -->
+    <div class="cashier-header-bg"></div>
+
+    <!-- 导航栏 -->
+    <div id="navBar" class="relative z-20">
+        <div class="flex items-center justify-between px-4 mt-2 h-[44px] text-white">
+            <div class="w-10 h-10 flex items-center justify-start text-white cursor-pointer" onclick="history.back()">
+                <i class="fas fa-chevron-left text-lg"></i>
+            </div>
+            <div class="text-[17px] font-semibold absolute left-0 right-0 text-center pointer-events-none">确认付款</div>
+            <div class="w-10"></div>
+        </div>
+    </div>
+
+    <!-- 核心滚动内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-4 pt-4 pb-32">
+        
+        <!-- 卡片1：交易金额核心区 -->
+        <div class="glass-panel rounded-2xl p-6 mb-4 flex flex-col items-center justify-center text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-[#13b15a]/10 rounded-full blur-3xl -mr-10 -mt-10 opacity-60"></div>
+            
+            <!-- <div class="w-12 h-12 bg-[#13b15a]/10 text-[#13b15a] rounded-full flex items-center justify-center mb-3 shadow-[0_4px_12px_rgba(19,177,90,0.15)] z-10">
+                <i class="fas fa-building-columns text-[20px]"></i>
+            </div> -->
+            
+            <!-- <div class="text-[13px] text-gray-500 font-medium mb-1.5 z-10">向收款方付款</div> -->
+            <div class="text-[16px] font-semibold text-gray-800 mb-4 z-10" id="mainPayee">加载中...</div>
+            
+            <div class="text-[36px] font-bold text-gray-900 tracking-tight flex items-baseline gap-1 z-10" style="font-family:Poppins;">
+                <span class="text-[20px]">¥</span>
+                <span id="mainAmount">0.00</span>
+            </div>
+        </div>
+
+        <!-- 卡片2：详细信息校验 -->
+        <div class="glass-panel rounded-2xl p-4 mb-4">
+            
+            <!-- 交易信息 -->
+            <div class="flex items-center gap-2 mb-3 text-[14px] font-bold text-gray-800">
+                <div class="w-1 h-3.5 bg-[#13b15a] rounded-full"></div>
+                <span>交易信息</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">订单号</span>
+                <span id="infoOrderNo" class="info-value font-mono"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">下单时间</span>
+                <span id="infoCreatedAt" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款人</span>
+                <span id="payerText" class="info-value">张老板（保定收购站）</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款银行</span>
+                <span id="payerBankText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款卡号</span>
+                <span id="payerCardText" class="info-value"></span>
+            </div>
+
+            <!-- 收款方信息 -->
+            <div class="flex items-center gap-2 mb-3 mt-4 text-[14px] font-bold text-gray-800">
+                <div class="w-1 h-3.5 bg-[#13b15a] rounded-full"></div>
+                <span>收款方信息</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">收款人</span>
+                <span id="payeeNameText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">收款银行</span>
+                <span id="payeeBankNameText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">收款卡号</span>
+                <span id="payeeCardNoText" class="info-value"></span>
+            </div>
+
+        </div>
+        
+        <!-- <div class="text-center px-4">
+            <p class="text-[11px] text-gray-400 leading-relaxed">
+                <i class="fas fa-info-circle mr-1"></i>
+                点击付款即代表您同意《手机银行快捷支付服务协议》<br>由对应银行提供资金结算服务
+            </p>
+        </div> -->
+
+    </div>
+
+    <!-- 底部固定操作区 -->
+    <div class="absolute bottom-0 left-0 right-0 p-5 bg-white border-t border-gray-100 pb-8 z-50">
+        <button id="payBtn" class="w-full h-12 bg-[#13b15a] active:bg-[#0d964a] text-white font-bold text-[16px] rounded-xl shadow-[0_8px_20px_rgba(19,177,90,0.3)] transition-all flex items-center justify-center gap-2" onclick="processPayment()">
+            确认付款
+        </button>
+    </div>
+
+    <div id="toastTip" class="toast-tip"></div>
+</div>
+
+<script>
+// 解析参数
+const params = new URLSearchParams(window.location.search);
+const fallbackNow = new Date();
+
+const state = {
+    orderNo: params.get('orderNo') || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
+    amount: parseFloat(params.get('amount')) || 38500.00,
+    payeeName: params.get('payeeName') || '李大姐',
+    payeeBank: params.get('payeeBank') || '中国邮政储蓄银行',
+    payeeCard: params.get('payeeCard') || '尾号 8888',
+    createdAt: params.get('createdAt') || fallbackNow.toISOString(),
+};
+
+// 渲染基础 UI
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+
+function formatMoney(amount) {
+    return amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatTime(isoString) {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    return d.getFullYear() + '-' + 
+           String(d.getMonth() + 1).padStart(2, '0') + '-' + 
+           String(d.getDate()).padStart(2, '0') + ' ' + 
+           String(d.getHours()).padStart(2, '0') + ':' + 
+           String(d.getMinutes()).padStart(2, '0');
+}
+
+function fillPage() {
+    document.getElementById('mainPayee').textContent = '向 ' + state.payeeName + ' 付款';
+    document.getElementById('mainAmount').textContent = formatMoney(state.amount);
+    
+    // 交易信息
+    document.getElementById('infoOrderNo').textContent = state.orderNo;
+    document.getElementById('infoCreatedAt').textContent = formatTime(state.createdAt);
+    document.getElementById('payerBankText').textContent = '中国农业银行';
+    document.getElementById('payerCardText').textContent = '尾号 5678';
+    
+    // 收款方信息
+    document.getElementById('payeeNameText').textContent = state.payeeName;
+    document.getElementById('payeeBankNameText').textContent = state.payeeBank;
+    document.getElementById('payeeCardNoText').textContent = state.payeeCard;
+}
+
+function showToast(msg) {
+    const tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => {
+        tip.classList.remove('show');
+    }, 2500);
+}
+
+function processPayment() {
+    const btn = document.getElementById('payBtn');
+    
+    // 防止重复点击
+    if (btn.disabled) return;
+    
+    // 变为加载中状态
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.classList.add('opacity-90');
+    btn.innerHTML = `<div class="spinner"></div><span class="ml-2">处理中...</span>`;
+    
+    // 模拟网络请求
+    setTimeout(() => {
+        btn.innerHTML = `<i class="fas fa-check-circle"></i><span class="ml-2">支付成功</span>`;
+        btn.classList.remove('bg-blue-600', 'active:bg-blue-700');
+        btn.classList.add('bg-green-500');
+        
+        showToast('支付处理完成');
+        
+        // 模拟成功后返回到原本的小程序收银台/订单页 (通常H5支付完会跳回回调地址)
+        setTimeout(() => {
+            // 如果存在 mock 存储，这里其实应该把 mockStore 里的状态改为 success，但由于作用域隔离在不同页面，这里做简化展示，直接返回。
+            history.back();
+        }, 1500);
+        
+    }, 2000);
+}
+
+// 初始化
+fillPage();
+</script>
+</body>
+</html>

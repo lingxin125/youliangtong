@@ -5,132 +5,190 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>邮粮通 - 收银台</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
     <style>
-        .pay-option {
-            transition: all 0.2s ease;
+        body { background-color: #F7F8FA; }
+        
+        /* 顶部沉浸式绿色半背景，用于烘托财务页面的严谨与安稳感 */
+        .cashier-header-bg {
+            background: linear-gradient(180deg, #13b15a 0%, #17c967 100%);
+            position: absolute;
+            top: 48px; left: 0; right: 0; /* 从状态栏下方开始 */
+            height: 190px;
+            z-index: 0;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
         }
-        .pay-option.active {
-            border-color: #11A64A;
-            background: rgba(240, 253, 244, 0.6);
-        }
-        .pay-option .radio-circle {
-            width: 20px; height: 20px;
-            border-radius: 50%;
-            border: 2px solid #D1D5DB;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .pay-option.active .radio-circle {
-            border-color: #11A64A;
-            background: #11A64A;
-        }
-        .pay-option.active .radio-circle::after {
-            content: '';
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: white;
-        }
+
+        /* 步骤条连接线 */
         .toast-tip {
             position: absolute;
-            left: 16px;
-            right: 16px;
-            bottom: 100px;
-            padding: 11px 14px;
-            background: rgba(17, 24, 39, 0.9);
-            border-radius: 11px;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            bottom: 120px;
+            padding: 10px 16px;
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(4px);
+            border-radius: 12px;
             color: #fff;
-            font-size: 12px;
-            line-height: 1.45;
+            font-size: 13px;
+            white-space: nowrap;
             z-index: 80;
             opacity: 0;
             pointer-events: none;
-            transform: translateY(8px);
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .toast-tip.show {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        /* 步骤条连接线 */
+        .step-line::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: -20px;
+            width: 2px;
+            background: #F3F4F6;
+            z-index: 0;
+        }
+        .step-item:last-child .step-line::after {
+            display: none;
         }
     </style>
 </head>
 <body>
-<div class="mobile-container">
-    <div id="statusBar"></div>
-    <div id="navBar"></div>
+<div class="mobile-container relative">
+    
+    <!-- 状态栏保持原有黑色，绿色沉浸背景从状态栏下方开始 -->
+    <div class="cashier-header-bg"></div>
 
-    <!-- 主内容区 -->
-    <div class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4" style="padding-bottom:100px;">
-
-        <!-- 付款金额卡片 -->
-        <div class="glass-panel rounded-2xl p-6 text-center">
-            <div id="mainPayee" class="text-sm text-gray-600 mb-2">-</div>
-            <div id="mainAmount" class="text-4xl font-bold text-gray-800 mb-2" style="font-family:Poppins;">¥ 0.00</div>
-            <div class="text-xs text-gray-400">付款金额</div>
-        </div>
-
-        <!-- 支付方式选择 -->
-        <div class="glass-card rounded-2xl p-4">
-            <div class="text-xs text-gray-500 font-medium mb-3">选择支付方式</div>
-            <div class="space-y-2.5">
-                <!-- 行业支付 -->
-                <div class="pay-option border border-gray-200 rounded-2xl p-3.5 flex items-center gap-3 cursor-pointer" data-method="industry" onclick="selectPay(this)">
-                    <div class="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0">
-                        <i class="fas fa-university text-blue-500"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-sm font-medium text-gray-800">行业支付</span>
-                            <span class="text-[8px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">推荐</span>
-                        </div>
-                        <div class="text-[10px] text-gray-400 mt-0.5">银行转账，安全可靠</div>
-                    </div>
-                    <div class="radio-circle"></div>
-                </div>
-
-                <!-- 订单付 -->
-                <div class="pay-option border border-gray-200 rounded-2xl p-3.5 flex items-center gap-3 cursor-pointer" data-method="guarantee" onclick="selectPay(this)">
-                    <div class="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
-                        <i class="fas fa-file-invoice-dollar text-orange-500"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-sm font-medium text-gray-800">订单付</div>
-                        <div class="text-[10px] text-gray-400 mt-0.5">大额担保，资金冻结待确认放款</div>
-                    </div>
-                    <div class="radio-circle"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 倒计时提示 -->
-        <div class="flex items-center gap-2 px-2">
-            <i class="fas fa-clock text-orange-500/70 text-xs"></i>
-            <span id="countdownText" class="text-[11px] text-orange-600">请在30分钟内完成支付</span>
-        </div>
+    <div class="relative z-[60]">
+        <div id="statusBar"></div>
+        <div id="navBar"></div>
     </div>
 
-    <!-- 底部确认支付 -->
-    <div class="absolute bottom-0 left-0 right-0 px-4 py-4 bg-gradient-to-t from-[#FFFBF0] via-[#FFFBF0] to-transparent">
-        <button id="confirmPayBtn" class="w-full py-3 bg-primary text-white font-medium text-[15px] rounded-2xl shadow-glow active:scale-[0.98] transition-transform" onclick="confirmPay()">
-            <i class="fas fa-lock mr-1.5"></i>确认付款
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-20 pt-2 relative z-10" style="height: calc(100vh - 180px);">
+
+        <!-- 付款金额卡片 (完全保留原有文案) -->
+        <div class="bg-white rounded-[20px] p-6 text-center mt-2 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-gray-50">
+            <div id="mainPayee" class="text-[13px] text-gray-500 mb-2 font-medium">-</div>
+            <div id="mainAmount" class="text-[34px] font-bold text-[#13b15a] mb-2 font-medium" style="font-family:Poppins;">¥ 0.00</div>
+            <div class="text-[11px] text-gray-400 bg-gray-50 inline-block px-3 py-1 rounded-full border border-gray-100">付款金额</div>
+        </div>
+
+        <!-- 动态引导区域容器 -->
+        <div id="guideContainer" class="mt-4">
+            
+            <!-- 情景A：行业支付 (扫码付款) -->
+            <div id="guideIndustry" class="bg-white rounded-[20px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-gray-50 hidden">
+                <div class="flex items-center justify-center gap-2 mb-6 pb-4 border-b border-gray-50/80">
+                    <i class="fas fa-university text-blue-500 text-lg"></i>
+                    <span class="text-gray-800 font-semibold text-[15px]">行业支付</span>
+                </div>
+                
+                <div class="relative w-48 h-48 mx-auto bg-[#F8FAFC] rounded-2xl border border-[#E2E8F0] flex items-center justify-center p-3 mb-6 shadow-inner">
+                    <!-- 模拟二维码生成 -->
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PostalPayMock&color=111827&bgcolor=F8FAFC" alt="QR Code" class="w-full h-full rounded-xl mix-blend-multiply opacity-90">
+                    <!-- 装饰角 -->
+                    <div class="absolute top-[-1px] left-[-1px] w-4 h-4 border-t-2 border-l-2 border-[#13b15a] rounded-tl-xl"></div>
+                    <div class="absolute top-[-1px] right-[-1px] w-4 h-4 border-t-2 border-r-2 border-[#13b15a] rounded-tr-xl"></div>
+                    <div class="absolute bottom-[-1px] left-[-1px] w-4 h-4 border-b-2 border-l-2 border-[#13b15a] rounded-bl-xl"></div>
+                    <div class="absolute bottom-[-1px] right-[-1px] w-4 h-4 border-b-2 border-r-2 border-[#13b15a] rounded-br-xl"></div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="text-[14px] text-gray-800 font-semibold mb-1.5 flex items-center justify-center gap-1.5">
+                        请打开 <span class="text-[#13b15a]">邮储银行APP</span>
+                    </div>
+                    <div class="text-[12px] text-gray-500">使用“扫一扫”扫描上方二维码完成订单付款</div>
+                </div>
+            </div>
+
+            <!-- 情景B：订单付 (网银支付) -->
+            <div id="guideGuarantee" class="bg-white rounded-[20px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-gray-50 hidden">
+                <div class="flex items-center justify-center gap-2 mb-6 pb-4 border-b border-gray-50/80">
+                    <i class="fas fa-desktop text-[#F59E0B] text-lg"></i>
+                    <span class="text-gray-800 font-semibold text-[15px]">企业网银订单付</span>
+                </div>
+                
+                <div class="space-y-6 pt-2">
+                    <!-- Step 1 -->
+                    <div class="step-item relative flex items-start gap-4">
+                        <div class="step-line w-10 h-10 rounded-full bg-orange-50 text-[#F59E0B] flex items-center justify-center shrink-0 z-10 border-4 border-white font-bold text-sm shadow-sm">1</div>
+                        <div class="pt-2 pb-2">
+                            <div class="text-[14px] font-semibold text-gray-800 mb-1.5">登录企业网银</div>
+                            <div class="text-[12px] text-gray-500 leading-relaxed pr-2">请在电脑端登录 <span class="text-[#13b15a] font-medium">邮储企业网银</span>，进入 <span class="font-medium text-gray-700 bg-gray-50 px-1 py-0.5 rounded">待支付订单</span> 模块。</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="step-item relative flex items-start gap-4">
+                        <div class="step-line w-10 h-10 rounded-full bg-orange-50 text-[#F59E0B] flex items-center justify-center shrink-0 z-10 border-4 border-white font-bold text-sm shadow-sm">2</div>
+                        <div class="pt-2 pb-2 w-full">
+                            <div class="text-[14px] font-semibold text-gray-800 mb-2 flex items-center justify-between">
+                                核对订单付款
+                                <button class="bg-[#F3F4F6] hover:bg-[#E5E7EB] text-gray-600 px-2.5 py-1 rounded-md text-[10px] active:scale-95 transition-all font-medium flex items-center gap-1" onclick="showToast('订单号已复制')">
+                                    <i class="far fa-copy"></i>复制单号
+                                </button>
+                            </div>
+                            <div class="text-[12px] text-gray-500 leading-relaxed bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                核对订单号 <span class="font-Poppins font-medium text-gray-700 select-all" id="displayOrderNo">SL...</span>，确认金额无误后完成支付。
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="step-item relative flex items-start gap-4">
+                        <div class="step-line w-10 h-10 rounded-full bg-orange-50 text-[#F59E0B] flex items-center justify-center shrink-0 z-10 border-4 border-white font-bold text-sm shadow-sm">3</div>
+                        <div class="pt-2">
+                            <div class="text-[14px] font-semibold text-gray-800 mb-1.5">回传刷新状态</div>
+                            <div class="text-[12px] text-gray-500 leading-relaxed pr-2">网银支付成功后，返回当前小程序，点击下方“刷新支付状态”。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="h-24 w-full"></div> <!-- 底部防遮挡留白 -->
+
+    </div>
+
+    <!-- 悬浮底部操作区 -->
+    <div class="absolute bottom-0 left-0 right-0 px-5 py-6 bg-gradient-to-t from-white via-white/95 to-transparent z-50">
+        <div class="text-center mb-3.5">
+            <span class="text-[11px] text-gray-400 tracking-wide">
+                点击左上角可返回，稍后在 <span class="font-medium text-gray-500">付款记录</span> 中继续处理
+            </span>
+        </div>
+        <button id="refreshPayBtn" class="w-full py-3 bg-[#13b15a] text-white font-semibold text-[15px] rounded-xl shadow-[0_6px_20px_rgba(19,177,90,0.25)] active:scale-[0.97] transition-all flex items-center justify-center gap-2 group" onclick="refreshPaymentStatus()">
+            <i class="fas fa-sync-alt group-active:rotate-180 transition-transform duration-500"></i> 刷新支付状态
         </button>
+    </div>
+
+    <!-- 悬浮切换按钮 (用于原型演示切换支付方式) -->
+    <div onclick="togglePaymentMethod()" class="absolute bottom-32 right-4 w-11 h-11 bg-white rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.08)] flex items-center justify-center cursor-pointer active:scale-90 transition-transform z-50 group border border-gray-50">
+        <i class="fas fa-exchange-alt text-primary group-active:-rotate-180 transition-transform duration-300"></i>
     </div>
 
     <div id="toastTip" class="toast-tip"></div>
 
-    <div id="bankModal" class="absolute inset-0 bg-black/35 z-[75] items-end" style="display:none;">
-        <div class="glass-panel rounded-t-3xl p-5 w-full">
-            <div class="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-4"></div>
-            <div class="text-base font-semibold text-gray-800 mb-1">已跳转银行 APP</div>
-            <div class="text-[11px] text-gray-500 mb-4">原型演示：请选择本次支付结果</div>
-            <div class="space-y-2.5">
-                <button class="w-full py-3 bg-primary text-white rounded-2xl text-sm font-medium" onclick="finishPay('success')">支付成功</button>
-                <button class="w-full py-3 bg-red-50 text-red-500 rounded-2xl text-sm font-medium border border-red-100" onclick="finishPay('failed')">支付失败</button>
-                <button class="w-full py-3 bg-gray-100 text-gray-600 rounded-2xl text-sm font-medium" onclick="finishPay('pending')">中途退出（待支付）</button>
+    <!-- 模拟弹窗：用于原型演示获取支付结果 -->
+    <div id="bankModal" class="absolute inset-0 bg-black/40 z-[75] flex items-end opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-t-[24px] p-6 w-full transform translate-y-full transition-transform duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]" id="bankModalContent">
+            <div class="w-12 h-1.5 rounded-full bg-gray-200 mx-auto mb-5"></div>
+            <div class="text-[17px] font-semibold text-gray-900 mb-1 text-center">支付状态模拟获取</div>
+            <div class="text-[12px] text-gray-500 mb-6 text-center">原型演示：请手动选择最终获取到的支付结果</div>
+            <div class="space-y-3">
+                <button class="w-full py-3.5 bg-[#13b15a] text-white rounded-[14px] text-[15px] font-semibold shadow-[0_4px_12px_rgba(19,177,90,0.2)] active:scale-95 transition-all" onclick="finishPay('success')">支付成功</button>
+                <button class="w-full py-3.5 bg-red-50 text-red-500 rounded-[14px] text-[15px] font-semibold border border-red-100 active:scale-95 transition-all" onclick="finishPay('failed')">支付失败</button>
+                <button class="w-full py-3.5 bg-gray-100/80 text-gray-600 rounded-[14px] text-[15px] font-medium active:scale-95 transition-all" onclick="closeModal()">暂未支付 (退出弹窗)</button>
             </div>
         </div>
     </div>
@@ -143,39 +201,45 @@ const mockStore = window.BuyerMockStore || null;
 const payerProfile = (mockStore && typeof mockStore.getPayer === 'function')
     ? mockStore.getPayer()
     : { name: '张老板', org: '保定收购站' };
+
+// 新业务逻辑：开户时已确定支付方式，此处从 url 或 默认取值模拟
+const predefinedPayMethod = params.get('payMethod') || 'industry'; // 'industry' 或 'guarantee'
+
 const state = {
     source: params.get('source') || 'billing',
     orderNo: params.get('orderNo') || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
-    amount: parseFloat(params.get('amount')) || 5000,
+    amount: parseFloat(params.get('amount')) || 38500.00,
     payeeName: params.get('payeeName') || '李大姐',
     payeeMobile: params.get('payeeMobile') || '138****8888',
     payeeBank: params.get('payeeBank') || '中国邮政储蓄银行',
     payeeCard: params.get('payeeCard') || '尾号 8888',
-    summary: params.get('summary') || '苹果 x 50斤',
+    summary: params.get('summary') || '优质小麦 x 20000斤',
     createdAt: params.get('createdAt') || fallbackNow.toISOString(),
     mode: params.get('mode') || 'detail',
     items: parseItems(params.get('items')),
-    payMethod: ''
+    payMethod: predefinedPayMethod
 };
 
+// 【恢复】使用与其他页面一致的深色导航栏和状态栏
+// 状态栏保留黑底，但导航栏使用白色文字以适配绿色沉浸背景
+const backUrl = state.source === 'orders' ? 'buyer-orders.html' : 'buyer-billing.html';
 document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader(
-    '收银台',
-    state.source === 'orders' ? 'buyer-orders.html' : 'buyer-billing.html'
-);
-
-function selectPay(el) {
-    document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('active'));
-    el.classList.add('active');
-    state.payMethod = el.getAttribute('data-method') || '';
-}
+document.getElementById('navBar').innerHTML = `
+    <div class="flex items-center justify-between px-4 mt-2 h-[44px] text-white z-20 relative">
+        <a href="${backUrl}" class="w-10 h-10 flex items-center justify-start text-white">
+            <i class="fas fa-chevron-left text-lg"></i>
+        </a>
+        <div class="text-[17px] font-semibold absolute left-0 right-0 text-center pointer-events-none">收银台</div>
+        <div class="w-10"></div>
+    </div>
+`;
 
 function showToast(msg) {
     const tip = document.getElementById('toastTip');
     tip.textContent = msg;
     tip.classList.add('show');
     clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(() => tip.classList.remove('show'), 1800);
+    showToast.timer = setTimeout(() => tip.classList.remove('show'), 2000);
 }
 
 function formatMoney(amount) {
@@ -194,8 +258,17 @@ function parseItems(raw) {
 
 function fillPage() {
     ensureOrderInStore();
+    // 保持顶层金额卡片的文案内容一字不变
     document.getElementById('mainAmount').textContent = formatMoney(state.amount);
     document.getElementById('mainPayee').textContent = '向 ' + state.payeeName + ' 付款';
+    
+    // 订单取付款指引动态展示渲染
+    if (state.payMethod === 'industry') {
+        document.getElementById('guideIndustry').classList.remove('hidden');
+    } else {
+        document.getElementById('guideGuarantee').classList.remove('hidden');
+        document.getElementById('displayOrderNo').textContent = state.orderNo;
+    }
 }
 
 function ensureOrderInStore() {
@@ -213,7 +286,7 @@ function ensureOrderInStore() {
         payerName: payerProfile.name,
         payerOrg: payerProfile.org,
         payerMobile: payerProfile.mobile || '',
-        payMethod: '',
+        payMethod: state.payMethod,
         paidAt: '',
         failReason: '',
         items: state.items
@@ -229,56 +302,33 @@ function syncOrderToStore(status, extra) {
     mockStore.updateOrder(state.orderNo, patch);
 }
 
-let expired = false;
-let countdownTimer = null;
-let expiredSynced = false;
-function startCountdown() {
-    const createdAt = new Date(state.createdAt);
-    const expireAt = new Date(createdAt.getTime() + 30 * 60 * 1000);
-    const countdownText = document.getElementById('countdownText');
-    const confirmBtn = document.getElementById('confirmPayBtn');
-
-    function renderCountdown() {
-        const diff = expireAt.getTime() - Date.now();
-        if (diff <= 0) {
-            expired = true;
-            clearInterval(countdownTimer);
-            countdownText.className = 'text-[11px] text-red-500';
-            countdownText.textContent = '订单已超时，系统已自动取消';
-            confirmBtn.classList.remove('bg-primary');
-            confirmBtn.classList.add('bg-gray-300');
-            confirmBtn.disabled = true;
-            if (!expiredSynced) {
-                syncOrderToStore('canceled', { failReason: '超时未支付，系统自动取消' });
-                expiredSynced = true;
-            }
-            return;
-        }
-        const m = Math.floor(diff / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        countdownText.className = 'text-[11px] text-orange-600';
-        countdownText.textContent = '请在 ' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0') + ' 内完成支付';
-    }
-
-    renderCountdown();
-    countdownTimer = setInterval(renderCountdown, 1000);
+function refreshPaymentStatus() {
+    // 模拟真实的刷新 Loading
+    const btn = document.getElementById('refreshPayBtn');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在查询...';
+    btn.disabled = true;
+    
+    setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        // 唤起原型测试用的结果模拟面板
+        const modal = document.getElementById('bankModal');
+        const content = document.getElementById('bankModalContent');
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        setTimeout(() => content.classList.remove('translate-y-full'), 10);
+    }, 800);
 }
 
-function confirmPay() {
-    if (expired) {
-        syncOrderToStore('canceled', { failReason: '超时未支付，系统自动取消' });
-        goOrderDetail('canceled', { failReason: '超时未支付，系统自动取消' });
-        return;
-    }
-    if (!state.payMethod) {
-        showToast('请选择支付方式');
-        return;
-    }
-    document.getElementById('bankModal').style.display = 'flex';
+function closeModal() {
+    const modal = document.getElementById('bankModal');
+    const content = document.getElementById('bankModalContent');
+    content.classList.add('translate-y-full');
+    setTimeout(() => modal.classList.add('opacity-0', 'pointer-events-none'), 300);
 }
 
 function finishPay(result) {
-    document.getElementById('bankModal').style.display = 'none';
+    closeModal();
     if (result === 'success') {
         const paidAt = new Date().toISOString();
         syncOrderToStore('success', { paidAt: paidAt });
@@ -286,12 +336,10 @@ function finishPay(result) {
         return;
     }
     if (result === 'failed') {
-        syncOrderToStore('failed', { failReason: '银行返回失败，请重试' });
-        goOrderDetail('failed', { failReason: '银行返回失败，请重试' });
+        syncOrderToStore('failed', { failReason: '支付遇到问题，请检查账户或渠道' });
+        goOrderDetail('failed', { failReason: '支付遇到问题，请检查账户或渠道' });
         return;
     }
-    syncOrderToStore('pending');
-    goOrderDetail('pending');
 }
 
 function goOrderDetail(status, extra) {
@@ -319,11 +367,23 @@ function goOrderDetail(status, extra) {
         });
     }
 
-    window.location.href = 'buyer-order-detail.html?' + p.toString();
+    // 稍微延迟一下，显得有跳转缓冲感
+    setTimeout(() => {
+        window.location.href = 'buyer-order-detail.html?' + p.toString();
+    }, 200);
+}
+
+// —— 新增功能：悬浮按钮切换支付方式（原型演示用） ——
+function togglePaymentMethod() {
+    state.payMethod = state.payMethod === 'guarantee' ? 'industry' : 'guarantee';
+    
+    // 更新 URL 中的参数并重载刷新
+    const params = new URLSearchParams(window.location.search);
+    params.set('payMethod', state.payMethod);
+    window.location.href = window.location.pathname + '?' + params.toString();
 }
 
 fillPage();
-startCountdown();
 </script>
 </body>
 </html>

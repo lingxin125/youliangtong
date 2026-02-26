@@ -5,191 +5,354 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>邮粮通 - 商户查询</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
     <style>
-        .postal-bg { background: #F5F7FA; }
+        .manager-bg { background-color: #F7F8FA; }
 
-        .search-box {
-            background: #fff;
-            border-radius: 24px;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            border: 1px solid rgba(0,0,0,0.04);
+        /* 顶部沉浸式绿色背景 */
+        .manager-header-bg {
+            background: #13b15a;
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 160px;
+            z-index: 0;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
         }
 
+        .manager-nav {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 搜索框 */
+        .search-container {
+            position: relative;
+            z-index: 10;
+            margin: 12px 16px;
+        }
+        .search-box {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        .search-input {
+            flex: 1;
+            background: transparent;
+            outline: none;
+            font-size: 14px;
+            color: #111827;
+        }
+        .search-input::placeholder { color: #9CA3AF; }
+
+        /* 筛选控制区 */
+        .filter-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 16px 12px;
+            position: relative;
+            z-index: 10;
+        }
+        .segment-wrapper {
+            background: rgba(0,0,0,0.04);
+            border-radius: 20px;
+            padding: 3px;
+            display: inline-flex;
+            gap: 2px;
+        }
         .filter-tab {
-            padding: 6px 14px;
+            padding: 6px 16px;
             font-size: 13px;
-            color: #666;
-            background: #fff;
+            font-weight: 500;
+            color: #6B7280;
             border-radius: 16px;
             cursor: pointer;
             transition: all 0.2s;
-            border: 1px solid transparent;
         }
         .filter-tab.active {
-            background: #11A64A;
-            color: #fff;
+            background: #FFFFFF;
+            color: #13b15a;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
 
-        .user-item {
-            background: #fff;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            border: 1px solid rgba(0,0,0,0.04);
+        .time-filter {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4B5563;
+            background: #FFFFFF;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
             cursor: pointer;
-            transition: all 0.2s;
-        }
-        .user-item:active {
-            transform: scale(0.98);
         }
 
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+        /* 商户卡片 */
+        .user-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 10;
+        }
+        .user-card:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
-            font-size: 14px;
+            color: #ffffff;
+            font-size: 17px;
+            font-weight: 600;
+            flex-shrink: 0;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+        }
+
+        .merchant-id-tag {
+            background: #F3F4F6;
+            color: #4B5563;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'Poppins', monospace;
             font-weight: 500;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
         }
 
         .type-tag {
             padding: 2px 8px;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 11px;
             font-weight: 500;
         }
-        .type-tag.buyer {
-            background: #E3F2FD;
-            color: #1976D2;
-        }
-        .type-tag.farmer {
-            background: #FFF3E0;
-            color: #F59E0B;
-        }
+        .type-tag.buyer { background: #E0F2FE; color: #0284C7; }
+        .type-tag.farmer { background: #FEF3C7; color: #D97706; }
 
-        .status-tag {
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 6px;
         }
-        .status-tag.pending {
-            background: #FFF3E0;
-            color: #F59E0B;
-        }
-        .status-tag.completed {
-            background: #E8F5E9;
-            color: #11A64A;
+        
+        .number-font {
+            font-family: 'Poppins', sans-serif;
         }
     </style>
 </head>
 <body>
-<div class="mobile-container postal-bg">
-    <div id="statusBar"></div>
-    <div id="navBar"></div>
+<div class="mobile-container manager-bg">
+    
+    <!-- 背底绿色区块 -->
+    <div class="manager-header-bg"></div>
 
-    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:20px;">
-
-        <!-- 搜索框 -->
-        <div class="search-box mt-3">
-            <i class="fas fa-search text-gray-400 mr-3"></i>
-            <input type="text" class="flex-1 bg-transparent outline-none text-sm" placeholder="搜索商户名称/手机号" id="searchInput" oninput="searchUsers()">
+    <!-- 状态栏 & 导航栏 -->
+    <div class="manager-nav">
+        <!-- 保持占位 -->
+        <div class="h-12 w-full flex justify-between items-end px-5 pb-2 select-none text-white font-medium text-sm">
+            <span>9:41</span>
+            <div class="flex gap-2 items-center">
+                <i class="fas fa-signal text-xs"></i>
+                <i class="fas fa-wifi text-xs"></i>
+                <i class="fas fa-battery-full text-xs"></i>
+            </div>
         </div>
+        <!-- 导航头 -->
+        <div class="flex items-center justify-between px-4 mt-2 h-[44px] text-white">
+            <a href="manager-home.html" class="w-10 h-10 flex items-center justify-start z-20">
+                <i class="fas fa-chevron-left text-lg"></i>
+            </a>
+            <div class="text-[17px] font-semibold absolute left-0 right-0 text-center pointer-events-none">客户查询</div>
+            <div class="w-10"></div>
+        </div>
+    </div>
 
-        <!-- 筛选标签：审核中/已进件 -->
-        <div class="flex gap-2 mt-3">
-            <div class="filter-tab active" onclick="filterStatus(this, 'all')">全部</div>
-            <div class="filter-tab" onclick="filterStatus(this, 'pending')">审核中</div>
-            <div class="filter-tab" onclick="filterStatus(this, 'completed')">已进件</div>
+    <!-- 搜索框 -->
+    <div class="search-container">
+        <div class="search-box">
+            <i class="fas fa-search text-gray-400 mr-3 text-sm"></i>
+            <input type="text" class="search-input" placeholder="输入商户名称 / 手机号 / 编号" id="searchInput" oninput="searchUsers()">
+            <i class="fas fa-times-circle text-gray-300 ml-2 hidden" id="clearSearch" onclick="clearSearchInput()"></i>
+        </div>
+    </div>
+
+    <!-- 主列表区 (已去掉底部分栏，扩展到底) -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-8 pt-1">
+
+        <!-- 筛选控制区 -->
+        <div class="filter-section mt-1 mb-4">
+            <div class="segment-wrapper">
+                <div class="filter-tab active" onclick="filterType(this, 'all')">全部</div>
+                <div class="filter-tab" onclick="filterType(this, 'buyer')">收购商</div>
+                <div class="filter-tab" onclick="filterType(this, 'farmer')">农户</div>
+            </div>
+            
+            <div class="time-filter active:scale-95 transition-transform" onclick="toggleTimeSort()">
+                <i class="far fa-calendar-alt"></i>
+                <span id="timeSortText">最新开户</span>
+                <i class="fas fa-sort-down mb-1 text-gray-400"></i>
+            </div>
         </div>
 
         <!-- 用户列表 -->
-        <div id="userList" class="mt-4">
-            <!-- 动态渲染 -->
+        <div id="userList" class="mt-2">
+            <!-- 动态渲染内容 -->
         </div>
 
+        <div class="mt-6 mb-4 text-center text-xs text-gray-400 flex items-center justify-center gap-2">
+            <div class="w-8 h-px bg-gray-200"></div>
+            <span>到底了</span>
+            <div class="w-8 h-px bg-gray-200"></div>
+        </div>
     </div>
 </div>
 
 <script>
-document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader('商户查询', 'manager-home.html');
-
-// Mock 数据
+// Mock 进件成功数据 (剔除审核中，补充 60 开头商户号，分离明文手机号)
 const users = [
-    { name: '丰收粮油贸易有限公司', short: '丰收粮油', type: 'buyer', person: '张明', phone: '138****5678', time: '2024-12-20', status: 'completed', trades: 156, amount: '328.5万', avatar: '#3B82F6' },
-    { name: '王建国家庭农场', short: '王大叔农场', type: 'farmer', person: '王建国', phone: '139****1234', time: '2024-11-15', status: 'completed', trades: 89, amount: '45.2万', avatar: '#F59E0B' },
-    { name: '绿源蔬菜批发有限公司', short: '绿源蔬菜', type: 'buyer', person: '李芳', phone: '137****9876', time: '2024-10-08', status: 'pending', trades: 234, amount: '512.8万', avatar: '#10B981' },
-    { name: '李大伟果园', short: '李家果园', type: 'farmer', person: '李大伟', phone: '136****5432', time: '2024-09-22', status: 'pending', trades: 67, amount: '28.6万', avatar: '#8B5CF6' },
-    { name: '金穗米业有限公司', short: '金穗米业', type: 'buyer', person: '陈志强', phone: '135****8765', time: '2024-08-10', status: 'completed', trades: 312, amount: '876.3万', avatar: '#EF4444' },
+    { merchantId: '6024981357', name: '丰收粮油贸易有限公司', short: '丰收粮油', type: 'buyer', person: '张明', phone: '138 0013 5678', time: '2024-12-20', trades: 156, amount: '328.5万', avatar: '#10B981' },
+    { merchantId: '6058142790', name: '王建国家庭农场', short: '王大叔农场', type: 'farmer', person: '王建国', phone: '139 1234 5678', time: '2024-12-15', trades: 89, amount: '45.2万', avatar: '#F59E0B' },
+    { merchantId: '6033104526', name: '金穗米业有限公司', short: '金穗米业', type: 'buyer', person: '陈志强', phone: '135 8473 8765', time: '2024-12-10', trades: 312, amount: '876.3万', avatar: '#EF4444' },
+    { merchantId: '6077259184', name: '绿源有机蔬菜种植基地', short: '绿源基地', type: 'farmer', person: '李芳', phone: '137 9982 9876', time: '2024-11-28', trades: 234, amount: '112.8万', avatar: '#8B5CF6' },
+    { merchantId: '6012948753', name: '大伟精品果业批发', short: '大伟果业', type: 'buyer', person: '李大伟', phone: '136 5541 5432', time: '2024-11-05', trades: 67, amount: '28.6万', avatar: '#3B82F6' },
+    { merchantId: '6084512390', name: '万顷良田种植专合社', short: '万顷合作社', type: 'farmer', person: '赵本初', phone: '134 2233 4455', time: '2024-10-18', trades: 45, amount: '18.9万', avatar: '#06B6D4' }
 ];
 
-let currentStatus = 'all';
+let currentType = 'all';
 let searchKey = '';
+let sortDesc = true;
 
-function filterStatus(el, status) {
+function filterType(el, type) {
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
-    currentStatus = status;
+    currentType = type;
     renderUsers();
 }
 
 function searchUsers() {
     searchKey = document.getElementById('searchInput').value.trim().toLowerCase();
+    const clearBtn = document.getElementById('clearSearch');
+    if(searchKey.length > 0) {
+        clearBtn.classList.remove('hidden');
+    } else {
+        clearBtn.classList.add('hidden');
+    }
+    renderUsers();
+}
+
+function clearSearchInput() {
+    document.getElementById('searchInput').value = '';
+    searchUsers();
+}
+
+function toggleTimeSort() {
+    sortDesc = !sortDesc;
+    document.getElementById('timeSortText').innerText = sortDesc ? '最新开户' : '最早开户';
     renderUsers();
 }
 
 function renderUsers() {
     let filtered = users.filter(u => {
-        if (currentStatus !== 'all' && u.status !== currentStatus) return false;
-        if (searchKey && !u.name.toLowerCase().includes(searchKey) && !u.short.toLowerCase().includes(searchKey) && !u.phone.includes(searchKey)) return false;
+        if (currentType !== 'all' && u.type !== currentType) return false;
+        
+        const cleanPhone = u.phone.replace(/\s+/g, '');
+        if (searchKey && 
+            !u.name.toLowerCase().includes(searchKey) && 
+            !u.short.toLowerCase().includes(searchKey) && 
+            !cleanPhone.includes(searchKey) &&
+            !u.merchantId.includes(searchKey)) {
+            return false;
+        }
         return true;
     });
 
-    const html = filtered.map(u => `
-        <div class="user-item" onclick="goDetail('${u.name}')">
-            <div class="flex items-center gap-3">
-                <div class="avatar" style="background:${u.avatar}">${u.short[0]}</div>
-                <div class="flex-1">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-sm font-medium text-gray-800">${u.short}</span>
-                        <span class="type-tag ${u.type}">${u.type === 'buyer' ? '收购商' : '农户'}</span>
-                        <span class="status-tag ${u.status}">${u.status === 'pending' ? '审核中' : '已进件'}</span>
-                    </div>
-                    <div class="flex items-center gap-4 text-xs text-gray-500">
-                        <span><i class="fas fa-user mr-1"></i>${u.person}</span>
-                        <span><i class="fas fa-phone mr-1"></i>${u.phone}</span>
-                    </div>
-                    <div class="text-xs text-gray-400 mt-1"><i class="far fa-clock mr-1"></i>开户时间: ${u.time}</div>
-                </div>
-                <i class="fas fa-chevron-right text-gray-300"></i>
-            </div>
-        </div>
-    `).join('');
-
-    document.getElementById('userList').innerHTML = html || '<div class="text-center text-gray-400 text-sm py-10">暂无商户</div>';
-}
-
-function goDetail(name) {
-    const u = users.find(x => x.name === name);
-    const params = new URLSearchParams({
-        name: u.name, short: u.short, type: u.type, person: u.person,
-        phone: u.phone, time: u.time, status: u.status,
-        trades: u.trades, amount: u.amount
+    // Sort by date (using string comparison works for YYYY-MM-DD but ideal to parse)
+    filtered.sort((a, b) => {
+        const dateA = new Date(a.time).getTime();
+        const dateB = new Date(b.time).getTime();
+        return sortDesc ? (dateB - dateA) : (dateA - dateB);
     });
-    window.location.href = 'manager-user-detail.html?' + params.toString();
+
+    const html = filtered.map(u => {
+        const params = new URLSearchParams({
+            name: u.name,
+            short: u.short,
+            type: u.type,
+            person: u.person,
+            phone: u.phone,
+            time: u.time,
+            merchantId: u.merchantId,
+            trades: u.trades,
+            amount: u.amount
+        });
+        const url = `manager-user-detail.html?${params.toString()}`;
+        return `
+        <a href="${url}" class="block user-card no-underline">
+            <div class="flex items-start gap-4">
+                <div class="user-avatar" style="background: linear-gradient(135deg, ${u.avatar}dd, ${u.avatar});">
+                    ${u.short[0]}
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <span class="text-[16px] font-semibold text-gray-900 truncate">${u.name}</span>
+                        <span class="type-tag shrink-0 ${u.type}">${u.type === 'buyer' ? '收购商' : '农户'}</span>
+                    </div>
+                    
+                    <div class="merchant-id-tag mb-3">
+                        <i class="fas fa-barcode text-gray-400 text-[10px]"></i> ${u.merchantId}
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-y-2 gap-x-1">
+                        <div class="info-row number-font">
+                            <i class="fas fa-mobile-alt w-3 text-center opacity-60"></i>
+                            <span class="text-gray-700 tracking-wide font-medium">${u.phone}</span>
+                        </div>
+                        <div class="info-row number-font">
+                            <i class="far fa-calendar-plus w-3 text-center opacity-60"></i>
+                            <span>${u.time}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    `}).join('');
+
+    document.getElementById('userList').innerHTML = html || `
+        <div class="flex flex-col items-center justify-center py-16 opacity-50">
+            <i class="fas fa-box-open text-4xl mb-3 text-gray-300"></i>
+            <div class="text-sm text-gray-500">很抱歉，没有找到符合条件的客户</div>
+        </div>
+    `;
 }
 
+
+
+// 初始渲染
 renderUsers();
 </script>
 </body>

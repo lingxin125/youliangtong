@@ -3,68 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>邮粮通 - 商户详情</title>
+    <title>邮粮通 - 客户详情</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
     <style>
-        .postal-bg { background: #F5F7FA; }
+        .manager-bg { background-color: #F7F8FA; }
 
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #F0F0F0;
+        /* 顶部绿色沉浸背景 */
+        .manager-header-bg {
+            background: #13b15a;
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 220px;
+            z-index: 0;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
         }
-        .info-row:last-child {
-            border-bottom: none;
+
+        .manager-nav {
+            position: relative;
+            z-index: 10;
         }
-        .info-label {
-            font-size: 14px;
-            color: #666;
-        }
-        .info-value {
-            font-size: 14px;
-            color: #333;
-            font-weight: 500;
+
+        /* 大头贴与顶部信息块 */
+        .hero-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px 20px 20px;
+            margin-top: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+            position: relative;
+            z-index: 10;
+            text-align: center;
         }
 
         .avatar-large {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            font-size: 24px;
-            font-weight: 500;
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0 auto 16px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.2);
         }
+
+        .merchant-id-tag {
+            background: #F3F4F6;
+            color: #4B5563;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'Poppins', monospace;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        /* 详情数据块 */
+        .data-panel {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.02);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .panel-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .panel-title::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 14px;
+            background: #13b15a;
+            border-radius: 2px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+            padding-bottom: 4px;
+        }
+        .info-label {
+            font-size: 14px;
+            color: #6B7280;
+        }
+        .info-value {
+            font-size: 14px;
+            color: #111827;
+            font-weight: 500;
+            text-align: right;
+            max-width: 65%;
+            word-break: break-all;
+        }
+        
+        .number-font {
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        /* 统计卡片区 */
+        .stat-card {
+            background: #F9FAFB;
+            border-radius: 14px;
+            padding: 16px 12px;
+            text-align: center;
+            border: 1px solid #F3F4F6;
+        }
+        .stat-value {
+            font-size: 22px;
+            font-weight: 600;
+            color: #13b15a;
+            font-family: 'Poppins', sans-serif;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #6B7280;
+            margin-top: 4px;
+        }
+
+        .type-tag {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .type-tag.buyer { background: #E0F2FE; color: #0284C7; }
+        .type-tag.farmer { background: #FEF3C7; color: #D97706; }
+
     </style>
 </head>
 <body>
-<div class="mobile-container postal-bg">
-    <div id="statusBar"></div>
-    <div id="navBar"></div>
+<div class="mobile-container manager-bg">
+    
+    <!-- 顶部绿色沉浸背景 -->
+    <div class="manager-header-bg"></div>
 
-    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:20px;">
+    <!-- 导航栏 -->
+    <div class="manager-nav">
+        <!-- 状态栏占位 -->
+        <div class="h-12 w-full flex justify-between items-end px-5 pb-2 select-none text-white font-medium text-sm">
+            <span>9:41</span>
+            <div class="flex gap-2 items-center">
+                <i class="fas fa-signal text-xs"></i>
+                <i class="fas fa-wifi text-xs"></i>
+                <i class="fas fa-battery-full text-xs"></i>
+            </div>
+        </div>
+        <!-- 导航头 -->
+        <div class="flex items-center justify-between px-4 mt-2 h-[44px] text-white">
+            <a href="manager-users.html" class="w-10 h-10 flex items-center justify-start z-20">
+                <i class="fas fa-chevron-left text-lg"></i>
+            </a>
+            <div class="text-[17px] font-semibold absolute left-0 right-0 text-center pointer-events-none">客户详情</div>
+            <div class="w-10"></div>
+        </div>
+    </div>
 
-        <!-- 头部信息卡 -->
-        <div class="glass-panel rounded-2xl p-5 mt-3 text-center">
-            <div class="avatar-large mx-auto mb-3" id="userAvatar">张</div>
-            <div class="text-lg font-semibold text-gray-800" id="userName">--</div>
-            <div class="flex items-center justify-center gap-2 mt-2">
-                <span class="px-2 py-0.5 rounded text-xs font-medium" id="typeTag">--</span>
-                <span class="px-2 py-0.5 rounded text-xs font-medium" id="statusTag">--</span>
+    <!-- 主体区域 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-8 pt-2 relative z-10">
+
+        <!-- 头部核心名片 -->
+        <div class="hero-card">
+            <div class="avatar-large" id="userAvatar">客</div>
+            
+            <div class="text-xl font-bold text-gray-900 mb-2 truncate" id="userName">--</div>
+            
+            <div class="flex items-center justify-center gap-2 mb-2">
+                <span class="type-tag" id="typeTag">--</span>
+            </div>
+            
+            <!-- 专属商户号 -->
+            <div class="merchant-id-tag number-font">
+                <i class="fas fa-barcode text-gray-400"></i>
+                <span id="merchantId">--</span>
             </div>
         </div>
 
-        <!-- 基本信息 -->
-        <div class="glass-panel rounded-2xl p-4 mt-4">
-            <div class="text-sm font-medium text-gray-700 mb-3">
-                <i class="fas fa-info-circle text-primary mr-1"></i>基本信息
-            </div>
+        <!-- 基本信息卡片 -->
+        <div class="data-panel">
+            <div class="panel-title">基本信息</div>
+            
             <div class="info-row">
                 <span class="info-label">商户简称</span>
                 <span class="info-value" id="shortName">--</span>
@@ -74,73 +219,87 @@
                 <span class="info-value" id="personName">--</span>
             </div>
             <div class="info-row">
-                <span class="info-label">手机号码</span>
-                <span class="info-value" id="phone">--</span>
+                <span class="info-label">联系电话</span>
+                <span class="info-value number-font" id="phone">--</span>
             </div>
             <div class="info-row">
-                <span class="info-label">开户时间</span>
-                <span class="info-value" id="openTime">--</span>
+                <span class="info-label">入驻时间</span>
+                <span class="info-value number-font" id="openTime">--</span>
             </div>
         </div>
 
-        <!-- 交易统计 -->
-        <div class="glass-panel rounded-2xl p-4 mt-4">
-            <div class="text-sm font-medium text-gray-700 mb-3">
-                <i class="fas fa-chart-bar text-primary mr-1"></i>交易统计
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="text-center p-3 bg-gray-50 rounded-lg">
-                    <div class="text-xl font-bold text-primary" style="font-family:Poppins;" id="tradeCount">--</div>
-                    <div class="text-xs text-gray-500 mt-1">累计交易笔数</div>
+        <!-- 交易统计卡片 -->
+        <div class="data-panel">
+            <div class="panel-title">交易数据概览</div>
+            <div class="grid grid-cols-2 gap-3 mt-4">
+                <div class="stat-card">
+                    <div class="stat-value text-gray-800" id="tradeCount">--</div>
+                    <div class="stat-label">累计交易笔数(笔)</div>
                 </div>
-                <div class="text-center p-3 bg-gray-50 rounded-lg">
-                    <div class="text-xl font-bold text-primary" style="font-family:Poppins;" id="tradeAmount">--</div>
-                    <div class="text-xs text-gray-500 mt-1">累计交易金额</div>
+                <div class="stat-card">
+                    <div class="stat-value text-[#F59E0B]" id="tradeAmount">--</div>
+                    <div class="stat-label">累计交易金额</div>
                 </div>
             </div>
+        </div>
+
+        <!-- 底部预留操作空间 (如果需要) -->
+        <div class="mt-8 flex gap-4">
+            <button class="flex-1 bg-white border border-gray-200 text-gray-700 py-3.5 rounded-xl font-semibold opacity-60 text-sm">发送消息</button>
+            <button class="flex-1 bg-[#13b15a] bg-opacity-10 text-[#13b15a] py-3.5 rounded-xl font-semibold opacity-60 text-sm cursor-not-allowed">账户设置</button>
         </div>
 
     </div>
 </div>
 
 <script>
-document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader('商户详情', 'manager-users.html');
-
 // 解析URL参数
 const params = new URLSearchParams(location.search);
 const userData = {
-    name: params.get('name') || '未知商户',
+    name: params.get('name') || '未知客户',
     short: params.get('short') || '--',
     type: params.get('type') || 'buyer',
     person: params.get('person') || '--',
     phone: params.get('phone') || '--',
     time: params.get('time') || '--',
-    status: params.get('status') || 'completed',
+    merchantId: params.get('merchantId') || '--',
     trades: params.get('trades') || '0',
     amount: params.get('amount') || '0'
 };
 
-// 渲染数据
-document.getElementById('userAvatar').textContent = userData.short[0];
-document.getElementById('userAvatar').style.background = userData.type === 'buyer' ? '#3B82F6' : '#F59E0B';
+// 渲染大头像
+const avatarColor = userData.type === 'buyer' ? '#3B82F6' : '#F59E0B';
+const avatarEl = document.getElementById('userAvatar');
+avatarEl.textContent = userData.short ? userData.short[0] : userData.name[0];
+avatarEl.style.background = `linear-gradient(135deg, ${avatarColor}dd, ${avatarColor})`;
+
+// 渲染身份标签
+const typeTag = document.getElementById('typeTag');
+if (userData.type === 'buyer') {
+    typeTag.textContent = '收购商';
+    typeTag.className = 'type-tag buyer';
+} else {
+    typeTag.textContent = '农户';
+    typeTag.className = 'type-tag farmer';
+}
+
+// 填充文本数据
 document.getElementById('userName').textContent = userData.name;
+document.getElementById('merchantId').textContent = userData.merchantId;
 document.getElementById('shortName').textContent = userData.short;
 document.getElementById('personName').textContent = userData.person;
 document.getElementById('phone').textContent = userData.phone;
 document.getElementById('openTime').textContent = userData.time;
 document.getElementById('tradeCount').textContent = userData.trades;
-document.getElementById('tradeAmount').textContent = userData.amount;
 
-// 类型标签
-const typeTag = document.getElementById('typeTag');
-typeTag.textContent = userData.type === 'buyer' ? '收购商' : '农户';
-typeTag.className = 'px-2 py-0.5 rounded text-xs font-medium ' + (userData.type === 'buyer' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-600');
+// 为金额单独适配样式
+let displayAmount = userData.amount;
+// 去除原本自带的万字，重新格式化展示大字效果
+if(displayAmount.includes('万')) {
+    displayAmount = displayAmount.replace('万', '') + '<span class="text-sm font-normal ml-0.5 text-gray-500">万</span>';
+}
+document.getElementById('tradeAmount').innerHTML = displayAmount;
 
-// 状态标签
-const statusTag = document.getElementById('statusTag');
-statusTag.textContent = userData.status === 'pending' ? '审核中' : '已进件';
-statusTag.className = 'px-2 py-0.5 rounded text-xs font-medium ' + (userData.status === 'pending' ? 'bg-orange-50 text-orange-600' : 'bg-green-50 text-green-600');
 </script>
 </body>
 </html>

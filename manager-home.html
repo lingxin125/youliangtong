@@ -5,175 +5,205 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>邮粮通 - 客户经理</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
     <style>
-        /* 邮政风格背景 */
-        .postal-bg {
-            background: #F5F7FA;
+        .manager-bg { background-color: #F7F8FA; }
+        
+        /* 顶部沉浸式绿色背景 */
+        .manager-header-bg {
+            background: #13b15a;
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 220px;
+            z-index: 0;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
         }
-        /* Hero卡片 */
-        .postal-hero {
-            background: linear-gradient(135deg, #11A64A 0%, #0D8A3C 100%);
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(17,166,74,0.25);
+
+        /* 顶部导航栏覆盖为白色文字 */
+        .manager-nav {
+            position: relative;
+            z-index: 10;
         }
-        /* 快捷入口 */
-        .quick-grid {
+        .manager-nav .nav-title { color: #FFFFFF !important; font-weight: 500; }
+        .manager-nav .nav-icon { color: #FFFFFF !important; }
+
+        .stat-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(19, 177, 90, 0.08);
+            border: 1px solid rgba(19, 177, 90, 0.05);
+            position: relative;
+            z-index: 10;
+            margin-top: 16px;
+        }
+
+        /* 数据数字特效 */
+        .stat-num {
+            font-family: 'Poppins', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: #111827;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #6B7280;
+            margin-top: 4px;
+        }
+
+        /* 快捷操作入口 (方案A 风格) */
+        .action-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
+            margin-top: 24px;
+            position: relative;
+            z-index: 10;
         }
-        .quick-item {
+        .action-tile {
             background: #FFFFFF;
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 20px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 1px solid rgba(0,0,0,0.04);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            text-decoration: none;
-        }
-        .quick-item:active {
-            transform: scale(0.98);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-        }
-        .quick-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            margin-bottom: 8px;
-            font-size: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            cursor: pointer;
         }
-        .quick-icon.green {
-            background: #E8F5E9;
-            color: #11A64A;
+        .action-tile:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
         }
-        .quick-icon.blue {
-            background: #E3F2FD;
-            color: #1976D2;
-        }
-        .quick-label {
-            font-size: 14px;
-            color: #333;
-            font-weight: 500;
-        }
-        /* 今日统计 */
-        .stat-card {
-            background: #FFFFFF;
+        
+        .action-icon-wrap {
+            width: 44px; height: 44px;
             border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            border: 1px solid rgba(0,0,0,0.04);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            margin-bottom: 12px;
         }
-        .stat-value {
-            font-size: 24px;
+        .action-icon-1 { background: #E8F5E9; color: #13b15a; } /* 开户 - 科技绿 */
+        .action-icon-2 { background: #EBF5FF; color: #3B82F6; } /* 查询 - 商务蓝 */
+        .action-icon-3 { background: #FFF3E0; color: #F59E0B; } /* 看板 - 麦穗黄 */
+
+        .action-title {
+            font-size: 13px;
             font-weight: 600;
-            color: #11A64A;
-            font-family: Poppins, sans-serif;
-        }
-        .stat-label {
-            font-size: 12px;
-            color: #666;
-            margin-top: 4px;
+            color: #374151;
         }
     </style>
 </head>
 <body>
-<div class="mobile-container postal-bg">
-    <div id="statusBar"></div>
-    <div id="navBar"></div>
+<div class="mobile-container manager-bg">
+    
+    <!-- 背底绿色区块 -->
+    <div class="manager-header-bg"></div>
+
+    <!-- 状态栏 & 导航栏 (透明背景, 白色文字) -->
+    <div class="manager-nav">
+        <!-- 保持占位 -->
+        <div class="h-12 w-full flex justify-between items-end px-5 pb-2 select-none text-white font-medium text-sm">
+            <span>9:41</span>
+            <div class="flex gap-2 items-center">
+                <i class="fas fa-signal text-xs"></i>
+                <i class="fas fa-wifi text-xs"></i>
+                <i class="fas fa-battery-full text-xs"></i>
+            </div>
+        </div>
+        <!-- 导航头 -->
+        <div class="flex items-center justify-between shrink-0 relative select-none px-4 mt-2 h-[44px]">
+            <div class="w-[87px]"></div>
+            <div class="nav-title text-[16px]">邮粮通管家</div>
+            <div class="w-[87px] h-[32px] bg-black/10 rounded-full border border-white/20 flex items-center justify-between px-3">
+                <div class="flex-1 flex items-center justify-center"><i class="fas fa-ellipsis-h nav-icon text-xs"></i></div>
+                <div class="w-[1px] h-[18px] bg-white/30"></div>
+                <div class="flex-1 flex items-center justify-center"><i class="far fa-dot-circle nav-icon text-sm"></i></div>
+            </div>
+        </div>
+    </div>
 
     <!-- 主内容区 -->
-    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:80px;">
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-6 relative z-10">
 
-        <!-- Hero 欢迎卡 -->
-        <div class="postal-hero p-5 mt-3 text-white">
-            <div class="text-sm opacity-80 mb-1">欢迎回来，</div>
-            <div class="text-xl font-semibold mb-4">张经理</div>
-            <div class="flex gap-4 pt-4 border-t border-white/20">
-                <div class="flex-1">
-                    <div class="text-2xl font-bold" style="font-family:Poppins;">12</div>
-                    <div class="text-xs opacity-80 mt-1">今日开户</div>
-                </div>
-                <div class="w-px bg-white/20"></div>
-                <div class="flex-1">
-                    <div class="text-2xl font-bold" style="font-family:Poppins;">156</div>
-                    <div class="text-xs opacity-80 mt-1">累计客户</div>
+        <!-- 个人信息 -->
+        <div class="flex items-center gap-3 mt-4 text-white">
+            <div class="w-14 h-14 rounded-full bg-[#1c2b3f] border-2 border-white/20 flex items-center justify-center overflow-hidden shadow-sm">
+                <img src="https://img1.baidu.com/it/u=1189534494,661437659&fm=253&app=138&f=JPEG?w=500&h=500" alt="avatar" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <div class="text-lg font-semibold tracking-wide">Hi, 张经理</div>
+                <div class="text-[11px] opacity-80 mt-0.5 flex items-center gap-1">
+                    <i class="fas fa-id-badge"></i> 18435141411
                 </div>
             </div>
         </div>
 
-        <!-- 快捷功能入口 -->
-        <div class="glass-panel rounded-2xl p-4 mt-4">
-            <div class="text-sm font-medium text-gray-700 mb-3">快捷功能</div>
-            <div class="quick-grid">
-                <a href="manager-account.html" class="quick-item">
-                    <div class="quick-icon green">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                    <span class="quick-label">开户</span>
-                </a>
-                <a href="manager-users.html" class="quick-item">
-                    <div class="quick-icon blue">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <span class="quick-label">查询</span>
-                </a>
+        <!-- 核心数据沉浸卡片 -->
+        <div class="stat-card p-5">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-semibold text-gray-800">数据概览</span>
+                <span class="text-[10px] bg-green-50 text-green-500 px-2 py-0.5 rounded-full">实时更新</span>
+            </div>
+            
+            <!-- 今日新增区域 -->
+            <div class="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-gray-100/80">
+                <div>
+                    <div class="stat-label">今日新增收购商</div>
+                    <div class="stat-num text-[#13b15a] mt-1">12<span class="text-xs text-gray-400 font-normal ml-1">户</span></div>
+                </div>
+                <div>
+                    <div class="stat-label">今日新增农户</div>
+                    <div class="stat-num text-[#13b15a] mt-1">45<span class="text-xs text-gray-400 font-normal ml-1">户</span></div>
+                </div>
+            </div>
+
+            <!-- 累计总数区域 -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <div class="stat-label">累计收购商</div>
+                    <div class="stat-num mt-1">1,250<span class="text-xs text-gray-400 font-normal ml-1">户</span></div>
+                </div>
+                <div>
+                    <div class="stat-label">累计入驻农户</div>
+                    <div class="stat-num mt-1">8,432<span class="text-xs text-gray-400 font-normal ml-1">户</span></div>
+                </div>
             </div>
         </div>
 
-        <!-- 今日数据概览 -->
-        <div class="mt-4">
-            <div class="text-sm font-medium text-gray-700 mb-3">今日概览</div>
-            <div class="grid grid-cols-2 gap-3">
-                <div class="stat-card">
-                    <div class="stat-value">5</div>
-                    <div class="stat-label">待审核</div>
+        <!-- 快捷操作入口区 (方案A结构) -->
+        <div class="action-grid">
+
+            
+            <a href="manager-users.html" class="action-tile">
+                <div class="action-icon-wrap action-icon-2">
+                    <i class="fas fa-search"></i>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value">7</div>
-                    <div class="stat-label">已进件</div>
+                <div class="action-title">商户管理</div>
+            </a>
+            
+            <a href="manager-dashboard.html" class="action-tile">
+                <div class="action-icon-wrap action-icon-3">
+                    <i class="fas fa-chart-pie"></i>
                 </div>
-            </div>
+                <div class="action-title">数据看板</div>
+            </a>
+        </div>
+
+        <!-- 底部额外留白/提示 -->
+        <div class="mt-8 text-center text-xs text-gray-400 flex items-center justify-center gap-1">
+            <i class="fas fa-shield-alt"></i> 邮政金融级安全保障
         </div>
 
     </div>
 
-    <!-- 底部双Tab导航 -->
-    <div id="tabBar"></div>
 </div>
 
-<script>
-document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader('邮粮通');
-document.getElementById('tabBar').innerHTML = renderManagerTabBar('home');
-
-// 渲染客户经理双Tab导航
-function renderManagerTabBar(active) {
-    var tabs = [
-        { id: 'home', icon: 'fa-house', label: '首页', href: 'manager-home.html' },
-        { id: 'data', icon: 'fa-chart-pie', label: '数据', href: 'manager-dashboard.html' }
-    ];
-
-    var items = tabs.map(function(t) {
-        var isActive = t.id === active;
-        var colorClass = isActive ? 'text-primary' : 'text-gray-400';
-        return '<a href="' + t.href + '" class="flex-1 flex flex-col items-center py-2 no-underline" style="text-decoration:none;">' +
-            '<i class="fas ' + t.icon + ' ' + colorClass + ' text-lg mb-0.5"></i>' +
-            '<span class="text-[11px] ' + colorClass + '">' + t.label + '</span>' +
-        '</a>';
-    }).join('');
-
-    return '<div class="bg-white border-t border-gray-100 flex" style="padding-bottom:env(safe-area-inset-bottom);">' + items + '</div>';
-}
-</script>
 </body>
 </html>

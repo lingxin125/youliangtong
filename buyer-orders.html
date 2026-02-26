@@ -15,7 +15,7 @@
         .amount-cancelled { color: #9CA3AF; text-decoration: line-through; }
 
         .status-paid { background: #DCFCE7; color: #166534; }
-        .status-pending { background: #23221e; color: #92400E; }
+        .status-pending { background: #FEFCE8; color: #CA8A04; border: 1px solid #FEF08A; }
         .status-cancelled { background: #F3F4F6; color: #6B7280; }
         .status-failed { background: #FEE2E2; color: #DC2626; }
 
@@ -494,30 +494,30 @@ const RenderService = {
         const remMs = OrderService.getRemainingMs(order);
         const isPending = order.status === 'pending' && remMs > 0;
 
-        const methodHtml = method.class
-            ? `<div class="method-icon ${method.class}"><i class="fas ${method.icon}"></i></div>`
-            : `<div class="method-icon" style="background:#F3F4F6;color:#9CA3AF;"><i class="fas ${method.icon}"></i></div>`;
-
-        // 不显示倒计时
-
-        const borderClass = isLast ? '' : 'border-b border-gray-100';
+        const borderClass = isLast ? '' : 'border-b border-gray-100/50';
 
         return `
-            <div class="p-3 ${borderClass} cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors" onclick="Actions.goDetail('${order.id}')">
-                <div class="flex items-center gap-3">
-                    ${methodHtml}
-                    <div class="flex-1 min-w-0">
-                        <div class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100">
-                            <span class="text-[12px] font-semibold text-gray-700">${timeStr}</span>
+            <div class="px-3.5 py-4 ${borderClass} cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors" onclick="Actions.goDetail('${order.id}')">
+                <div class="flex justify-between items-center mb-2.5">
+                    <div class="text-[15px] text-gray-800 font-semibold" style="font-family:Poppins, sans-serif;">
+                        ${timeStr}
+                    </div>
+                    <div class="status-tag ${status.class} text-[11px] px-2 py-0.5 rounded-md font-medium">
+                        ${status.text}
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <div class="text-[13px] text-gray-500 font-medium flex items-center gap-1.5">
+                        <div class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                            <i class="fas fa-user text-[10px] text-gray-400"></i>
                         </div>
-                        <div class="text-[14px] text-gray-500 mt-1">付给 ${order.payeeName}</div>
+                        付给 ${order.payeeName}
                     </div>
-                    <div class="flex flex-col items-end">
-                        <span class="text-[18px] font-bold ${status.amountClass}" style="font-family:Poppins;">¥${FormatService.amount(order.amount)}</span>
-                        <span class="status-tag ${status.class} mt-1 text-[11px] px-2 py-0.5 rounded-full font-medium">${status.text}</span>
+                    <div class="text-[18px] font-bold ${status.amountClass}" style="font-family:Poppins;">
+                        ¥${FormatService.amount(order.amount)}
                     </div>
                 </div>
-                </div>
+            </div>
         `;
     },
 
