@@ -58,7 +58,7 @@
             color: #11A64A;
             font-size: 13px;
             font-weight: 500;
-            border-radius: 4px;
+            border-radius: 9999px;
         }
         .role-tag.role-admin {
             background: rgba(59, 130, 246, 0.1);
@@ -127,28 +127,17 @@
                 </span>
             </div>
 
-            <!-- 名字 -->
-            <div class="info-row" onclick="showToast('编辑名字功能开发中')">
-                <span class="info-label"><i class="fas fa-user"></i>名字</span>
-                <span class="info-value">
-                    张伟
-                    <i class="fas fa-chevron-right chevron-right"></i>
-                </span>
+            <!-- 商户名称（只读） -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-store"></i>名称</span>
+                <span class="info-value">张三的粮站</span>
             </div>
 
             <!-- 当前身份 -->
             <div class="info-row">
-                <span class="info-label"><i class="fas fa-briefcase"></i>当前身份</span>
+                <span class="info-label"><i class="fas fa-user-tag"></i>当前身份</span>
                 <span class="info-value">
                     <span class="role-tag">收购商</span>
-                </span>
-            </div>
-
-            <!-- 当前角色 -->
-            <div class="info-row">
-                <span class="info-label"><i class="fas fa-user-shield"></i>当前角色</span>
-                <span class="info-value">
-                    <span class="role-tag role-admin">超管</span>
                 </span>
             </div>
 
@@ -159,12 +148,6 @@
                     <span id="merchantNo">6026245559</span>
                     <i class="far fa-copy copy-icon" onclick="copyMerchantNo()"></i>
                 </span>
-            </div>
-
-            <!-- 商户名称 -->
-            <div class="info-row">
-                <span class="info-label"><i class="fas fa-store"></i>商户名称</span>
-                <span class="info-value">张三的粮站</span>
             </div>
 
             <!-- 创建日期 -->

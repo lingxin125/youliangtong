@@ -98,6 +98,26 @@
         .toast-tip.show {
             opacity: 1;
         }
+
+        /* 商品明细表格 */
+        .detail-table { width: 100%; border-collapse: collapse; }
+        .detail-table th {
+            font-size: 10px;
+            color: #9CA3AF;
+            font-weight: 500;
+            padding: 6px 0;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .detail-table th:last-child,
+        .detail-table td:last-child { text-align: right; }
+        .detail-table td {
+            font-size: 12px;
+            color: #374151;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        }
+        .detail-table tr:last-child td { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -188,13 +208,29 @@
             </div>
 
         </div>
-        
-        <!-- <div class="text-center px-4">
-            <p class="text-[11px] text-gray-400 leading-relaxed">
-                <i class="fas fa-info-circle mr-1"></i>
-                点击付款即代表您同意《手机银行快捷支付服务协议》<br>由对应银行提供资金结算服务
-            </p>
-        </div> -->
+
+        <!-- 卡片3：商品明细 -->
+        <div class="glass-panel rounded-2xl p-4 mb-4">
+            <div class="flex items-center gap-2 mb-3 text-[14px] font-bold text-gray-800">
+                <div class="w-1 h-3.5 bg-[#13b15a] rounded-full"></div>
+                <span>商品明细</span>
+            </div>
+            <table class="detail-table mb-3">
+                <thead>
+                    <tr>
+                        <th>商品名称</th>
+                        <th>数量</th>
+                        <th>单价</th>
+                        <th>小计</th>
+                    </tr>
+                </thead>
+                <tbody id="itemBody"></tbody>
+            </table>
+            <div class="flex items-center justify-between py-3 border-t border-gray-100 bg-gray-50/50 -mx-4 px-4 -mb-4 rounded-b-2xl">
+                <span id="itemCountText" class="text-xs text-gray-500 font-medium">合计（0项商品）</span>
+                <span id="itemTotalText" class="text-base font-bold text-[#13b15a]" style="font-family:Poppins;">¥ 0.00</span>
+            </div>
+        </div>
 
     </div>
 
@@ -220,7 +256,31 @@ const state = {
     payeeBank: params.get('payeeBank') || '中国邮政储蓄银行',
     payeeCard: params.get('payeeCard') || '尾号 8888',
     createdAt: params.get('createdAt') || fallbackNow.toISOString(),
+    summary: params.get('summary') || '苹果 x 50斤',
+    items: parseItems(params.get('items')),
 };
+
+function parseItems(raw) {
+    if (!raw) return [];
+    try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+        return [];
+    }
+}
+
+// 如果没有传入明细，基于金额和摘要生成一条默认明细
+function ensureItems() {
+    if (state.items.length > 0) return;
+    state.items = [{
+        name: state.summary || '订单商品',
+        qty: 1,
+        unit: '单',
+        price: Number(state.amount.toFixed(2)),
+        subtotal: Number(state.amount.toFixed(2))
+    }];
+}
 
 // 渲染基础 UI
 document.getElementById('statusBar').innerHTML = renderStatusBar();
@@ -253,6 +313,35 @@ function fillPage() {
     document.getElementById('payeeNameText').textContent = state.payeeName;
     document.getElementById('payeeBankNameText').textContent = state.payeeBank;
     document.getElementById('payeeCardNoText').textContent = state.payeeCard;
+
+    // 商品明细
+    ensureItems();
+    renderItems();
+}
+
+function renderItems() {
+    const body = document.getElementById('itemBody');
+    body.innerHTML = state.items.map(item => {
+        const qty = Number(item.qty || 0);
+        const unit = item.unit || '斤';
+        const price = Number(item.price || 0);
+        const subtotal = Number(item.subtotal || qty * price);
+        return `
+            <tr>
+                <td class="font-medium">${item.name || '-'}</td>
+                <td>${qty}${unit}</td>
+                <td style="font-family:Poppins;">¥${price.toFixed(2)}</td>
+                <td class="font-medium" style="font-family:Poppins;">¥${subtotal.toFixed(2)}</td>
+            </tr>
+        `;
+    }).join('');
+
+    const total = state.items.reduce((sum, item) => {
+        const subtotal = Number(item.subtotal || (Number(item.qty || 0) * Number(item.price || 0)));
+        return sum + subtotal;
+    }, 0);
+    document.getElementById('itemCountText').textContent = '合计（' + state.items.length + '项商品）';
+    document.getElementById('itemTotalText').textContent = '¥ ' + total.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function showToast(msg) {

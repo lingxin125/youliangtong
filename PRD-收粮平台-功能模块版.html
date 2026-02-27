@@ -58,7 +58,8 @@ tailwind.config = {
   <a href="#terminal-buyer">终端A：收购商小程序</a>
   <a href="#terminal-farmer">终端B：农户小程序</a>
   <a href="#terminal-pc">终端C：PC 收银台</a>
-  <a href="#terminal-admin">终端D：H5 管理端</a>
+  <a href="#terminal-bank-h5">终端D：银行 App 跳转 H5</a>
+  <a href="#terminal-admin">终端E：H5 管理端</a>
   <a href="#cross-model">跨终端数据模型</a>
   <a href="#cross-state">跨终端状态机与参数</a>
   <a href="#integration">技术对接清单</a>
@@ -116,23 +117,23 @@ tailwind.config = {
           <tbody>
             <tr>
               <td class="font-medium text-forest-700">首页</td>
-              <td>经营总览、快捷入口、关注需求、我发布需求</td>
+              <td>经营总览、快捷入口、我发布需求</td>
               <td>按当日/本月/本年聚合金额与笔数；双列表读取需求数据并按时间排序</td>
               <td>MVP 不展示趋势图与品类占比图；“我发布”卡片不显示距离</td>
               <td>数据为空展示空态占位，不阻断页面主流程</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">市场</td>
-              <td>搜索、筛选、联系、发布求购、关键词入口</td>
+              <td>搜索、筛选、联系、发布求购</td>
               <td>仅展示农户发布的销售需求；筛选后本地组合条件再排序输出</td>
-              <td>筛选维度含时间/品类/距离/排序；仅显示“已筛选数量”，不显示冗长筛选描述</td>
+              <td>筛选维度含时间/品类/距离/排序；关键词入口与“我关注”筛选为 MVP 隐藏</td>
               <td>无结果显示空态并支持一键清空筛选</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">发布求购</td>
               <td>新建、编辑、只读查看</td>
               <td>提交后写入需求模型并回流到首页、市场、需求管理</td>
-              <td>支持 `mode=edit|view`；`view` 为只读态不可提交</td>
+              <td>支持 `mode=edit|view`；`view` 为只读态不可提交；发布地址为必填并支持定位回填</td>
               <td>字段校验失败阻止提交并定位错误字段</td>
             </tr>
             <tr>
@@ -153,7 +154,7 @@ tailwind.config = {
               <td class="font-medium text-forest-700">收银台</td>
               <td>支付方式选择、支付确认、结果回跳</td>
               <td>支付发起后进入支付中，回调成功/失败更新订单状态</td>
-              <td>支付方式顺序：行业支付 → 订单付 → 数字人民币；30 分钟超时自动取消</td>
+              <td>支付方式：行业支付 → 订单付；30 分钟超时自动取消</td>
               <td>失败允许重试；超时后不可继续支付，仅可重开单</td>
             </tr>
             <tr>
@@ -194,7 +195,7 @@ tailwind.config = {
           <tbody>
             <tr>
               <td class="font-medium text-forest-700">首页</td>
-              <td>收款总览、快捷入口、关注需求、我发布需求</td>
+              <td>收款总览、快捷入口、我发布需求</td>
               <td>与收购商首页同骨架，便于双端认知统一</td>
               <td>卡片状态文案统一“进行中”；从详情返回需回原来源页</td>
               <td>空数据时展示“去发布销售需求”引导</td>
@@ -202,7 +203,7 @@ tailwind.config = {
             <tr>
               <td class="font-medium text-forest-700">市场</td>
               <td>查看收购商求购需求、搜索筛选、联系</td>
-              <td>只看收购商需求；关键词匹配可用于“只看关注”过滤</td>
+              <td>只看收购商需求；“只看关注/关键词”能力当前为 MVP 隐藏</td>
               <td>筛选维度与收购商端保持一致，避免双端口径分裂</td>
               <td>联系方式不可用时展示备用联系引导</td>
             </tr>
@@ -210,7 +211,7 @@ tailwind.config = {
               <td class="font-medium text-forest-700">发布销售</td>
               <td>发布销售需求、编辑销售需求</td>
               <td>字段聚焦交易核心信息，提交后进入需求管理</td>
-              <td>字段口径：描述（选填）置顶；销售单价命名统一；去掉交货地点和联系方式</td>
+              <td>字段口径：销售标题（必填）、描述（选填）、发布地址（必填）、销售数量（必填）、销售单价（选填）</td>
               <td>价格、数量非法值直接拦截</td>
             </tr>
             <tr>
@@ -270,15 +271,21 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="font-medium text-forest-700">支付方式</td>
-              <td>行业支付、订单付、数字人民币</td>
+              <td>行业支付、订单付</td>
               <td>默认选中行业支付；切换后写入支付请求参数</td>
-              <td>顺序固定：行业支付 → 订单付 → 数字人民币</td>
+              <td>顺序固定：行业支付 → 订单付（无数字人民币）</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">支付结果</td>
               <td>成功/失败/取消/超时状态展示</td>
               <td>依赖支付回调更新订单状态并轮询结果</td>
-              <td>30 分钟超时转已取消；失败可重试</td>
+              <td>PC 收银台有效期 10 天；失败可重试，超时后不可继续支付</td>
+            </tr>
+            <tr>
+              <td class="font-medium text-forest-700">订单付引导</td>
+              <td>企业网银支付指引</td>
+              <td>收银台仅提示“订单已发起，请企业登录网银完成支付”</td>
+              <td>不在收银台页面内直接执行订单付扣款</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">演示预设</td>
@@ -291,10 +298,49 @@ tailwind.config = {
       </div>
     </section>
 
-    <section id="terminal-admin" class="mb-14">
+    <section id="terminal-bank-h5" class="mb-14">
       <div class="flex items-center gap-3 mb-6">
         <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white">5</div>
-        <h2 class="text-2xl font-serif font-bold text-forest-800">终端D：H5 管理端（网点客户经理）</h2>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">终端D：银行 App 跳转 H5</h2>
+      </div>
+      <div class="card overflow-hidden">
+        <table class="prd-table">
+          <thead>
+            <tr>
+              <th>模块</th>
+              <th>核心功能</th>
+              <th>核心逻辑</th>
+              <th>规则</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-medium text-forest-700">订单承接</td>
+              <td>展示订单号、金额、付款方、收款方信息</td>
+              <td>通过 URL 参数承接上游订单快照并进行页面渲染</td>
+              <td>字段缺失时使用安全默认值并提示用户核验</td>
+            </tr>
+            <tr>
+              <td class="font-medium text-forest-700">确认付款</td>
+              <td>银行 App 内发起付款</td>
+              <td>点击“确认付款”进入处理态，成功后回跳上游页面</td>
+              <td>按钮防重复点击，处理完成后统一提示</td>
+            </tr>
+            <tr>
+              <td class="font-medium text-forest-700">回跳策略</td>
+              <td>支付完成后返回来源页</td>
+              <td>当前原型使用 <code>history.back()</code> 模拟回跳</td>
+              <td>生产环境需由回调地址 + 订单状态查询联动保证一致性</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="terminal-admin" class="mb-14">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white">7</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">终端E：H5 管理端（网点客户经理）</h2>
       </div>
       <div class="card overflow-hidden">
         <table class="prd-table">
@@ -367,9 +413,9 @@ tailwind.config = {
               <td>订单为支付主实体，状态由支付回调与超时任务共同驱动</td>
             </tr>
             <tr>
-              <td class="font-medium text-forest-700">关键词订阅</td>
+              <td class="font-medium text-forest-700">关键词订阅（预留）</td>
               <td>keywordId、userId、keyword、enabled、updatedAt</td>
-              <td>用于首页关注和市场“只看关注”过滤</td>
+              <td>MVP 不开放前台入口；后续版本用于关注匹配与个性化通知</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">常用商户</td>
@@ -383,7 +429,7 @@ tailwind.config = {
 
     <section id="cross-state" class="mb-14">
       <div class="flex items-center gap-3 mb-6">
-        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white">7</div>
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white">8</div>
         <h2 class="text-2xl font-serif font-bold text-forest-800">跨终端状态机与参数约定</h2>
       </div>
       <div class="grid md:grid-cols-2 gap-4 mb-4">
@@ -391,7 +437,7 @@ tailwind.config = {
           <h4 class="font-serif font-bold text-forest-800 mb-3">订单状态机</h4>
           <div class="space-y-2 text-sm text-gray-700">
             <div>• 待支付 → 支付中 → 支付成功/支付失败</div>
-            <div>• 待支付超过 30 分钟自动流转为已取消</div>
+            <div>• 小程序待支付超过 30 分钟自动流转为已取消；PC 收银台有效期按 10 天口径展示</div>
             <div>• 支付失败可回到待支付并重试</div>
             <div>• 任何终端均不得绕过状态机直接改状态</div>
           </div>
@@ -442,7 +488,7 @@ tailwind.config = {
 
     <section id="integration" class="mb-14">
       <div class="flex items-center gap-3 mb-6">
-        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white">8</div>
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white">9</div>
         <h2 class="text-2xl font-serif font-bold text-forest-800">技术对接清单</h2>
       </div>
       <div class="card overflow-hidden mb-4">
@@ -482,7 +528,7 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="font-medium text-forest-700">通知服务</td>
-              <td>订单结果、关键词命中、系统通知</td>
+              <td>订单结果、需求状态变更、系统通知</td>
               <td>同一事件去重投递，失败可补偿</td>
               <td>监控发送成功率与重试队列积压</td>
             </tr>
@@ -496,7 +542,7 @@ tailwind.config = {
 
     <section id="scope" class="mb-16">
       <div class="flex items-center gap-3 mb-6">
-        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white">9</div>
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white">10</div>
         <h2 class="text-2xl font-serif font-bold text-forest-800">MVP 与后续</h2>
       </div>
       <div class="grid md:grid-cols-2 gap-4">
@@ -523,7 +569,7 @@ tailwind.config = {
 
     <footer class="text-center py-8 text-sm text-gray-400 border-t border-gray-200">
       <p>收粮平台 · 技术对接版 PRD</p>
-      <p class="mt-1">更新时间：2026-02-24 · 终端拆分 + 逻辑规则 + 对接清单</p>
+      <p class="mt-1">更新时间：2026-02-27 · 终端拆分 + 页面级口径同步 + 对接清单</p>
     </footer>
   </div>
 </div>

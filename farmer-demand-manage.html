@@ -237,12 +237,14 @@ function renderList() {
                 '<div class="flex justify-between items-start mb-1.5">' +
                     '<div class="flex items-center gap-1.5">' +
                         '<span class="text-[10px] ' + colorClass(item.category) + ' px-2 py-0.5 rounded-full font-medium">' + item.category + '</span>' +
-                        '<span class="text-[10px] text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full">约' + String(item.qty || 0) + (item.unit || '斤') + '</span>' +
                     '</div>' +
                 '</div>' +
                 '<div class="text-sm text-gray-800 font-medium mb-1 truncate pr-16">' + (item.title || item.content) + '</div>' +
                 '<div class="flex items-center justify-between">' +
-                    '<span class="text-xs text-primary font-bold" style="font-family:Poppins;">' + formatPrice(item) + '</span>' +
+                    '<div class="flex items-center gap-3">' +
+                        '<span class="text-xs text-primary font-bold" style="font-family:Poppins;">' + formatPrice(item) + '</span>' +
+                        '<span class="text-[11px] text-gray-500 font-medium">共 ' + String(item.qty || 0) + (item.unit || '斤') + '</span>' +
+                    '</div>' +
                 '</div>' +
             '</a>' +
             '<div class="absolute right-3 top-3.5">' + statusTag + '</div>' +

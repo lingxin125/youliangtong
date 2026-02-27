@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 新农户入驻</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .input-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(243, 244, 246, 0.8);
+            gap: 12px;
+        }
+        .input-row:last-child {
+            border-bottom: none;
+            padding-bottom: 4px;
+        }
+        .input-label {
+            font-size: 14px;
+            color: #4B5563;
+            font-weight: 500;
+            width: 100px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .input-value {
+            flex: 1;
+            min-width: 0;
+            width: 10%;
+            text-align: right;
+            font-size: 14px;
+            color: #1F2937;
+            font-weight: 500;
+            outline: none;
+            background: transparent;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .input-value::placeholder {
+            color: #9CA3AF;
+            font-weight: 400;
+        }
+        .input-readonly {
+            color: #6B7280;
+        }
+        .upload-box {
+            border: 1.5px dashed #D1D5DB;
+            background: #F9FAFB;
+            border-radius: 12px;
+            height: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .upload-box:active {
+            background: #F3F4F6;
+            transform: scale(0.98);
+        }
+        .upload-box.uploaded {
+            border-style: solid;
+            border-color: rgba(17, 166, 74, 0.4);
+            background: rgba(240, 253, 244, 0.5);
+            color: #11A64A;
+        }
+        .toast-tip {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 98px;
+            padding: 14px;
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            z-index: 70;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .toast-tip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .loading-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container relative bg-[#F4F6F8]">
+    <!-- 原生黑色状态栏 -->
+    <div id="statusBar" class="relative z-20"></div>
+
+    <!-- 顶部导航栏 -->
+    <div id="navBar" class="relative z-20"></div>
+
+    <!-- 核心滚动内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-4 pt-4 pb-32">
+        
+        <!-- 顶部提示条 -->
+        <div class="bg-orange-50/80 border border-orange-100 rounded-xl px-3 py-2.5 mb-4 flex items-start gap-2 backdrop-blur-sm">
+            <i class="fas fa-exclamation-triangle text-orange-500 mt-0.5 text-sm"></i>
+            <span class="text-[12px] text-orange-700 font-medium leading-relaxed tracking-wide">仅限个人农户申请。企业农户请联系客户经理。</span>
+        </div>
+
+        <!-- 卡片1：基本信息 -->
+        <div class="glass-card rounded-2xl p-4 mb-4">
+            <div class="flex items-center gap-2 mb-2 pb-2">
+                <div class="w-1 h-3.5 bg-primary rounded-full"></div>
+                <span class="text-[15px] font-bold text-gray-800">基本信息</span>
+                <span class="ml-auto text-[11px] text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded font-medium">必填</span>
+            </div>
+            
+            <div class="input-row">
+                <span class="input-label">商户类型</span>
+                <input type="text" value="个人商户" class="input-value input-readonly" readonly>
+            </div>
+            <div class="input-row">
+                <span class="input-label">商户名称</span>
+                <input type="text" id="merchantName" placeholder="例如：张建国收购站" class="input-value">
+            </div>
+            <div class="input-row">
+                <span class="input-label">负责人</span>
+                <input type="text" id="farmerName" placeholder="例如：张建国" class="input-value">
+            </div>
+            <div class="input-row">
+                <span class="input-label">负责人手机号</span>
+                <input type="tel" id="farmerMobile" placeholder="联系手机号" maxlength="11" class="input-value" style="font-family:Poppins,sans-serif;">
+            </div>
+            <div class="input-row">
+                <span class="input-label">商户地址</span>
+                <input type="text" id="farmerAddress" placeholder="例如：四川省成都市双流区" class="input-value line-clamp-1 text-ellipsis">
+            </div>
+        </div>
+
+        <!-- 卡片2：结算信息 -->
+        <div class="glass-card rounded-2xl p-4 mb-4">
+            <div class="flex items-center gap-2 mb-3 pb-2">
+                <div class="w-1 h-3.5 bg-primary rounded-full"></div>
+                <span class="text-[15px] font-bold text-gray-800">结算信息</span>
+            </div>
+            
+            <div class="flex gap-3 mb-4">
+                <div class="flex-1 upload-box" id="uploadIdFront" onclick="simulateUpload('idFront')">
+                    <i class="fas fa-id-card text-2xl mb-1.5 text-blue-400"></i>
+                    <span class="text-[11px] font-medium">上传人像面</span>
+                </div>
+                <div class="flex-1 upload-box" id="uploadIdBack" onclick="simulateUpload('idBack')">
+                    <i class="far fa-id-card text-2xl mb-1.5 text-gray-400"></i>
+                    <span class="text-[11px] font-medium">上传国徽面</span>
+                </div>
+            </div>
+
+            <!-- OCR返回结果字段 -->
+            <div id="ocrIdResult" class="mt-4 pt-1 border-t border-gray-100/80">
+                <div class="input-row">
+                    <span class="input-label">结算人姓名</span>
+                    <input type="text" id="settleName" placeholder="识别自动填充" class="input-value input-readonly" readonly>
+                </div>
+                <div class="input-row">
+                    <span class="input-label">结算人证件号</span>
+                    <input type="text" id="settleIdNo" placeholder="识别自动填充" class="input-value input-readonly font-mono" readonly>
+                </div>
+                <div class="input-row">
+                    <span class="input-label">证件起始日</span>
+                    <input type="text" id="idStartDate" placeholder="例如：2020.08.01" class="input-value input-readonly font-mono" readonly>
+                </div>
+                <div class="input-row !pb-0">
+                    <span class="input-label">证件到期日</span>
+                    <div class="flex items-center gap-2 justify-end flex-1">
+                        <input type="text" id="idEndDate" placeholder="例如：2040.08.01" class="input-value input-readonly font-mono w-24 flex-none" readonly>
+                        <label class="flex items-center gap-1.5 ml-2 cursor-pointer">
+                            <input type="checkbox" id="longTermId" class="w-3.5 h-3.5 text-primary rounded border-gray-300 focus:ring-primary accent-primary">
+                            <span class="text-[12px] text-gray-600">长期证件</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卡片3：结算银行信息 -->
+        <div class="glass-card rounded-2xl p-4 mb-4">
+            <div class="flex items-center gap-2 mb-3 pb-2">
+                <div class="w-1 h-3.5 bg-primary rounded-full"></div>
+                <span class="text-[15px] font-bold text-gray-800">结算银行信息</span>
+            </div>
+            
+            <div class="upload-box h-24 w-full flex flex-col items-center justify-center gap-2 mb-1" id="uploadBankCard" onclick="simulateUpload('bankCard')">
+                <i class="fas fa-credit-card text-3xl text-primary"></i>
+                <span class="text-[14px] font-medium">点击识别银行卡正面</span>
+            </div>
+
+            <div id="ocrBankResult" class="mt-3 pt-1 border-t border-gray-100/80">
+                <div class="input-row">
+                    <span class="input-label">银行名称</span>
+                    <input type="text" id="bankName" placeholder="识别自动填充" class="input-value input-readonly" readonly>
+                </div>
+                <div class="input-row">
+                    <span class="input-label">支行名称</span>
+                    <input type="text" id="branchName" placeholder="例如：高新支行" class="input-value">
+                </div>
+                <div class="input-row !pb-0">
+                    <span class="input-label">银行卡号</span>
+                    <input type="text" id="bankCardNo" placeholder="识别自动填充" class="input-value input-readonly font-mono" readonly>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- 底部固定操作区 -->
+    <div class="absolute bottom-0 left-0 right-0 p-5 bg-white border-t border-gray-100 pb-8 z-50">
+        <button id="submitBtn" class="w-full h-12 bg-primary active:bg-primary-dark text-white font-bold text-[16px] rounded-full shadow-[0_6px_16px_rgba(17,166,74,0.3)] transition-transform active:scale-95 flex items-center justify-center gap-2" onclick="submitApplication()">
+            提交开户申请
+        </button>
+    </div>
+
+    <div id="toastTip" class="toast-tip"></div>
+    
+    <!-- 全屏提交状态层 -->
+    <div id="submitOverlay" class="loading-overlay">
+        <!-- 加载动画 -->
+        <div id="loadingState" class="flex flex-col items-center">
+            <div class="w-16 h-16 mb-4 relative">
+                <svg class="animate-spin w-full h-full text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            <div class="text-[16px] font-bold text-gray-800 mb-1">正在处理开户请求...</div>
+            <div class="text-[13px] text-gray-500">请勿离开此页面</div>
+        </div>
+        
+        <!-- 成功状态 (默认隐藏) -->
+        <div id="successState" class="flex flex-col items-center hidden">
+            <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-5 scale-in relative">
+                <i class="fas fa-check text-[36px] text-primary"></i>
+                <!-- 装饰光圈 -->
+                <div class="absolute inset-0 border-2 border-primary rounded-full animate-ping opacity-20"></div>
+            </div>
+            <div class="text-[20px] font-bold text-gray-800 mb-2">开户成功</div>
+            <div class="text-[13px] text-gray-500 mb-8 max-w-[80%] text-center leading-relaxed">该农户已加入您的合作列表，现在可以为其开单付款了。</div>
+            <button onclick="routerBack()" class="h-11 px-8 bg-white border border-gray-200 text-gray-700 font-medium text-[15px] rounded-full shadow-sm active:bg-gray-50 transition-colors">
+                返回合作农户
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar('dark');
+document.getElementById('navBar').innerHTML = renderHeader('新农户入驻', 'buyer-contacts.html', false, 'bg-transparent text-gray-800');
+
+let uploadStatus = {
+    idFront: false,
+    idBack: false,
+    bankCard: false
+};
+
+function simulateUpload(type) {
+    showToast('正在调起相机进行OCR识别...');
+    const btn = document.getElementById('upload' + capitalize(type));
+    
+    setTimeout(() => {
+        uploadStatus[type] = true;
+        btn.classList.add('uploaded');
+        if (type === 'idFront') {
+            btn.innerHTML = `<i class="fas fa-check-circle text-xl mb-1.5"></i><span class="text-[11px] font-medium">人像面已识别</span>`;
+        } else if (type === 'idBack') {
+            btn.innerHTML = `<i class="fas fa-check-circle text-xl mb-1.5"></i><span class="text-[11px] font-medium">国徽面已识别</span>`;
+        } else if (type === 'bankCard') {
+            btn.innerHTML = `<i class="fas fa-check-circle text-xl"></i><span class="text-[13px] font-medium">卡片已识别</span>`;
+        }
+        
+        if (uploadStatus.idFront && uploadStatus.idBack) {
+            document.getElementById('ocrIdResult').classList.remove('hidden');
+            document.getElementById('settleName').value = '张建国';
+            document.getElementById('settleIdNo').value = '510122198001018888';
+            document.getElementById('idStartDate').value = '2020.08.01';
+            document.getElementById('idEndDate').value = '2040.08.01';
+            document.getElementById('settleName').classList.remove('input-readonly');
+            document.getElementById('settleIdNo').classList.remove('input-readonly');
+            document.getElementById('idStartDate').classList.remove('input-readonly');
+            document.getElementById('idEndDate').classList.remove('input-readonly');
+        }
+        if (uploadStatus.bankCard) {
+            document.getElementById('ocrBankResult').classList.remove('hidden');
+            document.getElementById('bankName').value = '中国邮储银行';
+            document.getElementById('branchName').value = '高新管委会支行';
+            document.getElementById('bankCardNo').value = '6228 4800 1234 5678';
+            document.getElementById('bankName').classList.remove('input-readonly');
+            document.getElementById('bankCardNo').classList.remove('input-readonly');
+        }
+        
+        showToast('识别成功');
+    }, 1500);
+}
+
+function submitApplication() {
+    const merchantName = document.getElementById('merchantName').value.trim();
+    const name = document.getElementById('farmerName').value.trim();
+    const phone = document.getElementById('farmerMobile').value.trim();
+    
+    if (!merchantName || !name || !phone) {
+        showToast('请填写商户名称、负责人和手机号');
+        return;
+    }
+    if (!uploadStatus.idFront || !uploadStatus.bankCard) {
+        showToast('请完成证件与银行卡的上传识别');
+        return;
+    }
+
+    const overlay = document.getElementById('submitOverlay');
+    overlay.classList.add('show');
+    
+    // Simulate API call
+    setTimeout(() => {
+        // Hide loading, show success
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('successState').classList.remove('hidden');
+    }, 2000);
+}
+
+function routerBack() {
+    window.location.href = 'buyer-contacts.html';
+}
+
+function showToast(msg) {
+    const tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => tip.classList.remove('show'), 2000);
+}
+
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+</script>
+</body>
+</html>

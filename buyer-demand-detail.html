@@ -21,8 +21,8 @@
         <div class="glass-panel rounded-2xl p-5 mb-4">
             <!-- 品类标签 + 状态 -->
             <div class="flex items-center justify-between mb-3">
-                <span id="categoryTag" class="text-[11px] bg-amber-50 text-amber-600 px-2.5 py-1 rounded-md font-medium">粮油</span>
-                <span id="statusTag" class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded font-medium">进行中</span>
+                <span id="categoryTag" class="text-[11px] bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full font-medium">粮油</span>
+                <span id="statusTag" class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">进行中</span>
             </div>
 
             <!-- 标题 -->
@@ -182,16 +182,16 @@ function loadSupplyDetail() {
     var color = getCategoryColor(supply.category);
     var tagEl = document.getElementById('categoryTag');
     tagEl.textContent = supply.category;
-    tagEl.className = 'text-[11px] ' + color.bg + ' ' + color.text + ' px-2.5 py-1 rounded-md font-medium';
+    tagEl.className = 'text-[11px] ' + color.bg + ' ' + color.text + ' px-2.5 py-1 rounded-full font-medium';
 
     // 状态标签
     var statusTag = document.getElementById('statusTag');
     if (supply.status === 'active') {
         statusTag.textContent = '进行中';
-        statusTag.className = 'text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded font-medium';
+        statusTag.className = 'text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium';
     } else {
         statusTag.textContent = '已下架';
-        statusTag.className = 'text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-medium';
+        statusTag.className = 'text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium';
     }
 
     // 填充数据

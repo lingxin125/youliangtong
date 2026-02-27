@@ -151,7 +151,7 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fas fa-note-sticky text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">描述 <span class="text-gray-400 text-xs font-normal">（选填）</span></span>
+                    <span class="text-sm font-medium text-gray-700">销售描述 <span class="text-gray-400 text-xs font-normal">（选填）</span></span>
                 </div>
                 <textarea id="noteInput" rows="2" class="custom-input resize-none" placeholder="补充描述品种、规格、质量要求、交货时间等"></textarea>
             </div>
@@ -200,6 +200,23 @@
                 </p>
             </div>
 
+            <!-- 分割线 -->
+            <div class="border-t border-gray-100"></div>
+
+            <!-- 区块6：发布地址 -->
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-location-dot text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700">销售地址 <span class="text-red-400">*</span></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="locationInput" class="custom-input flex-1" placeholder="请输入发布地址">
+                    <button id="locateBtn" type="button" class="shrink-0 px-3 py-2 text-xs font-medium rounded-lg border border-primary/30 text-primary bg-primary/5" onclick="fillCurrentLocation()">
+                        <i class="fas fa-location-crosshairs mr-1"></i>定位
+                    </button>
+                </div>
+            </div>
+
         </div>
 
         <!-- 提示文字 -->
@@ -215,7 +232,7 @@
     <!-- 底部发布按钮 -->
     <div id="submitBar" class="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-[#FFFBF0] via-[#FFFBF0] to-transparent">
         <button id="submitBtn" class="w-full py-2.5 bg-primary text-white font-medium text-sm rounded-2xl shadow-glow active:scale-[0.98] transition-transform" onclick="submitDemand()">
-            <i class="fas fa-paper-plane mr-1"></i>发布销售需求
+            <i class="fas fa-paper-plane mr-1"></i>确认发布
         </button>
     </div>
 
@@ -247,7 +264,7 @@ if ((isEdit || isView) && fromPage === 'manage') {
 }
 
 document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader(isView ? '销售详情' : (isEdit ? '编辑销售' : '发布销售'), backLink);
+document.getElementById('navBar').innerHTML = renderHeader(isView ? '销售详情' : (isEdit ? '编辑销售需求' : '发布销售需求'), backLink);
 
 if (isEdit) {
     document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save mr-1"></i>保存销售需求';
@@ -286,12 +303,16 @@ function lockReadonlyView() {
 
     var titleInput = document.getElementById('titleInput');
     var noteInput = document.getElementById('noteInput');
+    var locationInput = document.getElementById('locationInput');
+    var locateBtn = document.getElementById('locateBtn');
     var qtyInput = document.getElementById('qtyInput');
     var priceInput = document.getElementById('priceInput');
     var unitSelect = document.getElementById('unitSelect');
 
     if (titleInput) titleInput.readOnly = true;
     if (noteInput) noteInput.readOnly = true;
+    if (locationInput) locationInput.readOnly = true;
+    if (locateBtn) locateBtn.classList.add('hidden');
     if (qtyInput) qtyInput.readOnly = true;
     if (priceInput) priceInput.readOnly = true;
     if (unitSelect) unitSelect.disabled = true;
@@ -340,9 +361,33 @@ function hydrateForm(demand) {
 
     document.getElementById('titleInput').value = demand.title || '';
     document.getElementById('titleCount').textContent = (demand.title || '').length + '/20';
+    document.getElementById('locationInput').value = demand.location || '';
     document.getElementById('qtyInput').value = demand.qty || '';
     document.getElementById('priceInput').value = demand.price === null || demand.price === undefined ? '' : demand.price;
     document.getElementById('noteInput').value = demand.note || '';
+}
+
+function fillCurrentLocation() {
+    if (isView) return;
+    var input = document.getElementById('locationInput');
+    if (!input) return;
+
+    var fallback = '河北省保定市莲池区（模拟定位）';
+    if (!navigator.geolocation) {
+        input.value = fallback;
+        showToast('定位能力不可用，已填入默认地址');
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+        var lat = Number(position.coords.latitude || 0).toFixed(6);
+        var lng = Number(position.coords.longitude || 0).toFixed(6);
+        input.value = '定位坐标：' + lat + ', ' + lng;
+        showToast('定位成功，请按需补充详细地址');
+    }, function() {
+        input.value = fallback;
+        showToast('定位失败，已填入默认地址');
+    }, { enableHighAccuracy: true, timeout: 5000 });
 }
 
 function showToast(msg) {
@@ -356,6 +401,7 @@ function showToast(msg) {
 function submitDemand() {
     if (isView) return;
     const title = document.getElementById('titleInput').value.trim();
+    const location = document.getElementById('locationInput').value.trim();
     const qty = Number(document.getElementById('qtyInput').value);
     const priceRaw = document.getElementById('priceInput').value.trim();
     const unit = document.getElementById('unitSelect').value;
@@ -369,6 +415,10 @@ function submitDemand() {
         showToast('请填写销售标题');
         return;
     }
+    if (!location) {
+        showToast('请填写发布地址');
+        return;
+    }
     if (!qty || qty <= 0) {
         showToast('请输入有效数量');
         return;
@@ -378,6 +428,7 @@ function submitDemand() {
         role: 'farmer',
         category: selectedCategory,
         title: title,
+        location: location,
         qty: qty,
         unit: unit,
         price: priceRaw ? Number(priceRaw) : null,

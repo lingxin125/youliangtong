@@ -133,15 +133,19 @@
             <!-- 分割线 -->
             <div class="border-t border-gray-100"></div>
 
-            <!-- 区块2：需求内容 -->
+            <!-- 区块2：需求标题 -->
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fas fa-edit text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">需求内容 <span class="text-red-400">*</span></span>
+                    <span class="text-sm font-medium text-gray-700">收购标题 <span class="text-red-400">*</span></span>
                 </div>
                 <input type="text" id="titleInput" class="custom-input mb-2" placeholder="如：收购红富士苹果" maxlength="20">
                 <div class="flex justify-end">
                     <span class="text-[10px] text-gray-400" id="titleCount">0/20</span>
+                </div>
+                <div class="flex items-center gap-2 mt-2 mb-2">
+                    <i class="fas fa-note-sticky text-gray-400 text-xs"></i>
+                    <span class="text-sm font-medium text-gray-700">收购描述 <span class="text-gray-400 text-[10px] font-normal">（选填）</span></span>
                 </div>
                 <textarea id="contentInput" rows="2" class="custom-input resize-none" placeholder="补充描述品种、规格、质量要求等"></textarea>
             </div>
@@ -178,7 +182,7 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fas fa-tag text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">意向单价 <span class="text-gray-400 text-xs font-normal">（选填）</span></span>
+                    <span class="text-sm font-medium text-gray-700">收购单价 <span class="text-gray-400 text-xs font-normal">（选填）</span></span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-gray-400 text-sm">¥</span>
@@ -188,6 +192,23 @@
                     <i class="fas fa-info-circle mr-0.5"></i>
                     价格为每<span id="unitLabel">斤</span>的单价，不填表示面议
                 </p>
+            </div>
+
+            <!-- 分割线 -->
+            <div class="border-t border-gray-100"></div>
+
+            <!-- 区块5：发布地址 -->
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-location-dot text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700">收购地址 <span class="text-red-400">*</span></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="locationInput" class="custom-input flex-1" placeholder="请输入发布地址">
+                    <button id="locateBtn" type="button" class="shrink-0 px-3 py-2 text-xs font-medium rounded-lg border border-primary/30 text-primary bg-primary/5" onclick="fillCurrentLocation()">
+                        <i class="fas fa-location-crosshairs mr-1"></i>定位
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -205,7 +226,12 @@
     <!-- 底部发布按钮 -->
     <div id="submitBar" class="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-[#FFFBF0] via-[#FFFBF0] to-transparent">
         <button id="submitBtn" class="w-full py-2.5 bg-primary text-white font-medium text-sm rounded-2xl shadow-glow active:scale-[0.98] transition-transform" onclick="submitDemand()">
-            <i class="fas fa-paper-plane mr-1"></i>发布求购需求
+            <i class="fas fa-paper-plane mr-1"></i>确认发布
+        </button>
+    </div>
+    <div id="viewBackBar" class="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-[#FFFBF0] via-[#FFFBF0] to-transparent hidden">
+        <button class="w-full py-2.5 bg-white text-gray-700 font-medium text-sm rounded-2xl border border-gray-200 active:scale-[0.98] transition-transform" onclick="goBack()">
+            返回
         </button>
     </div>
 
@@ -237,7 +263,7 @@ if ((isEdit || isView) && fromPage === 'manage') {
 }
 
 document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader(isView ? '需求详情' : (isEdit ? '编辑需求' : '发布需求'), backLink);
+document.getElementById('navBar').innerHTML = renderHeader(isView ? '需求详情' : (isEdit ? '编辑收购需求' : '发布收购需求'), backLink);
 
 if (isEdit) {
     document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save mr-1"></i>保存需求';
@@ -260,13 +286,23 @@ document.getElementById('titleInput').addEventListener('input', function() {
     }
 });
 
+var queryDemand = parseDemandFromQuery();
+var formDemand = null;
 if (editingDemand && editingDemand.role === 'buyer') {
-    hydrateForm(editingDemand);
+    formDemand = editingDemand;
+}
+if (queryDemand) {
+    formDemand = Object.assign({}, formDemand || {}, queryDemand);
+}
+if (formDemand) {
+    hydrateForm(formDemand);
 }
 
 function lockReadonlyView() {
     var submitBar = document.getElementById('submitBar');
     if (submitBar) submitBar.classList.add('hidden');
+    var viewBackBar = document.getElementById('viewBackBar');
+    if (viewBackBar) viewBackBar.classList.remove('hidden');
 
     document.querySelectorAll('.category-tag').forEach(function(tag) {
         tag.removeAttribute('onclick');
@@ -276,15 +312,59 @@ function lockReadonlyView() {
 
     var titleInput = document.getElementById('titleInput');
     var contentInput = document.getElementById('contentInput');
+    var locationInput = document.getElementById('locationInput');
+    var locateBtn = document.getElementById('locateBtn');
     var qtyInput = document.getElementById('qtyInput');
     var priceInput = document.getElementById('priceInput');
     var unitSelect = document.getElementById('unitSelect');
 
     if (titleInput) titleInput.readOnly = true;
     if (contentInput) contentInput.readOnly = true;
+    if (locationInput) locationInput.readOnly = true;
+    if (locateBtn) locateBtn.classList.add('hidden');
     if (qtyInput) qtyInput.readOnly = true;
     if (priceInput) priceInput.readOnly = true;
     if (unitSelect) unitSelect.disabled = true;
+}
+
+function parseDemandFromQuery() {
+    var category = q.get('category') || '';
+    var title = q.get('title') || '';
+    var content = q.get('content') || '';
+    var location = q.get('location') || '';
+    var qtyRaw = q.get('qty');
+    var unit = q.get('unit') || '';
+    var priceRaw = q.get('price');
+
+    if (!category && !title && !content && !location && !qtyRaw && !unit && !priceRaw) {
+        return null;
+    }
+
+    var qty = qtyRaw === null ? '' : Number(qtyRaw);
+    if (qtyRaw !== null && (!Number.isFinite(qty) || qty <= 0)) {
+        qty = '';
+    }
+
+    var price = null;
+    if (priceRaw !== null && priceRaw !== '') {
+        var parsedPrice = Number(priceRaw);
+        price = Number.isFinite(parsedPrice) ? parsedPrice : null;
+    }
+
+    return {
+        role: 'buyer',
+        category: category || '其他',
+        title: title,
+        content: content,
+        location: location,
+        qty: qty,
+        unit: unit || '斤',
+        price: price
+    };
+}
+
+function goBack() {
+    window.location.href = backLink;
 }
 
 function selectCate(el) {
@@ -331,8 +411,32 @@ function hydrateForm(demand) {
     document.getElementById('titleInput').value = demand.title || '';
     document.getElementById('titleCount').textContent = (demand.title || '').length + '/20';
     document.getElementById('contentInput').value = demand.content || '';
+    document.getElementById('locationInput').value = demand.location || '';
     document.getElementById('qtyInput').value = demand.qty || '';
     document.getElementById('priceInput').value = demand.price === null || demand.price === undefined ? '' : demand.price;
+}
+
+function fillCurrentLocation() {
+    if (isView) return;
+    var input = document.getElementById('locationInput');
+    if (!input) return;
+
+    var fallback = '河北省保定市莲池区（模拟定位）';
+    if (!navigator.geolocation) {
+        input.value = fallback;
+        showToast('定位能力不可用，已填入默认地址');
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(function(position) {
+        var lat = Number(position.coords.latitude || 0).toFixed(6);
+        var lng = Number(position.coords.longitude || 0).toFixed(6);
+        input.value = '定位坐标：' + lat + ', ' + lng;
+        showToast('定位成功，请按需补充详细地址');
+    }, function() {
+        input.value = fallback;
+        showToast('定位失败，已填入默认地址');
+    }, { enableHighAccuracy: true, timeout: 5000 });
 }
 
 function showToast(msg) {
@@ -347,6 +451,7 @@ function submitDemand() {
     if (isView) return;
     const title = document.getElementById('titleInput').value.trim();
     const content = document.getElementById('contentInput').value.trim();
+    const location = document.getElementById('locationInput').value.trim();
     const qty = Number(document.getElementById('qtyInput').value);
     const priceRaw = document.getElementById('priceInput').value.trim();
     const unit = document.getElementById('unitSelect').value;
@@ -356,7 +461,11 @@ function submitDemand() {
         return;
     }
     if (!title) {
-        showToast('请填写需求内容');
+        showToast('请填写收购标题');
+        return;
+    }
+    if (!location) {
+        showToast('请填写发布地址');
         return;
     }
     if (!qty || qty <= 0) {
@@ -369,6 +478,7 @@ function submitDemand() {
         category: selectedCategory,
         title: title,
         content: content,
+        location: location,
         qty: qty,
         unit: unit,
         price: priceRaw ? Number(priceRaw) : null

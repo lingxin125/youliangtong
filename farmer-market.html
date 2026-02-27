@@ -19,7 +19,7 @@
         <div class="flex gap-2 items-center">
             <div class="glass-card rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 flex-1">
                 <i class="fas fa-search text-gray-400 text-sm"></i>
-                <input id="searchInput" type="text" placeholder="搜索品类、需求关键词..." class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
+                <input id="searchInput" type="text" placeholder="搜索品类、需求内容..." class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
             </div>
             <button type="button" id="filterBtn" class="w-10 h-10 rounded-2xl bg-white/90 border border-gray-200 text-gray-500 flex items-center justify-center shadow-sm relative" onclick="openFilter()" aria-label="打开筛选">
                 <i class="fas fa-filter text-[13px]"></i>
@@ -61,19 +61,14 @@
                     </div>
                 </div>
 
-                <!-- 我关注的 -->
-                <button id="focusOnlyBtn" type="button" class="text-[10px] text-gray-500 font-medium bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 whitespace-nowrap flex items-center gap-1" onclick="toggleFocusOnly()">
+                <!-- 我关注筛选（MVP暂隐藏） -->
+                <button id="focusOnlyBtn" type="button" style="display:none;" class="text-[10px] text-gray-500 font-medium bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 whitespace-nowrap flex items-center gap-1">
                     <span>只看关注</span>
                     <i id="focusCloseIcon" class="fas fa-times text-[9px] hidden"></i>
                 </button>
             </div>
 
-            <!-- 关键词标签 - 固定右侧 -->
-            <button type="button" class="text-[10px] text-amber-700 font-medium bg-amber-50 border border-amber-200 rounded-full px-3 py-1.5 whitespace-nowrap flex items-center gap-1 shrink-0" onclick="location.href='farmer-keywords.html?source=market'">
-                <i class="fas fa-tag text-[9px] text-amber-600"></i>
-                关键词设置
-                <span id="keywordCount" class="text-[9px]"></span>
-            </button>
+            <!-- 关键词功能（MVP暂隐藏） -->
         </div>
     </div>
 
@@ -82,7 +77,7 @@
 
     <!-- 悬浮发布按钮 -->
     <a href="farmer-publish.html" class="absolute right-5 bottom-24 w-12 h-12 rounded-full bg-green-50 text-primary flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-green-200 no-underline z-[60] active:scale-95 transition-transform" style="text-decoration:none;" aria-label="发布销售">
-        <i class="fas fa-plus text-xl"></i>
+        <i class="fas fa-bullhorn text-lg"></i>
     </a>
 
     <div id="tabBar"></div>
@@ -159,8 +154,6 @@ document.getElementById('statusBar').innerHTML = renderStatusBar();
 document.getElementById('navBar').innerHTML = renderHeader('市场');
 document.getElementById('tabBar').innerHTML = renderFarmerTabBar('market');
 
-var KEYWORD_STORAGE_KEY = 'ylt_keywords_farmer_v1';
-
 var state = {
     sort: 'latest',
     activeTab: 'latest',
@@ -175,7 +168,7 @@ var state = {
 
 var draftFilter = null;
 var currentContactPhone = '';
-var myKeywords = loadKeywords();
+var focusedDemandIds = ['B1', 'B3', 'B4', 'B7', 'B10', 'B13'];
 
 // 采购需求数据（收购商发布的求购）
 var fallbackList = [
@@ -225,29 +218,8 @@ document.getElementById('searchInput').addEventListener('input', function(e) {
     renderList();
 });
 
-function loadKeywords() {
-    try {
-        var raw = window.localStorage.getItem(KEYWORD_STORAGE_KEY);
-        if (!raw) return [];
-        var parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return [];
-        return parsed.map(function(k) { return String(k || '').trim(); }).filter(Boolean);
-    } catch (err) {
-        return [];
-    }
-}
-
-function updateKeywordCount() {
-    var count = myKeywords.length;
-    var badge = document.getElementById('keywordCount');
-    if (!badge) return;
-    if (count > 0) {
-        badge.textContent = count;
-        badge.className = 'ml-0.5 w-3.5 h-3.5 rounded-full bg-red-500 text-white text-[8px] flex items-center justify-center';
-    } else {
-        badge.textContent = '';
-        badge.className = 'text-[9px]';
-    }
+function isFocusedDemand(item) {
+    return focusedDemandIds.indexOf(String(item.id || '')) !== -1;
 }
 
 function toggleFocusOnly() {
@@ -448,14 +420,6 @@ function renderFilterDot() {
     }
 }
 
-function isKeywordMatched(item, keywords) {
-    if (!keywords.length) return false;
-    var haystack = [item.category, item.content, item.location, item.ownerName].join(' ').toLowerCase();
-    return keywords.some(function(k) {
-        return haystack.indexOf(String(k).toLowerCase()) !== -1;
-    });
-}
-
 function isInTimeRange(iso, range, customDateStart, customDateEnd) {
     if (range === 'all') return true;
     var t = new Date(iso || '').getTime();
@@ -513,11 +477,7 @@ function readList() {
         });
     }
 
-    if (state.onlyFocus) {
-        list = list.filter(function(item) {
-            return isKeywordMatched(item, myKeywords);
-        });
-    }
+    // MVP暂不启用“只看关注”筛选逻辑
 
     if (state.sort === 'nearest') {
         list.sort(function(a, b) {
@@ -586,21 +546,8 @@ function showToast(msg) {
 }
 
 function renderList() {
-    myKeywords = loadKeywords();
-    updateKeywordCount();
-
     var list = readList();
     var box = document.getElementById('demandList');
-
-    if (state.onlyFocus && myKeywords.length === 0) {
-        box.innerHTML = '' +
-            '<div class="glass-card rounded-2xl p-5 text-center mt-2">' +
-                '<div class="text-sm text-gray-500 mb-1">未设置关注关键词</div>' +
-                '<div class="text-[11px] text-gray-400 mb-3">设置关键词后，可快速查看相关采购需求</div>' +
-                '<a href="farmer-keywords.html?source=market" class="inline-block text-[11px] text-primary font-medium bg-green-50 border border-green-200 rounded-full px-4 py-1.5 no-underline" style="text-decoration:none;">去设置关键词 ></a>' +
-            '</div>';
-        return;
-    }
 
     if (!list.length) {
         box.innerHTML = '' +
@@ -623,7 +570,7 @@ function renderList() {
                 '<div class="flex items-center justify-between mb-1.5">' +
                     '<div class="flex items-center gap-1.5">' +
                         '<span class="text-[10px] px-2 py-0.5 rounded-full font-medium ' + categoryTagClass(item.category) + '">' + (item.category || '其他') + '</span>' +
-                        '<span class="text-[10px] text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full flex items-center gap-0.5"><i class="fas fa-weight-hanging text-[8px]"></i>' + String(item.qty || 0) + (item.unit || '斤') + '</span>' +
+                        '<span class="text-[10px] text-gray-400"><i class="fas fa-location-dot mr-0.5"></i>' + Number(item.distanceKm || 0).toFixed(1) + 'km</span>' +
                     '</div>' +
                     '<span class="text-[10px] ' + statusClass + ' px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">' + statusLabel + '</span>' +
                 '</div>' +
@@ -631,7 +578,7 @@ function renderList() {
                 '<div class="flex items-center justify-between">' +
                     '<div class="flex items-center gap-3">' +
                         '<span class="text-xs text-primary font-bold" style="font-family:Poppins;">' + formatPrice(item) + '</span>' +
-                        '<span class="text-[10px] text-gray-400"><i class="fas fa-location-dot mr-0.5"></i>' + Number(item.distanceKm || 0).toFixed(1) + 'km</span>' +
+                        '<span class="text-[11px] text-gray-500 font-medium">共 ' + String(item.qty || 0) + (item.unit || '斤') + '</span>' +
                     '</div>' +
                     '<div class="flex items-center gap-2 absolute right-3 bottom-3">' +
                         '<button class="text-[10px] text-white font-medium px-2.5 py-1 bg-primary rounded-full z-10 shadow-sm active:opacity-90" onclick="event.preventDefault();event.stopPropagation();openContact(\'' + encodeName + '\',\'' + encodePhone + '\')">联系</button>' +
@@ -699,22 +646,9 @@ document.addEventListener('click', function(e) {
 // 初始化勾选状态
 document.getElementById('check-latest').classList.remove('opacity-0');
 
-updateKeywordCount();
 renderFilterDot();
 
-// 检查URL参数，如果有focus=1则自动激活"只看关注"状态
-(function checkFocusParam() {
-    var urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('focus') === '1') {
-        state.onlyFocus = true;
-        var focusBtn = document.getElementById('focusOnlyBtn');
-        var closeIcon = document.getElementById('focusCloseIcon');
-        if (focusBtn && closeIcon) {
-            focusBtn.className = 'text-[10px] text-primary font-medium bg-green-50 border border-green-200 rounded-full px-3 py-1.5 whitespace-nowrap flex items-center gap-1';
-            closeIcon.classList.remove('hidden');
-        }
-    }
-})();
+// MVP暂不启用focus参数自动筛选
 
 renderList();
 </script>

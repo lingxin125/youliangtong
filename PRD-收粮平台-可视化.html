@@ -128,6 +128,8 @@ tailwind.config = {
   <a href="#flow-main">主流程图</a>
   <a href="#flow-order">订单状态机</a>
   <a href="#constraints">技术约束</a>
+  <a href="#sync-baseline">原型同步基线（2026-02-27）</a>
+  <a href="#page-map">页面清单与链接核验</a>
   <div class="nav-title">文档入口</div>
   <a href="./PRD-收粮平台-功能模块版.html">技术对接版（功能模块）</a>
   <a href="./需求标注-收购商农户.html">需求标注文档（收购商/农户）</a>
@@ -138,7 +140,7 @@ tailwind.config = {
   <a href="#us03">US-03 发布需求</a>
   <a href="#us04">US-04 浏览市场</a>
   <a href="#us05">US-05 管理需求</a>
-  <a href="#us06">US-06 关注关键词</a>
+  <a href="#us06">US-06 关键词能力（MVP隐藏）</a>
   <div class="nav-title">阶段三 · 开单与交易</div>
   <a href="#us07">US-07 明细开单</a>
   <a href="#us08">US-08 快捷开单</a>
@@ -176,7 +178,7 @@ tailwind.config = {
       </p>
       <div class="flex flex-wrap gap-4 mt-10">
         <div class="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
-          <div class="text-wheat-400 text-2xl font-serif font-bold">3</div>
+          <div class="text-wheat-400 text-2xl font-serif font-bold">4</div>
           <div class="text-white/60 text-sm">产品终端</div>
         </div>
         <div class="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
@@ -184,8 +186,8 @@ tailwind.config = {
           <div class="text-white/60 text-sm">业务阶段</div>
         </div>
         <div class="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
-          <div class="text-wheat-400 text-2xl font-serif font-bold">20</div>
-          <div class="text-white/60 text-sm">用户故事</div>
+          <div class="text-wheat-400 text-2xl font-serif font-bold">31</div>
+          <div class="text-white/60 text-sm">原型页面</div>
         </div>
         <div class="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
           <div class="text-wheat-400 text-2xl font-serif font-bold">3</div>
@@ -250,7 +252,7 @@ tailwind.config = {
         <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">2</div>
         <h2 class="text-2xl font-serif font-bold text-forest-800">核心角色</h2>
       </div>
-      <div class="grid md:grid-cols-3 gap-5">
+      <div class="grid md:grid-cols-4 gap-5">
         <div class="card role-card farmer p-6">
           <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-3xl mb-4">🌾</div>
           <h4 class="font-serif font-bold text-lg text-forest-700 mb-2">农户</h4>
@@ -319,6 +321,16 @@ tailwind.config = {
           <div class="mt-3 pt-3 border-t border-gray-100">
             <span class="text-xs text-gray-400">使用者：</span>
             <span class="text-xs font-medium text-amber-700">收购商（PC 端调用）</span>
+          </div>
+        </div>
+        <div class="card p-6 border-t-4 border-t-cyan-500">
+          <div class="text-sm font-semibold text-cyan-600 mb-1">终端 D</div>
+          <h4 class="font-serif font-bold text-lg mb-2">银行 App 跳转 H5</h4>
+          <p class="text-sm text-gray-500 mb-3">移动端 H5</p>
+          <p class="text-sm text-gray-600 leading-relaxed">扫码行业支付时唤起银行 App 内付款落地页（承接订单号、金额、收款方信息）</p>
+          <div class="mt-3 pt-3 border-t border-gray-100">
+            <span class="text-xs text-gray-400">原型入口：</span>
+            <span class="text-xs font-medium text-cyan-700"><code>buyer-bank-h5-pay.html</code></span>
           </div>
         </div>
       </div>
@@ -415,7 +427,7 @@ flowchart TD
     D3 --> D4
     D4 --> D5{选择支付方式}
     D5 -->|行业支付| D6[银行转账，直接到账农户银行卡]
-    D5 -->|订单付| D7[大额担保：资金冻结，收购商后续确认放款]
+    D5 -->|订单付| D7[企业网银订单付：收银台仅展示引导，企业登录网银完成支付]
     D6 --> D8[支付完成，订单完成]
     D7 --> D8
     D8 --> E1[双方在小程序查看订单记录]
@@ -436,7 +448,7 @@ flowchart TD
 stateDiagram-v2
     [*] --> 待支付: 开单生成订单
     待支付 --> 支付中: 进入收银台发起支付
-    待支付 --> 已取消: 30分钟超时自动取消
+    待支付 --> 已取消: 超过支付有效期自动取消（小程序30分钟 / PC10天）
     支付中 --> 支付成功: 银行回调成功
     支付中 --> 支付失败: 银行回调失败
     支付失败 --> 待支付: 可重新发起支付
@@ -455,8 +467,8 @@ stateDiagram-v2
         <div class="card p-4 flex items-start gap-3">
           <span class="text-lg">🔒</span>
           <div>
-            <div class="font-semibold text-sm text-forest-700">订单付（大额担保）</div>
-            <div class="text-xs text-gray-500 mt-1">资金冻结，收购商后续确认放款，适合大额交易</div>
+            <div class="font-semibold text-sm text-forest-700">订单付（企业网银）</div>
+            <div class="text-xs text-gray-500 mt-1">收银台仅做网银引导，企业登录企业网银完成订单支付</div>
           </div>
         </div>
       </div>
@@ -482,11 +494,100 @@ stateDiagram-v2
       </div>
     </section>
 
+    <!-- ========== 8. 原型同步基线 ========== -->
+    <section id="sync-baseline" class="mb-16">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">8</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">原型同步基线（2026-02-27）</h2>
+      </div>
+      <div class="card p-6">
+        <div class="space-y-2 text-sm text-gray-700">
+          <div>• 本文档以 <code>prototype/</code> 当前原型文件为唯一基线，已覆盖收购商端、农户端、PC 收银台、银行 App 扫码跳转 H5 支付页。</div>
+          <div>• MVP 已下线能力：关键词相关入口与联动能力（首页“我关注”模块、市场“我关注/只看关注”筛选、关键词设置入口）当前为<strong>保留代码、前台隐藏</strong>。</div>
+          <div>• 发布需求页口径更新：收购商与农户发布页均新增“发布地址（必填，可定位）”；收购商端字段口径为“需求标题 + 需求描述（选填）”。</div>
+          <div>• 个人信息与我的模块口径更新：顶部展示“商户名称 + 商户号（可复制）+ 身份标签（圆角）”；个人信息页移除“当前角色”。</div>
+          <div>• 市场卡片口径更新：状态统一“进行中”；数量标签去掉“约/余”字样；详情入口为卡片右侧居中下钻图标。</div>
+          <div>• 收银台口径更新：支付方式为<strong>行业支付 + 订单付</strong>；PC 端不再展示数字人民币；订单付在收银台页仅做网银登录引导。</div>
+          <div>• PC 收银台有效期口径：展示“请在 10天内完成支付（剩余 xx）”；顶部提示语“交易全程加密，请在有效期内完成支付”。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 9. 页面清单与链接核验 ========== -->
+    <section id="page-map" class="mb-16">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">9</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">页面清单与链接核验</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div class="card p-5">
+          <div class="font-serif font-bold text-forest-700 mb-3">收购商小程序页面（16）</div>
+          <div class="space-y-1.5 text-sm">
+            <div><a class="text-forest-700 hover:underline" href="./buyer-home.html">buyer-home.html</a> · 首页</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-market.html">buyer-market.html</a> · 市场</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-publish.html">buyer-publish.html</a> · 发布求购</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-demand-manage.html">buyer-demand-manage.html</a> · 收购需求管理</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-demand-detail.html">buyer-demand-detail.html</a> · 销售需求详情</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-billing.html">buyer-billing.html</a> · 开单</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-contacts.html">buyer-contacts.html</a> · 合作农户</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-farmer-add.html">buyer-farmer-add.html</a> · 新农人入驻</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-cashier.html">buyer-cashier.html</a> · 小程序收银台</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-orders.html">buyer-orders.html</a> · 付款记录</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-order-detail.html">buyer-order-detail.html</a> · 订单详情</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-notifications.html">buyer-notifications.html</a> · 消息通知</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-my.html">buyer-my.html</a> · 我的</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-profile.html">buyer-profile.html</a> · 个人信息</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-keywords.html">buyer-keywords.html</a> · 关键词设置（MVP隐藏入口）</div>
+            <div><a class="text-forest-700 hover:underline" href="./login.html">login.html</a> · 统一登录入口</div>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <div class="font-serif font-bold text-forest-700 mb-3">农户小程序页面（14）</div>
+          <div class="space-y-1.5 text-sm">
+            <div><a class="text-forest-700 hover:underline" href="./farmer-home.html">farmer-home.html</a> · 首页</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-market.html">farmer-market.html</a> · 市场</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-publish.html">farmer-publish.html</a> · 发布销售</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-demand-manage.html">farmer-demand-manage.html</a> · 销售需求管理</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-demand-detail.html">farmer-demand-detail.html</a> · 收购需求详情</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-collection.html">farmer-collection.html</a> · 收款码综合页</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-collection-records.html">farmer-collection-records.html</a> · 收款记录</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-collection-detail.html">farmer-collection-detail.html</a> · 收款详情</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-notifications.html">farmer-notifications.html</a> · 消息通知</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-my.html">farmer-my.html</a> · 我的</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-profile.html">farmer-profile.html</a> · 个人信息</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-keywords.html">farmer-keywords.html</a> · 关键词设置（MVP隐藏入口）</div>
+            <div><a class="text-forest-700 hover:underline" href="./login.html">login.html</a> · 统一登录入口</div>
+            <div><a class="text-forest-700 hover:underline" href="./index.html">index.html</a> · 演示导航页</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <div class="font-serif font-bold text-forest-700 mb-3">支付与外跳页面（3）</div>
+        <div class="grid md:grid-cols-3 gap-3 text-sm">
+          <a class="p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-white text-forest-700 hover:underline" href="./buyer-cashier.html">buyer-cashier.html<br><span class="text-xs text-gray-500">小程序收银台</span></a>
+          <a class="p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-white text-forest-700 hover:underline" href="./pc-cashier.html">pc-cashier.html<br><span class="text-xs text-gray-500">PC 收银台</span></a>
+          <a class="p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-white text-forest-700 hover:underline" href="./buyer-bank-h5-pay.html">buyer-bank-h5-pay.html<br><span class="text-xs text-gray-500">银行 App 扫码跳转 H5 支付页</span></a>
+        </div>
+      </div>
+
+      <div class="mt-4 card p-5">
+        <div class="font-serif font-bold text-forest-700 mb-2">链接核验结论</div>
+        <div class="text-sm text-gray-700 space-y-1.5">
+          <div>• 主可视化 PRD 中静态链接已核验通过：<code>PRD-收粮平台-功能模块版.html</code>、<code>需求标注-收购商农户.html</code> 可访问。</div>
+          <div>• 页面清单区 33 个跳转链接（唯一页面 31 个）已核验通过，均可访问对应原型文件。</div>
+          <div>• 页面内动态拼接链接（如 <code>${backLink}</code>）为运行时变量，不纳入静态断链判定。</div>
+        </div>
+      </div>
+    </section>
+
     <!-- ========== 分割线 ========== -->
     <div class="border-t-2 border-dashed border-wheat-300 my-16"></div>
     <div class="text-center mb-12">
       <h2 class="text-3xl font-serif font-black text-forest-800">用户故事详述</h2>
-      <p class="text-gray-500 mt-2">共 20 个用户故事，按 6 个业务阶段展开</p>
+      <p class="text-gray-500 mt-2">共 20 个用户故事（含 1 个 MVP 预留故事），按 6 个业务阶段展开</p>
     </div>
 
     <!-- ==================== 阶段一：入驻与开户 ==================== -->
@@ -680,8 +781,8 @@ stateDiagram-v2
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
               <div class="space-y-2 text-sm text-gray-600">
                 <div>• 系统根据角色<strong>自动确定</strong>需求类型：收购商 → 求购需求，农户 → 销售需求</div>
-                <div>• 表单字段：品类（必填，7类）、内容描述（必填）、数量（必填）、期望价格（选填）、补充说明（选填）、位置（必填）</div>
-                <div>• 当前原型入口：<code>buyer-publish.html</code>、<code>farmer-publish.html</code>；采用“角色说明 + 核心信息 + 交易信息 + 补充信息”分组布局，减少卡片割裂感</div>
+                <div>• 表单字段口径：品类（必填）+ 标题（必填）+ 描述（选填）+ 发布地址（必填，可定位）+ 数量（必填）+ 单价（选填）</div>
+                <div>• 当前原型入口：<code>buyer-publish.html</code>、<code>farmer-publish.html</code>；收购商端标题文案为“需求标题/需求描述”，农户端为“销售标题/描述（选填）”。</div>
                 <div>• 发布后仅<strong>对方角色</strong>可见（收购商发布 → 农户可见，反之亦然）</div>
                 <div>• 最多同时发布 <strong>20 条</strong>未关闭需求</div>
               </div>
@@ -717,15 +818,15 @@ stateDiagram-v2
               <div class="space-y-2 text-sm text-gray-600">
                 <div>• 当前原型入口：<code>buyer-market.html</code>（收购商视角）与 <code>farmer-market.html</code>（农户视角）</div>
                 <div>• 系统根据角色自动过滤：收购商只看到农户的销售需求，农户只看到收购商的求购需求（读取 <code>DemandMockStore</code> 的 active 数据）</div>
-                <div>• 收购商市场页顶部结构调整为两行：第一行<strong>搜索框 + 外置筛选按钮</strong>；第二行为轻量工具入口（筛选标签 / 只看关注 / 关键词入口 / 发布求购）</div>
-                <div>• “关注关键词”入口弱化为右侧轻入口，支持跳转关键词设置页；“只看关注”为列表快速筛选开关</div>
+                <div>• 市场页顶部结构为两行：第一行<strong>搜索框 + 外置筛选按钮</strong>；第二行展示排序与筛选工具入口。</div>
+                <div>• MVP 口径：关键词入口与“我关注/只看关注”筛选已前台隐藏（保留代码，不对用户开放）。</div>
                 <div>• 筛选由底部抽屉承载，MVP 维度：<strong>排序</strong>（最新/最近）、<strong>发布时间</strong>、<strong>品类</strong>、<strong>距离</strong></div>
                 <div>• 顶部不再展示“当前筛选：xxx”长文案，仅在有筛选条件时显示<strong>筛选数量标签</strong>（如“已筛选 2”）</div>
                 <div>• 需求卡片统一为轻量信息结构：品类标签 + 数量标签、内容、价格、发布时间、距离（仅距离，不展示完整地址）</div>
                 <div>• 卡片不展示“销售/求购”类型标签，也不展示发布者名称；收购商视角默认即为农户销售需求</div>
                 <div>• 操作区保留“联系”按钮，详情入口使用卡片右侧垂直居中的下钻图标（&gt;）</div>
                 <div>• 点击“联系”按钮 → 弹窗展示手机号，支持<strong>拨打电话</strong>和<strong>复制号码</strong></div>
-                <div>• 无匹配需求时展示空态提示（引导调整筛选或清空关键词）</div>
+                <div>• 无匹配需求时展示空态提示（引导调整筛选或清空搜索词）</div>
               </div>
             </div>
           </div>
@@ -764,8 +865,8 @@ stateDiagram-v2
           <div class="flex items-center gap-3">
             <span class="inline-flex items-center justify-center w-10 h-10 bg-emerald-600 text-white rounded-lg font-serif font-bold text-sm">06</span>
             <div>
-              <h4 class="font-serif font-bold text-forest-800">关注关键词推送</h4>
-              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 设置关注关键词，首页展示匹配需求</p>
+              <h4 class="font-serif font-bold text-forest-800">关键词能力（MVP预留）</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 关键词相关页面与筛选能力当前不对用户开放</p>
             </div>
           </div>
           <span class="arrow text-forest-400 text-xl">▶</span>
@@ -775,12 +876,9 @@ stateDiagram-v2
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
               <div class="space-y-2 text-sm text-gray-600">
-                <div>• 当前原型入口：<code>buyer-keywords.html</code>、<code>farmer-keywords.html</code></div>
-                <div>• 支持添加/删除关键词，最多 10 个；重复关键词会提示并阻止添加</div>
-                <div>• 支持推荐关键词一键添加，支持回车快速添加</div>
-                <div>• 点击"保存关键词"后持久化到 localStorage，刷新页面后自动回填</div>
-                <div>• 未设置关键词时展示空提示："未设置关键词，请添加后保存"</div>
-                <div>• 关键词用于首页关注模块与市场筛选联动（原型阶段先实现本地持久化与展示）</div>
+                <div>• 当前保留页面：<code>buyer-keywords.html</code>、<code>farmer-keywords.html</code>（用于后续版本）。</div>
+                <div>• MVP 阶段不开放关键词入口，不开放市场“我关注/只看关注”筛选，不展示首页“我关注”需求模块。</div>
+                <div>• 实现策略：前端入口隐藏、筛选逻辑禁用、代码保留（避免后续重建成本）。</div>
               </div>
             </div>
           </div>
@@ -956,8 +1054,8 @@ stateDiagram-v2
                   <div class="text-xs text-gray-600">直接到账农户银行卡，适合常规交易</div>
                 </div>
                 <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div class="font-semibold text-sm text-blue-700 mb-1">🔒 订单付（大额担保）</div>
-                  <div class="text-xs text-gray-600">资金冻结，收购商后续确认放款</div>
+                  <div class="font-semibold text-sm text-blue-700 mb-1">🔒 订单付（企业网银）</div>
+                  <div class="text-xs text-gray-600">收银台仅做支付引导，企业需登录企业网银完成订单支付</div>
                 </div>
               </div>
               <div class="space-y-2 text-sm text-gray-600 mt-3">
@@ -990,7 +1088,7 @@ stateDiagram-v2
 │  ┌────────────────────┐│
 │  │ ○ 行业支付（转账）  ││
 │  ├────────────────────┤│
-│  │ ○ 订单付（担保）    ││
+│  │ ○ 订单付（网银）    ││
 │  └────────────────────┘│
 │  ┌────────────────────┐│
 │  │     确认付款        ││
@@ -1043,14 +1141,17 @@ stateDiagram-v2
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
               <div class="space-y-2 text-sm text-gray-600">
-                <div>• 收购商 PC 端系统调用我方支付接口 → 跳转 H5 收银台页面</div>
-                <div>• H5 收银台展示与小程序收银台<strong>功能一致</strong>：订单金额、收款方、支付方式选择</div>
-                <div>• 支付超时（30 分钟）→ 订单自动取消</div>
-                <div>• 原型演示入口统一为：<code>prototype/pc-cashier.html</code>（后续以当前目录页面为准）</div>
+                <div>• 收购商 PC 端系统调用我方支付接口 → 跳转 <code>pc-cashier.html</code>。</div>
+                <div>• 顶部品牌口径：<strong>微邮付收银台</strong>；文案“交易全程加密，请在有效期内完成支付”。</div>
+                <div>• 支付方式仅保留两种：<strong>行业支付</strong>、<strong>订单付</strong>（已移除数字人民币、三方代付）。</div>
+                <div>• 行业支付：展示二维码与“行业支付信息”；点击“已完成支付”后执行支付结果查询。</div>
+                <div>• 订单付：不在收银台内直接扣款，仅展示企业网银引导（提示“请某公司登录企业网银完成订单支付”）。</div>
+                <div>• 倒计时口径：页面提示“请在 10天内完成支付（剩余 xx）”。</div>
+                <div>• App 扫码落地页入口：<code>buyer-bank-h5-pay.html</code>（手机银行侧支付承接页）。</div>
               </div>
             </div>
             <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm text-blue-700">
-              <strong>技术备注：</strong>H5 收银台由我方提供，收购商 PC 端系统通过调用我方支付接口跳转到此页面。原型阶段已将 PC 收银台页面迁移到当前目录，便于统一演示与评审。
+              <strong>技术备注：</strong>PC 收银台负责“展示订单 + 选择渠道 + 引导完成支付 + 查询支付状态”，真实支付处理依赖银行侧回调与订单状态查询接口。
             </div>
           </div>
         </div>
@@ -1241,11 +1342,11 @@ stateDiagram-v2
                   <div class="text-xs text-gray-600 mt-1">收购商 — 待支付订单超过30分钟自动取消时推送</div>
                 </div>
                 <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
-                  <div class="font-semibold text-sm text-amber-700">关键词匹配通知</div>
-                  <div class="text-xs text-gray-600 mt-1">收购商/农户 — 新需求匹配关注关键词时推送</div>
+                  <div class="font-semibold text-sm text-amber-700">需求状态变更通知</div>
+                  <div class="text-xs text-gray-600 mt-1">收购商/农户 — 需求下架、需求编辑、订单状态更新时推送</div>
                 </div>
               </div>
-              <div class="mt-3 text-xs text-gray-400">* 原型示例口径：收购商侧重点展示“需求意向 / 订单超时 / 关键词 / 支付结果”，农户侧重点展示“收款到账 / 需求意向 / 关键词”。</div>
+              <div class="mt-3 text-xs text-gray-400">* 原型示例口径：收购商侧重点展示“需求意向 / 订单超时 / 支付结果”，农户侧重点展示“收款到账 / 需求意向 / 订单状态”。</div>
             </div>
             <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm text-blue-700">
               <strong>导航备注：</strong>收购商底部导航为 首页/市场/开单/我的（4个），农户底部导航为 首页/市场/收款/我的（4个）。
@@ -1284,7 +1385,7 @@ stateDiagram-v2
                 </div>
                 <div class="p-3 bg-green-50 rounded-lg border border-green-100">
                   <div class="font-semibold text-sm text-green-700 mb-1">⚡ 快捷入口</div>
-                  <div class="text-xs text-gray-600">当前为 4 项：发布需求、常用人、订单查询、更多（占位）</div>
+                  <div class="text-xs text-gray-600">当前为 4 项：发布需求、合作农户、付款记录、消息通知</div>
                 </div>
                 <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
                   <div class="font-semibold text-sm text-blue-700 mb-1">📋 品类明细（可切换）</div>
@@ -1292,7 +1393,7 @@ stateDiagram-v2
                 </div>
                 <div class="p-3 bg-purple-50 rounded-lg border border-purple-100">
                   <div class="font-semibold text-sm text-purple-700 mb-1">🔍 需求信息模块</div>
-                  <div class="text-xs text-gray-600">包含“我关注的销售需求”与“我发布的收购需求”两个列表，卡片下钻图标统一放在右侧垂直居中；其中“我发布的收购需求”卡片不展示距离信息</div>
+                  <div class="text-xs text-gray-600">MVP 当前仅展示“我发布的收购需求”；“我关注的销售需求”入口与列表隐藏。卡片下钻图标统一放在右侧垂直居中，且“我发布”卡片不展示距离信息</div>
                 </div>
               </div>
               <div class="mt-3 text-xs text-gray-500">MVP 口径：收购商首页暂不包含“采购趋势 / 品类占比”等数据洞察模块。</div>
@@ -1309,7 +1410,7 @@ stateDiagram-v2
             <span class="inline-flex items-center justify-center w-10 h-10 bg-forest-500 text-white rounded-lg font-serif font-bold text-sm">17</span>
             <div>
               <h4 class="font-serif font-bold text-forest-800">农户首页</h4>
-              <p class="text-xs text-gray-500 mt-0.5">农户 → 小程序 → 今日收款总额、来源明细、快捷入口、需求列表、数据洞察</p>
+              <p class="text-xs text-gray-500 mt-0.5">农户 → 小程序 → 今日收款总额、快捷入口、销售需求列表</p>
             </div>
           </div>
           <span class="arrow text-forest-400 text-xl">▶</span>
@@ -1321,23 +1422,15 @@ stateDiagram-v2
               <div class="space-y-3">
                 <div class="p-3 bg-green-50 rounded-lg border border-green-100">
                   <div class="font-semibold text-sm text-green-700 mb-1">💰 今日收款总额 Hero</div>
-                  <div class="text-xs text-gray-600">展示今日收款总额 + 今日收款笔数 + 本月累计金额，支持金额脱敏切换</div>
-                </div>
-                <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                  <div class="font-semibold text-sm text-blue-700 mb-1">📋 收款来源明细（可切换）</div>
-                  <div class="text-xs text-gray-600">支持 今日 / 本月 / 本年 切换，按付款方聚合展示收款金额与笔数，点击可进入收款记录页</div>
+                  <div class="text-xs text-gray-600">展示今日收款总额 + 今日收款笔数 + 本月/本年累计，支持金额脱敏切换</div>
                 </div>
                 <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
                   <div class="font-semibold text-sm text-amber-700 mb-1">⚡ 快捷入口</div>
-                  <div class="text-xs text-gray-600">当前为 4 项：发布销售、收款码、收款记录、我的需求</div>
+                  <div class="text-xs text-gray-600">当前为 4 项：发布销售、收款码、收款记录、消息通知</div>
                 </div>
                 <div class="p-3 bg-purple-50 rounded-lg border border-purple-100">
                   <div class="font-semibold text-sm text-purple-700 mb-1">🔍 双列表模块</div>
-                  <div class="text-xs text-gray-600">包含“我关注的采购需求”（与关键词设置联动）和“我发布的销售需求”两个列表，采用统一明细容器 + 分割行布局，减少碎片化卡片</div>
-                </div>
-                <div class="p-3 bg-rose-50 rounded-lg border border-rose-100">
-                  <div class="font-semibold text-sm text-rose-700 mb-1">📈 数据洞察</div>
-                  <div class="text-xs text-gray-600">底部图表支持“收款趋势 / 方式占比”切换，默认按农户收款数据渲染</div>
+                  <div class="text-xs text-gray-600">MVP 当前仅展示“我发布的销售需求”；“我关注的采购需求”列表隐藏。卡片样式与收购商首页保持同一视觉结构。</div>
                 </div>
               </div>
               <div class="mt-3 text-xs text-gray-400">* 当前以 <code>farmer-home.html</code> 页面为原型基准，布局骨架与收购商首页保持一致，后续调整以该页面为准同步 PRD</div>
@@ -1470,6 +1563,7 @@ stateDiagram-v2
               <li>• 收粮小程序（农户+收购商）</li>
               <li>• H5 管理页面（网点客户经理）</li>
               <li>• H5 收银台（PC 端调用）</li>
+              <li>• 银行 App 扫码跳转 H5 支付页</li>
             </ul>
           </div>
           <div>
@@ -1484,7 +1578,8 @@ stateDiagram-v2
             <ul class="space-y-1 text-white/80">
               <li>• OCR 识别（营业执照/身份证/银行卡）</li>
               <li>• 双支付方式（行业支付/订单付）</li>
-              <li>• 30分钟支付超时自动取消</li>
+              <li>• 小程序待支付 30 分钟超时自动取消</li>
+              <li>• PC 收银台有效期 10 天</li>
               <li>• 微信服务通知推送</li>
             </ul>
           </div>
@@ -1495,7 +1590,7 @@ stateDiagram-v2
     <!-- 页脚 -->
     <footer class="text-center py-8 text-sm text-gray-400 border-t border-gray-200">
       <p>收粮平台 · 产品需求文档 V1.0</p>
-      <p class="mt-1">最近更新：2026-02-24 · 共 20 个用户故事 · 6 个业务阶段 · 3 个产品终端</p>
+      <p class="mt-1">最近更新：2026-02-27 · 共 20 个用户故事（含MVP预留） · 6 个业务阶段 · 4 个产品终端 · 31 个原型页面</p>
     </footer>
 
   </div><!-- /max-w-5xl -->

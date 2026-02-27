@@ -28,10 +28,13 @@
                 </div>
                 <div class="flex-1">
                     <div class="flex items-center gap-2 mb-1">
-                        <span class="text-base font-bold text-gray-800">张伟</span>
+                        <span class="text-base font-bold text-gray-800">张三的粮站</span>
                         <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">收购商</span>
                     </div>
-                    <div class="text-xs text-gray-400" style="font-family:Poppins;">6026245559 | 张三的粮站</div>
+                    <div class="text-xs text-gray-400 flex items-center gap-1.5" style="font-family:Poppins;">
+                        <span id="buyerTopMerchantNo">6026245559</span>
+                        <i class="far fa-copy text-gray-400 text-[11px] cursor-pointer active:text-primary" onclick="return copyTopMerchantNo(event, 'buyerTopMerchantNo')" title="复制商户号"></i>
+                    </div>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
             </div>
@@ -165,6 +168,39 @@ function showToast(msg) {
         div.style.transition = 'opacity 0.3s';
         setTimeout(function() { div.remove(); }, 300);
     }, 1500);
+}
+
+function copyTopMerchantNo(event, id) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    }
+    var merchantNo = (document.getElementById(id) || {}).textContent || '';
+    if (!merchantNo) {
+        showToast('未获取到商户号');
+        return false;
+    }
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(merchantNo).then(function() {
+            showToast('商户号已复制');
+        }).catch(function() {
+            showToast('复制失败，请手动复制');
+        });
+    } else {
+        var input = document.createElement('input');
+        input.value = merchantNo;
+        document.body.appendChild(input);
+        input.select();
+        try {
+            document.execCommand('copy');
+            showToast('商户号已复制');
+        } catch (e) {
+            showToast('复制失败，请手动复制');
+        }
+        document.body.removeChild(input);
+    }
+    return false;
 }
 
 // 页面加载时初始化
