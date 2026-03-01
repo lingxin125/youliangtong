@@ -224,22 +224,24 @@ document.getElementById('payerText').textContent = payerProfile.name + '（' + p
 
 ensureItems();
 syncPendingStatus();
-syncStateToStore();
 renderAll();
 startPendingTimer();
 
 function normalizeStatus(status) {
     if (mockStore && typeof mockStore.normalizeStatus === 'function') {
-        return mockStore.normalizeStatus(status);
+        const normalized = mockStore.normalizeStatus(status);
+        if (normalized) return normalized;
     }
     const map = {
+        unpaid: 'unpaid',
         pending: 'pending',
-        processing: 'processing',
+        paying: 'paying',
+        processing: 'paying',
         success: 'success',
         failed: 'failed',
         canceled: 'canceled',
-        '待支付': 'pending',
-        '支付中': 'processing',
+        '待支付': 'unpaid',
+        '支付中': 'paying',
         '支付成功': 'success',
         '支付失败': 'failed',
         '已取消': 'canceled'
@@ -316,16 +318,20 @@ function renderStatus() {
     const title = document.getElementById('statusTitle');
     const desc = document.getElementById('statusDesc');
 
-    if (state.status === 'pending') {
+    if (state.status === 'pending' || state.status === 'unpaid') {
         iconWrap.className = 'w-14 h-14 rounded-full bg-yellow-50 flex items-center justify-center mx-auto mb-2';
         icon.className = 'fas fa-clock text-yellow-500 text-2xl';
         title.className = 'text-base font-bold text-yellow-600 mb-1';
         title.textContent = '待支付';
-        desc.innerHTML = '请在30分钟内完成支付，剩余 <span class="text-red-500 font-semibold" id="statusCountdown">' + getCountdownText() + '</span>';
+        if (state.status === 'pending') {
+            desc.innerHTML = '请在30分钟内完成支付，剩余 <span class="text-red-500 font-semibold" id="statusCountdown">' + getCountdownText() + '</span>';
+        } else {
+            desc.textContent = '订单待支付，可继续支付或取消订单';
+        }
         return;
     }
 
-    if (state.status === 'processing') {
+    if (state.status === 'processing' || state.status === 'paying') {
         iconWrap.className = 'w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-2';
         icon.className = 'fas fa-spinner text-blue-500 text-2xl';
         title.className = 'text-base font-bold text-blue-600 mb-1';
@@ -404,7 +410,7 @@ function renderInfo() {
     const paidAtRow = document.getElementById('paidAtRow');
     document.getElementById('infoPayMethod').textContent = payMethodText(state.payMethod);
 
-    if (state.status === 'pending') {
+    if (state.status === 'pending' || state.status === 'unpaid' || state.status === 'paying' || state.status === 'processing') {
         payMethodRow.style.display = 'none';
     } else {
         payMethodRow.style.display = 'flex';
@@ -458,7 +464,7 @@ function syncStateToStore() {
 
 function renderBottomActions() {
     const box = document.getElementById('bottomActions');
-    if (state.status === 'pending') {
+    if (state.status === 'pending' || state.status === 'unpaid' || state.status === 'paying' || state.status === 'processing') {
         box.innerHTML = `
             <div class="flex gap-3 mt-2">
                 <button class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold text-sm rounded-2xl active:scale-[0.98] transition-transform" onclick="cancelOrder()">取消订单</button>

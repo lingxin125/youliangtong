@@ -12,11 +12,13 @@
         /* ========== 基础样式 ========== */
         .amount-paid { color: #1F2937; }
         .amount-pending { color: #D97706; }
-        .amount-cancelled { color: #9CA3AF; text-decoration: line-through; }
+        .amount-cancelled { color: #9CA3AF; }
+        .amount-paying { color: #0369A1; }
 
-        .status-paid { background: #DCFCE7; color: #166534; }
+        .status-paid { background: #DCFCE7; color: #16A34A; border: 1px solid #bbf7d0; }
         .status-pending { background: #FEFCE8; color: #CA8A04; border: 1px solid #FEF08A; }
-        .status-cancelled { background: #F3F4F6; color: #6B7280; }
+        .status-paying { background: #E0F2FE; color: #0369A1; border: 1px solid #BAE6FD; }
+        .status-cancelled { background: #F3F4F6; color: #6B7280; border: 1px solid #E5E7EB; }
         .status-failed { background: #FEE2E2; color: #DC2626; }
 
         /* ========== 筛选面板 ========== */
@@ -246,6 +248,7 @@
                     <button class="filter-option active" data-type="status" data-value="all">全部</button>
                     <button class="filter-option" data-type="status" data-value="pending">待支付</button>
                     <button class="filter-option" data-type="status" data-value="success">支付成功</button>
+                    <button class="filter-option" data-type="status" data-value="paying">支付中</button>
                     <button class="filter-option" data-type="status" data-value="failed">支付失败</button>
                     <button class="filter-option" data-type="status" data-value="canceled">已撤销</button>
                 </div>
@@ -328,7 +331,13 @@ const FilterService = {
     },
 
     setStatus(value) {
-        this.state.statuses = value === 'all' ? [] : [value];
+        if (value === 'all') {
+            this.state.statuses = [];
+        } else if (value === 'pending') {
+            this.state.statuses = ['pending', 'unpaid'];
+        } else {
+            this.state.statuses = [value];
+        }
     },
 
     setMethod(value) {
@@ -475,6 +484,8 @@ const FormatService = {
 const StatusMap = {
     success: { class: 'status-paid', text: '支付成功', amountClass: 'amount-paid' },
     pending: { class: 'status-pending', text: '待支付', amountClass: 'amount-pending' },
+    unpaid: { class: 'status-pending', text: '待支付', amountClass: 'amount-pending' },
+    paying: { class: 'status-paying', text: '支付中', amountClass: 'amount-paying' },
     canceled: { class: 'status-cancelled', text: '已取消', amountClass: 'amount-cancelled' },
     failed: { class: 'status-failed', text: '支付失败', amountClass: 'amount-cancelled' }
 };
@@ -482,7 +493,7 @@ const StatusMap = {
 const MethodMap = {
     industry: { icon: 'fa-building-columns', text: '行业支付', class: 'method-industry' },
     guarantee: { icon: 'fa-file-invoice-dollar', text: '订单付', class: 'method-guarantee' },
-    '': { icon: 'fa-clock', text: '未支付', class: '' }
+    '': { icon: 'fa-clock', text: '待付款', class: '' }
 };
 
 // ==================== UI 渲染层 ====================
@@ -492,7 +503,7 @@ const RenderService = {
         const method = MethodMap[order.payMethod] || MethodMap[''];
         const timeStr = FormatService.smartTime(order.createdAt);
         const remMs = OrderService.getRemainingMs(order);
-        const isPending = order.status === 'pending' && remMs > 0;
+        const isPending = (order.status === 'pending' && remMs > 0) || order.status === 'unpaid' || order.status === 'paying';
 
         const borderClass = isLast ? '' : 'border-b border-gray-100/50';
 
@@ -600,7 +611,7 @@ const RenderService = {
     updateCountdowns() {
         const orders = OrderService.getOrders();
         orders.forEach(order => {
-            if (order.status !== 'pending') return;
+            if (order.status !== 'pending' && order.status !== 'paying') return;
             const el = document.getElementById(`count-${order.id}`);
             if (!el) return;
 
@@ -700,9 +711,11 @@ const Actions = {
             payMethod: order.payMethod || '',
             failReason: order.failReason || '',
             paidAt: order.paidAt || '',
-            items: JSON.stringify(order.items || [])
+            items: JSON.stringify(order.items || []),
+            category: order.category || ''
         });
 
+        // 订单卡片点击统一进入订单详情页，是否继续支付由详情页内按钮决定
         window.location.href = 'buyer-order-detail.html?' + params.toString();
     },
 
@@ -710,12 +723,14 @@ const Actions = {
         const order = OrderService.findById(orderId);
         if (!order) return;
 
-        if (order.status !== 'pending') {
+        // unpaid（稍后结算）和 pending/paying（支付中）都可以继续付款
+        if (order.status !== 'pending' && order.status !== 'unpaid' && order.status !== 'paying') {
             App.showToast('当前订单状态不可继续支付');
             return;
         }
 
-        if (OrderService.getRemainingMs(order) <= 0) {
+        // unpaid 不设超时；pending/paying 有超时限制
+        if ((order.status === 'pending' || order.status === 'paying') && OrderService.getRemainingMs(order) <= 0) {
             OrderService.updateStatus(orderId, 'canceled', '超时未支付，系统自动取消');
             App.refresh();
             App.showToast('该订单已超时自动取消');
@@ -725,6 +740,7 @@ const Actions = {
         const params = new URLSearchParams({
             source: 'orders',
             orderNo: order.id,
+            status: order.status,
             amount: order.amount.toFixed(2),
             payeeName: order.payeeName,
             payeeMobile: order.payeeMobile,

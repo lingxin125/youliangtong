@@ -270,7 +270,7 @@
             </div>
             <div class="text-[20px] font-bold text-gray-800 mb-2">开户成功</div>
             <div class="text-[13px] text-gray-500 mb-8 max-w-[80%] text-center leading-relaxed">该农户已加入您的合作列表，现在可以为其开单付款了。</div>
-            <button onclick="routerBack()" class="h-11 px-8 bg-white border border-gray-200 text-gray-700 font-medium text-[15px] rounded-full shadow-sm active:bg-gray-50 transition-colors">
+            <button id="successBackBtn" onclick="routerBack()" class="h-11 px-8 bg-white border border-gray-200 text-gray-700 font-medium text-[15px] rounded-full shadow-sm active:bg-gray-50 transition-colors">
                 返回合作农户
             </button>
         </div>
@@ -279,7 +279,15 @@
 
 <script>
 document.getElementById('statusBar').innerHTML = renderStatusBar('dark');
-document.getElementById('navBar').innerHTML = renderHeader('新农户入驻', 'buyer-contacts.html', false, 'bg-transparent text-gray-800');
+const addQuery = new URLSearchParams(window.location.search);
+const backTarget = (addQuery.get('back') === 'mine' || addQuery.get('source') === 'invite')
+    ? 'buyer-my.html'
+    : 'buyer-contacts.html';
+document.getElementById('navBar').innerHTML = renderHeader('新农户入驻', backTarget, false, 'bg-transparent text-gray-800');
+const successBackBtn = document.getElementById('successBackBtn');
+if (successBackBtn && backTarget === 'buyer-my.html') {
+    successBackBtn.textContent = '返回我的';
+}
 
 let uploadStatus = {
     idFront: false,
@@ -352,7 +360,7 @@ function submitApplication() {
 }
 
 function routerBack() {
-    window.location.href = 'buyer-contacts.html';
+    window.location.href = backTarget;
 }
 
 function showToast(msg) {

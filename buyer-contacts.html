@@ -45,20 +45,11 @@
     <div id="statusBar"></div>
     <div id="navBar"></div>
 
-    <!-- 搜索框与新增按钮 -->
-    <div class="px-4 mt-3 shrink-0">
-        <div class="flex items-center gap-2.5 mb-2.5">
-            <div class="glass-card rounded-xl px-3.5 py-2.5 flex-1 flex items-center gap-2.5 border border-gray-100">
-                <i class="fas fa-search text-gray-400 text-sm"></i>
-                <input id="searchInput" type="text" placeholder="搜索全球农户..." class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
-            </div>
-            <a href="buyer-farmer-add.html" id="topAddBtn" class="shrink-0 w-[42px] h-[42px] bg-green-50 text-primary border border-green-100/60 rounded-full flex items-center justify-center shadow-sm active:scale-95 transition-transform no-underline">
-                <i class="fas fa-plus text-[16px]"></i>
-            </a>
-        </div>
-        <div id="topAddHint" class="text-[11px] text-gray-500 mb-1 pl-1 flex items-start gap-1.5 leading-relaxed">
-            <i class="fas fa-lightbulb text-orange-400 mt-[3px]"></i>
-            <span>优先搜索平台内农户，如确认农户未入驻，可点击右上角新增。</span>
+    <!-- 搜索框 -->
+    <div class="px-4 mt-3 shrink-0 mb-2.5">
+        <div class="glass-card rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 border border-gray-100">
+            <i class="fas fa-search text-gray-400 text-sm"></i>
+            <input id="searchInput" type="text" placeholder="搜索合作农户..." class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
         </div>
     </div>
 
@@ -123,9 +114,8 @@ document.getElementById('searchInput').addEventListener('input', renderList);
 if (fromBilling) {
     document.getElementById('billingActions').style.display = '';
     document.getElementById('cancelBackBtn').href = getBackHref();
-    // Hide add button and hint if picking for billing
-    document.getElementById('topAddBtn').style.display = 'none';
-    document.getElementById('topAddHint').style.display = 'none';
+} else {
+    document.getElementById('contactList').style.paddingBottom = '96px';
 }
 
 renderList();
@@ -153,7 +143,7 @@ function renderList() {
     const keyword = document.getElementById('searchInput').value.trim();
     const list = contactSource.filter(item => {
         if (!keyword) return true;
-        return item.name.includes(keyword) || item.mobile.includes(keyword) || item.card.includes(keyword);
+        return item.name.includes(keyword) || item.mobile.includes(keyword) || item.card.includes(keyword) || item.bank.includes(keyword);
     });
 
     const listContainer = document.getElementById('contactList');
@@ -168,11 +158,13 @@ function renderList() {
 
     listContainer.innerHTML = list.map((item) => {
         const selected = item.id === selectedId;
+        const cardAction = fromBilling ? `onclick="pickContact('${item.id}')"` : '';
         const rightButton = fromBilling
             ? `<button class="px-3.5 py-1.5 ${selected ? 'bg-primary' : 'bg-white border border-primary/25 text-primary'} ${selected ? 'text-white' : ''} text-[13px] font-medium rounded-full active:scale-95 transition-transform shrink-0" onclick="event.stopPropagation();pickContact('${item.id}')">${selected ? '已选中' : '选择'}</button>`
-            : `<button class="px-3.5 py-1.5 bg-primary text-white text-[13px] font-medium rounded-full shadow-[0_4px_10px_rgba(19,177,90,0.25)] active:scale-95 transition-transform shrink-0 whitespace-nowrap" onclick="event.stopPropagation();goBilling('${item.id}')">去开单 <i class="fas fa-arrow-right ml-0.5 text-[10px]"></i></button>`;
+            : '';
+        const bankCard = `${item.bank} · ${item.card}`;
         return `
-            <div class="contact-item glass-card rounded-2xl p-4 flex items-center gap-3.5 ${selected ? 'selected' : ''}" onclick="pickContact('${item.id}')">
+            <div class="contact-item glass-card rounded-2xl p-4 flex items-center gap-3.5 ${selected ? 'selected' : ''} ${fromBilling ? 'cursor-pointer' : ''}" ${cardAction}>
                 <!-- 左侧通用头像 (改为绿色系) -->
                 <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center shrink-0 border border-green-100/60 self-start mt-0.5">
                     <i class="fas fa-user text-primary/80 text-[20px]"></i>
@@ -184,12 +176,12 @@ function renderList() {
                         <span class="inline-block text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-primary font-medium border border-green-100/60 mt-[1px]">付款${item.payCount}次</span>
                     </div>
                     <div class="text-[14px] font-medium text-gray-600 tracking-wide" style="font-family:Poppins,monospace;">${item.mobile}</div>
-                    <div class="text-[12px] text-gray-400/80 font-medium tracking-wide" style="font-family:Poppins,monospace;">${item.card}</div>
+                    <div class="flex items-center gap-1.5 text-[12px] text-gray-400/90 font-medium tracking-wide" style="font-family:Poppins,monospace;">
+                        <i class="fas fa-building-columns text-[10px] text-gray-400"></i>
+                        <span>${bankCard}</span>
+                    </div>
                 </div>
-                <!-- 右侧操作区 -->
-                <div class="shrink-0 flex items-center self-stretch pt-2">
-                    ${rightButton}
-                </div>
+                ${fromBilling ? `<div class="shrink-0 flex items-center self-stretch pt-2">${rightButton}</div>` : ''}
             </div>
         `;
     }).join('');
@@ -199,20 +191,6 @@ function pickContact(id) {
     if (!fromBilling) return;
     selectedId = id;
     renderList();
-}
-
-function goBilling(id) {
-    const contact = contactSource.find(item => item.id === id);
-    if (!contact) return;
-    const params = new URLSearchParams({
-        mode: 'detail',
-        picked: '1',
-        payeeName: contact.name,
-        payeeMobile: contact.mobile,
-        payeeBank: contact.bank,
-        payeeCard: contact.card
-    });
-    window.location.href = 'buyer-billing.html?' + params.toString();
 }
 
 function confirmPick() {

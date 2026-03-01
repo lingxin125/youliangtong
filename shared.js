@@ -750,7 +750,7 @@ if (typeof window !== "undefined") {
     var list = loadOrdersRaw();
     list.forEach(function (order) {
       if (
-        order.status === "pending" &&
+        (order.status === "pending" || order.status === "paying") &&
         getOrderRemainingMs(order, timeoutMinutes) <= 0
       ) {
         order.status = "canceled";

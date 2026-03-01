@@ -207,6 +207,7 @@ const predefinedPayMethod = params.get('payMethod') || 'industry'; // 'industry'
 
 const state = {
     source: params.get('source') || 'billing',
+    status: params.get('status') || 'paying',
     orderNo: params.get('orderNo') || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
     amount: parseFloat(params.get('amount')) || 38500.00,
     payeeName: params.get('payeeName') || '李大姐',
@@ -275,7 +276,7 @@ function ensureOrderInStore() {
     if (!mockStore || typeof mockStore.upsertOrder !== 'function') return;
     mockStore.upsertOrder({
         id: state.orderNo,
-        status: 'pending',
+        status: state.status,
         payeeName: state.payeeName,
         payeeMobile: state.payeeMobile,
         payeeBank: state.payeeBank,

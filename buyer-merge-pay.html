@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邮粮通 - 合并付款</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js?v=2"></script>
+    <style>
+        /* ========== Tab 页签（与收购需求管理一致） ========== */
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #E5E7EB;
+            background: transparent;
+        }
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6B7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .tab-item.active {
+            color: #11A64A;
+            font-weight: 600;
+        }
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: #11A64A;
+            border-radius: 2px 2px 0 0;
+        }
+
+        /* ========== 订单卡片（与付款记录二级卡片一致） ========== */
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            overflow: hidden;
+            transition: all 0.15s;
+        }
+        .order-card:active { background: #FAFAFA; }
+
+        .status-pending { background: #FEFCE8; color: #CA8A04; border: 1px solid #FEF08A; }
+        .status-paid { background: #DCFCE7; color: #166534; }
+        .amount-pending { color: #D97706; }
+        .amount-paid { color: #1F2937; }
+
+        /* ========== 勾选框 ========== */
+        .check-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #D1D5DB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .check-circle.checked {
+            border-color: #11A64A;
+            background: #11A64A;
+        }
+        .check-circle.checked i { display: block; }
+        .check-circle i { display: none; color: white; font-size: 9px; }
+
+        /* ========== 底部操作栏 ========== */
+        .bottom-bar {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-top: 1px solid #F3F4F6;
+            padding: 10px 16px;
+            z-index: 10;
+        }
+
+        /* ========== 合并记录（与付款记录一二级卡片一致） ========== */
+        .merged-group-card {
+            background: linear-gradient(145deg, rgba(17, 166, 74, 0.06) 0%, #FFFFFF 100%) !important;
+            border: 1px solid rgba(17, 166, 74, 0.12);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .merged-sub-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .merged-sub-list.expanded {
+            max-height: 2000px;
+        }
+        .expand-icon {
+            transition: transform 0.2s ease;
+        }
+
+        /* ========== Toast ========== */
+        .toast-tip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75);
+            color: white;
+            padding: 10px 22px;
+            border-radius: 16px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 300;
+            white-space: nowrap;
+        }
+        .toast-tip.show { opacity: 1; }
+
+        /* ========== 应用内弹窗 ========== */
+        .app-modal-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 400;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden;
+            transition: all 0.25s ease;
+        }
+        .app-modal-overlay.show { opacity: 1; visibility: visible; }
+        .app-modal {
+            background: #fff; border-radius: 16px; width: 280px;
+            padding: 24px 20px 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            transform: scale(0.9); transition: transform 0.25s ease;
+        }
+        .app-modal-overlay.show .app-modal { transform: scale(1); }
+        .app-modal-title { font-size: 15px; font-weight: 600; color: #1F2937; text-align: center; margin-bottom: 16px; }
+        .app-modal-msg { font-size: 13px; color: #4B5563; text-align: center; margin-bottom: 18px; line-height: 1.5; }
+        .app-modal-btns { display: flex; gap: 10px; }
+        .app-modal-btn {
+            flex: 1; padding: 10px 0; border-radius: 10px; font-size: 14px;
+            font-weight: 500; text-align: center; cursor: pointer; border: none; transition: all 0.15s;
+        }
+        .app-modal-btn:active { transform: scale(0.96); }
+        .app-modal-btn-cancel { background: #F3F4F6; color: #6B7280; }
+        .app-modal-btn-confirm { background: #11A64A; color: #fff; }
+    </style>
+</head>
+<body>
+<div class="mobile-container" style="position:relative; overflow:hidden; display:flex; flex-direction:column;">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- Tab 切换（与收购需求管理一致） -->
+    <div class="-mx-0">
+        <div class="tab-container">
+            <div id="tabUnpaid" class="tab-item active" onclick="switchTab('unpaid')">
+                待付款 (<span id="countUnpaid">0</span>)
+            </div>
+            <div id="tabMerged" class="tab-item" onclick="switchTab('merged')">
+                已合并 (<span id="countMerged">0</span>)
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 待付款面板 ==================== -->
+    <div id="panelUnpaid" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3 space-y-2.5" style="padding-bottom:72px;">
+        <!-- 空状态 -->
+        <div id="emptyUnpaid" class="text-center pt-16 hidden">
+            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-receipt text-gray-300 text-2xl"></i>
+            </div>
+            <div class="text-[14px] text-gray-500 font-medium">暂无待付款订单</div>
+            <div class="text-[11px] text-gray-400 mt-1">开单时选择「稍后结算」将在此显示</div>
+        </div>
+        <!-- 订单卡片由 JS 渲染 -->
+        <div id="unpaidList"></div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div id="bottomBar" class="bottom-bar flex items-center justify-between">
+        <label class="flex items-center gap-2 cursor-pointer" onclick="toggleSelectAll()">
+            <div class="check-circle" id="selectAllCheck">
+                <i class="fas fa-check"></i>
+            </div>
+            <span class="text-[13px] text-gray-600">全选</span>
+        </label>
+        <div class="flex items-center gap-3">
+            <div class="text-right" id="bottomSummary">
+                <div class="text-[11px] text-gray-400">合计</div>
+                <div class="flex items-end gap-2 justify-end">
+                    <div class="text-[15px] font-bold text-gray-800" style="font-family:Poppins;" id="bottomAmount">¥0.00</div>
+                    <div class="text-[12px] text-gray-500 font-semibold" id="bottomCount">0笔</div>
+                </div>
+            </div>
+            <button onclick="doMergePay()" class="px-5 py-2.5 bg-primary text-white font-semibold text-[13px] rounded-xl active:scale-[0.98] transition-transform shadow-glow disabled:opacity-50" id="mergePayBtn" disabled>
+                确认付款
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== 已合并面板 ==================== -->
+    <div id="panelMerged" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3 space-y-3 hidden" style="padding-bottom:24px;">
+        <div id="emptyMerged" class="text-center pt-16 hidden">
+            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-layer-group text-gray-300 text-2xl"></i>
+            </div>
+            <div class="text-[14px] text-gray-500 font-medium">暂无合并记录</div>
+        </div>
+        <div id="mergedList"></div>
+    </div>
+
+    <!-- 弹窗 -->
+    <div class="app-modal-overlay" id="appModalOverlay">
+        <div class="app-modal">
+            <div class="app-modal-title" id="appModalTitle"></div>
+            <div id="appModalBody"></div>
+            <div class="app-modal-btns" id="appModalBtns"></div>
+        </div>
+    </div>
+    <div id="toastTip" class="toast-tip"></div>
+</div>
+
+<script>
+// ==================== 初始化 ====================
+document.getElementById('statusBar').innerHTML = renderStatusBar('dark');
+const urlQs = new URLSearchParams(window.location.search);
+const backLink = urlQs.get('source') === 'home' ? 'buyer-home.html' : 'buyer-my.html';
+document.getElementById('navBar').innerHTML = renderHeader('合并付款', backLink, false, 'bg-white text-gray-800 border-b border-gray-100');
+
+const mockStore = window.BuyerMockStore || null;
+
+// ==================== 状态管理 ====================
+const state = {
+    currentTab: 'unpaid',
+    selectedIds: new Set(),
+    unpaidOrders: [],
+    mergedOrders: []
+};
+
+// ==================== 数据加载 ====================
+function loadData() {
+    const allOrders = mockStore ? mockStore.getOrders() : [];
+
+    // 待付款：status 为 unpaid 或 pending 的订单
+    state.unpaidOrders = allOrders.filter(o => o.status === 'unpaid' || o.status === 'pending');
+
+    // 已合并：从 localStorage 读取
+    const mergedRaw = localStorage.getItem('MERGED_ORDERS');
+    state.mergedOrders = mergedRaw ? JSON.parse(mergedRaw) : [];
+
+    // 清除失效的选中项
+    state.selectedIds = new Set(
+        [...state.selectedIds].filter(id => state.unpaidOrders.some(o => o.id === id))
+    );
+}
+
+// ==================== Tab 切换 ====================
+function switchTab(tab) {
+    state.currentTab = tab;
+    document.getElementById('tabUnpaid').classList.toggle('active', tab === 'unpaid');
+    document.getElementById('tabMerged').classList.toggle('active', tab === 'merged');
+    document.getElementById('panelUnpaid').classList.toggle('hidden', tab !== 'unpaid');
+    document.getElementById('panelMerged').classList.toggle('hidden', tab !== 'merged');
+    render();
+}
+
+// ==================== 勾选 ====================
+function toggleSelect(orderId, e) {
+    if (e) e.stopPropagation();
+    if (state.selectedIds.has(orderId)) {
+        state.selectedIds.delete(orderId);
+    } else {
+        state.selectedIds.add(orderId);
+    }
+    render();
+}
+
+function toggleSelectAll() {
+    const allIds = state.unpaidOrders.map(o => o.id);
+    const allSelected = allIds.length > 0 && allIds.every(id => state.selectedIds.has(id));
+    if (allSelected) {
+        state.selectedIds.clear();
+    } else {
+        allIds.forEach(id => state.selectedIds.add(id));
+    }
+    render();
+}
+
+// ==================== 格式化工具 ====================
+function fmt(value) {
+    return (value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function smartTime(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const now = new Date();
+    const h = String(d.getHours()).padStart(2, '0');
+    const m = String(d.getMinutes()).padStart(2, '0');
+    const s = String(d.getSeconds()).padStart(2, '0');
+    const mo = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const diffDays = Math.floor((now - d) / 86400000);
+
+    if (diffDays === 0) return `${h}:${m}:${s}`;
+    if (diffDays === 1) return `昨天 ${h}:${m}:${s}`;
+    if (diffDays === 2) return `前天 ${h}:${m}:${s}`;
+    if (now.getFullYear() === d.getFullYear()) return `${mo}-${dd} ${h}:${m}:${s}`;
+    return `${d.getFullYear()}-${mo}-${dd} ${h}:${m}:${s}`;
+}
+
+// ==================== 渲染 ====================
+function render() {
+    renderUnpaidList();
+    renderMergedList();
+    renderBottomBar();
+    renderCounts();
+}
+
+function renderCounts() {
+    document.getElementById('countUnpaid').textContent = state.unpaidOrders.length;
+    document.getElementById('countMerged').textContent = state.mergedOrders.length;
+}
+
+function renderBottomBar() {
+    const bottomBar = document.getElementById('bottomBar');
+    const shouldShowBottom = state.currentTab === 'unpaid' && state.unpaidOrders.length > 0;
+    bottomBar.classList.toggle('hidden', !shouldShowBottom);
+    if (!shouldShowBottom) return;
+
+    const selected = state.unpaidOrders.filter(o => state.selectedIds.has(o.id));
+    const count = selected.length;
+    const amount = selected.reduce((sum, o) => sum + o.amount, 0);
+
+    document.getElementById('bottomAmount').textContent = '¥' + fmt(amount);
+    document.getElementById('bottomCount').textContent = count + '笔';
+
+    const btn = document.getElementById('mergePayBtn');
+    btn.disabled = count === 0;
+    btn.textContent = '确认付款';
+
+    // 全选框
+    const allIds = state.unpaidOrders.map(o => o.id);
+    const allSelected = allIds.length > 0 && allIds.every(id => state.selectedIds.has(id));
+    document.getElementById('selectAllCheck').classList.toggle('checked', allSelected);
+}
+
+function renderUnpaidList() {
+    const container = document.getElementById('unpaidList');
+    const empty = document.getElementById('emptyUnpaid');
+
+    if (state.unpaidOrders.length === 0) {
+        container.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+    }
+    empty.classList.add('hidden');
+
+    // 与付款记录二级卡片一致的样式
+    container.innerHTML = state.unpaidOrders.map(order => {
+        const isSelected = state.selectedIds.has(order.id);
+        const timeStr = smartTime(order.createdAt);
+        return `
+            <div class="order-card mb-2.5 ${isSelected ? 'ring-1 ring-primary/30' : ''}">
+                <div class="flex items-stretch">
+                    <!-- 勾选区域 -->
+                    <div class="flex items-center pl-3 pr-1" onclick="toggleSelect('${order.id}', event)">
+                        <div class="check-circle ${isSelected ? 'checked' : ''}">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <!-- 订单内容（点击进入详情） -->
+                    <div class="flex-1 px-3 py-3.5 cursor-pointer active:bg-gray-50 transition-colors" onclick="goOrderDetail('${order.id}')">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="text-[15px] text-gray-800 font-semibold" style="font-family:Poppins, sans-serif;">
+                                ${timeStr}
+                            </div>
+                            <div class="status-pending text-[11px] px-2 py-0.5 rounded-md font-medium">待支付</div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-[13px] text-gray-500 font-medium flex items-center gap-1.5">
+                                <div class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                                    <i class="fas fa-user text-[10px] text-gray-400"></i>
+                                </div>
+                                付给 ${order.payeeName || '未知'}
+                            </div>
+                            <div class="text-[18px] font-bold amount-pending" style="font-family:Poppins;">
+                                ¥${fmt(order.amount)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderMergedList() {
+    const container = document.getElementById('mergedList');
+    const empty = document.getElementById('emptyMerged');
+
+    if (state.mergedOrders.length === 0) {
+        container.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+    }
+    empty.classList.add('hidden');
+
+    container.innerHTML = state.mergedOrders.map((merged, idx) => {
+        // 子订单（与付款记录二级卡片样式一致）
+        const subHtml = merged.subOrders.map((sub, subIdx) => {
+            const isLast = subIdx === merged.subOrders.length - 1;
+            const borderClass = isLast ? '' : 'border-b border-gray-100/50';
+            return `
+                <div class="px-3.5 py-4 ${borderClass} cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors" onclick="goOrderDetail('${sub.id}')">
+                    <div class="flex justify-between items-center mb-2.5">
+                        <div class="text-[15px] text-gray-800 font-semibold" style="font-family:Poppins, sans-serif;">
+                            ${smartTime(sub.createdAt || merged.createdAt)}
+                        </div>
+                        <div class="status-paid text-[11px] px-2 py-0.5 rounded-md font-medium">支付成功</div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="text-[13px] text-gray-500 font-medium flex items-center gap-1.5">
+                            <div class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                                <i class="fas fa-user text-[10px] text-gray-400"></i>
+                            </div>
+                            付给 ${sub.payeeName || ''}
+                        </div>
+                        <div class="text-[18px] font-bold amount-paid" style="font-family:Poppins;">
+                            ¥${fmt(sub.amount)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const payeeCount = countUniquePayees(merged.subOrders);
+
+        // 一级卡片头部（展示核心汇总信息）
+        return `
+            <div class="merged-group-card mb-3">
+                <div class="px-4 py-3.5 pr-10 relative cursor-pointer" onclick="toggleMerged(${idx})">
+                    <i id="micon-${idx}" class="fas fa-chevron-down text-gray-400 text-[13px] absolute right-4 top-1/2 -translate-y-1/2 transition-transform duration-200"></i>
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2 text-gray-800">
+                            <span class="text-[15px] font-semibold" style="font-family:Poppins, sans-serif;">${smartMergedTime(merged.createdAt)}</span>
+                        </div>
+                        <span class="status-paid text-[11px] px-2 py-0.5 rounded-md font-medium">已完成</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-[12px] text-gray-500 font-medium">合计</span>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-[20px] font-bold text-gray-900" style="font-family:Poppins; line-height: 1;">¥${fmt(merged.totalAmount)}</span>
+                            <span class="text-[12px] text-gray-500 font-medium whitespace-nowrap">共 ${merged.subOrders.length} 笔</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="msub-${idx}" class="merged-sub-list">
+                    <div class="bg-white px-3 pb-3 rounded-b-xl">
+                        ${subHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// 展开/收起已合并订单
+function toggleMerged(idx) {
+    const list = document.getElementById('msub-' + idx);
+    const icon = document.getElementById('micon-' + idx);
+    const isExpanded = list.classList.toggle('expanded');
+    icon.style.transform = isExpanded ? 'rotate(180deg)' : '';
+}
+
+// 格式化合并订单日期（与付款记录一致）
+function formatMergedDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${d.getFullYear()}年${String(d.getMonth() + 1).padStart(2, '0')}月${String(d.getDate()).padStart(2, '0')}日`;
+}
+
+function smartMergedTime(iso) {
+    if (!iso) return '';
+    const target = new Date(iso);
+    const now = new Date();
+    
+    // 清除时间时分秒，仅保留日期，计算相差天数
+    const targetDate = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const diffTime = nowDate - targetDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    const hh = String(target.getHours()).padStart(2, '0');
+    const mm = String(target.getMinutes()).padStart(2, '0');
+    const ss = String(target.getSeconds()).padStart(2, '0');
+    const timeStr = `${hh}:${mm}:${ss}`;
+    
+    if (diffDays === 0) {
+        return `${timeStr}`;
+    } else if (diffDays === 1) {
+        return `昨天 ${timeStr}`;
+    } else if (diffDays === 2) {
+        return `前天 ${timeStr}`;
+    } else {
+        return `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-${String(target.getDate()).padStart(2, '0')} ${timeStr}`;
+    }
+}
+
+function countUniquePayees(subOrders) {
+    const set = new Set((subOrders || []).map(o => (o.payeeName || '').trim()).filter(Boolean));
+    return set.size;
+}
+
+// ==================== 详情跳转 ====================
+function goOrderDetail(orderId) {
+    // 从 mockStore 查找完整订单数据
+    const allOrders = mockStore ? mockStore.getOrders() : [];
+    const order = allOrders.find(o => o.id === orderId);
+
+    if (!order) {
+        showToast('订单不存在');
+        return;
+    }
+
+    const params = new URLSearchParams({
+        source: 'merge',
+        orderNo: order.id,
+        amount: order.amount.toFixed(2),
+        payeeName: order.payeeName || '',
+        payeeMobile: order.payeeMobile || '',
+        payeeBank: order.payeeBank || '',
+        payeeCard: order.payeeCard || '',
+        summary: order.summary || '',
+        createdAt: order.createdAt || '',
+        status: order.status || '',
+        payMethod: order.payMethod || '',
+        items: JSON.stringify(order.items || []),
+        category: order.category || ''
+    });
+
+    // 订单卡片点击统一进入订单详情页，是否继续支付由详情页内按钮决定
+    window.location.href = 'buyer-order-detail.html?' + params.toString();
+}
+
+// ==================== 合并付款 ====================
+function doMergePay() {
+    if (state.selectedIds.size === 0) {
+        showToast('请至少选择一笔订单');
+        return;
+    }
+
+    const selected = state.unpaidOrders.filter(o => state.selectedIds.has(o.id));
+    const totalAmount = selected.reduce((sum, o) => sum + o.amount, 0);
+
+    showAppModal({
+        title: '确认合并付款',
+        message: `本次将合并支付 <b>${selected.length}</b> 笔订单<br>合计金额 <b style="font-family:Poppins; color:#11A64A;">¥${fmt(totalAmount)}</b>`,
+        confirmText: '确认付款',
+        onConfirm: function() { executeMergePay(selected, totalAmount); }
+    });
+}
+
+function executeMergePay(orders, totalAmount) {
+    // 生成合并订单
+    const mergedOrder = {
+        id: 'HB' + Date.now(),
+        status: 'paid',
+        totalAmount: totalAmount,
+        createdAt: new Date().toISOString(),
+        subOrders: orders.map(o => ({
+            id: o.id,
+            summary: o.summary,
+            amount: o.amount,
+            payeeName: o.payeeName,
+            category: o.category,
+            createdAt: o.createdAt
+        }))
+    };
+
+    // 更新子订单状态
+    if (mockStore) {
+        orders.forEach(o => {
+            if (mockStore.updateOrder) {
+                mockStore.updateOrder(o.id, { status: 'success', payMethod: 'industry' });
+            }
+        });
+    }
+
+    // 保存合并记录
+    state.mergedOrders.unshift(mergedOrder);
+    localStorage.setItem('MERGED_ORDERS', JSON.stringify(state.mergedOrders));
+
+    // 清除选中 + 刷新
+    state.selectedIds.clear();
+    loadData();
+    render();
+    showToast('合并付款成功，共 ' + orders.length + ' 笔');
+}
+
+// ==================== 弹窗 ====================
+function showAppModal({ title, message, confirmText, onConfirm }) {
+    document.getElementById('appModalTitle').textContent = title || '';
+    document.getElementById('appModalBody').innerHTML = message ? `<div class="app-modal-msg">${message}</div>` : '';
+    document.getElementById('appModalBtns').innerHTML = `
+        <button class="app-modal-btn app-modal-btn-cancel" onclick="closeAppModal()">取消</button>
+        <button class="app-modal-btn app-modal-btn-confirm" id="appModalConfirmBtn">${confirmText || '确定'}</button>
+    `;
+    document.getElementById('appModalConfirmBtn').onclick = function() {
+        if (onConfirm) onConfirm();
+        closeAppModal();
+    };
+    document.getElementById('appModalOverlay').classList.add('show');
+}
+
+function closeAppModal() {
+    document.getElementById('appModalOverlay').classList.remove('show');
+}
+
+function showToast(msg) {
+    const tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => tip.classList.remove('show'), 2000);
+}
+
+// ==================== 启动 ====================
+loadData();
+render();
+</script>
+</body>
+</html>

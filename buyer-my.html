@@ -9,6 +9,63 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="shared.js"></script>
+    <style>
+        .invite-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 90;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .invite-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .invite-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .invite-modal-overlay.show .invite-modal-sheet {
+            transform: translateY(0);
+        }
+        .invite-qr-box {
+            width: 230px;
+            height: 230px;
+            border-radius: 16px;
+            border: 1px solid rgba(17, 166, 74, 0.18);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 4px 14px rgba(17, 166, 74, 0.12);
+        }
+        .invite-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #11A64A;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(17, 166, 74, 0.06);
+            border: 1px solid rgba(17, 166, 74, 0.12);
+        }
+        .invite-link:active {
+            transform: scale(0.98);
+        }
+    </style>
 </head>
 <body>
 <div class="mobile-container">
@@ -67,6 +124,17 @@
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
             <div class="h-px bg-gray-100 mx-4"></div>
+            <!-- 邀请农户 -->
+            <a href="#" onclick="return openInviteModal(event)" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center">
+                        <i class="fas fa-user-plus text-teal-600 text-sm"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">邀请农户</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-100 mx-4"></div>
             <!-- 帮助与反馈 -->
             <a href="#" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
@@ -119,6 +187,31 @@
         </div>
     </div>
 
+    <!-- 邀请农户弹窗 -->
+    <div id="inviteModal" class="invite-modal-overlay" onclick="closeInviteModal()">
+        <div class="invite-modal-sheet" onclick="event.stopPropagation()">
+            <div class="mb-3">
+                <div class="text-[16px] font-semibold text-gray-800">邀请农户注册</div>
+            </div>
+            <div class="text-[12px] text-gray-500 leading-relaxed mb-3">
+                将二维码发送给农户，农户扫码后进入新农户入驻页面完成注册。
+            </div>
+            <div class="invite-qr-box">
+                <canvas id="inviteQrCanvas" width="210" height="210"></canvas>
+            </div>
+            <div class="text-[11px] text-gray-400 text-center mt-2">演示二维码图例（用于原型跳转）</div>
+
+            <button class="w-full h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-transform mt-4" onclick="saveInviteQr()">保存二维码</button>
+
+            <a id="inviteQuickLink" href="buyer-farmer-add.html?source=invite" class="invite-link mt-3" style="display:flex;">
+                <i class="fas fa-arrow-up-right-from-square text-[11px]"></i>
+                <span>快捷跳转：前往新农户入驻页</span>
+            </a>
+
+            <button class="w-full h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform mt-3" onclick="closeInviteModal()">关闭</button>
+        </div>
+    </div>
+
     <!-- 底部导航栏 -->
     <div id="tabBar"></div>
 </div>
@@ -159,7 +252,7 @@ function showToast(msg) {
     if (existing) existing.remove();
 
     var div = document.createElement('div');
-    div.className = 'toast-msg fixed left-1/2 -translate-x-1/2 bottom-24 px-4 py-2 bg-black/80 text-white text-xs rounded-lg z-50';
+    div.className = 'toast-msg fixed left-1/2 -translate-x-1/2 bottom-24 px-4 py-2 bg-black/80 text-white text-xs rounded-lg z-[120]';
     div.textContent = msg;
     document.body.appendChild(div);
 
@@ -201,6 +294,135 @@ function copyTopMerchantNo(event, id) {
         document.body.removeChild(input);
     }
     return false;
+}
+
+function getInviteUrl() {
+    var merchantNo = ((document.getElementById('buyerTopMerchantNo') || {}).textContent || '').trim();
+    var inviteUrl = new URL('buyer-farmer-add.html', window.location.href);
+    inviteUrl.searchParams.set('source', 'invite');
+    inviteUrl.searchParams.set('back', 'mine');
+    if (merchantNo) {
+        inviteUrl.searchParams.set('inviter', merchantNo);
+    }
+    return inviteUrl.toString();
+}
+
+function openInviteModal(event) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+    }
+    var modal = document.getElementById('inviteModal');
+    if (!modal) return false;
+    modal.classList.add('show');
+    renderInviteQr();
+    return false;
+}
+
+function closeInviteModal() {
+    var modal = document.getElementById('inviteModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function renderInviteQr() {
+    var canvas = document.getElementById('inviteQrCanvas');
+    var quickLink = document.getElementById('inviteQuickLink');
+    if (!canvas) return;
+
+    var inviteUrl = getInviteUrl();
+    if (quickLink) {
+        quickLink.href = inviteUrl;
+    }
+    drawMockQr(canvas, inviteUrl);
+}
+
+function drawMockQr(canvas, content) {
+    var ctx = canvas.getContext('2d');
+    var size = canvas.width;
+    var modules = 29;
+    var cell = Math.floor(size / modules);
+    var offset = Math.floor((size - cell * modules) / 2);
+    var reserved = [];
+    var x;
+    var y;
+
+    for (y = 0; y < modules; y += 1) {
+        reserved[y] = [];
+        for (x = 0; x < modules; x += 1) {
+            reserved[y][x] = false;
+        }
+    }
+
+    function markFinder(startX, startY) {
+        var ix;
+        var iy;
+        for (iy = -1; iy <= 7; iy += 1) {
+            for (ix = -1; ix <= 7; ix += 1) {
+                var rx = startX + ix;
+                var ry = startY + iy;
+                if (rx >= 0 && rx < modules && ry >= 0 && ry < modules) {
+                    reserved[ry][rx] = true;
+                }
+            }
+        }
+        for (iy = 0; iy < 7; iy += 1) {
+            for (ix = 0; ix < 7; ix += 1) {
+                var px = startX + ix;
+                var py = startY + iy;
+                var isOuter = ix === 0 || ix === 6 || iy === 0 || iy === 6;
+                var isInner = ix >= 2 && ix <= 4 && iy >= 2 && iy <= 4;
+                var black = isOuter || isInner;
+                ctx.fillStyle = black ? '#111827' : '#FFFFFF';
+                ctx.fillRect(offset + px * cell, offset + py * cell, cell, cell);
+            }
+        }
+    }
+
+    function hashSeed(text) {
+        var seed = 0;
+        for (var i = 0; i < text.length; i += 1) {
+            seed = (seed * 131 + text.charCodeAt(i)) % 2147483647;
+        }
+        return seed || 97;
+    }
+
+    var seed = hashSeed(content);
+    function random() {
+        seed = (seed * 48271) % 2147483647;
+        return seed / 2147483647;
+    }
+
+    ctx.clearRect(0, 0, size, size);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, size, size);
+
+    markFinder(0, 0);
+    markFinder(modules - 7, 0);
+    markFinder(0, modules - 7);
+
+    for (x = 8; x < modules - 8; x += 1) {
+        reserved[6][x] = true;
+        reserved[x][6] = true;
+        ctx.fillStyle = x % 2 === 0 ? '#111827' : '#FFFFFF';
+        ctx.fillRect(offset + x * cell, offset + 6 * cell, cell, cell);
+        ctx.fillRect(offset + 6 * cell, offset + x * cell, cell, cell);
+    }
+
+    for (y = 0; y < modules; y += 1) {
+        for (x = 0; x < modules; x += 1) {
+            if (reserved[y][x]) continue;
+            if (random() > 0.5) {
+                ctx.fillStyle = '#111827';
+                ctx.fillRect(offset + x * cell, offset + y * cell, cell, cell);
+            }
+        }
+    }
+}
+
+function saveInviteQr() {
+    // 原型演示：不触发真实下载，避免在部分浏览器/本地协议下跳白页
+    showToast('保存成功');
 }
 
 // 页面加载时初始化

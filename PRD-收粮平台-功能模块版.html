@@ -145,10 +145,17 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="font-medium text-forest-700">开单</td>
-              <td>明细开单、快捷开单、扫码、常用商户</td>
+              <td>明细开单、快捷开单、扫码、合作农户选择</td>
               <td>明细模式按商品累计金额；快捷模式直接以总额生成订单草稿</td>
               <td>底部弹层必须互斥；同一时刻只允许一个弹层打开</td>
               <td>扫码失败、商户不存在、金额非法需即时阻断并提示</td>
+            </tr>
+            <tr>
+              <td class="font-medium text-forest-700">合作农户</td>
+              <td>合作农户搜索、合作关系展示、开单场景选择</td>
+              <td>只读取与当前收购商存在支付/交易关系的农户；支持姓名/手机号/卡号/银行本地搜索</td>
+              <td>不开放手工新增农户（风险控制）；普通浏览态不展示“去开单”按钮</td>
+              <td>无历史合作数据时展示空态并提示“完成首笔付款后自动累计”</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">收银台</td>
@@ -166,9 +173,9 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="font-medium text-forest-700">我的</td>
-              <td>个人信息、通知、设置入口</td>
-              <td>个人信息只读，消息按业务事件落库/推送</td>
-              <td>修改主体资料需走线下或管理端审核流程</td>
+              <td>个人信息、邀请农户、通知、设置入口</td>
+              <td>个人信息只读；邀请农户通过二维码外发到入驻页；消息按业务事件落库/推送</td>
+              <td>二维码默认落地 <code>buyer-farmer-add.html?source=invite</code>；修改主体资料需走线下或管理端审核流程</td>
               <td>通知读取失败不影响主业务交易链路</td>
             </tr>
           </tbody>
@@ -418,9 +425,9 @@ tailwind.config = {
               <td>MVP 不开放前台入口；后续版本用于关注匹配与个性化通知</td>
             </tr>
             <tr>
-              <td class="font-medium text-forest-700">常用商户</td>
-              <td>relationId、buyerId、farmerId、payCount、lastPayAt</td>
-              <td>由支付成功事件驱动累计，开单时按次数排序</td>
+              <td class="font-medium text-forest-700">合作农户关系</td>
+              <td>relationId、buyerId、farmerId、payCount、lastPayAt、source</td>
+              <td>由支付成功事件驱动累计；仅系统自动沉淀关系，不支持收购商手工新增</td>
             </tr>
           </tbody>
         </table>
