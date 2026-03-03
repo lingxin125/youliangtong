@@ -94,6 +94,7 @@ tailwind.config = {
           <div>• 目标：给技术团队明确每个终端的模块功能、关键流程、状态流转、参数约定和接口边界。</div>
           <div>• 边界：只覆盖 MVP 范围内已确定功能，不展开 UI 实现细节和非 MVP 增强项。</div>
           <div>• 对接原则：同一业务实体在不同终端口径一致；状态机一致；错误码与文案口径一致。</div>
+          <div>• 开户口径（2026-03）：收购商/农户均支持客户经理协助进件开户；个人农户额外支持“收购商邀请二维码”自助注册进件并反向同步微邮付。</div>
         </div>
       </div>
     </section>
@@ -119,7 +120,7 @@ tailwind.config = {
               <td class="font-medium text-forest-700">首页</td>
               <td>经营总览、快捷入口、我发布需求</td>
               <td>按当日/本月/本年聚合金额与笔数；双列表读取需求数据并按时间排序</td>
-              <td>MVP 不展示趋势图与品类占比图；“我发布”卡片不显示距离</td>
+              <td>MVP 不展示趋势图与品类占比图；“我发布”卡片不显示距离；快捷入口为发布需求/合作农户/付款记录/合并付款</td>
               <td>数据为空展示空态占位，不阻断页面主流程</td>
             </tr>
             <tr>
@@ -145,14 +146,14 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="font-medium text-forest-700">开单</td>
-              <td>明细开单、快捷开单、扫码、合作农户选择</td>
-              <td>明细模式按商品累计金额；快捷模式直接以总额生成订单草稿</td>
-              <td>底部弹层必须互斥；同一时刻只允许一个弹层打开</td>
+              <td>明细开单、扫码识别、稍后结算、立即付款</td>
+              <td>统一按商品明细累计金额生成订单；稍后结算写入待支付，立即付款写入支付中并跳转收银台</td>
+              <td>开单页不再提供“合作农户选择”入口；收款对象主路径为扫码识别</td>
               <td>扫码失败、商户不存在、金额非法需即时阻断并提示</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">合作农户</td>
-              <td>合作农户搜索、合作关系展示、开单场景选择</td>
+              <td>合作农户搜索、合作关系展示</td>
               <td>只读取与当前收购商存在支付/交易关系的农户；支持姓名/手机号/卡号/银行本地搜索</td>
               <td>不开放手工新增农户（风险控制）；普通浏览态不展示“去开单”按钮</td>
               <td>无历史合作数据时展示空态并提示“完成首笔付款后自动累计”</td>
@@ -168,14 +169,21 @@ tailwind.config = {
               <td class="font-medium text-forest-700">订单</td>
               <td>状态筛选、继续支付、订单详情</td>
               <td>列表按状态+时间筛选；详情按订单快照展示</td>
-              <td>待支付详情不展示支付方式；超时文案与收银台一致</td>
+              <td>待支付来源含 unpaid/pending；待支付与支付中详情支持继续支付/取消订单；待支付详情不展示支付方式</td>
               <td>订单不存在或无权限时返回列表并提示</td>
             </tr>
             <tr>
+              <td class="font-medium text-forest-700">合并付款</td>
+              <td>待支付订单多选、合计确认、统一付款</td>
+              <td>仅汇总待支付订单（unpaid/pending）；确认后生成合并记录并回写子订单为支付成功</td>
+              <td>仅待付款有数据时展示“全选”；确认弹窗需展示合计金额与笔数</td>
+              <td>无可合并订单时展示空态，不显示底部合计与确认按钮</td>
+            </tr>
+            <tr>
               <td class="font-medium text-forest-700">我的</td>
-              <td>个人信息、邀请农户、通知、设置入口</td>
+              <td>个人信息、邀请农户、通知、关于我们、设置入口</td>
               <td>个人信息只读；邀请农户通过二维码外发到入驻页；消息按业务事件落库/推送</td>
-              <td>二维码默认落地 <code>buyer-farmer-add.html?source=invite</code>；修改主体资料需走线下或管理端审核流程</td>
+              <td>二维码默认落地 <code>buyer-farmer-add.html?source=invite</code>（可按需附带 <code>back=mine</code>）；关于我们展示版本号 v1.1.0；退出登录采用底部确认弹层</td>
               <td>通知读取失败不影响主业务交易链路</td>
             </tr>
           </tbody>
@@ -420,6 +428,11 @@ tailwind.config = {
               <td>订单为支付主实体，状态由支付回调与超时任务共同驱动</td>
             </tr>
             <tr>
+              <td class="font-medium text-forest-700">开户来源</td>
+              <td>onboardingSource、inviterBuyerId、inviteQrId、syncedAt</td>
+              <td>记录客户经理协助/二维码自助来源；用于追溯开户链路与反向同步状态</td>
+            </tr>
+            <tr>
               <td class="font-medium text-forest-700">关键词订阅（预留）</td>
               <td>keywordId、userId、keyword、enabled、updatedAt</td>
               <td>MVP 不开放前台入口；后续版本用于关注匹配与个性化通知</td>
@@ -443,8 +456,8 @@ tailwind.config = {
         <div class="card p-5">
           <h4 class="font-serif font-bold text-forest-800 mb-3">订单状态机</h4>
           <div class="space-y-2 text-sm text-gray-700">
-            <div>• 待支付 → 支付中 → 支付成功/支付失败</div>
-            <div>• 小程序待支付超过 30 分钟自动流转为已取消；PC 收银台有效期按 10 天口径展示</div>
+            <div>• 稍后结算 → 待支付（unpaid）；立即付款 → 支付中（paying）</div>
+            <div>• 待支付/支付中可继续支付；支付中超过 30 分钟自动流转为已取消；PC 收银台有效期按 10 天口径展示</div>
             <div>• 支付失败可回到待支付并重试</div>
             <div>• 任何终端均不得绕过状态机直接改状态</div>
           </div>
@@ -472,7 +485,7 @@ tailwind.config = {
           <tbody>
             <tr>
               <td class="font-medium text-forest-700">source</td>
-              <td>home / market / manage</td>
+              <td>home / market / manage / my / merge / invite</td>
               <td>定义详情返回路径</td>
               <td>缺失时回默认列表页</td>
             </tr>
@@ -576,7 +589,7 @@ tailwind.config = {
 
     <footer class="text-center py-8 text-sm text-gray-400 border-t border-gray-200">
       <p>收粮平台 · 技术对接版 PRD</p>
-      <p class="mt-1">更新时间：2026-02-27 · 终端拆分 + 页面级口径同步 + 对接清单</p>
+      <p class="mt-1">更新时间：2026-03-03 · 开户双路径 + 合并付款 + 邀请自助入驻口径同步</p>
     </footer>
   </div>
 </div>

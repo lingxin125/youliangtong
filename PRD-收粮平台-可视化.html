@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRD - 收粮平台（农产品收购系统）V1.0</title>
+<title>PRD - 收粮平台（农产品收购系统）V3.2</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -118,7 +118,7 @@ tailwind.config = {
 <nav class="side-nav">
   <div class="px-5 py-6 border-b border-white/10">
     <div class="text-wheat-400 font-serif text-lg font-bold">🌾 收粮平台</div>
-    <div class="text-white/40 text-xs mt-1">PRD V1.0 · 产品需求文档</div>
+    <div class="text-white/40 text-xs mt-1">PRD V3.2 · 产品需求文档</div>
   </div>
   <div class="nav-title">概览</div>
   <a href="#overview">项目背景与核心问题</a>
@@ -128,7 +128,7 @@ tailwind.config = {
   <a href="#flow-main">主流程图</a>
   <a href="#flow-order">订单状态机</a>
   <a href="#constraints">技术约束</a>
-  <a href="#sync-baseline">原型同步基线（2026-02-28）</a>
+  <a href="#sync-baseline">原型同步基线（2026-03-03）</a>
   <a href="#page-map">页面清单与链接核验</a>
   <div class="nav-title">文档入口</div>
   <a href="./PRD-收粮平台-功能模块版.html">技术对接版（功能模块）</a>
@@ -143,8 +143,8 @@ tailwind.config = {
   <a href="#us06">US-06 关键词能力（MVP隐藏）</a>
   <div class="nav-title">阶段三 · 开单与交易</div>
   <a href="#us07">US-07 明细开单</a>
-  <a href="#us08">US-08 快捷开单</a>
-  <a href="#us09">US-09 常用人</a>
+  <a href="#us08">US-08 开单提交与状态分流</a>
+  <a href="#us09">US-09 合作农户</a>
   <div class="nav-title">阶段四 · 支付与结算</div>
   <a href="#us10">US-10 小程序收银台</a>
   <a href="#us11">US-11 H5 收银台</a>
@@ -168,7 +168,7 @@ tailwind.config = {
   <section class="hero px-8 py-16 md:px-16 md:py-24">
     <div class="max-w-4xl relative z-10">
       <div class="inline-block px-4 py-1.5 bg-wheat-400/20 text-wheat-300 rounded-full text-sm font-semibold mb-6 backdrop-blur-sm border border-wheat-400/20">
-        PRD V1.0 · 产品需求文档
+        PRD V3.2 · 产品需求文档
       </div>
       <h1 class="text-4xl md:text-5xl font-serif font-black text-white leading-tight mb-4">
         收粮平台<br><span class="text-wheat-400">农产品收购系统</span>
@@ -350,7 +350,7 @@ tailwind.config = {
             <div class="w-12 h-12 bg-forest-700 rounded-full flex items-center justify-center text-white font-serif font-bold text-sm shrink-0 relative z-10 shadow-lg">1</div>
             <div class="card p-5 flex-1">
               <div class="phase-badge bg-forest-50 text-forest-700 mb-2">🏦 入驻与开户</div>
-              <p class="text-sm text-gray-600">收购商与企业农户先在微邮付现有平台进件开户，再同步开通收粮小程序；协助开通农户在小程序完成开通后反向同步微邮付</p>
+              <p class="text-sm text-gray-600">收购商与农户可由客户经理在微邮付现有平台协助进件开户并同步开通小程序；个人农户还可通过收购商邀请二维码自助入驻，开户后反向同步微邮付</p>
             </div>
           </div>
           <div class="flex gap-5 items-start">
@@ -364,14 +364,14 @@ tailwind.config = {
             <div class="w-12 h-12 bg-wheat-500 rounded-full flex items-center justify-center text-white font-serif font-bold text-sm shrink-0 relative z-10 shadow-lg">3</div>
             <div class="card p-5 flex-1">
               <div class="phase-badge bg-amber-50 text-amber-700 mb-2">📝 开单与交易</div>
-              <p class="text-sm text-gray-600">收购商在小程序对农户进行明细开单或快捷开单，生成订单</p>
+              <p class="text-sm text-gray-600">收购商在小程序按商品明细开单，提交后按结算动作进入待支付或支付中</p>
             </div>
           </div>
           <div class="flex gap-5 items-start">
             <div class="w-12 h-12 bg-wheat-600 rounded-full flex items-center justify-center text-white font-serif font-bold text-sm shrink-0 relative z-10 shadow-lg">4</div>
             <div class="card p-5 flex-1">
               <div class="phase-badge bg-orange-50 text-orange-700 mb-2">💳 支付与结算</div>
-              <p class="text-sm text-gray-600">收购商扫码或选择常用人，进入收银台，选择行业支付或订单付完成付款</p>
+              <p class="text-sm text-gray-600">收购商扫码识别收款对象后开单，可选择“稍后结算”沉淀待支付订单，或“立即付款”进入收银台完成支付</p>
             </div>
           </div>
           <div class="flex gap-5 items-start">
@@ -406,27 +406,25 @@ flowchart TD
     A2 -->|收购商| B1[按农产品政策/应用完成微邮付商户开户]
     B1 --> B2[微邮付管理后台小工具：同步开通收粮小程序]
     B2 --> B3[生成收粮登录账号：商户号/手机号]
-    A2 -->|农户（企业）| C1[客户经理按现有流程完成微邮付商户开户]
+    A2 -->|农户（客户经理协助）| C1[客户经理按现有流程完成微邮付商户开户]
     C1 --> C2[同步开通收粮小程序]
     C2 --> C3[生成收粮登录账号：商户号/手机号]
-    A2 -->|农户（收购商协助）| D1[收购商在收粮小程序协助开通农户]
-    D1 --> D2[建立收购商-农户关联并开通收粮小程序]
-    D2 --> D3[反向同步：写回微邮付平台开户信息]
-    D3 --> C3
+    A2 -->|农户（个人自助）| D1[收购商在“我的-邀请农户”分享二维码]
+    D1 --> D2[农户扫码进入新农户入驻页并提交开户申请]
+    D2 --> D3[开户成功并建立收购商-农户关联]
+    D3 --> D4[反向同步：写回微邮付平台开户信息]
+    D4 --> C3
     B3 --> E1[收购商/农户登录收粮小程序]
     C3 --> E1
     E1 --> F1[发布需求并建立交易意向]
     F1 --> G1[收购商开单]
-    G1 --> G2{开单方式}
-    G2 -->|明细开单| G3[选择品类 → 添加商品 → 输入数量/单价]
-    G2 -->|快捷开单| G4[直接输入总金额 + 备注]
-    G3 --> H1[生成订单]
-    G4 --> H1
-    H1 --> H2{选择付款对象}
-    H2 -->|扫码| H3[扫描农户收款码]
-    H2 -->|常用人| H4[从已保存农户中选择]
-    H3 --> H5[进入收银台]
-    H4 --> H5
+    G1 --> G2[明细录入：选择品类 → 添加商品 → 输入数量/单价]
+    G2 --> H1[生成订单]
+    H1 --> H2[扫码识别农户收款码]
+    H2 --> H3{结算动作}
+    H3 -->|稍后结算| H4[生成待支付订单（进入合并付款池）]
+    H3 -->|立即付款| H5[生成支付中订单并进入收银台]
+    H4 --> J1
     H5 --> H6{选择支付方式}
     H6 -->|行业支付| H7[银行转账，直接到账农户银行卡]
     H6 -->|订单付| H8[企业网银订单付：收银台仅做引导]
@@ -447,12 +445,14 @@ flowchart TD
       <div class="mermaid-container">
         <div class="mermaid">
 stateDiagram-v2
-    [*] --> 待支付: 开单生成订单
-    待支付 --> 支付中: 进入收银台发起支付
-    待支付 --> 已取消: 超过支付有效期自动取消（小程序30分钟 / PC10天）
+    [*] --> 待支付: 开单后点击「稍后结算」
+    [*] --> 支付中: 开单后点击「立即付款」
+    待支付 --> 支付成功: 合并付款或进入收银台支付成功
+    待支付 --> 已取消: 手动取消
     支付中 --> 支付成功: 银行回调成功
     支付中 --> 支付失败: 银行回调失败
-    支付失败 --> 待支付: 可重新发起支付
+    支付中 --> 已取消: 超过30分钟未完成支付
+    支付失败 --> 待支付: 重试支付
     已取消 --> [*]
     支付成功 --> [*]
         </div>
@@ -499,19 +499,24 @@ stateDiagram-v2
     <section id="sync-baseline" class="mb-16">
       <div class="flex items-center gap-3 mb-8">
         <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">8</div>
-        <h2 class="text-2xl font-serif font-bold text-forest-800">原型同步基线（2026-02-28）</h2>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">原型同步基线（2026-03-03）</h2>
       </div>
       <div class="card p-6">
         <div class="space-y-2 text-sm text-gray-700">
           <div>• 本文档以 <code>prototype/</code> 当前原型文件为唯一基线，已覆盖收购商端、农户端、PC 收银台、银行 App 扫码跳转 H5 支付页。</div>
           <div>• 开户链路口径更新：统一不再走“新独立开户 H5”；改为基于<strong>微邮付现有开户能力</strong>进件，再通过后台同步开通收粮小程序。</div>
           <div>• 收购商开户：客户经理先在微邮付平台开户（按政策/应用识别农产品商户）→ 再在管理后台小工具同步开通收粮小程序，登录支持商户号/手机号。</div>
-          <div>• 农户开户双路径：① 企业农户由客户经理在微邮付现有流程开户并同步开通小程序；② 收购商协助开通农户在收粮小程序完成后，反向同步微邮付平台开户信息并下发登录账号。</div>
+          <div>• 农户开户双路径：① 客户经理协助进件开户（企业/个人均可）并同步开通小程序；② 个人农户通过收购商“邀请农户”二维码自助注册进件，成功后反向同步微邮付并建立合作关联。</div>
           <div>• MVP 已下线能力：关键词相关入口与联动能力（首页“我关注”模块、市场“我关注/只看关注”筛选、关键词设置入口）当前为<strong>保留代码、前台隐藏</strong>。</div>
-          <div>• 合作农户口径更新：合作农户页仅展示与收购商存在交易/付款关系的农户；页面仅保留搜索，不支持新增农户，不展示“去开单”操作。</div>
+          <div>• 合作农户口径更新：合作农户页仅展示与收购商存在交易/付款关系的农户；页面仅保留搜索，不支持新增农户，不展示“去开单”操作，不承担开户入口。</div>
           <div>• 权限与拉新链路更新：收购商侧收回“手工新增农户”权限（风险控制）；改为在“我的”页新增“邀请农户”入口，弹出二维码（可保存分享），农户扫码进入入驻页完成注册。</div>
+          <div>• 开单流程口径更新：开单页收款对象主路径为扫码识别，原“合作农户选择”入口下线；提交动作拆分为“稍后结算”和“立即付款”。</div>
+          <div>• 订单状态口径更新：稍后结算生成<strong>待支付（unpaid）</strong>订单，立即付款生成<strong>支付中（paying）</strong>订单；支付中的订单 30 分钟超时自动取消。</div>
+          <div>• 合并付款能力上线：合并付款页仅汇总待支付订单，支持勾选多笔统一支付，付款后沉淀“已完成”记录并回写子订单状态。</div>
+          <div>• 首页快捷入口口径更新（收购商）：原“消息通知”位置替换为“合并付款”，用于集中处理稍后结算订单。</div>
           <div>• 发布需求页口径更新：收购商与农户发布页均新增“发布地址（必填，可定位）”；收购商端字段口径为“需求标题 + 需求描述（选填）”。</div>
           <div>• 个人信息与我的模块口径更新：顶部展示“商户名称 + 商户号（可复制）+ 身份标签（圆角）”；个人信息页移除“当前角色”。</div>
+          <div>• “我的”页补充口径更新：收购商与农户共用“关于我们”页，展示丰收云 Logo、版本号 v1.1.0、隐私政策与服务协议、更新日志。</div>
           <div>• 市场卡片口径更新：状态统一“进行中”；数量标签去掉“约/余”字样；详情入口为卡片右侧居中下钻图标。</div>
           <div>• 收银台口径更新：支付方式为<strong>行业支付 + 订单付</strong>；PC 端不再展示数字人民币；订单付在收银台页仅做网银登录引导。</div>
           <div>• PC 收银台有效期口径：展示“请在 10天内完成支付（剩余 xx）”；顶部提示语“交易全程加密，请在有效期内完成支付”。</div>
@@ -528,7 +533,7 @@ stateDiagram-v2
 
       <div class="grid md:grid-cols-2 gap-4 mb-4">
         <div class="card p-5">
-          <div class="font-serif font-bold text-forest-700 mb-3">收购商小程序页面（16）</div>
+          <div class="font-serif font-bold text-forest-700 mb-3">收购商小程序页面（18）</div>
           <div class="space-y-1.5 text-sm">
             <div><a class="text-forest-700 hover:underline" href="./buyer-home.html">buyer-home.html</a> · 首页</div>
             <div><a class="text-forest-700 hover:underline" href="./buyer-market.html">buyer-market.html</a> · 市场</div>
@@ -541,16 +546,18 @@ stateDiagram-v2
             <div><a class="text-forest-700 hover:underline" href="./buyer-cashier.html">buyer-cashier.html</a> · 小程序收银台</div>
             <div><a class="text-forest-700 hover:underline" href="./buyer-orders.html">buyer-orders.html</a> · 付款记录</div>
             <div><a class="text-forest-700 hover:underline" href="./buyer-order-detail.html">buyer-order-detail.html</a> · 订单详情</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-merge-pay.html">buyer-merge-pay.html</a> · 合并付款</div>
             <div><a class="text-forest-700 hover:underline" href="./buyer-notifications.html">buyer-notifications.html</a> · 消息通知</div>
             <div><a class="text-forest-700 hover:underline" href="./buyer-my.html">buyer-my.html</a> · 我的</div>
             <div><a class="text-forest-700 hover:underline" href="./buyer-profile.html">buyer-profile.html</a> · 个人信息</div>
             <div><a class="text-forest-700 hover:underline" href="./buyer-keywords.html">buyer-keywords.html</a> · 关键词设置（MVP隐藏入口）</div>
+            <div><a class="text-forest-700 hover:underline" href="./about-us.html">about-us.html</a> · 关于我们（收购商/农户共用）</div>
             <div><a class="text-forest-700 hover:underline" href="./login.html">login.html</a> · 统一登录入口</div>
           </div>
         </div>
 
         <div class="card p-5">
-          <div class="font-serif font-bold text-forest-700 mb-3">农户小程序页面（14）</div>
+          <div class="font-serif font-bold text-forest-700 mb-3">农户小程序页面（15）</div>
           <div class="space-y-1.5 text-sm">
             <div><a class="text-forest-700 hover:underline" href="./farmer-home.html">farmer-home.html</a> · 首页</div>
             <div><a class="text-forest-700 hover:underline" href="./farmer-market.html">farmer-market.html</a> · 市场</div>
@@ -564,6 +571,7 @@ stateDiagram-v2
             <div><a class="text-forest-700 hover:underline" href="./farmer-my.html">farmer-my.html</a> · 我的</div>
             <div><a class="text-forest-700 hover:underline" href="./farmer-profile.html">farmer-profile.html</a> · 个人信息</div>
             <div><a class="text-forest-700 hover:underline" href="./farmer-keywords.html">farmer-keywords.html</a> · 关键词设置（MVP隐藏入口）</div>
+            <div><a class="text-forest-700 hover:underline" href="./about-us.html">about-us.html</a> · 关于我们（收购商/农户共用）</div>
             <div><a class="text-forest-700 hover:underline" href="./login.html">login.html</a> · 统一登录入口</div>
             <div><a class="text-forest-700 hover:underline" href="./index.html">index.html</a> · 演示导航页</div>
           </div>
@@ -583,7 +591,7 @@ stateDiagram-v2
         <div class="font-serif font-bold text-forest-700 mb-2">链接核验结论</div>
         <div class="text-sm text-gray-700 space-y-1.5">
           <div>• 主可视化 PRD 中静态链接已核验通过：<code>PRD-收粮平台-功能模块版.html</code>、<code>需求标注-收购商农户.html</code> 可访问。</div>
-          <div>• 页面清单区 33 个跳转链接（唯一页面 31 个）已核验通过，均可访问对应原型文件。</div>
+          <div>• 页面清单区静态跳转链接已核验通过（含新增 <code>buyer-merge-pay.html</code> 与 <code>about-us.html</code>）。</div>
           <div>• 页面内动态拼接链接（如 <code>${backLink}</code>）为运行时变量，不纳入静态断链判定。</div>
         </div>
       </div>
@@ -671,8 +679,8 @@ stateDiagram-v2
           <div class="flex items-center gap-3">
             <span class="inline-flex items-center justify-center w-10 h-10 bg-forest-700 text-white rounded-lg font-serif font-bold text-sm">02</span>
             <div>
-              <h4 class="font-serif font-bold text-forest-800">农户开户（双路径）</h4>
-              <p class="text-xs text-gray-500 mt-0.5">企业农户：客户经理微邮付进件 + 同步开通；协助农户：收购商小程序开通 + 反向同步微邮付</p>
+              <h4 class="font-serif font-bold text-forest-800">农户开户（客户经理协助 + 个人农户二维码自助）</h4>
+              <p class="text-xs text-gray-500 mt-0.5">路径A：客户经理协助进件开户；路径B：收购商邀请二维码 → 个人农户自助注册进件</p>
             </div>
           </div>
           <span class="arrow text-forest-400 text-xl">▶</span>
@@ -681,23 +689,23 @@ stateDiagram-v2
           <div class="p-5 border-t border-gray-100">
             <div class="mb-5 p-4 bg-wheat-50 rounded-xl border border-wheat-200">
               <div class="text-xs font-semibold text-wheat-600 mb-2">💡 价值陈述</div>
-              <p class="text-sm text-gray-700"><strong>作为</strong>平台运营方，<strong>我希望</strong>农户支持“企业农户客户经理开户”和“收购商协助开通”两条路径，<strong>以便于</strong>兼顾规范进件与业务拉新，并确保开户信息在微邮付与收粮小程序间一致。</p>
+              <p class="text-sm text-gray-700"><strong>作为</strong>平台运营方，<strong>我希望</strong>农户支持“客户经理协助开户”和“个人农户二维码自助开户”两条路径，<strong>以便于</strong>兼顾规范进件、业务拉新与风险可控，并确保开户信息在微邮付与收粮小程序间一致。</p>
             </div>
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 操作流程（Happy Path）</h5>
               <div class="space-y-2 text-sm text-gray-600">
-                <div class="flex gap-2"><span class="text-forest-500 font-bold">路径A（企业农户）</span>：客户经理在微邮付现有流程完成进件开户 → 后台同步开通收粮小程序 → 农户使用商户号/手机号登录。</div>
-                <div class="flex gap-2"><span class="text-forest-500 font-bold">路径B（收购商协助）</span>：收购商在收粮小程序协助开通农户 → 系统自动建立双方关联 → 反向同步微邮付平台开户信息并下发登录账号。</div>
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">路径A（客户经理协助）</span>：客户经理在微邮付现有流程完成农户进件开户（企业/个人）→ 后台同步开通收粮小程序 → 农户使用商户号/手机号登录。</div>
+                <div class="flex gap-2"><span class="text-forest-500 font-bold">路径B（个人农户自助）</span>：收购商在“我的”页分享邀请二维码 → 农户扫码进入新农户入驻页自助提交开户申请 → 开户成功并自动建立合作关联。</div>
                 <div class="flex gap-2"><span class="text-forest-500 font-bold">统一规则</span>：农户开户完成后必须具备可登录收粮小程序账号，且与微邮付平台商户信息可追溯关联。</div>
               </div>
               <div class="ml-6 mt-2 grid md:grid-cols-2 gap-3">
                 <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                  <div class="font-semibold text-sm text-blue-700 mb-1">路径A：企业农户（客户经理）</div>
-                  <div class="text-xs text-gray-600">走微邮付标准进件规则，审核后同步开通收粮小程序</div>
+                  <div class="font-semibold text-sm text-blue-700 mb-1">路径A：客户经理协助开户</div>
+                  <div class="text-xs text-gray-600">按微邮付标准进件规则审核，通过后同步开通收粮小程序</div>
                 </div>
                 <div class="p-3 bg-green-50 rounded-lg border border-green-100">
-                  <div class="font-semibold text-sm text-green-700 mb-1">路径B：协助农户（收购商）</div>
-                  <div class="text-xs text-gray-600">先在收粮小程序开通并绑定收购商关系，再反向同步微邮付</div>
+                  <div class="font-semibold text-sm text-green-700 mb-1">路径B：个人农户二维码自助</div>
+                  <div class="text-xs text-gray-600">农户扫码填写入驻信息，开户后绑定收购商关系并反向同步微邮付</div>
                 </div>
               </div>
             </div>
@@ -705,16 +713,16 @@ stateDiagram-v2
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">✅ 验收标准</h5>
               <div class="space-y-3">
                 <div class="ac-item">
-                  <div class="text-sm"><span class="ac-keyword">场景1</span>：企业农户在微邮付开户通过后 → 同步开通收粮小程序成功 → 可用商户号/手机号登录</div>
+                  <div class="text-sm"><span class="ac-keyword">场景1</span>：农户由客户经理进件开户通过后 → 同步开通收粮小程序成功 → 可用商户号/手机号登录</div>
                 </div>
                 <div class="ac-item">
-                  <div class="text-sm"><span class="ac-keyword">场景2</span>：协助开通农户成功后 → 收购商与农户建立关联 → 微邮付侧可查到反向同步记录</div>
+                  <div class="text-sm"><span class="ac-keyword">场景2</span>：个人农户通过邀请二维码自助开户成功后 → 收购商与农户建立关联 → 微邮付侧可查到反向同步记录</div>
                 </div>
                 <div class="ac-item">
                   <div class="text-sm"><span class="ac-keyword">场景3</span>：反向同步失败 → 标记“待回写”并支持后台重试，期间不影响农户在收粮小程序登录</div>
                 </div>
                 <div class="ac-item">
-                  <div class="text-sm"><span class="ac-keyword">场景4</span>：重复协助开通同一农户 → 返回已存在提示，并复用已有农户账号</div>
+                  <div class="text-sm"><span class="ac-keyword">场景4</span>：个人农户重复扫码提交同一主体信息 → 返回“已存在”提示，并复用已有农户账号</div>
                 </div>
               </div>
             </div>
@@ -883,12 +891,12 @@ stateDiagram-v2
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 操作流程</h5>
               <div class="space-y-2 text-sm text-gray-600">
-                <div class="flex gap-2"><span class="text-wheat-500 font-bold">1.</span> 进入"开单"页面，默认明细开单模式</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">1.</span> 进入"开单"页面，按商品明细录入（当前仅支持明细开单）</div>
                 <div class="flex gap-2"><span class="text-wheat-500 font-bold">2.</span> 选择品类（水果/蔬菜/粮食/禽蛋/肉类/水产/其他）</div>
                 <div class="flex gap-2"><span class="text-wheat-500 font-bold">3.</span> 添加商品：输入名称、数量、单价 → 系统自动计算小计</div>
                 <div class="flex gap-2"><span class="text-wheat-500 font-bold">4.</span> 可添加多个商品，系统自动计算合计金额，可删除已添加商品</div>
-                <div class="flex gap-2"><span class="text-wheat-500 font-bold">5.</span> 选择付款对象：<strong>扫码</strong>（扫描农户收款码）/ <strong>常用人</strong>（从列表选择）</div>
-                <div class="flex gap-2"><span class="text-wheat-500 font-bold">6.</span> 系统生成订单 → 进入收银台页面</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">5.</span> 选择收款对象：当前 MVP 主路径为<strong>扫码</strong>识别农户收款码（开单页不再提供合作农户选择入口）</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">6.</span> 点击<strong>稍后结算</strong>生成待支付订单，或点击<strong>立即付款</strong>生成支付中订单并进入收银台</div>
               </div>
             </div>
             <div class="mb-5">
@@ -896,7 +904,8 @@ stateDiagram-v2
               <div class="space-y-3">
                 <div class="ac-item"><div class="text-sm">添加商品 A（100斤×2元=200元）+ 商品 B（50斤×3元=150元）→ 合计 350 元</div></div>
                 <div class="ac-item"><div class="text-sm">删除商品 → 列表移除，合计金额实时更新</div></div>
-                <div class="ac-item"><div class="text-sm">选择付款对象 → 生成订单 → 跳转收银台</div></div>
+                <div class="ac-item"><div class="text-sm">点击“稍后结算”→ 订单状态为待支付，并在合并付款页可见</div></div>
+                <div class="ac-item"><div class="text-sm">点击“立即付款”→ 订单状态为支付中，并跳转收银台</div></div>
               </div>
             </div>
             <div>
@@ -904,7 +913,7 @@ stateDiagram-v2
               <div class="wireframe">┌──────────────────────────────┐
 │  ← 返回        开单           │
 ├──────────────────────────────┤
-│  [明细开单]  [快捷开单]       │
+│  [明细开单（唯一）]           │
 ├──────────────────────────────┤
 │  品类  [▼ 请选择___________] │
 │  ── 商品明细 ──────────────   │
@@ -922,12 +931,12 @@ stateDiagram-v2
 │  │  合计：¥400.00            ││
 │  └──────────────────────────┘│
 │  ── 付款对象 ──────────────   │
-│  ┌────────┐  ┌────────────┐ │
-│  │ 📷扫码  │  │ 👤常用人    │ │
-│  └────────┘  └────────────┘ │
 │  ┌──────────────────────────┐│
-│  │       去收银台            ││
+│  │       📷 扫码识别         ││
 │  └──────────────────────────┘│
+│  ┌────────────┐┌──────────┐ │
+│  │ 稍后结算    ││ 立即付款  │ │
+│  └────────────┘└──────────┘ │
 └──────────────────────────────┘</div>
             </div>
           </div>
@@ -940,8 +949,8 @@ stateDiagram-v2
           <div class="flex items-center gap-3">
             <span class="inline-flex items-center justify-center w-10 h-10 bg-wheat-500 text-white rounded-lg font-serif font-bold text-sm">08</span>
             <div>
-              <h4 class="font-serif font-bold text-forest-800">快捷开单</h4>
-              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 直接输入总金额快速生成订单</p>
+              <h4 class="font-serif font-bold text-forest-800">开单提交与状态分流</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 明细开单提交后进入待支付/支付中状态流</p>
             </div>
           </div>
           <span class="arrow text-forest-400 text-xl">▶</span>
@@ -951,9 +960,11 @@ stateDiagram-v2
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
               <div class="space-y-2 text-sm text-gray-600">
-                <div>• 切换到"快捷开单"模式 → 输入总金额（必填）+ 备注（选填）</div>
-                <div>• 选择付款对象：扫码 / 常用人 → 生成订单 → 进入收银台</div>
-                <div>• 适用场景：已与农户线下谈好价格，快速完成支付流程</div>
+                <div>• 当前开单方式统一为明细开单，不再提供“快捷开单”入口</div>
+                <div>• 收款对象通过扫码识别农户收款码后，提交可选择“稍后结算”或“立即付款”</div>
+                <div>• 点击“稍后结算”→ 订单状态写入待支付（unpaid），进入合并付款池</div>
+                <div>• 点击“立即付款”→ 订单状态写入支付中（paying），并跳转收银台</div>
+                <div>• 支付中订单 30 分钟未完成支付自动取消；待支付可在订单详情或合并付款继续支付</div>
               </div>
             </div>
           </div>
@@ -966,8 +977,8 @@ stateDiagram-v2
           <div class="flex items-center gap-3">
             <span class="inline-flex items-center justify-center w-10 h-10 bg-wheat-500 text-white rounded-lg font-serif font-bold text-sm">09</span>
             <div>
-              <h4 class="font-serif font-bold text-forest-800">常用人管理</h4>
-              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 按付款次数排序的常用农户列表，开单时快速选择</p>
+              <h4 class="font-serif font-bold text-forest-800">合作农户管理（交易关系沉淀）</h4>
+              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 查看与自己有交易记录的农户清单（搜索与浏览）</p>
             </div>
           </div>
           <span class="arrow text-forest-400 text-xl">▶</span>
@@ -977,10 +988,10 @@ stateDiagram-v2
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
               <div class="space-y-2 text-sm text-gray-600">
-                <div>• 付款成功后，系统<strong>自动保存</strong>农户信息到常用人列表</div>
-                <div>• 按<strong>付款次数从高到低</strong>排序</div>
-                <div>• 开单时选择"常用人" → 从列表中选择农户作为付款对象</div>
-                <div>• 无付款记录 → 提示"暂无常用人，付款成功后自动添加"</div>
+                <div>• 付款成功后，系统<strong>自动沉淀</strong>合作农户关系（按交易次数排序）</div>
+                <div>• 页面仅保留搜索与浏览，不提供“新增农户”“去开单”按钮</div>
+                <div>• 搜索仅在当前合作农户集合内生效（姓名/手机号/银行/卡号）</div>
+                <div>• 无付款记录 → 提示“暂无合作农户，完成首笔付款后自动累计”</div>
               </div>
             </div>
           </div>
@@ -1184,11 +1195,13 @@ stateDiagram-v2
               <div class="space-y-2 text-sm text-gray-600">
                 <div>• 顶部状态筛选：<strong>全部 / 待支付 / 支付中 / 支付成功 / 支付失败 / 已取消</strong>（6种状态）</div>
                 <div>• 卡片展示：收款方名称、商品摘要、订单金额、下单时间、状态标签</div>
-                <div>• "待支付"状态 → 显示"继续支付"按钮（30分钟内有效）</div>
+                <div>• 待支付来源包含两类：稍后结算（unpaid）与支付中回落待处理（pending）</div>
+                <div>• "待支付/支付中"状态 → 详情页均支持"继续支付"与"取消订单"</div>
                 <div>• 详情页：状态提示区、收款方信息（名称+手机号脱敏）、商品明细、订单信息</div>
-                <div>• "待支付"详情页 → 底部"继续支付"按钮 + 倒计时</div>
-                <div>• "待支付"状态<strong>不展示</strong>支付方式，其他状态展示</div>
+                <div>• "待支付"详情页：unpaid 显示“待支付，可继续支付或取消订单”；pending 显示30分钟倒计时</div>
+                <div>• "待支付/支付中"状态<strong>不展示</strong>支付方式，支付成功/失败/已取消展示支付信息</div>
                 <div>• 超时文案统一口径：<strong>超时未支付，系统自动取消</strong>（收银台/订单列表/订单详情保持一致）</div>
+                <div>• 合并付款入口仅处理待支付订单，合并成功后子订单状态回写为支付成功</div>
               </div>
             </div>
             <div>
@@ -1282,7 +1295,7 @@ stateDiagram-v2
             <span class="inline-flex items-center justify-center w-10 h-10 bg-teal-600 text-white rounded-lg font-serif font-bold text-sm">15</span>
             <div>
               <h4 class="font-serif font-bold text-forest-800">个人中心（"我的"页面）</h4>
-              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 查看个人信息、邀请农户、消息通知、系统设置</p>
+              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 查看个人信息、邀请农户、消息通知、关于我们、系统设置</p>
             </div>
           </div>
           <span class="arrow text-forest-400 text-xl">▶</span>
@@ -1295,6 +1308,8 @@ stateDiagram-v2
                 <div>• 个人信息（只读）：名称、简称、负责人、手机号 — 修改需联系网点客户经理</div>
                 <div>• 收购商新增“邀请农户”入口：点击弹出二维码，支持保存分享；二维码落地到 <code>buyer-farmer-add.html?source=invite</code>，可携带邀请人商户号参数</div>
                 <div>• 权限口径：收购商侧不再支持“手工新增农户”，统一由客户经理流程或农户自注册完成开户/入驻</div>
+                <div>• “关于我们”为收购商/农户共用页：展示丰收云 Logo、版本号 v1.1.0、隐私政策与服务协议、更新日志</div>
+                <div>• 退出登录：点击后从底部弹出“退出当前账号”确认层，确认后回登录页</div>
                 <div>• 消息通知入口、帮助与反馈、关于我们、退出登录</div>
               </div>
             </div>
@@ -1357,7 +1372,7 @@ stateDiagram-v2
                 </div>
                 <div class="p-3 bg-green-50 rounded-lg border border-green-100">
                   <div class="font-semibold text-sm text-green-700 mb-1">⚡ 快捷入口</div>
-                  <div class="text-xs text-gray-600">当前为 4 项：发布需求、合作农户、付款记录、消息通知；合作农户仅展示历史交易关系农户</div>
+                  <div class="text-xs text-gray-600">当前为 4 项：发布需求、合作农户、付款记录、合并付款；合作农户仅展示历史交易关系农户</div>
                 </div>
                 <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
                   <div class="font-semibold text-sm text-blue-700 mb-1">📋 品类明细（可切换）</div>
@@ -1430,7 +1445,7 @@ stateDiagram-v2
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
               <div class="space-y-2 text-sm text-gray-600">
                 <div>• 顶部状态分组：<strong>进件审核状态</strong>（待审核/已通过/已驳回）+ <strong>小程序同步状态</strong>（待同步/同步成功/同步失败）</div>
-                <div>• 支持按角色与来源筛选：角色（收购商/农户）+ 来源（客户经理进件/收购商协助开通）</div>
+                <div>• 支持按角色与来源筛选：角色（收购商/农户）+ 来源（客户经理协助开户/邀请二维码自助注册）</div>
                 <div>• 列表按提交时间降序排列</div>
                 <div>• 卡片展示：名称、角色标签、负责人、手机号（脱敏）、提交时间、审核状态、同步状态</div>
                 <div>• 点击卡片 → 查看申请详情（完整开户信息 + 同步日志）</div>
@@ -1562,8 +1577,8 @@ stateDiagram-v2
 
     <!-- 页脚 -->
     <footer class="text-center py-8 text-sm text-gray-400 border-t border-gray-200">
-      <p>收粮平台 · 产品需求文档 V1.0</p>
-      <p class="mt-1">最近更新：2026-02-28 · 共 20 个用户故事（含MVP预留） · 6 个业务阶段 · 4 个产品终端 · 31 个原型页面</p>
+      <p>收粮平台 · 产品需求文档 V3.2</p>
+      <p class="mt-1">最近更新：2026-03-03 · 共 20 个用户故事（含MVP预留） · 6 个业务阶段 · 4 个产品终端 · 31 个原型页面</p>
     </footer>
 
   </div><!-- /max-w-5xl -->

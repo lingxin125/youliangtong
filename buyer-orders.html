@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>邮粮通 - 付款记录</title>
+    <title>丰收云 - 付款记录</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500,700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -253,17 +253,7 @@
                     <button class="filter-option" data-type="status" data-value="canceled">已撤销</button>
                 </div>
             </div>
-            <!-- 支付方式 -->
-            <div>
-                <div class="filter-group-title">
-                    <i class="fas fa-credit-card"></i><span>支付方式</span>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <button class="filter-option active" data-type="method" data-value="all">全部</button>
-                    <button class="filter-option" data-type="method" data-value="industry">行业支付</button>
-                    <button class="filter-option" data-type="method" data-value="guarantee">订单付</button>
-                </div>
-            </div>
+
         </div>
         <div class="px-4 py-3 border-t border-gray-100 flex gap-3 flex-shrink-0">
             <button class="flex-1 h-10 rounded-2xl border border-gray-200 text-[13px] font-medium text-gray-600 bg-white" onclick="FilterPanel.reset()">重置</button>
@@ -316,14 +306,12 @@ const FilterService = {
         timeRange: 'all',
         startDate: null,
         endDate: null,
-        statuses: [],
-        payMethods: []
+        statuses: []
     },
 
     isActive() {
         return this.state.timeRange !== 'all' ||
-               this.state.statuses.length > 0 ||
-               this.state.payMethods.length > 0;
+               this.state.statuses.length > 0;
     },
 
     setTimeRange(value) {
@@ -340,9 +328,7 @@ const FilterService = {
         }
     },
 
-    setMethod(value) {
-        this.state.payMethods = value === 'all' ? [] : [value];
-    },
+
 
     setCustomDates(start, end) {
         this.state.startDate = start;
@@ -354,8 +340,7 @@ const FilterService = {
             timeRange: 'all',
             startDate: null,
             endDate: null,
-            statuses: [],
-            payMethods: []
+            statuses: []
         };
     },
 
@@ -390,12 +375,7 @@ const FilterService = {
             let statusMatch = this.state.statuses.length === 0 ||
                               this.state.statuses.includes(order.status);
 
-            // 支付方式筛选
-            let methodMatch = this.state.payMethods.length === 0 ||
-                              this.state.payMethods.includes(order.payMethod) ||
-                              (this.state.payMethods.includes('') && order.payMethod === '');
-
-            return timeMatch && statusMatch && methodMatch;
+            return timeMatch && statusMatch;
         }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
 };
@@ -674,8 +654,6 @@ const FilterPanel = {
                     document.getElementById('customDateRange').classList.toggle('hidden', value !== 'custom');
                 } else if (type === 'status') {
                     FilterService.setStatus(value);
-                } else if (type === 'method') {
-                    FilterService.setMethod(value);
                 }
             });
         });

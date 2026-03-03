@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>邮粮通 - 收款码</title>
+    <title>丰收云 - 账户码</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500,700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -39,97 +39,60 @@
 
     <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:90px;">
 
-        <!-- 二维码展示卡片 -->
-        <div class="glass-panel rounded-2xl p-5 mt-3 text-center">
-            <div class="flex items-center justify-center gap-2 mb-4">
-                <i class="fas fa-qrcode text-primary"></i>
-                <span class="text-sm font-medium text-gray-700">我的收款码</span>
+        <!-- 账户码展示卡片 (单层 Liquid Glass 风格) -->
+        <div class="rounded-3xl p-8 mt-4 text-center relative overflow-hidden" style="background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.7)); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 16px 32px -12px rgba(17, 166, 74, 0.15), inset 0 2px 4px rgba(255,255,255,1); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+            <div class="flex items-center justify-center gap-2 mb-6">
+                <i class="fas fa-qrcode text-primary text-xl"></i>
+                <span class="text-lg font-bold text-gray-800">我的账户码</span>
             </div>
 
-            <div class="bg-white rounded-2xl p-6 mx-auto" style="max-width: 280px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-                <!-- 二维码 -->
-                <div id="qrWrap" class="w-48 h-48 bg-gray-50 rounded-2xl mx-auto flex items-center justify-center border border-gray-100 mb-4 relative">
-                    <!-- 模拟二维码图案 -->
-                    <div class="w-40 h-40 relative">
-                        <svg viewBox="0 0 100 100" class="w-full h-full">
-                            <!-- 外边框 -->
-                            <rect x="5" y="5" width="25" height="25" fill="none" stroke="#374151" stroke-width="2"/>
-                            <rect x="8" y="8" width="19" height="19" fill="#374151"/>
-                            <rect x="12" y="12" width="11" height="11" fill="white"/>
+            <!-- 二维码主体区域 -->
+            <div id="qrWrap" class="w-56 h-56 bg-white rounded-3xl mx-auto flex items-center justify-center border border-gray-100/50 shadow-sm relative">
+                <!-- 模拟二维码图案 -->
+                <div class="w-44 h-44 relative">
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                        <!-- 外边框 -->
+                        <rect x="5" y="5" width="25" height="25" fill="none" stroke="#22303c" stroke-width="2" rx="4"/>
+                        <rect x="8" y="8" width="19" height="19" fill="#22303c" rx="2"/>
+                        <rect x="12" y="12" width="11" height="11" fill="white" rx="1"/>
 
-                            <rect x="70" y="5" width="25" height="25" fill="none" stroke="#374151" stroke-width="2"/>
-                            <rect x="73" y="8" width="19" height="19" fill="#374151"/>
-                            <rect x="77" y="12" width="11" height="11" fill="white"/>
+                        <rect x="70" y="5" width="25" height="25" fill="none" stroke="#22303c" stroke-width="2" rx="4"/>
+                        <rect x="73" y="8" width="19" height="19" fill="#22303c" rx="2"/>
+                        <rect x="77" y="12" width="11" height="11" fill="white" rx="1"/>
 
-                            <rect x="5" y="70" width="25" height="25" fill="none" stroke="#374151" stroke-width="2"/>
-                            <rect x="8" y="73" width="19" height="19" fill="#374151"/>
-                            <rect x="12" y="77" width="11" height="11" fill="white"/>
+                        <rect x="5" y="70" width="25" height="25" fill="none" stroke="#22303c" stroke-width="2" rx="4"/>
+                        <rect x="8" y="73" width="19" height="19" fill="#22303c" rx="2"/>
+                        <rect x="12" y="77" width="11" height="11" fill="white" rx="1"/>
 
-                            <!-- 随机数据点 -->
-                            <rect x="35" y="8" width="4" height="4" fill="#374151"/>
-                            <rect x="45" y="8" width="4" height="4" fill="#374151"/>
-                            <rect x="55" y="8" width="4" height="4" fill="#374151"/>
-                            <rect x="35" y="18" width="4" height="4" fill="#374151"/>
-                            <rect x="50" y="18" width="4" height="4" fill="#374151"/>
-                            <rect x="60" y="18" width="4" height="4" fill="#374151"/>
-                            <rect x="40" y="28" width="4" height="4" fill="#374151"/>
-                            <rect x="55" y="28" width="4" height="4" fill="#374151"/>
+                        <!-- 随机数据点 -->
+                        <path d="M35 8h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm-20 10h4v4h-4zm15 0h4v4h-4zm10 0h4v4h-4zm-20 10h4v4h-4zm15 0h4v4h-4zm-37 7h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm-20 10h4v4h-4zm12 0h4v4h-4zm-12 10h4v4h-4zm17 0h4v4h-4zm45-20h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm-15 10h4v4h-4zm10 0h4v4h-4zm-15 10h4v4h-4zm10 0h4v4h-4zm-45 15h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm-15 10h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm-25 10h4v4h-4zm15 0h4v4h-4zm15 0h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4z" fill="#22303c"/>
 
-                            <rect x="8" y="35" width="4" height="4" fill="#374151"/>
-                            <rect x="18" y="35" width="4" height="4" fill="#374151"/>
-                            <rect x="28" y="35" width="4" height="4" fill="#374151"/>
-                            <rect x="8" y="45" width="4" height="4" fill="#374151"/>
-                            <rect x="20" y="45" width="4" height="4" fill="#374151"/>
-                            <rect x="8" y="55" width="4" height="4" fill="#374151"/>
-                            <rect x="25" y="55" width="4" height="4" fill="#374151"/>
-
-                            <rect x="70" y="35" width="4" height="4" fill="#374151"/>
-                            <rect x="80" y="35" width="4" height="4" fill="#374151"/>
-                            <rect x="90" y="35" width="4" height="4" fill="#374151"/>
-                            <rect x="75" y="45" width="4" height="4" fill="#374151"/>
-                            <rect x="85" y="45" width="4" height="4" fill="#374151"/>
-                            <rect x="70" y="55" width="4" height="4" fill="#374151"/>
-                            <rect x="80" y="55" width="4" height="4" fill="#374151"/>
-
-                            <rect x="35" y="70" width="4" height="4" fill="#374151"/>
-                            <rect x="45" y="70" width="4" height="4" fill="#374151"/>
-                            <rect x="55" y="70" width="4" height="4" fill="#374151"/>
-                            <rect x="40" y="80" width="4" height="4" fill="#374151"/>
-                            <rect x="50" y="80" width="4" height="4" fill="#374151"/>
-                            <rect x="60" y="80" width="4" height="4" fill="#374151"/>
-                            <rect x="35" y="90" width="4" height="4" fill="#374151"/>
-                            <rect x="50" y="90" width="4" height="4" fill="#374151"/>
-                            <rect x="65" y="90" width="4" height="4" fill="#374151"/>
-                            <rect x="75" y="90" width="4" height="4" fill="#374151"/>
-                            <rect x="85" y="90" width="4" height="4" fill="#374151"/>
-
-                            <!-- 中心Logo区域 -->
-                            <circle cx="50" cy="50" r="8" fill="white"/>
-                            <circle cx="50" cy="50" r="5" fill="#11A64A"/>
-                        </svg>
-                    </div>
-                    <!-- 邮粮通Logo水印 -->
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center">
-                            <i class="fas fa-wheat-awn text-primary text-lg"></i>
-                        </div>
+                        <!-- 中心Logo区域 -->
+                        <circle cx="50" cy="50" r="9" fill="white"/>
+                        <circle cx="50" cy="50" r="6" fill="#11A64A"/>
+                    </svg>
+                </div>
+                <!-- 丰收云Logo水印 -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-12 h-12 bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] flex items-center justify-center">
+                        <i class="fas fa-wheat-awn text-primary text-xl"></i>
                     </div>
                 </div>
-
-                <div class="text-xs text-gray-400">扫一扫，向我付款</div>
             </div>
+        </div>
 
-            <!-- 收款说明 -->
-            <div class="mt-4 flex items-center justify-center gap-2">
-                <i class="fas fa-pen-to-square text-gray-400 text-xs"></i>
-                <input type="text" id="collectionNote" class="text-xs text-gray-500 bg-transparent border-none outline-none text-center" placeholder="添加收款说明（可选）" maxlength="20">
+        <!-- 操作指引文案移到卡片下方，获得更大排版空间 -->
+        <div class="mt-4 px-2">
+            <div class="flex items-start gap-2 text-[13px] leading-relaxed text-gray-500 font-medium">
+                <i class="fas fa-circle-info text-primary/60 mt-0.5 text-[14px]"></i>
+                <p class="flex-1">您可以将此二维码保存并发送给收购商，对方扫码后即可获取您的收款账户信息进行转账付款。</p>
             </div>
         </div>
 
         <!-- 保存按钮 -->
-        <div class="mt-3 flex justify-center">
-            <button class="px-8 py-2.5 rounded-full bg-primary text-white text-sm font-medium shadow-glow active:scale-[0.98] transition-transform" onclick="saveQr()">
-                <i class="fas fa-download mr-1.5"></i>保存收款码
+        <div class="mt-6 flex justify-center">
+            <button class="px-8 py-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold shadow-[0_8px_16px_rgba(16,185,129,0.3)] active:scale-[0.98] transition-transform" onclick="saveQr()">
+                <i class="fas fa-download mr-1.5"></i>保存账户码
             </button>
         </div>
 
@@ -183,7 +146,7 @@ var sourcePage = q.get('source') || '';
 var backLink = sourcePage === 'home' ? 'farmer-home.html' : 'farmer-home.html';
 
 document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader('收款码', backLink);
+document.getElementById('navBar').innerHTML = renderHeader('账户码', backLink);
 document.getElementById('tabBar').innerHTML = renderFarmerTabBar('collection');
 
 // 保存收款码

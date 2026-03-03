@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>邮粮通 - 我的</title>
+    <title>丰收云 - 我的</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -64,6 +64,33 @@
         }
         .invite-link:active {
             transform: scale(0.98);
+        }
+        .logout-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 95;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .logout-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .logout-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .logout-modal-overlay.show .logout-modal-sheet {
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -147,14 +174,17 @@
             </a>
             <div class="h-px bg-gray-100 mx-4"></div>
             <!-- 关于我们 -->
-            <a href="#" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+            <a href="about-us.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
                         <i class="fas fa-info-circle text-purple-500 text-sm"></i>
                     </div>
-                    <span class="text-sm text-gray-700">关于我们</span>
+                    <span class="text-sm text-gray-700">关于</span>
                 </div>
-                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-400">V1.1.0</span>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
             </a>
         </div>
 
@@ -181,7 +211,7 @@
 
         <!-- 退出登录 -->
         <div class="pt-4">
-            <a href="login.html" class="block w-full py-3 rounded-2xl bg-white border border-black/[0.04] text-red-500 text-sm font-medium text-center no-underline" style="text-decoration:none;">
+            <a href="#" onclick="return openLogoutModal(event)" class="block w-full py-3 rounded-2xl bg-white border border-black/[0.04] text-red-500 text-sm font-medium text-center no-underline" style="text-decoration:none;">
                 退出登录
             </a>
         </div>
@@ -209,6 +239,18 @@
             </a>
 
             <button class="w-full h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform mt-3" onclick="closeInviteModal()">关闭</button>
+        </div>
+    </div>
+
+    <!-- 退出登录确认弹窗 -->
+    <div id="logoutModal" class="logout-modal-overlay" onclick="closeLogoutModal()">
+        <div class="logout-modal-sheet" onclick="event.stopPropagation()">
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">退出当前账号</div>
+            <div class="text-[12px] text-gray-500 text-center mb-4">退出后需要重新登录才能继续使用</div>
+            <div class="flex gap-2.5">
+                <button class="flex-1 h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform" onclick="closeLogoutModal()">取消</button>
+                <button class="flex-1 h-11 rounded-xl bg-red-500 text-white text-sm font-medium active:scale-[0.98] transition-transform" onclick="confirmLogout()">退出登录</button>
+            </div>
         </div>
     </div>
 
@@ -323,6 +365,27 @@ function closeInviteModal() {
     var modal = document.getElementById('inviteModal');
     if (!modal) return;
     modal.classList.remove('show');
+}
+
+function openLogoutModal(event) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+    }
+    var modal = document.getElementById('logoutModal');
+    if (!modal) return false;
+    modal.classList.add('show');
+    return false;
+}
+
+function closeLogoutModal() {
+    var modal = document.getElementById('logoutModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function confirmLogout() {
+    window.location.href = 'login.html';
 }
 
 function renderInviteQr() {

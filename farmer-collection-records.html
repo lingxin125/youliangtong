@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>邮粮通 - 收款记录</title>
+    <title>丰收云 - 收款记录</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -222,17 +222,7 @@
                     </div>
                 </div>
             </div>
-            <!-- 支付方式 -->
-            <div>
-                <div class="filter-group-title">
-                    <i class="fas fa-credit-card"></i><span>支付方式</span>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    <button class="filter-option active" data-type="method" data-value="all">全部</button>
-                    <button class="filter-option" data-type="method" data-value="industry">行业支付</button>
-                    <button class="filter-option" data-type="method" data-value="guarantee">订单付</button>
-                </div>
-            </div>
+
         </div>
         <div class="px-4 py-3 border-t border-gray-100 flex gap-3 flex-shrink-0">
             <button class="flex-1 h-10 rounded-2xl border border-gray-200 text-[13px] font-medium text-gray-600 bg-white" onclick="FilterPanel.reset()">重置</button>
@@ -322,21 +312,17 @@ const FilterService = {
         timeRange: 'all',
         startDate: null,
         endDate: null,
-        payMethods: []
     },
 
     isActive() {
-        return this.state.timeRange !== 'all' ||
-               this.state.payMethods.length > 0;
+        return this.state.timeRange !== 'all';
     },
 
     setTimeRange(value) {
         this.state.timeRange = value;
     },
 
-    setMethod(value) {
-        this.state.payMethods = value === 'all' ? [] : [value];
-    },
+
 
     setCustomDates(start, end) {
         this.state.startDate = start;
@@ -348,7 +334,6 @@ const FilterService = {
             timeRange: 'all',
             startDate: null,
             endDate: null,
-            payMethods: []
         };
     },
 
@@ -379,12 +364,7 @@ const FilterService = {
                 timeMatch = recordDay >= start && recordDay <= end;
             }
 
-            // 支付方式筛选
-            let methodMatch = this.state.payMethods.length === 0 ||
-                              this.state.payMethods.includes(record.payMethod) ||
-                              (this.state.payMethods.includes('') && record.payMethod === '');
-
-            return timeMatch && methodMatch;
+            return timeMatch;
         }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
 };
@@ -465,7 +445,7 @@ const FormatService = {
 
 // ==================== 状态映射 ====================
 const StatusMap = {
-    success: { class: 'status-success', text: '已收款', amountClass: 'amount-received' }
+    success: { class: 'status-success', text: '支付成功', amountClass: 'amount-received' }
 };
 
 const MethodMap = {
@@ -631,8 +611,6 @@ const FilterPanel = {
                 if (type === 'time') {
                     FilterService.setTimeRange(value);
                     document.getElementById('customDateRange').classList.toggle('hidden', value !== 'custom');
-                } else if (type === 'method') {
-                    FilterService.setMethod(value);
                 }
             });
         });

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 关于</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+
+        .app-icon-shadow {
+            box-shadow: 0 12px 24px -6px rgba(17, 166, 74, 0.15), 0 4px 8px -4px rgba(17, 166, 74, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <!-- 状态栏 -->
+    <div id="statusBar"></div>
+    <!-- 导航栏 -->
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar">
+        <div class="px-5 pt-8 pb-8 flex flex-col min-h-full">
+
+            <!-- Hero Section: Logo & Version -->
+            <div class="flex flex-col items-center mt-2 mb-8">
+                <div class="w-28 h-28 rounded-3xl bg-white p-1 mb-3 app-icon-shadow relative">
+                    <img src="丰收云logo.png" alt="丰收云 Logo" class="w-full h-full object-cover rounded-[20px]">
+                    <div class="absolute inset-0 rounded-[24px] border border-black/5 pointer-events-none"></div>
+                </div>
+                <h1 class="text-[22px] font-bold text-gray-800 tracking-wide mb-3" style="font-family: 'Noto Sans SC', sans-serif;">丰收云</h1>
+                <div class="flex items-center gap-1 bg-green-100/60 text-green-700 px-3 py-1 rounded-full border border-green-200/50 shadow-sm">
+                    <span class="text-[11px] font-medium" style="font-family: 'Poppins', sans-serif;">V1.1.0</span>
+                </div>
+            </div>
+
+            <!-- 功能列表卡片（毛玻璃效果） -->
+            <div class="glass-card rounded-2xl overflow-hidden">
+                <!-- 隐私政策与服务协议 -->
+                <a href="#" class="flex items-center justify-between px-4 py-3.5 active:bg-black/5 transition-colors no-underline" style="text-decoration: none;">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center border border-green-200/50">
+                            <i class="fas fa-shield-halved text-green-600 text-sm"></i>
+                        </div>
+                        <span class="text-sm text-gray-700 font-medium">隐私政策与服务协议</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </a>
+
+                <div class="h-px bg-gray-100 mx-4"></div>
+
+                <!-- 更新日志 -->
+                <a href="#" class="flex items-center justify-between px-4 py-3.5 active:bg-black/5 transition-colors no-underline" style="text-decoration: none;">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center border border-blue-200/50">
+                            <i class="fas fa-clock-rotate-left text-blue-500 text-sm"></i>
+                        </div>
+                        <span class="text-sm text-gray-700 font-medium">更新日志</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- 底部 Slogan -->
+            <div class="flex-1 min-h-[80px]"></div>
+            <div class="text-center mb-2">
+                <p class="text-[11px] text-gray-400 leading-relaxed">致力于农业数字化转型</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('关于', 'javascript:history.back()');
+</script>
+</body>
+</html>

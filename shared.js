@@ -1,5 +1,5 @@
 /**
- * 邮粮通 - 共享组件和样式配置
+ * 丰收云 - 共享组件和样式配置
  * UI风格：温润实体卡片（纯白卡片 + 三级分层阴影 + 深色微边框 + 暖色背景）
  * 主题色保持绿色系，背景为麦穗金色 + 淡绿桥梁色
  */
@@ -90,7 +90,7 @@ function renderStatusBar() {
 
 // ==================== 导航栏 ====================
 function renderHeader(title, backHref) {
-  title = title || "邮粮通";
+  title = title || "丰收云";
   var backBtn = backHref
     ? '<a href="' +
       backHref +
@@ -1704,7 +1704,7 @@ document.addEventListener(
 );
 
 // ==================== 邮政风格专属组件 ====================
-// 为邮粮通客户经理端H5提供的邮政风格UI组件扩展
+// 为丰收云客户经理端H5提供的邮政风格UI组件扩展
 // 使用 postal- 前缀与现有农产品风格区分，支持双主题切换
 
 /**
@@ -1949,7 +1949,7 @@ function renderPostalHero(data) {
                             </span>
                         </div>
                         <h1 class="text-2xl font-bold text-white">您好，${managerName}</h1>
-                        <p class="text-sm text-white/70 mt-1">欢迎使用邮粮通工作平台</p>
+                        <p class="text-sm text-white/70 mt-1">欢迎使用丰收云工作平台</p>
                     </div>
                     <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
                         <i class="fas fa-bell text-white text-lg"></i>
