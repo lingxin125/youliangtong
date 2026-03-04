@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 账户安全</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+</head>
+<body class="bg-gray-50/50">
+<div class="mobile-container relative bg-gray-50/50">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pt-4 pb-8 space-y-4">
+        <!-- 安全设置菜单 -->
+        <div class="bg-white rounded-2xl overflow-hidden border border-black/[0.04]">
+            <!-- 修改登录密码 -->
+            <a href="change-password.html" class="flex items-center justify-between px-4 py-3.5 no-underline active:bg-gray-50 transition-colors" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center">
+                        <i class="fas fa-lock text-teal-600 text-sm"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">修改登录密码</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+        </div>
+        
+        
+    </div>
+</div>
+
+<script>
+    // 返回上一页
+    var q = new URLSearchParams(window.location.search);
+    var sourcePage = q.get('source') || 'buyer-my.html';
+    
+    document.getElementById('statusBar').innerHTML = renderStatusBar();
+    document.getElementById('navBar').innerHTML = renderHeader('账户安全', sourcePage);
+</script>
+</body>
+</html>

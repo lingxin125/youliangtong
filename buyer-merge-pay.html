@@ -537,6 +537,10 @@ function goOrderDetail(orderId) {
     const params = new URLSearchParams({
         source: 'merge',
         orderNo: order.id,
+        grainOrderNo: order.id,
+        paymentOrderNo: order.paymentOrderNo || '',
+        bankFlowNo: order.bankFlowNo || '',
+        cancelSource: order.cancelSource || '',
         amount: order.amount.toFixed(2),
         payeeName: order.payeeName || '',
         payeeMobile: order.payeeMobile || '',

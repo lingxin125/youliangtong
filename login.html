@@ -226,7 +226,7 @@
                     <i class="fas fa-right-left"></i>
                     <span id="modeSwitchText">切换验证码登录</span>
                 </button>
-                <a href="#" class="forgot-link" id="forgotPwdLink" onclick="showForgetTip(event)">忘记密码?</a>
+                <a href="forgot-password.html" class="forgot-link" id="forgotPwdLink">忘记密码?</a>
             </div>
 
             <!-- 登录按钮 -->
@@ -328,10 +328,6 @@ function getSmsCode() {
     }, 1000);
 }
 
-function showForgetTip(event) {
-    event.preventDefault();
-    showToast('忘记密码流程待接入（原型示意）');
-}
 
 function showToast(msg) {
     var tip = document.getElementById('toastTip');

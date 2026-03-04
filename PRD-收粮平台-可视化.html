@@ -418,7 +418,7 @@ flowchart TD
     C3 --> E1
     E1 --> F1[发布需求并建立交易意向]
     F1 --> G1[收购商开单]
-    G1 --> G2[明细录入：选择品类 → 添加商品 → 输入数量/单价]
+    G1 --> G2[明细录入：选择品类 → 历史录入商品推荐Top5 → 添加商品 → 输入数量/单价]
     G2 --> H1[生成订单]
     H1 --> H2[扫码识别农户收款码]
     H2 --> H3{结算动作}
@@ -511,7 +511,9 @@ stateDiagram-v2
           <div>• 合作农户口径更新：合作农户页仅展示与收购商存在交易/付款关系的农户；页面仅保留搜索，不支持新增农户，不展示“去开单”操作，不承担开户入口。</div>
           <div>• 权限与拉新链路更新：收购商侧收回“手工新增农户”权限（风险控制）；改为在“我的”页新增“邀请农户”入口，弹出二维码（可保存分享），农户扫码进入入驻页完成注册。</div>
           <div>• 开单流程口径更新：开单页收款对象主路径为扫码识别，原“合作农户选择”入口下线；提交动作拆分为“稍后结算”和“立即付款”。</div>
+          <div>• 开单商品推荐口径更新：添加商品弹层不再展示“自定义常用商品”，改为按当前品类展示“历史录入商品 Top5”（按频次+最近使用排序）；无历史数据时仅提示手动输入。</div>
           <div>• 订单状态口径更新：稍后结算生成<strong>待支付（unpaid）</strong>订单，立即付款生成<strong>支付中（paying）</strong>订单；支付中的订单 30 分钟超时自动取消。</div>
+          <div>• 订单详情编号口径更新：按状态展示分段订单号（收粮订单号 / 支付订单号 / 银行支付单号），已取消按撤销来源展示对应段数。</div>
           <div>• 合并付款能力上线：合并付款页仅汇总待支付订单，支持勾选多笔统一支付，付款后沉淀“已完成”记录并回写子订单状态。</div>
           <div>• 首页快捷入口口径更新（收购商）：原“消息通知”位置替换为“合并付款”，用于集中处理稍后结算订单。</div>
           <div>• 发布需求页口径更新：收购商与农户发布页均新增“发布地址（必填，可定位）”；收购商端字段口径为“需求标题 + 需求描述（选填）”。</div>
@@ -893,10 +895,11 @@ stateDiagram-v2
               <div class="space-y-2 text-sm text-gray-600">
                 <div class="flex gap-2"><span class="text-wheat-500 font-bold">1.</span> 进入"开单"页面，按商品明细录入（当前仅支持明细开单）</div>
                 <div class="flex gap-2"><span class="text-wheat-500 font-bold">2.</span> 选择品类（水果/蔬菜/粮食/禽蛋/肉类/水产/其他）</div>
-                <div class="flex gap-2"><span class="text-wheat-500 font-bold">3.</span> 添加商品：输入名称、数量、单价 → 系统自动计算小计</div>
-                <div class="flex gap-2"><span class="text-wheat-500 font-bold">4.</span> 可添加多个商品，系统自动计算合计金额，可删除已添加商品</div>
-                <div class="flex gap-2"><span class="text-wheat-500 font-bold">5.</span> 选择收款对象：当前 MVP 主路径为<strong>扫码</strong>识别农户收款码（开单页不再提供合作农户选择入口）</div>
-                <div class="flex gap-2"><span class="text-wheat-500 font-bold">6.</span> 点击<strong>稍后结算</strong>生成待支付订单，或点击<strong>立即付款</strong>生成支付中订单并进入收银台</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">3.</span> 商品名称输入框下方默认展示<strong>历史录入商品（当前品类 Top5）</strong>，点击标签可快速回填名称</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">4.</span> 添加商品：输入名称、数量、单价 → 系统自动计算小计</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">5.</span> 可添加多个商品，系统自动计算合计金额，可删除已添加商品</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">6.</span> 选择收款对象：当前 MVP 主路径为<strong>扫码</strong>识别农户收款码（开单页不再提供合作农户选择入口）</div>
+                <div class="flex gap-2"><span class="text-wheat-500 font-bold">7.</span> 点击<strong>稍后结算</strong>生成待支付订单，或点击<strong>立即付款</strong>生成支付中订单并进入收银台</div>
               </div>
             </div>
             <div class="mb-5">
@@ -917,6 +920,8 @@ stateDiagram-v2
 ├──────────────────────────────┤
 │  品类  [▼ 请选择___________] │
 │  ── 商品明细 ──────────────   │
+│  历史录入商品（Top5）        │
+│  [红富士苹果][黄元帅苹果]... │
 │  ┌──────────────────────────┐│
 │  │ 红富士苹果                ││
 │  │ 100斤 × ¥2.5 = ¥250     ││
@@ -1199,6 +1204,8 @@ stateDiagram-v2
                 <div>• "待支付/支付中"状态 → 详情页均支持"继续支付"与"取消订单"</div>
                 <div>• 详情页：状态提示区、收款方信息（名称+手机号脱敏）、商品明细、订单信息</div>
                 <div>• "待支付"详情页：unpaid 显示“待支付，可继续支付或取消订单”；pending 显示30分钟倒计时</div>
+                <div>• 订单号展示：待支付仅展示<strong>收粮订单号</strong>；支付中展示<strong>收粮订单号 + 支付订单号</strong>；支付成功/失败展示<strong>收粮订单号 + 支付订单号 + 银行支付单号</strong></div>
+                <div>• 已取消订单号展示：按撤销来源展示，待支付撤销显示 1 段号，支付中撤销显示 2 段号</div>
                 <div>• "待支付/支付中"状态<strong>不展示</strong>支付方式，支付成功/失败/已取消展示支付信息</div>
                 <div>• 超时文案统一口径：<strong>超时未支付，系统自动取消</strong>（收银台/订单列表/订单详情保持一致）</div>
                 <div>• 合并付款入口仅处理待支付订单，合并成功后子订单状态回写为支付成功</div>
@@ -1245,7 +1252,9 @@ stateDiagram-v2
 │ 苹果  50斤×¥5  ¥250   │
 │ 樱桃  30斤×¥50 ¥1,500 │
 │ ── 订单信息 ────────   │
-│ 订单号：SL20260209001 │
+│ 收粮订单号：SL...     │
+│ 支付订单号：ZF...     │
+│ 银行支付单号：YH...   │
 │ 时间：2026-02-09 10:30│
 │ 支付方式：行业支付     │
 │ 订单金额：¥1,750.00   │

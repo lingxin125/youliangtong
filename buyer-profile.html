@@ -64,12 +64,6 @@
             background: rgba(59, 130, 246, 0.1);
             color: #3B82F6;
         }
-        .avatar-small {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
         .copy-icon {
             color: #9CA3AF;
             cursor: pointer;
@@ -78,10 +72,6 @@
         }
         .copy-icon:active {
             color: #11A64A;
-        }
-        .chevron-right {
-            color: #D1D5DB;
-            font-size: 14px;
         }
         .toast {
             position: fixed;
@@ -116,21 +106,25 @@
 
         <!-- 个人信息列表 -->
         <div class="glass-panel rounded-2xl mt-3 overflow-hidden">
-            <!-- 我的头像 -->
-            <div class="info-row" onclick="showToast('更换头像功能开发中')">
-                <span class="info-label"><i class="fas fa-portrait"></i>我的头像</span>
+            <!-- 商户号 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-hashtag"></i>商户号</span>
                 <span class="info-value">
-                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face"
-                         alt="头像"
-                         class="avatar-small">
-                    <i class="fas fa-chevron-right chevron-right"></i>
+                    <span id="merchantNo">6026245559</span>
+                    <i class="far fa-copy copy-icon" onclick="copyMerchantNo()"></i>
                 </span>
             </div>
 
             <!-- 商户名称（只读） -->
             <div class="info-row">
-                <span class="info-label"><i class="fas fa-store"></i>名称</span>
+                <span class="info-label"><i class="fas fa-store"></i>商户名称</span>
                 <span class="info-value">张三的粮站</span>
+            </div>
+
+            <!-- 手机号 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-phone"></i>手机号</span>
+                <span class="info-value">13812342233</span>
             </div>
 
             <!-- 当前身份 -->
@@ -138,15 +132,6 @@
                 <span class="info-label"><i class="fas fa-user-tag"></i>当前身份</span>
                 <span class="info-value">
                     <span class="role-tag">收购商</span>
-                </span>
-            </div>
-
-            <!-- 商户号 -->
-            <div class="info-row">
-                <span class="info-label"><i class="fas fa-hashtag"></i>商户号</span>
-                <span class="info-value">
-                    <span id="merchantNo">6026245559</span>
-                    <i class="far fa-copy copy-icon" onclick="copyMerchantNo()"></i>
                 </span>
             </div>
 

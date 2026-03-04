@@ -335,6 +335,21 @@
             border-bottom: none;
         }
 
+        .items-table th:nth-child(2),
+        .items-table th:nth-child(3),
+        .items-table td:nth-child(2),
+        .items-table td:nth-child(3) {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .items-empty {
+            color: #9ca3af;
+            font-size: 12px;
+            padding: 8px 4px;
+            text-align: center;
+        }
+
         .item-total {
             padding: 12px 16px;
             border-top: 1px solid var(--line);
@@ -870,17 +885,38 @@
                         <div class="info-item"><span class="info-label">付款银行</span><span id="payerBank" class="info-value">-</span></div>
                     </div>
                 </section>
+
+                <section class="panel">
+                    <h2 class="panel-title">商品明细</h2>
+                    <div class="items-wrap">
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th>商品名称</th>
+                                    <th>单价</th>
+                                    <th>数量</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderItemsBody">
+                                <tr><td colspan="3" class="items-empty">暂无商品明细</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </aside>
 
             <section class="panel">
                 <div class="payment-head">
-                    <h2 class="payment-title">选择支付方式</h2>
+                    <h2 class="payment-title">支付方式</h2>
+                    <p class="payment-sub">当前支付方式：<span id="currentPayMethod">行业支付</span></p>
                 </div>
 
+                <!--
                 <div class="method-tabs">
                     <button class="tab-btn active" data-tab="bank">行业支付</button>
                     <button class="tab-btn" data-tab="orderpay">订单付</button>
                 </div>
+                -->
 
                 <div id="panel-bank" class="pay-panel active">
                     <div class="pay-grid">
@@ -1250,6 +1286,7 @@
             document.querySelectorAll('.pay-panel').forEach(panel => {
                 panel.classList.toggle('active', panel.id === 'panel-' + tab);
             });
+            setText('currentPayMethod', channelLabel(tab));
         }
 
         function renderAll() {
@@ -1259,6 +1296,7 @@
             setText('payerName', Config.payer.name);
             setText('payerCard', Config.payer.card);
             setText('payerBank', Config.payer.bank);
+            renderOrderItems();
 
             setText('bankSellerName', Config.seller.name);
             setText('bankSellerBank', Config.seller.bankName);
@@ -1272,6 +1310,43 @@
             document.querySelectorAll('.pay-amount').forEach(el => {
                 el.textContent = formatNum(Config.amount);
             });
+            setText('currentPayMethod', channelLabel(currentChannel));
+        }
+
+        function formatItemPrice(item) {
+            const price = Number(item && item.price);
+            if (!Number.isFinite(price) || price <= 0) return '--';
+            return '¥' + formatNum(price);
+        }
+
+        function formatItemQty(item) {
+            const rawQty = item && item.qty;
+            const unit = String((item && item.unit) || '');
+            if (typeof rawQty === 'number' && Number.isFinite(rawQty) && rawQty > 0) {
+                const qtyText = Number.isInteger(rawQty) ? String(rawQty) : String(rawQty);
+                return qtyText + unit;
+            }
+            if (typeof rawQty === 'string' && rawQty.trim()) {
+                return rawQty.trim();
+            }
+            return '--';
+        }
+
+        function renderOrderItems() {
+            const body = document.getElementById('orderItemsBody');
+            if (!body) return;
+            if (!Array.isArray(Config.items) || Config.items.length === 0) {
+                body.innerHTML = '<tr><td colspan="3" class="items-empty">暂无商品明细</td></tr>';
+                return;
+            }
+            body.innerHTML = Config.items.map((item, index) => {
+                const name = escapeHtml(String((item && item.name) || ('商品' + (index + 1))));
+                return '<tr>'
+                    + '<td>' + name + '</td>'
+                    + '<td>' + formatItemPrice(item) + '</td>'
+                    + '<td>' + escapeHtml(formatItemQty(item)) + '</td>'
+                    + '</tr>';
+            }).join('');
         }
 
         function bindPresetState() {

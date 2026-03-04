@@ -30,7 +30,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
-        /* 常用商品标签 */
+        /* 历史录入商品标签 */
         .product-tag {
             display: inline-flex;
             align-items: center;
@@ -397,8 +397,8 @@
             <div class="mb-3">
                 <label class="text-xs text-gray-500 block mb-1.5">商品名称</label>
                 <input type="text" id="sheetProductName" placeholder="请输入或选择商品名称" class="custom-input">
-                <!-- 常用商品快捷标签 -->
-                <div class="flex flex-wrap gap-1.5 mt-2 items-center" id="sheetProductSuggestions">
+                <!-- 历史录入商品推荐 -->
+                <div class="mt-2 space-y-1.5" id="sheetProductSuggestions">
                     <!-- 由 JS 生成 -->
                 </div>
             </div>
@@ -531,7 +531,6 @@ const mockStore = window.BuyerMockStore || null;
 const state = {
     currentCategory: null,
     products: [],
-    customProducts: {},  // 用户自定义的常用商品 {品类: [商品名]}
     payee: null,
     payeePool: mockStore ? mockStore.getFrequentContacts() : [
         { name: '李大姐', mobile: '138****2233', bank: '邮储银行烟台支行', card: '尾号 2233' },
@@ -540,7 +539,7 @@ const state = {
     ]
 };
 
-// ==================== 品类和常用商品渲染 ====================
+// ==================== 品类和历史商品渲染 ====================
 function renderCategories() {
     const container = document.getElementById('categoryList');
     const categories = Object.keys(CATEGORY_CONFIG);
@@ -558,7 +557,67 @@ function renderCategories() {
     }).join('');
 }
 
-// 在添加商品弹窗内渲染常用商品建议标签
+function normalizeCategoryName(name) {
+    if (name === '蔬菜') return '蓔菜';
+    return name || '';
+}
+
+function inferCategoryByName(name) {
+    const safeName = String(name || '').trim();
+    if (!safeName) return '其他';
+    const rules = [
+        { category: '水果', keywords: ['苹果', '梨', '桃', '葡萄', '猕猴桃', '橙', '柚', '香蕉', '草莓', '西瓜'] },
+        { category: '蓔菜', keywords: ['土豆', '黄瓜', '西红柿', '胡萝卜', '白菜', '洋葱', '青椒', '茄子', '萝卜', '生菜', '包菜', '芹菜'] },
+        { category: '粮油', keywords: ['大米', '小麦', '玉米', '稻谷', '花生油', '菜籽油', '粮', '油'] },
+        { category: '禽蛋', keywords: ['鸡蛋', '鸭蛋', '鹅蛋', '鹌鹑蛋', '蛋'] },
+        { category: '肉类', keywords: ['猪肉', '牛肉', '羊肉', '鸡肉', '鸭肉', '肉'] }
+    ];
+    for (const rule of rules) {
+        if (rule.keywords.some(keyword => safeName.includes(keyword))) {
+            return rule.category;
+        }
+    }
+    return '其他';
+}
+
+function buildHistoryProductSuggestions(category, limit) {
+    const targetCategory = normalizeCategoryName(category);
+    if (!targetCategory || !CATEGORY_CONFIG[targetCategory]) return [];
+
+    const orders = mockStore && typeof mockStore.getOrders === 'function'
+        ? mockStore.getOrders()
+        : [];
+    const stats = {};
+
+    orders.forEach(order => {
+        const orderCategory = normalizeCategoryName(order && order.category);
+        const orderTime = new Date(order && order.createdAt ? order.createdAt : 0).getTime() || 0;
+        const items = Array.isArray(order && order.items) ? order.items : [];
+
+        items.forEach(item => {
+            const name = String(item && item.name ? item.name : '').trim();
+            if (!name) return;
+
+            const itemCategory = normalizeCategoryName(item && item.category) || orderCategory || inferCategoryByName(name);
+            if (itemCategory !== targetCategory) return;
+
+            if (!stats[name]) {
+                stats[name] = { name: name, count: 0, lastUsedAt: 0 };
+            }
+            stats[name].count += 1;
+            if (orderTime > stats[name].lastUsedAt) {
+                stats[name].lastUsedAt = orderTime;
+            }
+        });
+    });
+
+    return Object.values(stats)
+        .sort((a, b) => b.count - a.count || b.lastUsedAt - a.lastUsedAt)
+        .slice(0, limit || 5)
+        .map(item => item.name);
+}
+
+// 在添加商品弹窗内渲染历史商品建议标签
 function renderSheetSuggestions() {
     const container = document.getElementById('sheetProductSuggestions');
     if (!container) return;
@@ -574,19 +633,33 @@ function renderSheetSuggestions() {
         return;
     }
 
-    // 自定义商品列表
-    const customProducts = state.customProducts[state.currentCategory] || [];
+    const historyProducts = buildHistoryProductSuggestions(state.currentCategory, 5);
 
-    // 空状态 + 自定义按钮
-    if (customProducts.length === 0) {
-        container.innerHTML = `<span class="text-[11px] text-gray-400">暂无常用商品，如需请</span><span class="text-[11px] text-primary cursor-pointer" onclick="event.stopPropagation(); addCustomProduct()"><i class="fas fa-plus text-[9px] mr-0.5"></i>自定义</span>`;
+    if (historyProducts.length === 0) {
+        container.innerHTML = `
+            <div class="text-[11px] text-gray-400">历史录入商品（当前品类）暂无数据，请手动输入商品名称</div>
+        `;
         return;
     }
 
-    // 渲染标签（颜色跟随品类）
-    container.innerHTML = customProducts.map(product => {
-        return `<span class="product-tag text-[11px] py-1 px-2 ${config.tagBg} ${config.tagText} border ${config.tagBorder}" onclick="event.stopPropagation(); fillProductName('${product}')">${product}<i class="fas fa-times-circle text-[10px] opacity-40 ml-0.5" onclick="event.stopPropagation(); removeCustomProduct('${product}')"></i></span>`;
-    }).join('') + `<span class="text-[11px] text-primary cursor-pointer ml-1" onclick="event.stopPropagation(); addCustomProduct()"><i class="fas fa-plus text-[9px] mr-0.5"></i>自定义</span>`;
+    const escapeHtml = function(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    };
+
+    container.innerHTML = `
+        <div class="text-[11px] text-gray-400">常用</div>
+        <div class="flex flex-wrap gap-1.5 items-center">
+            ${historyProducts.map(product => {
+                const encoded = encodeURIComponent(String(product));
+                return `<span class="product-tag text-[11px] py-1 px-2 ${config.tagBg} ${config.tagText} border ${config.tagBorder}" onclick="event.stopPropagation(); fillProductName(decodeURIComponent('${encoded}'))">${escapeHtml(product)}</span>`;
+            }).join('')}
+        </div>
+    `;
 }
 
 // 点击建议标签 → 填入商品名称
@@ -642,58 +715,6 @@ function showAppModal({ title, message, inputPlaceholder, confirmText, cancelTex
 
 function closeAppModal() {
     document.getElementById('appModalOverlay').classList.remove('show');
-}
-
-// ==================== 自定义常用商品 ====================
-function addCustomProduct() {
-    if (!state.currentCategory) {
-        showToast('请先选择品类');
-        return;
-    }
-    showAppModal({
-        title: '添加常用商品',
-        inputPlaceholder: '请输入商品名称',
-        confirmText: '添加',
-        onConfirm: function(value) {
-            if (!value || !value.trim()) {
-                showToast('请输入商品名称');
-                return;
-            }
-            const trimmed = value.trim();
-            if (!state.customProducts[state.currentCategory]) {
-                state.customProducts[state.currentCategory] = [];
-            }
-            if (state.customProducts[state.currentCategory].includes(trimmed)) {
-                showToast('该商品已存在');
-                return;
-            }
-            state.customProducts[state.currentCategory].push(trimmed);
-            renderSheetSuggestions();
-            document.getElementById('sheetProductName').value = trimmed;
-            showToast('已添加「' + trimmed + '」');
-        }
-    });
-}
-
-function removeCustomProduct(productName) {
-    if (!state.currentCategory) return;
-    const customList = state.customProducts[state.currentCategory];
-    if (!customList || !customList.includes(productName)) return;
-
-    showAppModal({
-        title: '删除常用商品',
-        message: `确认删除「${productName}」？`,
-        confirmText: '删除',
-        confirmClass: 'app-modal-btn-danger',
-        onConfirm: function() {
-            const idx = customList.indexOf(productName);
-            if (idx > -1) {
-                customList.splice(idx, 1);
-                renderSheetSuggestions();
-                showToast('已删除「' + productName + '」');
-            }
-        }
-    });
 }
 
 // ==================== 商品列表管理 ====================
@@ -763,7 +784,7 @@ function openAddProductSheet() {
     document.getElementById('sheetProductUnit').value = '';
     document.getElementById('sheetProductQty').value = '';
     document.getElementById('sheetSubtotal').textContent = '0.00';
-    // 渲染常用商品建议标签
+    // 渲染历史录入商品建议标签
     renderSheetSuggestions();
     // 打开弹窗
     document.getElementById('addProductOverlay').classList.add('show');
