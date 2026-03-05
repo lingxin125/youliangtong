@@ -886,10 +886,11 @@
                 <section class="panel">
                     <h2 class="panel-title">付款方信息</h2>
                     <div class="info-list">
+                        <div class="info-item"><span class="info-label">商户名称</span><span id="payerCompany" class="info-value">-</span></div>
                         <div class="info-item"><span class="info-label">付款人</span><span id="payerName" class="info-value">-</span></div>
                         <div class="info-item"><span class="info-label">付款银行</span><span id="payerBank" class="info-value">-</span></div>
                         <div class="info-item"><span class="info-label">付款卡号</span><span id="payerCard" class="info-value">-</span></div>
-                         </div>
+                    </div>
                 </section>
 
                 <section class="panel">
@@ -934,6 +935,7 @@
                         <div>
                             <div class="channel-meta">
                                 <h4>收款方信息</h4>
+                                <div class="meta-row"><span class="k">商户名称</span><span id="bankSellerCompany" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款人</span><span id="bankSellerName" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款银行</span><span id="bankSellerBank" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款卡号</span><span class="v" id="bankSellerCard">-</span></div>
@@ -960,6 +962,7 @@
                         <div>
                             <div class="channel-meta">
                                 <h4>收款方信息</h4>
+                                <div class="meta-row"><span class="k">商户名称</span><span id="orderPaySellerCompany" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款人</span><span id="orderPaySellerName" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款银行</span><span id="orderPaySellerBank" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款人卡号</span><span id="orderPaySellerCard" class="v">-</span></div>
@@ -1069,6 +1072,7 @@
                 summary: '小麦、玉米等 3 项商品',
                 seller: {
                     name: '李大姐',
+                    company: '李大姐农户',
                     bankName: '邮储银行济南历城支行',
                     card: '6228********8901'
                 },
@@ -1192,6 +1196,7 @@
             }
 
             Config.seller.name = p.get('payeeName') || p.get('sellerName') || Config.seller.name;
+            Config.seller.company = p.get('payeeCompany') || p.get('sellerCompany') || p.get('payeeOrg') || Config.seller.company;
             Config.seller.bankName = p.get('payeeBank') || p.get('bankName') || Config.seller.bankName;
             Config.seller.card = p.get('payeeCard') || Config.seller.card;
             Config.payer.name = p.get('payerName') || Config.payer.name;
@@ -1299,16 +1304,20 @@
             setText('totalAmount', formatNum(Config.amount));
             setText('orderNo', Config.orderNo);
             setText('orderTime', Config.createTime);
+            setText('payerCompany', Config.payer.company || Config.payer.name || '--');
             setText('payerName', Config.payer.name);
             setText('payerCard', Config.payer.card);
             setText('payerBank', Config.payer.bank);
             renderOrderItems();
 
+            const sellerCompany = Config.seller.company || Config.seller.name || '--';
+            setText('bankSellerCompany', sellerCompany);
             setText('bankSellerName', Config.seller.name);
             setText('bankSellerBank', Config.seller.bankName);
             setText('bankSellerCard', Config.seller.card);
 
             setText('orderPayCompanyName', '“' + Config.payer.company + '”');
+            setText('orderPaySellerCompany', sellerCompany);
             setText('orderPaySellerName', Config.seller.name);
             setText('orderPaySellerBank', Config.seller.bankName);
             setText('orderPaySellerCard', Config.seller.card);
