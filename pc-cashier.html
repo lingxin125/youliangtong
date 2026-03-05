@@ -880,10 +880,16 @@
                     <div class="info-list">
                         <div class="info-item"><span class="info-label">订单号</span><span id="orderNo" class="info-value">-</span></div>
                         <div class="info-item"><span class="info-label">下单时间</span><span id="orderTime" class="info-value">-</span></div>
-                        <div class="info-item"><span class="info-label">付款人</span><span id="payerName" class="info-value">-</span></div>
-                        <div class="info-item"><span class="info-label">付款卡号</span><span id="payerCard" class="info-value">-</span></div>
-                        <div class="info-item"><span class="info-label">付款银行</span><span id="payerBank" class="info-value">-</span></div>
                     </div>
+                </section>
+
+                <section class="panel">
+                    <h2 class="panel-title">付款方信息</h2>
+                    <div class="info-list">
+                        <div class="info-item"><span class="info-label">付款人</span><span id="payerName" class="info-value">-</span></div>
+                        <div class="info-item"><span class="info-label">付款银行</span><span id="payerBank" class="info-value">-</span></div>
+                        <div class="info-item"><span class="info-label">付款卡号</span><span id="payerCard" class="info-value">-</span></div>
+                         </div>
                 </section>
 
                 <section class="panel">
@@ -908,7 +914,7 @@
             <section class="panel">
                 <div class="payment-head">
                     <h2 class="payment-title">支付方式</h2>
-                    <p class="payment-sub">当前支付方式：<span id="currentPayMethod">行业支付</span></p>
+                    <p class="payment-sub">当前支付方式：<span id="currentPayMethod">行业支付（仅演示）</span></p>
                 </div>
 
                 <!--
@@ -927,10 +933,10 @@
                         </div>
                         <div>
                             <div class="channel-meta">
-                                <h4>行业支付信息</h4>
+                                <h4>收款方信息</h4>
                                 <div class="meta-row"><span class="k">收款人</span><span id="bankSellerName" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款银行</span><span id="bankSellerBank" class="v">-</span></div>
-                                <div class="meta-row"><span class="k">收款人卡号</span><span class="v" id="bankSellerCard">-</span></div>
+                                <div class="meta-row"><span class="k">收款卡号</span><span class="v" id="bankSellerCard">-</span></div>
                             </div>
                             <div class="action-row">
                                 <button class="btn btn-primary" data-pay-action onclick="openScanResult('bank')">已完成支付</button>
@@ -953,7 +959,7 @@
                         </div>
                         <div>
                             <div class="channel-meta">
-                                <h4>收款人信息</h4>
+                                <h4>收款方信息</h4>
                                 <div class="meta-row"><span class="k">收款人</span><span id="orderPaySellerName" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款银行</span><span id="orderPaySellerBank" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款人卡号</span><span id="orderPaySellerCard" class="v">-</span></div>
@@ -1316,15 +1322,15 @@
         function formatItemPrice(item) {
             const price = Number(item && item.price);
             if (!Number.isFinite(price) || price <= 0) return '--';
-            return '¥' + formatNum(price);
+            const unit = String((item && item.unit) || '').trim();
+            return '¥' + formatNum(price) + (unit ? '/' + unit : '');
         }
 
         function formatItemQty(item) {
             const rawQty = item && item.qty;
-            const unit = String((item && item.unit) || '');
             if (typeof rawQty === 'number' && Number.isFinite(rawQty) && rawQty > 0) {
                 const qtyText = Number.isInteger(rawQty) ? String(rawQty) : String(rawQty);
-                return qtyText + unit;
+                return qtyText;
             }
             if (typeof rawQty === 'string' && rawQty.trim()) {
                 return rawQty.trim();
@@ -1650,8 +1656,8 @@
 
         function channelLabel(channel) {
             const map = {
-                bank: '行业支付',
-                orderpay: '订单付',
+                bank: '行业支付（仅演示用）',
+                orderpay: '订单付（仅演示用）',
             };
             return map[channel] || '支付';
         }
