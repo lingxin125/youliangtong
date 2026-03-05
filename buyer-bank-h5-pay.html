@@ -163,30 +163,22 @@
         <!-- 卡片2：详细信息校验 -->
         <div class="glass-panel rounded-2xl p-4 mb-4">
             
-            <!-- 交易信息 -->
+            <!-- 订单信息 -->
             <div class="flex items-center gap-2 mb-3 text-[14px] font-bold text-gray-800">
                 <div class="w-1 h-3.5 bg-[#13b15a] rounded-full"></div>
-                <span>交易信息</span>
+                <span>订单信息</span>
             </div>
             <div class="info-row">
-                <span class="info-label">订单号</span>
-                <span id="infoOrderNo" class="info-value font-mono"></span>
+                <span class="info-label">收粮订单号</span>
+                <span id="infoGrainOrderNo" class="info-value font-mono"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">支付订单号</span>
+                <span id="infoPaymentOrderNo" class="info-value font-mono"></span>
             </div>
             <div class="info-row">
                 <span class="info-label">下单时间</span>
                 <span id="infoCreatedAt" class="info-value"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">付款人</span>
-                <span id="payerText" class="info-value">张老板（保定收购站）</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">付款银行</span>
-                <span id="payerBankText" class="info-value"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">付款卡号</span>
-                <span id="payerCardText" class="info-value"></span>
             </div>
 
             <!-- 收款方信息 -->
@@ -195,7 +187,11 @@
                 <span>收款方信息</span>
             </div>
             <div class="info-row">
-                <span class="info-label">收款人</span>
+                <span class="info-label">商户名称</span>
+                <span id="payeeCompanyText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">收款方</span>
                 <span id="payeeNameText" class="info-value"></span>
             </div>
             <div class="info-row">
@@ -219,8 +215,8 @@
                 <thead>
                     <tr>
                         <th>商品名称</th>
-                        <th>数量</th>
                         <th>单价</th>
+                        <th>数量</th>
                         <th>小计</th>
                     </tr>
                 </thead>
@@ -250,8 +246,10 @@ const params = new URLSearchParams(window.location.search);
 const fallbackNow = new Date();
 
 const state = {
-    orderNo: params.get('orderNo') || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
+    grainOrderNo: params.get('grainOrderNo') || params.get('orderNo') || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
+    paymentOrderNo: params.get('paymentOrderNo') || params.get('payOrderNo') || '',
     amount: parseFloat(params.get('amount')) || 38500.00,
+    payeeCompany: params.get('payeeCompany') || params.get('payeeOrg') || '个体农户',
     payeeName: params.get('payeeName') || '李大姐',
     payeeBank: params.get('payeeBank') || '中国邮政储蓄银行',
     payeeCard: params.get('payeeCard') || '尾号 8888',
@@ -259,6 +257,7 @@ const state = {
     summary: params.get('summary') || '苹果 x 50斤',
     items: parseItems(params.get('items')),
 };
+state.paymentOrderNo = state.paymentOrderNo || buildPaymentOrderNo(state.grainOrderNo);
 
 function parseItems(raw) {
     if (!raw) return [];
@@ -299,17 +298,49 @@ function formatTime(isoString) {
            String(d.getMinutes()).padStart(2, '0');
 }
 
+function deterministicDigits(seed, length) {
+    const source = String(seed || '000000000000');
+    let hash = 0;
+    let output = '';
+    for (let i = 0; i < source.length; i += 1) {
+        hash = (hash * 131 + source.charCodeAt(i)) % 1000000007;
+    }
+    for (let i = 0; i < length; i += 1) {
+        hash = (hash * 1103515245 + 12345 + i) % 2147483647;
+        output += String(hash % 10);
+    }
+    return output;
+}
+
+function buildPaymentOrderNo(grainOrderNo) {
+    return 'ZF' + deterministicDigits('PAY-' + (grainOrderNo || ''), 18);
+}
+
+function formatUnitPrice(price, unit) {
+    const num = Number(price);
+    if (!Number.isFinite(num) || num <= 0) return '--';
+    const cleanPrice = Number.isInteger(num) ? String(num) : String(Number(num.toFixed(2)));
+    const cleanUnit = String(unit || '').trim();
+    return '¥' + cleanPrice + (cleanUnit ? '/' + cleanUnit : '');
+}
+
+function formatQtyOnly(qty) {
+    const num = Number(qty);
+    if (!Number.isFinite(num) || num <= 0) return '--';
+    return Number.isInteger(num) ? String(num) : String(num);
+}
+
 function fillPage() {
     document.getElementById('mainPayee').textContent = '向 ' + state.payeeName + ' 付款';
     document.getElementById('mainAmount').textContent = formatMoney(state.amount);
     
-    // 交易信息
-    document.getElementById('infoOrderNo').textContent = state.orderNo;
+    // 订单信息
+    document.getElementById('infoGrainOrderNo').textContent = state.grainOrderNo;
+    document.getElementById('infoPaymentOrderNo').textContent = state.paymentOrderNo;
     document.getElementById('infoCreatedAt').textContent = formatTime(state.createdAt);
-    document.getElementById('payerBankText').textContent = '中国农业银行';
-    document.getElementById('payerCardText').textContent = '尾号 5678';
     
     // 收款方信息
+    document.getElementById('payeeCompanyText').textContent = state.payeeCompany;
     document.getElementById('payeeNameText').textContent = state.payeeName;
     document.getElementById('payeeBankNameText').textContent = state.payeeBank;
     document.getElementById('payeeCardNoText').textContent = state.payeeCard;
@@ -329,8 +360,8 @@ function renderItems() {
         return `
             <tr>
                 <td class="font-medium">${item.name || '-'}</td>
-                <td>${qty}${unit}</td>
-                <td style="font-family:Poppins;">¥${price.toFixed(2)}</td>
+                <td style="font-family:Poppins;">${formatUnitPrice(price, unit)}</td>
+                <td>${formatQtyOnly(qty)}</td>
                 <td class="font-medium" style="font-family:Poppins;">¥${subtotal.toFixed(2)}</td>
             </tr>
         `;

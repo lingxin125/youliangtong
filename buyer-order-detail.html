@@ -102,17 +102,17 @@
             </div>
             <!-- 金额区域 -->
             <div class="p-4 text-center bg-gradient-to-b from-white to-gray-50/50">
-                <div class="text-[11px] text-gray-400 mb-1">订单金额</div>
+                <div class="text-[11px] text-gray-400 mb-1">付款金额</div>
                 <div id="amountText" class="text-3xl font-bold text-gray-800" style="font-family:Poppins;">¥ 0.00</div>
             </div>
         </div>
 
-        <!-- 卡片2：收款方 + 商品明细 + 交易信息 -->
+        <!-- 卡片2：订单信息 + 收款方 + 付款方 + 商品明细 -->
         <div class="glass-panel rounded-2xl p-4">
-            <!-- 交易信息 -->
+            <!-- 订单信息 -->
             <div class="section-title" style="padding-top:0;border-top:none;">
                 <div class="section-dot"></div>
-                <span>交易信息</span>
+                <span>订单信息</span>
             </div>
             <div class="info-row">
                 <span class="info-label">收粮订单号</span>
@@ -122,45 +122,23 @@
                 <span class="info-label">支付订单号</span>
                 <span id="infoPaymentOrderNo" class="info-value font-mono"></span>
             </div>
-            <div id="bankFlowRow" class="info-row">
-                <span class="info-label">银行支付单号</span>
-                <span id="infoBankFlowNo" class="info-value font-mono"></span>
-            </div>
             <div class="info-row">
                 <span class="info-label">下单时间</span>
                 <span id="infoCreatedAt" class="info-value"></span>
-            </div>
-            <div id="payMethodRow" class="info-row">
-                <span class="info-label">支付方式</span>
-                <span id="infoPayMethod" class="info-value"></span>
             </div>
             <div id="paidAtRow" class="info-row">
                 <span class="info-label">支付时间</span>
                 <span id="infoPaidAt" class="info-value"></span>
             </div>
 
-            <!-- 付款方信息 -->
-            <div class="section-title" style="margin-top:16px;">
-                <div class="section-dot"></div>
-                <span>付款方信息</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">付款方</span>
-                <span id="payerText" class="info-value">张老板（保定收购站）</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">付款银行</span>
-                <span id="payerBankText" class="info-value"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">付款卡号</span>
-                <span id="payerCardText" class="info-value"></span>
-            </div>
-
             <!-- 收款方信息 -->
             <div class="section-title" style="margin-top:16px;">
                 <div class="section-dot"></div>
                 <span>收款方信息</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">商户名称</span>
+                <span id="payeeCompanyText" class="info-value"></span>
             </div>
             <div class="info-row">
                 <span class="info-label">收款方</span>
@@ -175,6 +153,28 @@
                 <span id="payeeCardNoText" class="info-value"></span>
             </div>
 
+            <!-- 付款方信息 -->
+            <div class="section-title" style="margin-top:16px;">
+                <div class="section-dot"></div>
+                <span>付款方信息</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">商户名称</span>
+                <span id="payerCompanyText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款方</span>
+                <span id="payerNameText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款银行</span>
+                <span id="payerBankText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款卡号</span>
+                <span id="payerCardText" class="info-value"></span>
+            </div>
+
             <!-- 商品明细 -->
             <div class="section-title" style="margin-top:16px;">
                 <div class="section-dot"></div>
@@ -184,8 +184,8 @@
                 <thead>
                     <tr>
                         <th>商品名称</th>
-                        <th>数量</th>
                         <th>单价</th>
+                        <th>数量</th>
                         <th>小计</th>
                     </tr>
                 </thead>
@@ -219,9 +219,14 @@ const state = {
     grainOrderNo: queryGrainOrderNo || (orderFromStore && orderFromStore.id) || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
     amount: parseFloat(params.get('amount')) || parseFloat(orderFromStore && orderFromStore.amount) || 5000,
     payeeName: params.get('payeeName') || (orderFromStore && orderFromStore.payeeName) || '李大姐',
+    payeeCompany: params.get('payeeCompany') || params.get('payeeOrg') || (orderFromStore && (orderFromStore.payeeCompany || orderFromStore.payeeOrg)) || '个体农户',
     payeeMobile: params.get('payeeMobile') || (orderFromStore && orderFromStore.payeeMobile) || '138****8888',
     payeeBank: params.get('payeeBank') || (orderFromStore && orderFromStore.payeeBank) || '中国邮政储蓄银行',
     payeeCard: params.get('payeeCard') || (orderFromStore && orderFromStore.payeeCard) || '尾号 8888',
+    payerName: params.get('payerName') || (orderFromStore && orderFromStore.payerName) || payerProfile.name,
+    payerCompany: params.get('payerCompany') || params.get('payerOrg') || (orderFromStore && (orderFromStore.payerCompany || orderFromStore.payerOrg)) || payerProfile.org,
+    payerBank: params.get('payerBank') || (orderFromStore && orderFromStore.payerBank) || '中国农业银行',
+    payerCard: params.get('payerCard') || (orderFromStore && orderFromStore.payerCard) || '尾号 5678',
     summary: params.get('summary') || (orderFromStore && orderFromStore.summary) || '苹果 x 50斤',
     createdAt: params.get('createdAt') || (orderFromStore && orderFromStore.createdAt) || fallbackNow.toISOString(),
     payMethod: params.get('payMethod') || (orderFromStore && orderFromStore.payMethod) || '',
@@ -241,8 +246,7 @@ state.cancelSource = normalizeCancelSource(state.cancelSource) || inferCancelSou
 const backLink = state.source === 'orders' ? 'buyer-orders.html' : 'buyer-home.html';
 
 document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader('订单详情', backLink);
-document.getElementById('payerText').textContent = payerProfile.name + '（' + payerProfile.org + '）';
+document.getElementById('navBar').innerHTML = renderHeader('付款详情', backLink);
 
 ensureItems();
 syncPendingStatus();
@@ -327,16 +331,6 @@ function shouldShowPaymentOrderNo() {
     return false;
 }
 
-function shouldShowBankFlowNo() {
-    if (state.status === 'success' || state.status === 'failed') {
-        return true;
-    }
-    if (state.status === 'canceled') {
-        return state.cancelSource === 'bank';
-    }
-    return false;
-}
-
 function parseItems(raw) {
     if (!raw) return [];
     try {
@@ -383,10 +377,18 @@ function formatTime(iso) {
     return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
 }
 
-function payMethodText(method) {
-    if (method === 'industry') return '行业支付（银行转账）';
-    if (method === 'guarantee') return '订单付（大额担保）';
-    return '未支付';
+function formatUnitPrice(price, unit) {
+    const num = Number(price);
+    if (!Number.isFinite(num) || num <= 0) return '--';
+    const cleanPrice = Number.isInteger(num) ? String(num) : String(Number(num.toFixed(2)));
+    const cleanUnit = String(unit || '').trim();
+    return '¥' + cleanPrice + (cleanUnit ? '/' + cleanUnit : '');
+}
+
+function formatQtyOnly(qty) {
+    const num = Number(qty);
+    if (!Number.isFinite(num) || num <= 0) return '--';
+    return Number.isInteger(num) ? String(num) : String(num);
 }
 
 function getRemainingMs() {
@@ -464,8 +466,8 @@ function renderItems() {
         return `
             <tr>
                 <td class="font-medium">${item.name || '-'}</td>
-                <td>${qty}${unit}</td>
-                <td style="font-family:Poppins;">¥${price.toFixed(2)}</td>
+                <td style="font-family:Poppins;">${formatUnitPrice(price, unit)}</td>
+                <td>${formatQtyOnly(qty)}</td>
                 <td class="font-medium" style="font-family:Poppins;">¥${subtotal.toFixed(2)}</td>
             </tr>
         `;
@@ -483,34 +485,27 @@ function renderInfo() {
     document.getElementById('amountText').textContent = formatMoney(state.amount);
     
     // 收款方信息
+    document.getElementById('payeeCompanyText').textContent = state.payeeCompany;
     document.getElementById('payeeNameText').textContent = state.payeeName;
     document.getElementById('payeeBankNameText').textContent = state.payeeBank;
     document.getElementById('payeeCardNoText').textContent = state.payeeCard;
     
-    // 交易信息
+    // 订单信息
     if (state.status === 'canceled' && !normalizeCancelSource(state.cancelSource)) {
         state.cancelSource = inferCancelSource(state.status, state.failReason, state.payMethod);
     }
     document.getElementById('infoGrainOrderNo').textContent = state.grainOrderNo;
     document.getElementById('infoPaymentOrderNo').textContent = state.paymentOrderNo;
-    document.getElementById('infoBankFlowNo').textContent = state.bankFlowNo;
     document.getElementById('infoCreatedAt').textContent = formatTime(state.createdAt);
     document.getElementById('paymentOrderRow').style.display = shouldShowPaymentOrderNo() ? 'flex' : 'none';
-    document.getElementById('bankFlowRow').style.display = shouldShowBankFlowNo() ? 'flex' : 'none';
     
-    // 付款方信息补充 (这里仅作UI展示使用占位数据，实际应从真实账户信息读取)
-    document.getElementById('payerBankText').textContent = '中国农业银行';
-    document.getElementById('payerCardText').textContent = '尾号 5678';
+    // 付款方信息
+    document.getElementById('payerCompanyText').textContent = state.payerCompany;
+    document.getElementById('payerNameText').textContent = state.payerName;
+    document.getElementById('payerBankText').textContent = state.payerBank;
+    document.getElementById('payerCardText').textContent = state.payerCard;
 
-    const payMethodRow = document.getElementById('payMethodRow');
     const paidAtRow = document.getElementById('paidAtRow');
-    document.getElementById('infoPayMethod').textContent = payMethodText(state.payMethod);
-
-    if (state.status === 'pending' || state.status === 'unpaid' || state.status === 'paying' || state.status === 'processing') {
-        payMethodRow.style.display = 'none';
-    } else {
-        payMethodRow.style.display = 'flex';
-    }
 
     if (state.status === 'success') {
         paidAtRow.style.display = 'flex';

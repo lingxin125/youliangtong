@@ -107,52 +107,38 @@
             </div>
         </div>
 
-        <!-- 卡片2：付款方 + 商品明细 + 交易信息 -->
+        <!-- 卡片2：订单信息 + 收款方 + 付款方 + 商品明细 -->
         <div class="glass-panel rounded-2xl p-4">
-            <!-- 交易信息 -->
+            <!-- 订单信息 -->
             <div class="section-title" style="padding-top:0;border-top:none;">
                 <div class="section-dot"></div>
-                <span>交易信息</span>
+                <span>订单信息</span>
             </div>
             <div class="info-row">
-                <span class="info-label">订单号</span>
-                <span id="infoOrderNo" class="info-value font-mono"></span>
+                <span class="info-label">收粮订单号</span>
+                <span id="infoGrainOrderNo" class="info-value font-mono"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">支付订单号</span>
+                <span id="infoPaymentOrderNo" class="info-value font-mono"></span>
             </div>
             <div class="info-row">
                 <span class="info-label">下单时间</span>
                 <span id="infoCreatedAt" class="info-value"></span>
-            </div>
-            <div id="payMethodRow" class="info-row">
-                <span class="info-label">支付方式</span>
-                <span id="infoPayMethod" class="info-value"></span>
             </div>
             <div id="paidAtRow" class="info-row">
                 <span class="info-label">收款时间</span>
                 <span id="infoPaidAt" class="info-value"></span>
             </div>
 
-            <!-- 付款方信息 -->
-            <div class="section-title" style="margin-top:16px;">
-                <div class="section-dot"></div>
-                <span>付款方信息</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">付款方</span>
-                <span id="payerNameText" class="info-value"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">付款银行</span>
-                <span id="payerBankText" class="info-value"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">付款卡号</span>
-                <span id="payerCardText" class="info-value"></span>
-            </div>
-
             <!-- 收款方信息 -->
             <div class="section-title" style="margin-top:16px;">
                 <div class="section-dot"></div>
                 <span>收款方信息</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">商户名称</span>
+                <span id="payeeCompanyText" class="info-value"></span>
             </div>
             <div class="info-row">
                 <span class="info-label">收款方</span>
@@ -167,6 +153,28 @@
                 <span id="payeeCardText" class="info-value"></span>
             </div>
 
+            <!-- 付款方信息 -->
+            <div class="section-title" style="margin-top:16px;">
+                <div class="section-dot"></div>
+                <span>付款方信息</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">商户名称</span>
+                <span id="payerCompanyText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款方</span>
+                <span id="payerNameText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款银行</span>
+                <span id="payerBankText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款卡号</span>
+                <span id="payerCardText" class="info-value"></span>
+            </div>
+
             <!-- 商品明细 -->
             <div class="section-title" style="margin-top:16px;">
                 <div class="section-dot"></div>
@@ -176,8 +184,8 @@
                 <thead>
                     <tr>
                         <th>商品名称</th>
-                        <th>数量</th>
                         <th>单价</th>
+                        <th>数量</th>
                         <th>小计</th>
                     </tr>
                 </thead>
@@ -200,32 +208,43 @@ const fallbackNow = new Date();
 const mockStore = window.BuyerMockStore || null;
 const payeeProfile = { name: '李大姐', org: '个体农户' };
 const queryOrderNo = params.get('orderNo');
-const orderFromStore = (mockStore && queryOrderNo && typeof mockStore.findOrderById === 'function')
-    ? mockStore.findOrderById(queryOrderNo)
+const queryGrainOrderNo = params.get('grainOrderNo') || queryOrderNo;
+const orderFromStore = (mockStore && queryGrainOrderNo && typeof mockStore.findOrderById === 'function')
+    ? mockStore.findOrderById(queryGrainOrderNo)
     : null;
 
 const state = {
     status: normalizeStatus(params.get('status')) || normalizeStatus(orderFromStore && orderFromStore.status) || 'success',
-    orderNo: queryOrderNo || (orderFromStore && orderFromStore.id) || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
+    orderNo: queryGrainOrderNo || (orderFromStore && orderFromStore.id) || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
     amount: parseFloat(params.get('amount')) || parseFloat(orderFromStore && orderFromStore.amount) || 5000,
     payerName: params.get('payerName') || (orderFromStore && orderFromStore.payerName) || '张老板',
     payerMobile: params.get('payerMobile') || (orderFromStore && orderFromStore.payerMobile) || '139****6666',
     payerOrg: params.get('payerOrg') || (orderFromStore && orderFromStore.payerOrg) || '保定收购站',
     payeeName: params.get('payeeName') || (orderFromStore && orderFromStore.payeeName) || '李大姐',
+    payeeCompany: params.get('payeeCompany') || params.get('payeeOrg') || (orderFromStore && (orderFromStore.payeeCompany || orderFromStore.payeeOrg)) || payeeProfile.org,
+    payerCompany: params.get('payerCompany') || params.get('companyName') || params.get('payerOrg') || (orderFromStore && (orderFromStore.payerCompany || orderFromStore.payerOrg)) || '保定收购站有限公司',
+    payerBank: params.get('payerBank') || (orderFromStore && orderFromStore.payerBank) || '中国农业银行',
+    payerCard: params.get('payerCard') || (orderFromStore && orderFromStore.payerCard) || '尾号 5678',
+    payeeBank: params.get('payeeBank') || (orderFromStore && orderFromStore.payeeBank) || '中国邮政储蓄银行',
+    payeeCard: params.get('payeeCard') || (orderFromStore && orderFromStore.payeeCard) || '尾号 8888',
     summary: params.get('summary') || (orderFromStore && orderFromStore.summary) || '苹果 x 50斤',
     createdAt: params.get('createdAt') || (orderFromStore && orderFromStore.createdAt) || fallbackNow.toISOString(),
     payMethod: params.get('payMethod') || (orderFromStore && orderFromStore.payMethod) || '',
     paidAt: params.get('paidAt') || (orderFromStore && orderFromStore.paidAt) || '',
     failReason: params.get('failReason') || (orderFromStore && orderFromStore.failReason) || '',
+    paymentOrderNo: params.get('paymentOrderNo') || params.get('payOrderNo') || (orderFromStore && (orderFromStore.paymentOrderNo || orderFromStore.payOrderNo)) || '',
+    bankFlowNo: params.get('bankFlowNo') || params.get('bankOrderNo') || (orderFromStore && (orderFromStore.bankFlowNo || orderFromStore.bankOrderNo)) || '',
     items: parseItems(params.get('items') || JSON.stringify(orderFromStore && orderFromStore.items || [])),
     source: params.get('source') || 'records'
 };
+state.paymentOrderNo = state.paymentOrderNo || buildPaymentOrderNo(state.orderNo);
+state.bankFlowNo = state.bankFlowNo || buildBankFlowNo(state.orderNo);
 
 const backLink = state.source === 'records' ? 'farmer-collection-records.html' : 'farmer-home.html';
 
 document.getElementById('statusBar').innerHTML = renderStatusBar();
 document.getElementById('navBar').innerHTML = renderHeader('收款详情', backLink);
-document.getElementById('payeeText').textContent = payeeProfile.name;
+document.getElementById('payeeText').textContent = state.payeeName;
 
 ensureItems();
 renderAll();
@@ -271,10 +290,40 @@ function formatTime(iso) {
     return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
 }
 
-function payMethodText(method) {
-    if (method === 'industry') return '行业支付（银行转账）';
-    if (method === 'guarantee') return '订单付（大额担保）';
-    return '未支付';
+function deterministicDigits(seed, length) {
+    const source = String(seed || '000000000000');
+    let hash = 0;
+    let output = '';
+    for (let i = 0; i < source.length; i += 1) {
+        hash = (hash * 131 + source.charCodeAt(i)) % 1000000007;
+    }
+    for (let i = 0; i < length; i += 1) {
+        hash = (hash * 1103515245 + 12345 + i) % 2147483647;
+        output += String(hash % 10);
+    }
+    return output;
+}
+
+function buildPaymentOrderNo(grainOrderNo) {
+    return 'ZF' + deterministicDigits('PAY-' + (grainOrderNo || ''), 18);
+}
+
+function buildBankFlowNo(grainOrderNo) {
+    return 'YH' + deterministicDigits('BANK-' + (grainOrderNo || ''), 18);
+}
+
+function formatUnitPrice(price, unit) {
+    const num = Number(price);
+    if (!Number.isFinite(num) || num <= 0) return '--';
+    const cleanPrice = Number.isInteger(num) ? String(num) : String(Number(num.toFixed(2)));
+    const cleanUnit = String(unit || '').trim();
+    return '¥' + cleanPrice + (cleanUnit ? '/' + cleanUnit : '');
+}
+
+function formatQtyOnly(qty) {
+    const num = Number(qty);
+    if (!Number.isFinite(num) || num <= 0) return '--';
+    return Number.isInteger(num) ? String(num) : String(num);
 }
 
 function renderStatus() {
@@ -301,8 +350,8 @@ function renderItems() {
         return `
             <tr>
                 <td class="font-medium">${item.name || '-'}</td>
-                <td>${qty}${unit}</td>
-                <td style="font-family:Poppins;">¥${price.toFixed(2)}</td>
+                <td style="font-family:Poppins;">${formatUnitPrice(price, unit)}</td>
+                <td>${formatQtyOnly(qty)}</td>
                 <td class="font-medium" style="font-family:Poppins;">¥${subtotal.toFixed(2)}</td>
             </tr>
         `;
@@ -320,28 +369,22 @@ function renderInfo() {
     document.getElementById('amountText').textContent = formatMoney(state.amount);
     
     // 付款方信息
+    document.getElementById('payerCompanyText').textContent = state.payerCompany;
     document.getElementById('payerNameText').textContent = state.payerName;
-    document.getElementById('payerBankText').textContent = '中国农业银行';
-    document.getElementById('payerCardText').textContent = '尾号 5678';
+    document.getElementById('payerBankText').textContent = state.payerBank;
+    document.getElementById('payerCardText').textContent = state.payerCard;
     
     // 收款方信息
-    document.getElementById('payeeText').textContent = payeeProfile.name;
-    document.getElementById('payeeBankText').textContent = '中国邮政储蓄银行';
-    document.getElementById('payeeCardText').textContent = '尾号 8888';
+    document.getElementById('payeeCompanyText').textContent = state.payeeCompany;
+    document.getElementById('payeeText').textContent = state.payeeName;
+    document.getElementById('payeeBankText').textContent = state.payeeBank;
+    document.getElementById('payeeCardText').textContent = state.payeeCard;
     
-    // 交易信息
-    document.getElementById('infoOrderNo').textContent = state.orderNo;
+    // 订单信息
+    document.getElementById('infoGrainOrderNo').textContent = state.orderNo;
+    document.getElementById('infoPaymentOrderNo').textContent = state.paymentOrderNo;
     document.getElementById('infoCreatedAt').textContent = formatTime(state.createdAt);
-
-    const payMethodRow = document.getElementById('payMethodRow');
     const paidAtRow = document.getElementById('paidAtRow');
-    document.getElementById('infoPayMethod').textContent = payMethodText(state.payMethod);
-
-    if (state.status === 'pending') {
-        payMethodRow.style.display = 'none';
-    } else {
-        payMethodRow.style.display = 'flex';
-    }
 
     if (state.status === 'success') {
         paidAtRow.style.display = 'flex';
