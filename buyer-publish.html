@@ -106,7 +106,7 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fas fa-apple-whole text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">选择品类 <span class="text-red-400">*</span></span>
+                    <span class="text-sm font-medium text-gray-700">收购品类 <span class="text-red-400">*</span></span>
                 </div>
                 <div class="grid grid-cols-4 gap-2" id="cateGrid">
                     <div class="category-tag bg-red-50 text-red-500" data-cate="水果" data-border="border-red-200" onclick="selectCate(this)">
@@ -148,6 +148,21 @@
                     <span class="text-sm font-medium text-gray-700">收购描述 <span class="text-gray-400 text-[10px] font-normal">（选填）</span></span>
                 </div>
                 <textarea id="contentInput" rows="2" class="custom-input resize-none" placeholder="补充描述品种、规格、质量要求等"></textarea>
+            </div>
+
+            <!-- 分割线 -->
+            <div class="border-t border-gray-100"></div>
+
+            <!-- 区块2.5：图片上传（选填） -->
+            <div class="p-4">
+                <div class="flex items-center mb-3">
+                    <i class="fas fa-camera text-gray-400 text-sm mr-2"></i>
+                    <span class="text-sm font-medium text-gray-700">上传图片 <span class="text-gray-400 text-xs font-normal">（选填，最多3张）</span></span>
+                </div>
+                <!-- 图片容器 -->
+                <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1" id="imageUploaderContainer">
+                    <!-- 动态渲染内容 -->
+                </div>
             </div>
 
             <!-- 分割线 -->
@@ -251,6 +266,7 @@ const editingDemand = (isEdit || isView) && demandStore && typeof demandStore.fi
     ? demandStore.findDemandById(editId)
     : null;
 let selectedCategory = '';
+let uploadedImages = [];
 
 // 动态返回链接优先级：from > source > 默认
 let backLink = 'buyer-market.html';
@@ -296,6 +312,8 @@ if (queryDemand) {
 }
 if (formDemand) {
     hydrateForm(formDemand);
+} else {
+    renderImageUploader();
 }
 
 function lockReadonlyView() {
@@ -414,6 +432,91 @@ function hydrateForm(demand) {
     document.getElementById('locationInput').value = demand.location || '';
     document.getElementById('qtyInput').value = demand.qty || '';
     document.getElementById('priceInput').value = demand.price === null || demand.price === undefined ? '' : demand.price;
+
+    uploadedImages = Array.isArray(demand.images) ? demand.images.slice(0, 3) : [];
+    renderImageUploader();
+}
+
+let fileInputForUpload = null;
+
+function triggerImgUpload() {
+    if (isView) return;
+    if (uploadedImages.length >= 3) {
+        showToast('最多只能上传3张图片');
+        return;
+    }
+    
+    if (!fileInputForUpload) {
+        fileInputForUpload = document.createElement('input');
+        fileInputForUpload.type = 'file';
+        fileInputForUpload.accept = 'image/*';
+        fileInputForUpload.multiple = true;
+        fileInputForUpload.style.display = 'none';
+        
+        fileInputForUpload.onchange = function(e) {
+            const files = Array.from(e.target.files);
+            if (!files.length) return;
+            
+            const remainingSlots = 3 - uploadedImages.length;
+            const filesToProcess = files.slice(0, remainingSlots);
+            
+            if (files.length > remainingSlots) {
+                showToast('最多只能上传3张图片，多余的已忽略');
+            }
+            
+            let loadedCount = 0;
+            filesToProcess.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadedImages.push(event.target.result);
+                    loadedCount++;
+                    if (loadedCount === filesToProcess.length) {
+                        renderImageUploader();
+                        fileInputForUpload.value = ''; // reset
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+        document.body.appendChild(fileInputForUpload);
+    }
+    fileInputForUpload.click();
+}
+
+function removeImage(index) {
+    if (isView) return;
+    uploadedImages.splice(index, 1);
+    renderImageUploader();
+}
+
+function renderImageUploader() {
+    const container = document.getElementById('imageUploaderContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    uploadedImages.forEach((imgUrl, index) => {
+        const item = document.createElement('div');
+        item.className = 'shrink-0 w-20 h-20 rounded-xl relative overflow-hidden bg-gray-100 border border-gray-200';
+        item.innerHTML = `
+            <img src="${imgUrl}" class="w-full h-full object-cover" />
+            ${isView ? '' : `<div class="absolute top-1 right-1 w-5 h-5 bg-black/40 rounded-full flex items-center justify-center text-white cursor-pointer active:scale-90" onclick="removeImage(${index})">
+                <i class="fas fa-times text-[10px]"></i>
+            </div>`}
+        `;
+        container.appendChild(item);
+    });
+    
+    if (!isView && uploadedImages.length < 3) {
+        const btn = document.createElement('div');
+        btn.id = 'uploadBtn';
+        btn.className = 'shrink-0 w-20 h-20 rounded-xl bg-gray-50 border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 cursor-pointer active:scale-95 transition-transform';
+        btn.onclick = triggerImgUpload;
+        btn.innerHTML = `
+            <i class="fas fa-plus text-lg mb-1"></i>
+            <span class="text-[10px]">添加图片</span>
+        `;
+        container.appendChild(btn);
+    }
 }
 
 function fillCurrentLocation() {
@@ -481,7 +584,8 @@ function submitDemand() {
         location: location,
         qty: qty,
         unit: unit,
-        price: priceRaw ? Number(priceRaw) : null
+        price: priceRaw ? Number(priceRaw) : null,
+        images: uploadedImages
     };
 
     if (demandStore && typeof demandStore.createDemand === 'function') {

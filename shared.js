@@ -1610,6 +1610,7 @@ if (typeof window !== "undefined") {
           : Number(payload.price),
       note: payload.note || "",
       location: payload.location || "",
+      images: Array.isArray(payload.images) ? payload.images.slice(0, 3) : [],
       distanceKm:
         payload.distanceKm === undefined || payload.distanceKm === null
           ? Number((1 + Math.random() * 20).toFixed(1))

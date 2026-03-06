@@ -350,6 +350,164 @@
             text-align: center;
         }
 
+        .sub-orders-block {
+            display: block;
+            padding: 0 0 12px;
+            background: transparent;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .merge-summary-list {
+            padding: 8px 16px 4px;
+        }
+
+        .sub-orders-summary-value {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sub-orders-title {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .sub-order-card {
+            border: 1px solid #efe7d4;
+            border-radius: 10px;
+            background: #fff;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+
+        .sub-order-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .sub-order-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .sub-order-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .payee-group {
+            border: 1px solid #efe7d4;
+            border-radius: 10px;
+            background: #fff;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+
+        .payee-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .payee-group-title {
+            font-size: 12px;
+            color: #374151;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .items-group-wrap {
+            padding: 8px 14px 14px;
+            display: none;
+        }
+
+        .items-group {
+            border: 1px solid #efe7d4;
+            border-radius: 12px;
+            background: #fff;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .items-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .items-group-head {
+            padding: 10px 12px;
+            background: linear-gradient(180deg, rgba(17, 122, 55, 0.06), rgba(17, 122, 55, 0.01));
+            border-bottom: 1px solid #f2ebdc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .items-group-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .items-group-table th,
+        .items-group-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #f6f1e8;
+        }
+
+        .items-group-table th {
+            color: #9ca3af;
+            font-weight: 500;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .items-group-table th:nth-child(2),
+        .items-group-table th:nth-child(3),
+        .items-group-table th:nth-child(4),
+        .items-group-table td:nth-child(2),
+        .items-group-table td:nth-child(3),
+        .items-group-table td:nth-child(4) {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .items-group-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .items-group-total {
+            padding: 8px 10px 10px;
+            border-top: 1px dashed #eadfc8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .items-group-total strong {
+            color: #111827;
+            font-family: "Poppins", sans-serif;
+        }
+
         .item-total {
             padding: 12px 16px;
             border-top: 1px solid var(--line);
@@ -458,6 +616,276 @@
             line-height: 1;
         }
 
+        /* --- 合并付款样式 (Merge Payment Redesign) --- */
+        .sub-orders-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+            margin: 20px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .items-empty {
+            text-align: center;
+            padding: 30px;
+            color: var(--muted);
+            font-size: 13px;
+            background: #f9f9fa;
+            border-radius: 12px;
+            border: 1px dashed var(--line);
+        }
+
+        .sub-order-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s ease;
+        }
+        
+        .sub-order-card:hover {
+            box-shadow: 0 4px 12px rgba(17, 122, 55, 0.05);
+            border-color: #d1ebd8;
+        }
+
+        .sub-order-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        .sub-order-head span:first-child {
+            color: #8b5e3c;
+        }
+
+        .sub-order-head span:last-child {
+            color: var(--brand-strong);
+            font-family: "Poppins", sans-serif;
+        }
+
+        .sub-order-meta-stacked {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+        
+        .sub-order-meta-stacked .label {
+            color: #6b7280;
+            display: inline-block;
+            width: 75px;
+        }
+        
+        .sub-order-meta-stacked .value {
+            color: #374151;
+        }
+
+        /* 统一收款方卡片 (Unified Payee Card) */
+        .pmc-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .pmc-card:hover {
+            box-shadow: 0 4px 12px rgba(17, 122, 55, 0.05);
+            border-color: #d1ebd8;
+        }
+
+        .pmc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: #fff;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .pmc-header-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .pmc-header-title i {
+            color: var(--brand);
+            font-size: 14px;
+        }
+
+        .pmc-header-amount {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--danger);
+            font-family: "Poppins", sans-serif;
+        }
+
+        .pmc-bank-band {
+            background: rgba(17, 122, 55, 0.04);
+            padding: 10px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .pmc-bank-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pmc-bank-item .b-lbl {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .pmc-bank-item .b-val {
+            color: #374151;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .pmc-items-area {
+            padding: 0 16px 14px 16px;
+        }
+
+        .pmc-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+        }
+
+        .pmc-table th {
+            text-align: left;
+            color: var(--muted);
+            font-weight: 500;
+            padding: 10px 4px 8px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .pmc-table td {
+            padding: 10px 4px;
+            color: #111827;
+            border-bottom: 1px solid #f9fafb;
+        }
+        
+        .pmc-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pmc-table td:last-child, .pmc-table th:last-child {
+            text-align: right;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .pmc-summary {
+            margin-top: 16px;
+            padding: 14px 16px;
+            background: linear-gradient(90deg, #fff, #f9fbf9);
+            border: 1px solid #d1ebd8;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .pmc-summary span {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .pmc-summary strong {
+            font-size: 16px;
+            color: var(--danger);
+            font-family: "Poppins", sans-serif;
+        }
+
+        /* V3 Collapsible Sub Orders Classes */
+        .sub-orders-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            margin-left: 4px;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: var(--brand-strong);
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+        .sub-orders-toggle:hover {
+            color: #0d622d;
+        }
+        .sub-orders-toggle.open {
+            transform: translateY(-1px);
+        }
+        .sub-orders-content {
+            display: none;
+            padding: 8px 16px 0;
+            animation: fadeIn 0.3s ease;
+        }
+        .sub-orders-content.open {
+            display: block;
+        }
+        .sub-order-card-compact {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .sub-order-card-compact:last-child {
+            margin-bottom: 0;
+        }
+        .sub-order-card-compact .meta-row {
+            display: flex;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        .sub-order-card-compact .meta-row:last-child {
+            margin-bottom: 0;
+        }
+        .sub-order-card-compact .meta-row .label {
+            color: #6b7280;
+            width: 70px;
+            flex-shrink: 0;
+        }
+        .sub-order-card-compact .meta-row .value {
+            color: #111827;
+            word-break: break-all;
+        }
+        /* --- 结束合并付款样式 --- */
+
         .guide-title {
             margin: 0 0 8px;
             font-size: 18px;
@@ -563,6 +991,36 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+        }
+
+        .qr-action-row {
+            justify-content: center;
+            margin-top: 18px;
+        }
+
+        .qr-action-row .btn,
+        .guide-action-row .btn {
+            min-width: 144px;
+        }
+
+        .pay-side {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .pay-side .channel-meta {
+            width: min(100%, 420px);
+        }
+
+        .pay-grid.merge-mode {
+            grid-template-columns: minmax(320px, 448px);
+            justify-content: center;
+        }
+
+        .pay-grid.merge-mode .pay-side {
+            display: none;
         }
 
         .btn {
@@ -875,12 +1333,15 @@
                     <div id="countdownHint" class="countdown-row">请在 10天内完成支付</div>
                 </section>
 
-                <section class="panel">
-                    <h2 class="panel-title">订单信息</h2>
-                    <div class="info-list">
-                        <div class="info-item"><span class="info-label">订单号</span><span id="orderNo" class="info-value">-</span></div>
+                <section class="panel" id="orderInfoPanel">
+                    <h2 class="panel-title" id="orderInfoTitle">订单信息</h2>
+                    <div class="info-list" id="orderInfoList">
+                        <div class="info-item"><span class="info-label">收粮订单号</span><span id="orderNo" class="info-value">-</span></div>
+                        <div class="info-item"><span class="info-label">支付订单号</span><span id="paymentOrderNo" class="info-value">-</span></div>
                         <div class="info-item"><span class="info-label">下单时间</span><span id="orderTime" class="info-value">-</span></div>
+                        <div id="paidAtRow" class="info-item" style="display:none;"><span class="info-label">支付时间</span><span id="paidAt" class="info-value">-</span></div>
                     </div>
+                    <div id="subOrdersBlock" class="sub-orders-block" style="display:none;"></div>
                 </section>
 
                 <section class="panel">
@@ -895,7 +1356,7 @@
 
                 <section class="panel">
                     <h2 class="panel-title">商品明细</h2>
-                    <div class="items-wrap">
+                    <div id="itemsSingleWrap" class="items-wrap">
                         <table class="items-table">
                             <thead>
                                 <tr>
@@ -913,7 +1374,7 @@
             </aside>
 
             <section class="panel">
-                <div class="payment-head">
+                <div class="payment-head" id="paymentHeaderBox">
                     <h2 class="payment-title">支付方式</h2>
                     <p class="payment-sub">当前支付方式：<span id="currentPayMethod">行业支付（仅演示）</span></p>
                 </div>
@@ -931,17 +1392,17 @@
                             <div class="qr-box">银行转账二维码</div>
                             <div class="qr-amount">¥ <span class="pay-amount">0.00</span></div>
                             <div class="qr-tip">请使用邮储银行APP扫描上方二维码完成付款</div>
+                            <div class="action-row qr-action-row">
+                                <button class="btn btn-primary" data-pay-action onclick="openScanResult('bank')">已完成支付</button>
+                            </div>
                         </div>
-                        <div>
+                        <div class="pay-side" id="bankPaySide">
                             <div class="channel-meta">
                                 <h4>收款方信息</h4>
                                 <div class="meta-row"><span class="k">商户名称</span><span id="bankSellerCompany" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款人</span><span id="bankSellerName" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款银行</span><span id="bankSellerBank" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款卡号</span><span class="v" id="bankSellerCard">-</span></div>
-                            </div>
-                            <div class="action-row">
-                                <button class="btn btn-primary" data-pay-action onclick="openScanResult('bank')">已完成支付</button>
                             </div>
                         </div>
                     </div>
@@ -958,8 +1419,11 @@
                                 <li>核对订单号与金额后完成支付。</li>
                                 <li>支付完成后返回本页刷新支付状态。</li>
                             </ol>
+                            <div class="action-row guide-action-row">
+                                <button class="btn btn-primary" data-pay-action onclick="openScanResult('orderpay')">已完成支付</button>
+                            </div>
                         </div>
-                        <div>
+                        <div class="pay-side" id="orderPaySide">
                             <div class="channel-meta">
                                 <h4>收款方信息</h4>
                                 <div class="meta-row"><span class="k">商户名称</span><span id="orderPaySellerCompany" class="v">-</span></div>
@@ -967,12 +1431,11 @@
                                 <div class="meta-row"><span class="k">收款银行</span><span id="orderPaySellerBank" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款人卡号</span><span id="orderPaySellerCard" class="v">-</span></div>
                             </div>
-                            <div class="action-row">
-                                <button class="btn btn-primary" data-pay-action onclick="openScanResult('orderpay')">已完成支付</button>
-                            </div>
                         </div>
                     </div>
                 </div>
+
+                <div id="itemsGroupedWrap" class="items-group-wrap" style="display: none; margin-top: 24px;"></div>
             </section>
         </main>
 
@@ -985,6 +1448,7 @@
             <div class="preset-popover-list">
                 <button class="preset-btn active" data-preset="pending_basic" onclick="applyDemoPreset('pending_basic')">标准待支付</button>
                 <button class="preset-btn" data-preset="pending_large" onclick="applyDemoPreset('pending_large')">大额订单付</button>
+                <button class="preset-btn" data-preset="merge_pending" onclick="applyDemoPreset('merge_pending')">合并付款</button>
                 <button class="preset-btn" data-preset="success_done" onclick="applyDemoPreset('success_done')">支付成功</button>
                 <button class="preset-btn" data-preset="failed_case" onclick="applyDemoPreset('failed_case')">支付失败</button>
                 <button class="preset-btn" data-preset="canceled_case" onclick="applyDemoPreset('canceled_case')">超时取消</button>
@@ -1036,13 +1500,16 @@
     <script>
         const Config = {
             orderNo: 'PO202602240001',
+            paymentOrderNo: 'ZF202602240001',
             amount: 2580.00,
             createTime: formatTimeForView(new Date().toISOString()),
+            paidAt: '',
             timeout: 864000,
             summary: '小麦、玉米等 3 项商品',
             returnUrl: '',
             seller: {
                 name: '李大姐',
+                company: '李大姐农户',
                 bankName: '邮储银行济南历城支行',
                 card: '6228********8901'
             },
@@ -1054,6 +1521,10 @@
             },
             orderpay: {
                 channel: '企业网银'
+            },
+            merge: {
+                enabled: false,
+                subOrders: []
             },
             items: [
                 { name: '小麦', qty: 800, unit: '斤', price: 1.45, subtotal: 1160.00 },
@@ -1067,6 +1538,7 @@
                 label: '标准待支付',
                 status: 'pending',
                 tab: 'bank',
+                paymentOrderNo: 'ZF202602240001',
                 timeout: 864000,
                 amount: 2580.00,
                 summary: '小麦、玉米等 3 项商品',
@@ -1086,11 +1558,13 @@
                 label: '大额订单付',
                 status: 'pending',
                 tab: 'orderpay',
+                paymentOrderNo: 'ZF202602240088',
                 timeout: 864000,
                 amount: 128600.00,
                 summary: '秋粮大宗订单 4 项商品',
                 seller: {
                     name: '赵师傅',
+                    company: '赵师傅粮贸',
                     bankName: '邮储银行保定清苑支行',
                     card: '6221********6608'
                 },
@@ -1101,15 +1575,82 @@
                     { name: '花生', qty: 3500, unit: '斤', price: 4.04, subtotal: 14140.00 }
                 ]
             },
+            merge_pending: {
+                label: '合并付款',
+                status: 'pending',
+                tab: 'bank',
+                orderNo: 'SLM20260305001',
+                paymentOrderNo: 'ZF20260305001',
+                timeout: 864000,
+                amount: 9650.00,
+                summary: '合并支付 3 笔子订单',
+                merge: {
+                    enabled: true,
+                    subOrders: [
+                        {
+                            grainOrderNo: 'SL202603050101',
+                            paymentOrderNo: 'ZF202603050101',
+                            createdAt: '2026-03-05 09:20:18',
+                            payeeCompany: '李大姐农户',
+                            payeeName: '李大姐',
+                            payeeBank: '邮储银行济南历城支行',
+                            payeeCard: '6228********8901',
+                            amount: 3150.00,
+                            items: [
+                                { name: '红富士苹果', qty: 600, unit: '斤', price: 2.8, subtotal: 1680.00 },
+                                { name: '黄元帅苹果', qty: 420, unit: '斤', price: 3.5, subtotal: 1470.00 }
+                            ]
+                        },
+                        {
+                            grainOrderNo: 'SL202603050102',
+                            paymentOrderNo: 'ZF202603050102',
+                            createdAt: '2026-03-05 09:24:36',
+                            payeeCompany: '王大哥果蔬合作社',
+                            payeeName: '王大哥',
+                            payeeBank: '邮储银行潍坊寒亭支行',
+                            payeeCard: '6210********1258',
+                            amount: 2780.00,
+                            items: [
+                                { name: '西红柿', qty: 1000, unit: '斤', price: 1.6, subtotal: 1600.00 },
+                                { name: '黄瓜', qty: 800, unit: '斤', price: 1.4, subtotal: 1120.00 },
+                                { name: '青椒', qty: 30, unit: '斤', price: 2, subtotal: 60.00 }
+                            ]
+                        },
+                        {
+                            grainOrderNo: 'SL202603050103',
+                            paymentOrderNo: 'ZF202603050103',
+                            createdAt: '2026-03-05 09:28:42',
+                            payeeCompany: '孙阿姨蔬菜基地',
+                            payeeName: '孙阿姨',
+                            payeeBank: '邮储银行德州齐河支行',
+                            payeeCard: '6228********5721',
+                            amount: 3720.00,
+                            items: [
+                                { name: '大白菜', qty: 1800, unit: '斤', price: 1.2, subtotal: 2160.00 },
+                                { name: '萝卜', qty: 1200, unit: '斤', price: 1.3, subtotal: 1560.00 }
+                            ]
+                        }
+                    ]
+                },
+                seller: {
+                    name: '多收款方',
+                    company: '合并付款（3户）',
+                    bankName: '按收款方分账入账',
+                    card: '详见左侧收款方信息'
+                },
+                items: []
+            },
             success_done: {
                 label: '支付成功',
                 status: 'success',
                 tab: 'bank',
+                paymentOrderNo: 'ZF202602240156',
                 timeout: 900,
                 amount: 9620.00,
                 summary: '果蔬混采订单 3 项商品',
                 seller: {
                     name: '王大哥',
+                    company: '王大哥果蔬合作社',
                     bankName: '邮储银行潍坊寒亭支行',
                     card: '6210********1258'
                 },
@@ -1123,11 +1664,13 @@
                 label: '支付失败',
                 status: 'failed',
                 tab: 'orderpay',
+                paymentOrderNo: 'ZF202602240200',
                 timeout: 900,
                 amount: 7600.00,
                 summary: '蔬菜订单支付失败示例',
                 seller: {
                     name: '孙阿姨',
+                    company: '孙阿姨蔬菜基地',
                     bankName: '邮储银行德州齐河支行',
                     card: '6228********5721'
                 },
@@ -1141,11 +1684,13 @@
                 label: '超时取消',
                 status: 'canceled',
                 tab: 'bank',
+                paymentOrderNo: 'ZF202602240260',
                 timeout: 600,
                 amount: 4380.00,
                 summary: '超时未支付示例订单',
                 seller: {
                     name: '刘师傅',
+                    company: '刘师傅水果行',
                     bankName: '邮储银行临沂兰山支行',
                     card: '6217********9813'
                 },
@@ -1157,6 +1702,8 @@
             }
         };
 
+        const BASE_CONFIG = deepClone(Config);
+
         let countdownTimer = null;
         let isExpired = false;
         let currentChannel = 'bank';
@@ -1165,6 +1712,7 @@
 
         function init() {
             parseParams();
+            normalizeMergeSubOrders();
             normalizeItems();
             bindTabs();
             bindPresetState();
@@ -1178,6 +1726,7 @@
             const p = new URLSearchParams(window.location.search);
             Config.returnUrl = p.get('returnUrl') || '';
             Config.orderNo = p.get('orderNo') || Config.orderNo;
+            Config.paymentOrderNo = p.get('paymentOrderNo') || p.get('payOrderNo') || Config.paymentOrderNo;
             Config.summary = p.get('summary') || Config.summary;
 
             const amount = parseFloat(p.get('amount'));
@@ -1188,6 +1737,11 @@
             const createdAt = p.get('createdAt') || p.get('createTime');
             if (createdAt) {
                 Config.createTime = formatTimeForView(createdAt);
+            }
+
+            const paidAt = p.get('paidAt');
+            if (paidAt) {
+                Config.paidAt = formatTimeForView(paidAt);
             }
 
             const timeout = parseInt(p.get('timeout'), 10);
@@ -1211,6 +1765,23 @@
                     Config.items = parsed;
                 }
             }
+
+            const rawSubOrders = p.get('subOrders');
+            if (rawSubOrders) {
+                const parsedSubOrders = parseSubOrders(rawSubOrders);
+                if (parsedSubOrders.length > 0) {
+                    Config.merge.enabled = true;
+                    Config.merge.subOrders = parsedSubOrders;
+                }
+            }
+            const mergeFlag = p.get('merge');
+            if ((mergeFlag === '1' || mergeFlag === 'true') && Array.isArray(Config.merge.subOrders) && Config.merge.subOrders.length > 0) {
+                Config.merge.enabled = true;
+            }
+
+            if (!Config.paymentOrderNo) {
+                Config.paymentOrderNo = buildPaymentOrderNo(Config.orderNo);
+            }
         }
 
         function parseItems(raw) {
@@ -1232,7 +1803,139 @@
             return [];
         }
 
+        function parseSubOrders(raw) {
+            if (!raw) return [];
+            const tries = [raw];
+            try {
+                tries.push(decodeURIComponent(raw));
+            } catch (err) {
+                // ignore decode failure
+            }
+            for (let i = 0; i < tries.length; i++) {
+                try {
+                    const parsed = JSON.parse(tries[i]);
+                    if (Array.isArray(parsed)) return parsed;
+                } catch (err) {
+                    // keep trying
+                }
+            }
+            return [];
+        }
+
+        function deterministicDigits(seed, length) {
+            const source = String(seed || '000000000000');
+            let hash = 0;
+            let output = '';
+            for (let i = 0; i < source.length; i += 1) {
+                hash = (hash * 131 + source.charCodeAt(i)) % 1000000007;
+            }
+            for (let i = 0; i < length; i += 1) {
+                hash = (hash * 1103515245 + 12345 + i) % 2147483647;
+                output += String(hash % 10);
+            }
+            return output;
+        }
+
+        function buildPaymentOrderNo(orderNo) {
+            return 'ZF' + deterministicDigits('PAY-' + (orderNo || ''), 18);
+        }
+
+        function normalizeItemEntry(item, index) {
+            if (item && typeof item === 'object') {
+                const qty = Number(item.qty || item.quantity || 0);
+                const price = Number(item.price || 0);
+                let subtotal = Number(item.subtotal);
+                if (!Number.isFinite(subtotal) || subtotal <= 0) {
+                    subtotal = Number(item.total);
+                }
+                if (!Number.isFinite(subtotal) || subtotal <= 0) {
+                    subtotal = qty > 0 && price > 0 ? qty * price : 0;
+                }
+                if (!Number.isFinite(subtotal) || subtotal <= 0) {
+                    subtotal = 0;
+                }
+                const unit = item.unit || '';
+                const name = String(item.name || ('商品' + (index + 1)));
+                if (item.spec && (!qty || !price)) {
+                    return { name, qty: item.spec, unit: '', price: null, subtotal };
+                }
+                return { name, qty, unit, price, subtotal };
+            }
+            return {
+                name: '商品' + (index + 1),
+                qty: 1,
+                unit: '单',
+                price: 0,
+                subtotal: 0
+            };
+        }
+
+        function isMergeScenario() {
+            return !!(Config.merge && Config.merge.enabled && Array.isArray(Config.merge.subOrders) && Config.merge.subOrders.length > 0);
+        }
+
+        function normalizeMergeSubOrders() {
+            if (!isMergeScenario()) {
+                Config.merge = { enabled: false, subOrders: [] };
+                return;
+            }
+
+            const normalized = Config.merge.subOrders.map((sub, index) => {
+                const grainOrderNo = String(sub.grainOrderNo || sub.orderNo || ('SLM-SUB-' + (index + 1)));
+                const paymentOrderNo = String(sub.paymentOrderNo || sub.payOrderNo || buildPaymentOrderNo(grainOrderNo));
+                const createdAt = formatTimeForView(sub.createdAt || sub.createTime || Config.createTime);
+                const payeeCompany = String(sub.payeeCompany || sub.sellerCompany || sub.payeeOrg || sub.payeeName || '个体农户');
+                const payeeName = String(sub.payeeName || sub.sellerName || '收款方' + (index + 1));
+                const payeeBank = String(sub.payeeBank || sub.bankName || '中国邮政储蓄银行');
+                const payeeCard = String(sub.payeeCard || sub.card || '尾号 ****');
+                const items = Array.isArray(sub.items) && sub.items.length > 0
+                    ? sub.items.map((item, itemIndex) => normalizeItemEntry(item, itemIndex))
+                    : [normalizeItemEntry({
+                        name: sub.summary || Config.summary || ('子订单' + (index + 1)),
+                        qty: 1,
+                        unit: '单',
+                        price: Number(sub.amount || 0),
+                        subtotal: Number(sub.amount || 0)
+                    }, 0)];
+                const amount = Number(sub.amount || items.reduce((sum, item) => sum + (Number(item.subtotal) || 0), 0) || 0);
+                return {
+                    grainOrderNo,
+                    paymentOrderNo,
+                    createdAt,
+                    createTime: createdAt,
+                    payeeCompany,
+                    payeeName,
+                    payeeBank,
+                    payeeCard,
+                    amount,
+                    items
+                };
+            });
+
+            Config.merge.subOrders = normalized;
+            const mergedTotal = normalized.reduce((sum, sub) => sum + (Number(sub.amount) || 0), 0);
+            if (mergedTotal > 0) {
+                Config.amount = Number(mergedTotal.toFixed(2));
+            }
+            if (!Config.summary) {
+                Config.summary = '合并支付 ' + normalized.length + ' 笔子订单';
+            }
+            if (!Config.paymentOrderNo) {
+                Config.paymentOrderNo = buildPaymentOrderNo(Config.orderNo);
+            }
+        }
+
         function normalizeItems() {
+            if (isMergeScenario()) {
+                Config.items = Config.merge.subOrders.flatMap((sub) => {
+                    return sub.items.map((item) => Object.assign({}, item, {
+                        payeeName: sub.payeeName,
+                        payeeCompany: sub.payeeCompany
+                    }));
+                });
+                return;
+            }
+
             if (!Array.isArray(Config.items) || Config.items.length === 0) {
                 Config.items = [{
                     name: Config.summary || '订单商品',
@@ -1244,38 +1947,7 @@
                 return;
             }
 
-            Config.items = Config.items.map((item, index) => {
-                if (item && typeof item === 'object') {
-                    const qty = Number(item.qty || item.quantity || 0);
-                    const price = Number(item.price || 0);
-                    let subtotal = Number(item.subtotal);
-                    if (!Number.isFinite(subtotal) || subtotal <= 0) {
-                        subtotal = Number(item.total);
-                    }
-                    if (!Number.isFinite(subtotal) || subtotal <= 0) {
-                        subtotal = qty > 0 && price > 0 ? qty * price : 0;
-                    }
-                    if (!Number.isFinite(subtotal) || subtotal <= 0) {
-                        subtotal = 0;
-                    }
-
-                    const unit = item.unit || '';
-                    const name = String(item.name || ('商品' + (index + 1)));
-
-                    if (item.spec && (!qty || !price)) {
-                        return { name, qty: item.spec, unit: '', price: null, subtotal };
-                    }
-
-                    return { name, qty, unit, price, subtotal };
-                }
-                return {
-                    name: '商品' + (index + 1),
-                    qty: 1,
-                    unit: '单',
-                    price: 0,
-                    subtotal: 0
-                };
-            });
+            Config.items = Config.items.map((item, index) => normalizeItemEntry(item, index));
 
             const total = Config.items.reduce((sum, item) => sum + (Number(item.subtotal) || 0), 0);
             if (total > 0) {
@@ -1301,30 +1973,60 @@
         }
 
         function renderAll() {
+            const mergeMode = isMergeScenario();
+            const payeeGroups = getMergePayeeGroups();
+
             setText('totalAmount', formatNum(Config.amount));
-            setText('orderNo', Config.orderNo);
-            setText('orderTime', Config.createTime);
+            setText('orderNo', Config.orderNo || '--');
+            setText('paymentOrderNo', Config.paymentOrderNo || '--');
+            setText('orderTime', Config.createTime || '--');
             setText('payerCompany', Config.payer.company || Config.payer.name || '--');
-            setText('payerName', Config.payer.name);
-            setText('payerCard', Config.payer.card);
-            setText('payerBank', Config.payer.bank);
+            setText('payerName', Config.payer.name || '--');
+            setText('payerCard', Config.payer.card || '--');
+            setText('payerBank', Config.payer.bank || '--');
+
+            const bankGrid = document.querySelector('#panel-bank .pay-grid');
+            const orderPayGrid = document.querySelector('#panel-orderpay .pay-grid');
+            if (bankGrid) bankGrid.classList.toggle('merge-mode', mergeMode);
+            if (orderPayGrid) orderPayGrid.classList.toggle('merge-mode', mergeMode);
+
+            // Only render order items and merge info now
             renderOrderItems();
+            renderMergeOrderInfo();
+            let sellerCompany = Config.seller.company || Config.seller.name || '--';
+            let sellerName = Config.seller.name || '--';
+            let sellerBank = Config.seller.bankName || '--';
+            let sellerCard = Config.seller.card || '--';
 
-            const sellerCompany = Config.seller.company || Config.seller.name || '--';
+            if (!mergeMode) {
+                setText('payeeCompanySingle', sellerCompany);
+                setText('payeeNameSingle', sellerName);
+                setText('payeeBankSingle', sellerBank);
+                setText('payeeCardSingle', sellerCard);
+            } else {
+                const payeeCount = payeeGroups.length || (Config.merge && Config.merge.subOrders ? Config.merge.subOrders.length : 0);
+                sellerCompany = '合并收款方（' + payeeCount + '户）';
+                sellerName = '详见左侧收款方信息';
+                sellerBank = '按收款方分账入账';
+                sellerCard = '详见左侧收款方信息';
+            }
+
             setText('bankSellerCompany', sellerCompany);
-            setText('bankSellerName', Config.seller.name);
-            setText('bankSellerBank', Config.seller.bankName);
-            setText('bankSellerCard', Config.seller.card);
+            setText('bankSellerName', sellerName);
+            setText('bankSellerBank', sellerBank);
+            setText('bankSellerCard', sellerCard);
 
-            setText('orderPayCompanyName', '“' + Config.payer.company + '”');
+            const payerCompanyName = Config.payer.company || Config.payer.name || '--';
+            setText('orderPayCompanyName', '“' + payerCompanyName + '”');
             setText('orderPaySellerCompany', sellerCompany);
-            setText('orderPaySellerName', Config.seller.name);
-            setText('orderPaySellerBank', Config.seller.bankName);
-            setText('orderPaySellerCard', Config.seller.card);
+            setText('orderPaySellerName', sellerName);
+            setText('orderPaySellerBank', sellerBank);
+            setText('orderPaySellerCard', sellerCard);
 
             document.querySelectorAll('.pay-amount').forEach(el => {
                 el.textContent = formatNum(Config.amount);
             });
+            updatePaidAtRow();
             setText('currentPayMethod', channelLabel(currentChannel));
         }
 
@@ -1347,8 +2049,220 @@
             return '--';
         }
 
+        function getMergePayeeGroups() {
+            if (!isMergeScenario()) return [];
+            const groups = new Map();
+            Config.merge.subOrders.forEach((sub) => {
+                const key = [sub.payeeCompany, sub.payeeName, sub.payeeBank, sub.payeeCard].join('||');
+                if (!groups.has(key)) {
+                    groups.set(key, {
+                        payeeCompany: sub.payeeCompany,
+                        payeeName: sub.payeeName,
+                        payeeBank: sub.payeeBank,
+                        payeeCard: sub.payeeCard,
+                        amount: 0,
+                        orderCount: 0
+                    });
+                }
+                const g = groups.get(key);
+                g.amount += Number(sub.amount) || 0;
+                g.orderCount += 1;
+            });
+            return Array.from(groups.values());
+        }
+
+        function toggleSubOrders() {
+            const content = document.getElementById('subOrdersContent');
+            const toggle = document.getElementById('subOrdersToggle');
+            if (content && toggle) {
+                const isOpen = content.classList.contains('open');
+                if (isOpen) {
+                    content.classList.remove('open');
+                    toggle.classList.remove('open');
+                    toggle.setAttribute('aria-expanded', 'false');
+                    toggle.innerHTML = '&#9662;';
+                } else {
+                    content.classList.add('open');
+                    toggle.classList.add('open');
+                    toggle.setAttribute('aria-expanded', 'true');
+                    toggle.innerHTML = '&#9652;';
+                }
+            }
+        }
+
+        function renderMergeOrderInfo() {
+            const block = document.getElementById('subOrdersBlock');
+            const titleEl = document.getElementById('orderInfoTitle');
+            const listEl = document.getElementById('orderInfoList');
+            const rightBankMeta = document.querySelectorAll('.channel-meta');
+            
+            if (!block) return;
+            
+            if (!isMergeScenario()) {
+                if (titleEl) titleEl.innerText = '订单信息';
+                if (listEl) listEl.style.display = 'block';
+                block.style.display = 'none';
+                block.innerHTML = '';
+                rightBankMeta.forEach(el => el.style.display = 'block');
+                return;
+            }
+
+            if (titleEl) titleEl.innerText = '合并订单信息';
+            if (listEl) listEl.style.display = 'none';
+            rightBankMeta.forEach(el => el.style.display = 'none');
+
+            const subOrders = Config.merge.subOrders || [];
+            if (subOrders.length === 0) {
+                block.style.display = 'block';
+                block.innerHTML = '<div class="items-empty" style="margin: 16px;">暂无子订单</div>';
+                return;
+            }
+
+            const cards = subOrders.map((sub) => {
+                const timeStr = formatTimeForView(sub.createTime || sub.createdAt || Config.createTime) || '--';
+                const company = escapeHtml(sub.payeeCompany || sub.payeeName || '--');
+                return '<div class="sub-order-card">'
+                    + '<div class="sub-order-head"><span>' + company + '</span></div>'
+                    + '<div class="sub-order-meta-stacked">'
+                        + '<div><span class="label">收粮订单号</span><span class="value">' + escapeHtml(sub.grainOrderNo || '--') + '</span></div>'
+                        + '<div><span class="label">支付订单号</span><span class="value">' + escapeHtml(sub.paymentOrderNo || '--') + '</span></div>'
+                        + '<div><span class="label">下单时间</span><span class="value">' + escapeHtml(timeStr) + '</span></div>'
+                    + '</div>'
+                + '</div>';
+            }).join('');
+            
+            const createTimeStr = formatTimeForView(Config.orderTime || new Date().toISOString());
+
+            block.style.display = 'block';
+            block.innerHTML = '<div class="info-list merge-summary-list">'
+                + '<div class="info-item"><span class="info-label">合并订单号</span><span class="info-value" style="font-family:Poppins, sans-serif;">' + escapeHtml(Config.paymentOrderNo) + '</span></div>'
+                + '<div class="info-item"><span class="info-label">合并下单时间</span><span class="info-value">' + escapeHtml(createTimeStr) + '</span></div>'
+                + '<div class="info-item" style="align-items: center;"><span class="info-label">合并订单数</span><span class="info-value sub-orders-summary-value">' + subOrders.length + ' 笔'
+                + '<button type="button" id="subOrdersToggle" class="sub-orders-toggle" onclick="toggleSubOrders()" title="展开/收起明细" aria-label="展开子订单" aria-expanded="false">&#9662;</button>'
+                + '</span></div>'
+                + '</div>'
+                + '<div id="subOrdersContent" class="sub-orders-content">'
+                    + cards
+                + '</div>';
+        }
+
+
+        function formatItemSubtotal(item) {
+            let subtotal = Number(item && item.subtotal);
+            if (!Number.isFinite(subtotal) || subtotal < 0) {
+                subtotal = Number(item && item.total);
+            }
+            if (!Number.isFinite(subtotal) || subtotal < 0) {
+                const qty = Number(item && item.qty);
+                const price = Number(item && item.price);
+                subtotal = Number.isFinite(qty) && Number.isFinite(price) ? qty * price : 0;
+            }
+            return '¥' + formatNum(subtotal);
+        }
+
         function renderOrderItems() {
             const body = document.getElementById('orderItemsBody');
+            const singleWrap = document.getElementById('itemsSingleWrap');
+            const groupedWrap = document.getElementById('itemsGroupedWrap');
+
+            if (isMergeScenario()) {
+                if (singleWrap) singleWrap.style.display = 'none';
+                if (!groupedWrap) return;
+                groupedWrap.style.display = 'block';
+
+                const subOrders = Config.merge.subOrders || [];
+                if (subOrders.length === 0) {
+                    groupedWrap.innerHTML = '<div class="items-empty">暂无商品明细</div>';
+                    return;
+                }
+
+                // First group suborders and their items by payee
+                const groupedPayees = new Map();
+                subOrders.forEach(sub => {
+                    const key = [sub.payeeCompany, sub.payeeName, sub.payeeBank, sub.payeeCard].join('||');
+                    if (!groupedPayees.has(key)) {
+                        groupedPayees.set(key, {
+                            company: sub.payeeCompany || '--',
+                            name: sub.payeeName || '--',
+                            bank: sub.payeeBank || '--',
+                            card: sub.payeeCard || '--',
+                            totalAmount: 0,
+                            items: []
+                        });
+                    }
+                    const g = groupedPayees.get(key);
+                    g.totalAmount += Number(sub.amount) || 0;
+                    if (Array.isArray(sub.items)) {
+                        g.items.push(...sub.items);
+                    }
+                });
+
+                const unifiedCardsHtml = Array.from(groupedPayees.values()).map((payee, index) => {
+                    const rows = payee.items.length > 0
+                        ? payee.items.map((item, itemIndex) => {
+                            const name = escapeHtml(String((item && item.name) || ('商品' + (itemIndex + 1))));
+                            return '<tr>'
+                                + '<td>' + name + '</td>'
+                                + '<td>' + formatItemPrice(item) + '</td>'
+                                + '<td>' + escapeHtml(formatItemQty(item)) + '</td>'
+                                + '<td>' + formatItemSubtotal(item) + '</td>'
+                                + '</tr>';
+                        }).join('')
+                        : '<tr><td colspan="4" class="items-empty">该收款方暂无具体商品</td></tr>';
+
+                    return '<div class="pmc-card">'
+                        + '<div class="pmc-header">'
+                            + '<div class="pmc-header-title"><i class="fas fa-store"></i> ' + escapeHtml(payee.company) + '</div>'
+                            + '<div class="pmc-header-amount">' + formatMoney(payee.totalAmount) + '</div>'
+                        + '</div>'
+                        + '<div class="pmc-bank-band">'
+                            + '<div class="pmc-bank-item"><span class="b-lbl">收款人：</span><span class="b-val">' + escapeHtml(payee.name) + '</span></div>'
+                            + '<div class="pmc-bank-item"><span class="b-lbl">收款银行：</span><span class="b-val">' + escapeHtml(payee.bank) + '</span></div>'
+                            + '<div class="pmc-bank-item"><span class="b-lbl">收款卡号：</span><span class="b-val">' + escapeHtml(payee.card) + '</span></div>'
+                        + '</div>'
+                        + '<div class="pmc-items-area">'
+                            + '<table class="pmc-table"><thead><tr><th>商品名称</th><th>单价</th><th>数量</th><th>小计</th></tr></thead><tbody>' + rows + '</tbody></table>'
+                        + '</div>'
+                        + '</div>';
+                }).join('');
+
+                const summaryHtml = '<div class="pmc-summary" style="margin-top: 0; margin-bottom: 16px;"><span>合并支付汇总 (' + subOrders.length + ' 笔订单)</span><strong>' + formatMoney(Config.amount) + '</strong></div>';
+                const sectionTitleHtml = '<div class="payment-head" style="margin-top:24px; border-top: 1px solid #e5e7eb; padding-top: 24px;"><h2 class="payment-title">收款方明细</h2></div>';
+                
+                groupedWrap.innerHTML = sectionTitleHtml + summaryHtml + unifiedCardsHtml;
+                
+                if (body) {
+                    body.innerHTML = '';
+                    const leftItemsBlock = body.closest('.panel');
+                    if (leftItemsBlock) {
+                        leftItemsBlock.style.display = 'none';
+                    }
+                }
+                const paymentHeaderBox = document.getElementById('paymentHeaderBox');
+                if (paymentHeaderBox) paymentHeaderBox.style.marginBottom = '20px';
+                return;
+            }
+
+            if (groupedWrap) {
+                groupedWrap.style.display = 'none';
+                groupedWrap.innerHTML = '';
+            }
+            if (singleWrap) {
+                singleWrap.style.display = 'block';
+                const leftItemsBlock = body ? body.closest('.panel') : null;
+                if (leftItemsBlock) {
+                    leftItemsBlock.style.display = 'block';
+                }
+            }
+            const paymentHeaderBox = document.getElementById('paymentHeaderBox');
+            if (paymentHeaderBox) paymentHeaderBox.style.marginBottom = '0';
+            
+            // Show payee panel again if we go back to single single
+            const payeeContainer = document.getElementById('payeeInfoList');
+            if (payeeContainer) {
+                const payeeBlock = payeeContainer.closest('.panel');
+                if (payeeBlock) payeeBlock.style.display = 'block';
+            }
             if (!body) return;
             if (!Array.isArray(Config.items) || Config.items.length === 0) {
                 body.innerHTML = '<tr><td colspan="3" class="items-empty">暂无商品明细</td></tr>';
@@ -1411,22 +2325,38 @@
             }
         }
 
+        function updatePaidAtRow() {
+            const row = document.getElementById('paidAtRow');
+            if (!row) return;
+            const shouldShow = currentResultStatus === 'success' && !!Config.paidAt;
+            row.style.display = shouldShow ? '' : 'none';
+            setText('paidAt', shouldShow ? Config.paidAt : '-');
+        }
+
         function applyDemoPreset(key) {
             const preset = DEMO_PRESETS[key];
             if (!preset) return;
+            const base = BASE_CONFIG;
 
             if (countdownTimer) {
                 clearInterval(countdownTimer);
                 countdownTimer = null;
             }
 
-            Config.amount = preset.amount;
-            Config.summary = preset.summary;
-            Config.timeout = preset.timeout;
-            Config.seller = Object.assign({}, Config.seller, preset.seller || {});
-            Config.items = deepClone(preset.items || []);
-            Config.createTime = formatTimeForView(new Date().toISOString());
+            Config.orderNo = preset.orderNo || base.orderNo;
+            Config.paymentOrderNo = preset.paymentOrderNo || buildPaymentOrderNo(Config.orderNo);
+            Config.amount = Number(preset.amount) || Number(base.amount) || Config.amount;
+            Config.summary = preset.summary || base.summary;
+            Config.timeout = Number(preset.timeout) || Number(base.timeout) || Config.timeout;
+            Config.seller = Object.assign({}, base.seller, preset.seller || {});
+            Config.payer = Object.assign({}, base.payer, preset.payer || {});
+            Config.orderpay = Object.assign({}, base.orderpay, preset.orderpay || {});
+            Config.merge = deepClone(preset.merge || { enabled: false, subOrders: [] });
+            Config.items = deepClone(preset.items || base.items || []);
+            Config.createTime = formatTimeForView(preset.createTime || new Date().toISOString());
+            Config.paidAt = preset.paidAt ? formatTimeForView(preset.paidAt) : '';
 
+            normalizeMergeSubOrders();
             normalizeItems();
             renderAll();
             switchTab(preset.tab || 'bank');
@@ -1454,6 +2384,8 @@
 
             if (status === 'pending') {
                 isExpired = false;
+                Config.paidAt = '';
+                updatePaidAtRow();
                 hint.classList.remove('expired');
                 hint.textContent = '请在 ' + getTimeoutWindowLabel(Config.timeout) + '内完成支付';
                 enablePayActions();
@@ -1469,6 +2401,10 @@
 
             if (status === 'success') {
                 isExpired = false;
+                if (!Config.paidAt) {
+                    Config.paidAt = formatTimeForView(new Date().toISOString());
+                }
+                updatePaidAtRow();
                 hint.classList.remove('expired');
                 hint.textContent = '该订单已支付完成';
                 return;
@@ -1476,12 +2412,16 @@
 
             if (status === 'failed') {
                 isExpired = false;
+                Config.paidAt = '';
+                updatePaidAtRow();
                 hint.classList.remove('expired');
                 hint.textContent = '该订单支付失败，可切换其他预设继续演示';
                 return;
             }
 
             isExpired = true;
+            Config.paidAt = '';
+            updatePaidAtRow();
             hint.classList.add('expired');
             hint.textContent = '订单已超时，系统已自动取消';
         }
@@ -1513,6 +2453,8 @@
                 }
                 isExpired = true;
                 updateStatusBadge('canceled');
+                Config.paidAt = '';
+                updatePaidAtRow();
                 hint.classList.add('expired');
                 hint.textContent = '订单已超时，系统已自动取消';
                 disablePayActions();
@@ -1597,11 +2539,12 @@
             if (countdownTimer) {
                 clearInterval(countdownTimer);
             }
-
-            updateStatusBadge(status);
-            if (status !== 'success') {
-                disablePayActions();
+            if (status === 'success') {
+                Config.paidAt = formatTimeForView(new Date().toISOString());
+            } else {
+                Config.paidAt = '';
             }
+            applyState(status);
 
             const icon = document.getElementById('resultIcon');
             const title = document.getElementById('resultTitle');
@@ -1611,7 +2554,7 @@
                 icon.className = 'modal-icon success';
                 icon.textContent = '✓';
                 title.textContent = '支付成功';
-                desc.textContent = '订单已完成，资金将按交易规则结算。';
+                desc.textContent = isMergeScenario() ? '合并支付已完成，资金将按收款方分别入账。' : '订单已完成，资金将按交易规则结算。';
             } else if (status === 'failed') {
                 icon.className = 'modal-icon failed';
                 icon.textContent = '!';
@@ -1627,7 +2570,7 @@
             setText('resultAmount', formatNum(Config.amount));
             setText('resultOrderNo', Config.orderNo);
             setText('resultMethod', method || '-');
-            setText('resultPaidAt', formatTimeForView(new Date().toISOString()));
+            setText('resultPaidAt', status === 'success' ? (Config.paidAt || '-') : '-');
 
             document.getElementById('modalResult').classList.add('show');
 

@@ -30,7 +30,11 @@
 
             <!-- 描述（浅绿色容器） -->
             <div class="bg-green-50/60 rounded-lg p-3 mb-4">
-                <p id="demandDesc" class="text-sm text-gray-700 leading-relaxed">粒粒饱满，口感香糯，产地直供，可提供质检报告</p>
+                <p id="demandDesc" class="text-sm text-gray-700 leading-relaxed break-words">粒粒饱满，口感香糯，产地直供，可提供质检报告</p>
+                <!-- 图片画廊：如果只有1张，则宽；如果是2张，则平分；如果3张，则平分 -->
+                <div id="imageGallery" class="mt-3 gap-2 flex hidden overflow-hidden rounded-md">
+                    <!-- Images will be injected here -->
+                </div>
             </div>
 
             <!-- 数量 & 单价 -->
@@ -100,6 +104,16 @@
             <button class="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-2xl text-sm font-semibold" onclick="copyContact()">复制号码</button>
         </div>
     </div>
+    
+    <!-- 图片预览弹层（在手机容器内部） -->
+    <div id="imageViewerMask" class="absolute inset-0 z-[100] bg-black/95 hidden items-center justify-center transition-opacity opacity-0" style="display:none;" onclick="closeImageViewer()">
+        <div class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-white/70 active:bg-white/10 rounded-full cursor-pointer z-[101]" onclick="closeImageViewer(event)">
+            <i class="fas fa-times text-xl"></i>
+        </div>
+        <div class="flex items-center justify-center w-full h-full p-4">
+            <img id="imageViewerImg" src="" class="max-w-full max-h-full object-contain rounded-lg transition-transform transform scale-95" />
+        </div>
+    </div>
 </div>
 
 <script>
@@ -107,9 +121,9 @@ document.getElementById('statusBar').innerHTML = renderStatusBar();
 
 // 收购需求数据（与 farmer-market.html 保持一致）
 var demandList = [
-    { id: 'B1', category: '水果', content: '收购红富士苹果，果径80mm以上，连续采购15天', qty: 8000, unit: '斤', price: 3.4, location: '山东烟台', distanceKm: 2.8, ownerName: '泰丰收购站', ownerMobile: '13800138001', createdAt: new Date(Date.now() - 3 * 60 * 1000).toISOString(), status: 'active' },
-    { id: 'B2', category: '粮油', content: '求购新季玉米，水分14%以下，现场验货后当天结算', qty: 12000, unit: '斤', price: 1.6, location: '河南周口', distanceKm: 9.0, ownerName: '鑫源粮贸', ownerMobile: '13800138002', createdAt: new Date(Date.now() - 12 * 60 * 1000).toISOString(), status: 'active' },
-    { id: 'B3', category: '蔬菜', content: '大量收购有机西红柿，要求无破损，支持分批装车', qty: 6000, unit: '斤', price: 2.5, location: '河北保定', distanceKm: 11.5, ownerName: '绿鲜配送中心', ownerMobile: '13800138003', createdAt: new Date(Date.now() - 24 * 60 * 1000).toISOString(), status: 'active' }
+    { id: 'B1', category: '水果', content: '收购红富士苹果，果径80mm以上，连续采购15天', qty: 8000, unit: '斤', price: 3.4, location: '山东烟台', distanceKm: 2.8, ownerName: '泰丰收购站', ownerMobile: '13800138001', createdAt: new Date(Date.now() - 3 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/apple01/400/400', 'https://picsum.photos/seed/apple02/400/400', 'https://picsum.photos/seed/apple03/400/400'] },
+    { id: 'B2', category: '粮油', content: '求购新季玉米，水分14%以下，现场验货后当天结算', qty: 12000, unit: '斤', price: 1.6, location: '河南周口', distanceKm: 9.0, ownerName: '鑫源粮贸', ownerMobile: '13800138002', createdAt: new Date(Date.now() - 12 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/corn01/400/400', 'https://picsum.photos/seed/corn02/400/400'] },
+    { id: 'B3', category: '蔬菜', content: '大量收购有机西红柿，要求无破损，支持分批装车', qty: 6000, unit: '斤', price: 2.5, location: '河北保定', distanceKm: 11.5, ownerName: '绿鲜配送中心', ownerMobile: '13800138003', createdAt: new Date(Date.now() - 24 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/tomato01/400/400'] }
 ];
 
 // 品类颜色映射
@@ -200,6 +214,31 @@ function loadDemandDetail() {
         statusTag.className = 'text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium';
     }
 
+    // 图片渲染
+    var gallery = document.getElementById('imageGallery');
+    var imgs = Array.isArray(demand.images) ? demand.images : [];
+    if (imgs.length > 0) {
+        gallery.classList.remove('hidden');
+        gallery.innerHTML = '';
+        var colClass = 'w-[calc(33.33%-5px)] h-24';
+        
+        
+        imgs.slice(0, 3).forEach(function(imgUrl) {
+            var imgContainer = document.createElement('div');
+            imgContainer.className = colClass + ' rounded-lg overflow-hidden border border-black/5 relative cursor-pointer active:scale-95 transition-transform bg-white/50';
+            imgContainer.onclick = function() { openImageViewer(imgUrl); };
+            
+            var imgEl = document.createElement('img');
+            imgEl.src = imgUrl;
+            imgEl.className = 'w-full h-full object-cover';
+            
+            imgContainer.appendChild(imgEl);
+            gallery.appendChild(imgContainer);
+        });
+    } else {
+        gallery.classList.add('hidden');
+    }
+
     // 位置和距离
     document.getElementById('location').textContent = demand.location || '未知位置';
     document.getElementById('distance').textContent = '距您 ' + (demand.distanceKm || 0).toFixed(1) + 'km';
@@ -235,6 +274,34 @@ function openContactModal() {
 function closeContact() {
     document.getElementById('contactMask').classList.add('hidden');
     document.getElementById('contactSheet').classList.add('hidden');
+}
+
+function openImageViewer(imgUrl) {
+    if (!imgUrl) return;
+    var mask = document.getElementById('imageViewerMask');
+    var img = document.getElementById('imageViewerImg');
+    if (!mask || !img) return;
+    img.src = imgUrl;
+    mask.style.display = 'flex';
+    void mask.offsetWidth;
+    mask.classList.remove('opacity-0');
+    img.classList.remove('scale-95');
+    img.classList.add('scale-100');
+}
+
+function closeImageViewer(e) {
+    if (e) e.stopPropagation();
+    var mask = document.getElementById('imageViewerMask');
+    var img = document.getElementById('imageViewerImg');
+    if (!mask) return;
+    mask.classList.add('opacity-0');
+    if (img) {
+        img.classList.remove('scale-100');
+        img.classList.add('scale-95');
+    }
+    setTimeout(function() {
+        mask.style.display = 'none';
+    }, 300);
 }
 
 function copyContact() {

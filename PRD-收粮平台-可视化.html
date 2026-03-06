@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRD - 收粮平台（农产品收购系统）V3.2</title>
+<title>PRD - 收粮平台（农产品收购系统）V3.3</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -128,7 +128,7 @@ tailwind.config = {
   <a href="#flow-main">主流程图</a>
   <a href="#flow-order">订单状态机</a>
   <a href="#constraints">技术约束</a>
-  <a href="#sync-baseline">原型同步基线（2026-03-03）</a>
+  <a href="#sync-baseline">原型同步基线（2026-03-06）</a>
   <a href="#page-map">页面清单与链接核验</a>
   <div class="nav-title">文档入口</div>
   <a href="./PRD-收粮平台-功能模块版.html">技术对接版（功能模块）</a>
@@ -168,7 +168,7 @@ tailwind.config = {
   <section class="hero px-8 py-16 md:px-16 md:py-24">
     <div class="max-w-4xl relative z-10">
       <div class="inline-block px-4 py-1.5 bg-wheat-400/20 text-wheat-300 rounded-full text-sm font-semibold mb-6 backdrop-blur-sm border border-wheat-400/20">
-        PRD V3.2 · 产品需求文档
+        PRD V3.3 · 产品需求文档
       </div>
       <h1 class="text-4xl md:text-5xl font-serif font-black text-white leading-tight mb-4">
         收粮平台<br><span class="text-wheat-400">农产品收购系统</span>
@@ -186,7 +186,7 @@ tailwind.config = {
           <div class="text-white/60 text-sm">业务阶段</div>
         </div>
         <div class="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
-          <div class="text-wheat-400 text-2xl font-serif font-bold">31</div>
+          <div class="text-wheat-400 text-2xl font-serif font-bold">34</div>
           <div class="text-white/60 text-sm">原型页面</div>
         </div>
         <div class="bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/10">
@@ -499,7 +499,7 @@ stateDiagram-v2
     <section id="sync-baseline" class="mb-16">
       <div class="flex items-center gap-3 mb-8">
         <div class="w-10 h-10 bg-forest-700 rounded-xl flex items-center justify-center text-white text-lg">8</div>
-        <h2 class="text-2xl font-serif font-bold text-forest-800">原型同步基线（2026-03-03）</h2>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">原型同步基线（2026-03-06）</h2>
       </div>
       <div class="card p-6">
         <div class="space-y-2 text-sm text-gray-700">
@@ -513,12 +513,15 @@ stateDiagram-v2
           <div>• 开单流程口径更新：开单页收款对象主路径为扫码识别，原“合作农户选择”入口下线；提交动作拆分为“稍后结算”和“立即付款”。</div>
           <div>• 开单商品推荐口径更新：添加商品弹层不再展示“自定义常用商品”，改为按当前品类展示“历史录入商品 Top5”（按频次+最近使用排序）；无历史数据时仅提示手动输入。</div>
           <div>• 订单状态口径更新：稍后结算生成<strong>待支付（unpaid）</strong>订单，立即付款生成<strong>支付中（paying）</strong>订单；支付中的订单 30 分钟超时自动取消。</div>
-          <div>• 订单详情编号口径更新：按状态展示分段订单号（收粮订单号 / 支付订单号 / 银行支付单号），已取消按撤销来源展示对应段数。</div>
+          <div>• 账号安全口径补充：登录页支持密码登录 / 验证码登录切换，支持“忘记密码”短信校验重置；我的模块新增“账户安全”入口，进入后可发起“修改登录密码”。</div>
+          <div>• 需求图片口径补充：收购商发布求购、农户发布销售均支持上传最多 <strong>3 张</strong>图片；编辑态保留已上传图片，可删除后重新上传。</div>
+          <div>• 需求详情补充：市场详情页支持展示发布时上传的图片，最多展示 3 张缩略图，点击进入全屏预览；无图片时隐藏图片区，不展示空占位。</div>
+          <div>• 订单详情编号口径更新：按状态展示分段订单号（收粮订单号 / 支付订单号），银行支付单号当前原型已下线，不再前台展示。</div>
           <div>• 合并付款能力上线：合并付款页仅汇总待支付订单，支持勾选多笔统一支付，付款后沉淀“已完成”记录并回写子订单状态。</div>
           <div>• 首页快捷入口口径更新（收购商）：原“消息通知”位置替换为“合并付款”，用于集中处理稍后结算订单。</div>
           <div>• 发布需求页口径更新：收购商与农户发布页均新增“发布地址（必填，可定位）”；收购商端字段口径为“需求标题 + 需求描述（选填）”。</div>
           <div>• 个人信息与我的模块口径更新：顶部展示“商户名称 + 商户号（可复制）+ 身份标签（圆角）”；个人信息页移除“当前角色”。</div>
-          <div>• “我的”页补充口径更新：收购商与农户共用“关于我们”页，展示丰收云 Logo、版本号 v1.1.0、隐私政策与服务协议、更新日志。</div>
+          <div>• “我的”页补充口径更新：当前前台开放“账户安全”入口用于修改登录密码；“关于我们”页面保留原型文件，但在我的模块中为 MVP 隐藏，版本号改为退出登录按钮下方静态展示。</div>
           <div>• 市场卡片口径更新：状态统一“进行中”；数量标签去掉“约/余”字样；详情入口为卡片右侧居中下钻图标。</div>
           <div>• 收银台口径更新：支付方式为<strong>行业支付 + 订单付</strong>；PC 端不再展示数字人民币；订单付在收银台页仅做网银登录引导。</div>
           <div>• PC 收银台有效期口径：展示“请在 10天内完成支付（剩余 xx）”；顶部提示语“交易全程加密，请在有效期内完成支付”。</div>
@@ -576,6 +579,26 @@ stateDiagram-v2
             <div><a class="text-forest-700 hover:underline" href="./about-us.html">about-us.html</a> · 关于我们（收购商/农户共用）</div>
             <div><a class="text-forest-700 hover:underline" href="./login.html">login.html</a> · 统一登录入口</div>
             <div><a class="text-forest-700 hover:underline" href="./index.html">index.html</a> · 演示导航页</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div class="card p-5">
+          <div class="font-serif font-bold text-forest-700 mb-3">账号安全与共用页面（4）</div>
+          <div class="space-y-1.5 text-sm">
+            <div><a class="text-forest-700 hover:underline" href="./login.html">login.html</a> · 登录页（密码/验证码登录）</div>
+            <div><a class="text-forest-700 hover:underline" href="./account-security.html">account-security.html</a> · 账户安全</div>
+            <div><a class="text-forest-700 hover:underline" href="./forgot-password.html">forgot-password.html</a> · 忘记密码</div>
+            <div><a class="text-forest-700 hover:underline" href="./change-password.html">change-password.html</a> · 修改登录密码</div>
+          </div>
+        </div>
+        <div class="card p-5">
+          <div class="font-serif font-bold text-forest-700 mb-3">说明</div>
+          <div class="space-y-2 text-sm text-gray-600">
+            <div>• <code>account-security.html</code> 为收购商/农户共用入口页，仅承接“修改登录密码”。</div>
+            <div>• <code>forgot-password.html</code> 从登录页“忘记密码”进入，按手机号 + 验证码重置密码。</div>
+            <div>• <code>change-password.html</code> 从“我的 - 账户安全”进入，验证身份后修改登录密码并回登录页重新登录。</div>
           </div>
         </div>
       </div>
@@ -762,6 +785,7 @@ stateDiagram-v2
               <div class="space-y-2 text-sm text-gray-600">
                 <div>• 系统根据角色<strong>自动确定</strong>需求类型：收购商 → 求购需求，农户 → 销售需求</div>
                 <div>• 表单字段口径：品类（必填）+ 标题（必填）+ 描述（选填）+ 发布地址（必填，可定位）+ 数量（必填）+ 单价（选填）</div>
+                <div>• 图片能力：支持上传最多 <strong>3 张</strong>图片，发布成功后随需求一起进入市场详情、需求管理详情；编辑时可继续增删图片。</div>
                 <div>• 当前原型入口：<code>buyer-publish.html</code>、<code>farmer-publish.html</code>；收购商端标题文案为“需求标题/需求描述”，农户端为“销售标题/描述（选填）”。</div>
                 <div>• 发布后仅<strong>对方角色</strong>可见（收购商发布 → 农户可见，反之亦然）</div>
                 <div>• 最多同时发布 <strong>20 条</strong>未关闭需求</div>
@@ -773,6 +797,8 @@ stateDiagram-v2
                 <div class="ac-item"><div class="text-sm">收购商发布求购 → 同一营业所区域的农户市场中展示</div></div>
                 <div class="ac-item"><div class="text-sm">农户发布销售 → 同一营业所区域的收购商市场中展示</div></div>
                 <div class="ac-item"><div class="text-sm">已有 20 条未关闭需求 → 提示"最多同时发布 20 条"</div></div>
+                <div class="ac-item"><div class="text-sm">上传图片超过 3 张 → 仅保留前 3 张并提示“最多上传 3 张图片”</div></div>
+                <div class="ac-item"><div class="text-sm">已上传图片的需求进入详情页 → 正常展示缩略图并支持点击预览大图</div></div>
               </div>
             </div>
           </div>
@@ -805,6 +831,7 @@ stateDiagram-v2
                 <div>• 需求卡片统一为轻量信息结构：品类标签 + 数量标签、内容、价格、发布时间、距离（仅距离，不展示完整地址）</div>
                 <div>• 卡片不展示“销售/求购”类型标签，也不展示发布者名称；收购商视角默认即为农户销售需求</div>
                 <div>• 操作区保留“联系”按钮，详情入口使用卡片右侧垂直居中的下钻图标（&gt;）</div>
+                <div>• 点击进入详情页后，如该需求存在图片，则展示最多 3 张缩略图并支持全屏预览；无图片则不占页面空间。</div>
                 <div>• 点击“联系”按钮 → 弹窗展示手机号，支持<strong>拨打电话</strong>和<strong>复制号码</strong></div>
                 <div>• 无匹配需求时展示空态提示（引导调整筛选或清空搜索词）</div>
               </div>
@@ -832,6 +859,7 @@ stateDiagram-v2
               <div class="space-y-2 text-sm text-gray-600">
                 <div>• 两个 Tab：<strong>进行中</strong>（未关闭）/ <strong>历史记录</strong>（已关闭，近 3 个月）</div>
                 <div>• 编辑：修改字段 → 保存 → 市场中实时更新</div>
+                <div>• 图片与需求主体一并保存；进行中编辑可删除/替换图片，已下架详情保持只读展示。</div>
                 <div>• 关闭：确认弹窗 → 从市场下架 → 转入历史记录</div>
               </div>
             </div>
@@ -1204,7 +1232,7 @@ stateDiagram-v2
                 <div>• "待支付/支付中"状态 → 详情页均支持"继续支付"与"取消订单"</div>
                 <div>• 详情页：状态提示区、收款方信息（名称+手机号脱敏）、商品明细、订单信息</div>
                 <div>• "待支付"详情页：unpaid 显示“待支付，可继续支付或取消订单”；pending 显示30分钟倒计时</div>
-                <div>• 订单号展示：待支付仅展示<strong>收粮订单号</strong>；支付中展示<strong>收粮订单号 + 支付订单号</strong>；支付成功/失败展示<strong>收粮订单号 + 支付订单号 + 银行支付单号</strong></div>
+                <div>• 订单号展示：待支付仅展示<strong>收粮订单号</strong>；支付中/支付成功/支付失败统一展示<strong>收粮订单号 + 支付订单号</strong>；银行支付单号当前原型不再前台展示</div>
                 <div>• 已取消订单号展示：按撤销来源展示，待支付撤销显示 1 段号，支付中撤销显示 2 段号</div>
                 <div>• "待支付/支付中"状态<strong>不展示</strong>支付方式，支付成功/失败/已取消展示支付信息</div>
                 <div>• 超时文案统一口径：<strong>超时未支付，系统自动取消</strong>（收银台/订单列表/订单详情保持一致）</div>
@@ -1254,7 +1282,7 @@ stateDiagram-v2
 │ ── 订单信息 ────────   │
 │ 收粮订单号：SL...     │
 │ 支付订单号：ZF...     │
-│ 银行支付单号：YH...   │
+│ 支付订单号：ZF...       │
 │ 时间：2026-02-09 10:30│
 │ 支付方式：行业支付     │
 │ 订单金额：¥1,750.00   │
@@ -1304,7 +1332,7 @@ stateDiagram-v2
             <span class="inline-flex items-center justify-center w-10 h-10 bg-teal-600 text-white rounded-lg font-serif font-bold text-sm">15</span>
             <div>
               <h4 class="font-serif font-bold text-forest-800">个人中心（"我的"页面）</h4>
-              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 查看个人信息、邀请农户、消息通知、关于我们、系统设置</p>
+              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 查看个人信息、邀请农户、消息通知、账户安全与系统设置</p>
             </div>
           </div>
           <span class="arrow text-forest-400 text-xl">▶</span>
@@ -1314,12 +1342,14 @@ stateDiagram-v2
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 页面内容</h5>
               <div class="space-y-2 text-sm text-gray-600">
-                <div>• 个人信息（只读）：名称、简称、负责人、手机号 — 修改需联系网点客户经理</div>
+                <div>• 个人信息（只读）：商户号、商户名称、手机号、当前身份、创建日期；商户号支持复制。</div>
                 <div>• 收购商新增“邀请农户”入口：点击弹出二维码，支持保存分享；二维码落地到 <code>buyer-farmer-add.html?source=invite</code>，可携带邀请人商户号参数</div>
                 <div>• 权限口径：收购商侧不再支持“手工新增农户”，统一由客户经理流程或农户自注册完成开户/入驻</div>
-                <div>• “关于我们”为收购商/农户共用页：展示丰收云 Logo、版本号 v1.1.0、隐私政策与服务协议、更新日志</div>
+                <div>• “账户安全”作为收购商/农户共用入口：当前仅开放“修改登录密码”，点击进入 <code>account-security.html</code> 再跳转 <code>change-password.html</code>。</div>
+                <div>• 登录页支持“忘记密码”，通过手机号 + 验证码 + 新密码完成重置，成功后回登录页重新登录。</div>
+                <div>• “关于我们”当前在我的模块为 <strong>MVP 隐藏</strong>，版本号以退出登录按钮下方静态文案展示。</div>
                 <div>• 退出登录：点击后从底部弹出“退出当前账号”确认层，确认后回登录页</div>
-                <div>• 消息通知入口、帮助与反馈、关于我们、退出登录</div>
+                <div>• 消息通知入口、帮助与反馈、账户安全、退出登录</div>
               </div>
             </div>
             <div class="mb-5">

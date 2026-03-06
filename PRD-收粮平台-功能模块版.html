@@ -117,6 +117,13 @@ tailwind.config = {
           </thead>
           <tbody>
             <tr>
+              <td class="font-medium text-forest-700">登录与账户安全</td>
+              <td>密码/验证码登录、忘记密码、修改登录密码</td>
+              <td>登录页支持密码/验证码模式切换；忘记密码通过手机号+验证码重置；我的→账户安全→修改登录密码后需重新登录</td>
+              <td>支持商户号/手机号登录；密码修改成功统一回登录页；账户安全页当前仅承接“修改登录密码”入口</td>
+              <td>短信发送失败或验证码校验失败时阻断密码变更提交，但不影响用户返回登录页重试</td>
+            </tr>
+            <tr>
               <td class="font-medium text-forest-700">首页</td>
               <td>经营总览、快捷入口、我发布需求</td>
               <td>按当日/本月/本年聚合金额与笔数；双列表读取需求数据并按时间排序</td>
@@ -132,17 +139,24 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="font-medium text-forest-700">发布求购</td>
-              <td>新建、编辑、只读查看</td>
-              <td>提交后写入需求模型并回流到首页、市场、需求管理</td>
-              <td>支持 `mode=edit|view`；`view` 为只读态不可提交；发布地址为必填并支持定位回填</td>
-              <td>字段校验失败阻止提交并定位错误字段</td>
+              <td>新建、编辑、只读查看、上传图片</td>
+              <td>提交后写入需求模型并回流到首页、市场、需求管理；图片与需求主体一并保存</td>
+              <td>支持 `mode=edit|view`；`view` 为只读态不可提交；发布地址为必填并支持定位回填；图片最多 3 张</td>
+              <td>字段校验失败或图片超限时阻止提交并定位错误字段</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">需求管理</td>
               <td>进行中管理、已下架查看</td>
               <td>进行中可编辑或下架；下架后转历史分组</td>
-              <td>进行中进入编辑态；已下架进入只读态</td>
+              <td>进行中进入编辑态；已下架进入只读态；编辑与只读页均需继承已上传图片</td>
               <td>状态冲突时以后端最新状态为准并提示“状态已变化”</td>
+            </tr>
+            <tr>
+              <td class="font-medium text-forest-700">销售需求详情</td>
+              <td>查看详情、联系农户、图片预览</td>
+              <td>读取市场需求快照，展示标题、描述、数量、价格、距离、联系方式；有图片时渲染图库</td>
+              <td>最多展示 3 张图片；无图片时隐藏图片区；点击图片进入全屏预览</td>
+              <td>图片加载失败显示占位；联系方式缺失时联系按钮置灰并提示</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">开单</td>
@@ -181,10 +195,10 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="font-medium text-forest-700">我的</td>
-              <td>个人信息、邀请农户、通知、关于我们、设置入口</td>
-              <td>个人信息只读；邀请农户通过二维码外发到入驻页；消息按业务事件落库/推送</td>
-              <td>二维码默认落地 <code>buyer-farmer-add.html?source=invite</code>（可按需附带 <code>back=mine</code>）；关于我们展示版本号 v1.1.0；退出登录采用底部确认弹层</td>
-              <td>通知读取失败不影响主业务交易链路</td>
+              <td>个人信息、邀请农户、账户安全、通知、退出登录</td>
+              <td>个人信息只读；邀请农户通过二维码外发到入驻页；账户安全页承接修改密码入口；消息按业务事件落库/推送</td>
+              <td>二维码默认落地 <code>buyer-farmer-add.html?source=invite</code>（可按需附带 <code>back=mine</code>）；关于模块当前为 MVP 隐藏；版本号以退出登录按钮下方静态文案展示；退出登录采用底部确认弹层</td>
+              <td>通知读取失败不影响主业务交易链路；密码修改成功后统一回登录页重新登录</td>
             </tr>
           </tbody>
         </table>
@@ -209,6 +223,13 @@ tailwind.config = {
           </thead>
           <tbody>
             <tr>
+              <td class="font-medium text-forest-700">登录与账户安全</td>
+              <td>密码/验证码登录、忘记密码、修改登录密码</td>
+              <td>登录页支持密码/验证码模式切换；忘记密码通过手机号+验证码重置；我的→账户安全→修改登录密码后需重新登录</td>
+              <td>支持商户号/手机号登录；密码修改成功统一回登录页；账户安全页当前仅承接“修改登录密码”入口</td>
+              <td>短信发送失败或验证码校验失败时阻断密码变更提交，但不影响用户返回登录页重试</td>
+            </tr>
+            <tr>
               <td class="font-medium text-forest-700">首页</td>
               <td>收款总览、快捷入口、我发布需求</td>
               <td>与收购商首页同骨架，便于双端认知统一</td>
@@ -224,17 +245,24 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="font-medium text-forest-700">发布销售</td>
-              <td>发布销售需求、编辑销售需求</td>
-              <td>字段聚焦交易核心信息，提交后进入需求管理</td>
-              <td>字段口径：销售标题（必填）、描述（选填）、发布地址（必填）、销售数量（必填）、销售单价（选填）</td>
-              <td>价格、数量非法值直接拦截</td>
+              <td>发布销售需求、编辑销售需求、上传图片</td>
+              <td>字段聚焦交易核心信息，提交后进入需求管理；图片与需求主体一并保存</td>
+              <td>字段口径：销售标题（必填）、描述（选填）、发布地址（必填）、销售数量（必填）、销售单价（选填）；图片最多 3 张</td>
+              <td>价格、数量非法值或图片超限直接拦截</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">销售需求管理</td>
               <td>进行中/已下架管理</td>
               <td>进行中可编辑；已下架仅只读查看</td>
-              <td>状态判断规则与收购商端一致（避免一端可编辑一端只读冲突）</td>
+              <td>状态判断规则与收购商端一致（避免一端可编辑一端只读冲突）；编辑与只读页均需继承已上传图片</td>
               <td>并发更新以服务端状态为准并提示刷新</td>
+            </tr>
+            <tr>
+              <td class="font-medium text-forest-700">收购需求详情</td>
+              <td>查看详情、联系收购商、图片预览</td>
+              <td>读取市场需求快照，展示标题、描述、数量、价格、距离、联系方式；有图片时渲染图库</td>
+              <td>最多展示 3 张图片；无图片时隐藏图片区；点击图片进入全屏预览</td>
+              <td>图片加载失败显示占位；联系方式缺失时联系按钮置灰并提示</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">收款综合页</td>
@@ -252,10 +280,10 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="font-medium text-forest-700">我的</td>
-              <td>个人资料、通知、反馈</td>
-              <td>资料字段模板固定，值为农户主体信息</td>
-              <td>资料仅查看不可直接改，需管理端流程变更</td>
-              <td>通知接口失败不影响收款与市场操作</td>
+              <td>个人资料、账户安全、通知、退出登录</td>
+              <td>资料字段模板固定，值为农户主体信息；账户安全页承接修改密码入口</td>
+              <td>资料仅查看不可直接改，需管理端流程变更；关于模块当前为 MVP 隐藏；版本号以退出登录按钮下方静态文案展示</td>
+              <td>通知接口失败不影响收款与市场操作；密码修改成功后统一回登录页重新登录</td>
             </tr>
           </tbody>
         </table>
@@ -419,8 +447,8 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="font-medium text-forest-700">需求</td>
-              <td>demandId、publisherRole、category、quantity、unitPrice、status、publishTime</td>
-              <td>状态仅含 active/closed；市场只读 active</td>
+              <td>demandId、publisherRole、category、title、description、location、images、quantity、unitPrice、status、publishTime</td>
+              <td>状态仅含 active/closed；市场只读 active；<code>images</code> 为图片 URL 数组，最多 3 张</td>
             </tr>
             <tr>
               <td class="font-medium text-forest-700">订单</td>
@@ -459,7 +487,7 @@ tailwind.config = {
             <div>• 稍后结算 → 待支付（unpaid）；立即付款 → 支付中（paying）</div>
             <div>• 待支付/支付中可继续支付；支付中超过 30 分钟自动流转为已取消；PC 收银台有效期按 10 天口径展示</div>
             <div>• 支付失败可回到待支付并重试</div>
-            <div>• 订单详情号段规则：待支付仅收粮订单号；支付中增加支付订单号；成功/失败再增加银行支付单号；已取消按撤销来源展示</div>
+            <div>• 订单详情号段规则：待支付仅展示收粮订单号；支付中/支付成功/支付失败展示收粮订单号 + 支付订单号；银行支付单号当前原型不再前台展示</div>
             <div>• 任何终端均不得绕过状态机直接改状态</div>
           </div>
         </div>
@@ -548,6 +576,12 @@ tailwind.config = {
               <td>审计访问日志与数据脱敏链路</td>
             </tr>
             <tr>
+              <td class="font-medium text-forest-700">认证服务</td>
+              <td>账号登录、验证码发送、忘记密码、修改密码</td>
+              <td>验证码需限频限次；密码修改与重置均需校验身份并记录安全日志</td>
+              <td>监控验证码发送成功率、密码修改失败率与异常登录尝试</td>
+            </tr>
+            <tr>
               <td class="font-medium text-forest-700">通知服务</td>
               <td>订单结果、需求状态变更、系统通知</td>
               <td>同一事件去重投递，失败可补偿</td>
@@ -590,7 +624,7 @@ tailwind.config = {
 
     <footer class="text-center py-8 text-sm text-gray-400 border-t border-gray-200">
       <p>收粮平台 · 技术对接版 PRD</p>
-      <p class="mt-1">更新时间：2026-03-03 · 开户双路径 + 合并付款 + 邀请自助入驻口径同步</p>
+      <p class="mt-1">更新时间：2026-03-06 · 新增账号安全 + 需求图片上传/预览 + 订单号口径同步</p>
     </footer>
   </div>
 </div>

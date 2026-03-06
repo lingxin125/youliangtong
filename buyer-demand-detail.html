@@ -30,7 +30,11 @@
 
             <!-- 描述（浅绿色容器） -->
             <div class="bg-green-50/60 rounded-lg p-3 mb-4">
-                <p id="demandDesc" class="text-sm text-gray-700 leading-relaxed">粒粒饱满，口感香糯，产地直供，可提供质检报告</p>
+                <p id="demandDesc" class="text-sm text-gray-700 leading-relaxed break-words">粒粒饱满，口感香糯，产地直供，可提供质检报告</p>
+                <!-- 图片画廊 -->
+                <div id="imageGallery" class="mt-3 gap-2 flex hidden overflow-hidden rounded-md">
+                    <!-- Images will be injected here -->
+                </div>
             </div>
 
             <!-- 数量 & 单价 -->
@@ -99,6 +103,16 @@
         </div>
     </div>
 
+    <!-- 图片预览弹层（在手机容器内部） -->
+    <div id="imageViewerMask" class="absolute inset-0 z-[100] bg-black/95 hidden items-center justify-center transition-opacity opacity-0" style="display:none;" onclick="closeImageViewer()">
+        <div class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-white/70 active:bg-white/10 rounded-full cursor-pointer z-[101]" onclick="closeImageViewer(event)">
+            <i class="fas fa-times text-xl"></i>
+        </div>
+        <div class="flex items-center justify-center w-full h-full p-4">
+            <img id="imageViewerImg" src="" class="max-w-full max-h-full object-contain rounded-lg transition-transform transform scale-95" />
+        </div>
+    </div>
+
     <div id="toastTip" class="absolute left-4 right-4 bottom-[84px] px-3.5 py-2.5 bg-black/85 text-white text-xs rounded-lg opacity-0 pointer-events-none transition-all duration-200 z-[72]"></div>
 
 </div>
@@ -145,17 +159,17 @@ function formatPrice(price, unit) {
 
 // 与 buyer-market.html 保持一致的数据源
 var fallbackList = [
-    { id: 'F1', category: '水果', content: '出售红富士苹果，果径80mm以上，自家果园直发', qty: 5000, unit: '斤', price: 2.6, location: '山东烟台', distanceKm: 3.2, ownerName: '李大姐果园', ownerMobile: '138****1234', createdAt: new Date(Date.now() - 30 * 1000).toISOString(), status: 'active' },
-    { id: 'F2', category: '蔬菜', content: '新鲜采摘黄瓜，长度25cm左右，现摘现发', qty: 2000, unit: '斤', price: 1.8, location: '山东潍坊', distanceKm: 2.1, ownerName: '张大哥菜棚', ownerMobile: '136****8888', createdAt: new Date(Date.now() - 45 * 1000).toISOString(), status: 'active' },
-    { id: 'F3', category: '粮油', content: '出售优质小麦，含水量13%以内，可提供质检', qty: 20000, unit: '斤', price: 1.9, location: '河南周口', distanceKm: 7.5, ownerName: '王建国家庭农场', ownerMobile: '139****5678', createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(), status: 'active' },
-    { id: 'F4', category: '蔬菜', content: '自种有机西红柿，今天可采摘，支持当天装车', qty: 3000, unit: '斤', price: 2.3, location: '河北保定', distanceKm: 12.0, ownerName: '老周蔬菜棚', ownerMobile: '137****6002', createdAt: new Date(Date.now() - 18 * 60 * 1000).toISOString(), status: 'active' },
-    { id: 'F5', category: '禽蛋', content: '散养土鸡蛋，蛋黄饱满，50枚/箱，100箱起批', qty: 5000, unit: '枚', price: 1.2, location: '江苏南通', distanceKm: 8.3, ownerName: '赵姐养殖场', ownerMobile: '150****2345', createdAt: new Date(Date.now() - 32 * 60 * 1000).toISOString(), status: 'active' },
-    { id: 'F6', category: '水果', content: '巨峰葡萄自然成熟，甜度18+，5斤起售', qty: 3000, unit: '斤', price: 4.5, location: '浙江金华', distanceKm: 15.6, ownerName: '刘庄主葡萄园', ownerMobile: '139****7777', createdAt: new Date(Date.now() - 48 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F1', category: '水果', content: '出售红富士苹果，果径80mm以上，自家果园直发', qty: 5000, unit: '斤', price: 2.6, location: '山东烟台', distanceKm: 3.2, ownerName: '李大姐果园', ownerMobile: '138****1234', createdAt: new Date(Date.now() - 30 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/farmapple1/400/400', 'https://picsum.photos/seed/farmapple2/400/400', 'https://picsum.photos/seed/farmapple3/400/400'] },
+    { id: 'F2', category: '蔬菜', content: '新鲜采摘黄瓜，长度25cm左右，现摘现发', qty: 2000, unit: '斤', price: 1.8, location: '山东潍坊', distanceKm: 2.1, ownerName: '张大哥菜棚', ownerMobile: '136****8888', createdAt: new Date(Date.now() - 45 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/cucumber1/400/400', 'https://picsum.photos/seed/cucumber2/400/400'] },
+    { id: 'F3', category: '粮油', content: '出售优质小麦，含水量13%以内，可提供质检', qty: 20000, unit: '斤', price: 1.9, location: '河南周口', distanceKm: 7.5, ownerName: '王建国家庭农场', ownerMobile: '139****5678', createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/wheat01/400/400'] },
+    { id: 'F4', category: '蔬菜', content: '自种有机西红柿，今天可采摘，支持当天装车', qty: 3000, unit: '斤', price: 2.3, location: '河北保定', distanceKm: 12.0, ownerName: '老周蔬菜棚', ownerMobile: '137****6002', createdAt: new Date(Date.now() - 18 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/tomato11/400/400', 'https://picsum.photos/seed/tomato12/400/400', 'https://picsum.photos/seed/tomato13/400/400'] },
+    { id: 'F5', category: '禽蛋', content: '散养土鸡蛋，蛋黄饱满，50枚/箱，100箱起批', qty: 5000, unit: '枚', price: 1.2, location: '江苏南通', distanceKm: 8.3, ownerName: '赵姐养殖场', ownerMobile: '150****2345', createdAt: new Date(Date.now() - 32 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/egg01/400/400', 'https://picsum.photos/seed/egg02/400/400'] },
+    { id: 'F6', category: '水果', content: '巨峰葡萄自然成熟，甜度18+，5斤起售', qty: 3000, unit: '斤', price: 4.5, location: '浙江金华', distanceKm: 15.6, ownerName: '刘庄主葡萄园', ownerMobile: '139****7777', createdAt: new Date(Date.now() - 48 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/grape01/400/400'] },
     { id: 'F7', category: '肉类', content: '散养黑猪肉，当天宰杀，排骨五花肉齐全', qty: 800, unit: '斤', price: 28.0, location: '安徽阜阳', distanceKm: 22.0, ownerName: '老李养猪场', ownerMobile: '138****6666', createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), status: 'active' },
     { id: 'F8', category: '其他', content: '鲜活草鱼，规格2-3斤/条，塘口直发', qty: 1500, unit: '斤', price: 8.5, location: '湖北荆州', distanceKm: 35.0, ownerName: '周师傅鱼塘', ownerMobile: '137****5555', createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), status: 'active' },
     { id: 'F9', category: '粮油', content: '新榨花生油，纯物理压榨，5L/桶', qty: 200, unit: '桶', price: 85.0, location: '山东临沂', distanceKm: 18.5, ownerName: '孙家油坊', ownerMobile: '136****4444', createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), status: 'active' },
     { id: 'F10', category: '蔬菜', content: '紫皮大蒜头，蒜头饱满，适合储存', qty: 5000, unit: '斤', price: 3.2, location: '河南商丘', distanceKm: 28.0, ownerName: '大蒜种植合作社', ownerMobile: '135****3333', createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), status: 'active' },
-    { id: 'F11', category: '水果', content: '黄心猕猴桃，单果90g+，甜度高', qty: 2500, unit: '斤', price: 5.8, location: '陕西周至', distanceKm: 42.0, ownerName: '杨氏果园', ownerMobile: '134****2222', createdAt: new Date(Date.now() - 11 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F11', category: '水果', content: '黄心猝猴桃，单果90g+，甜度高', qty: 2500, unit: '斤', price: 5.8, location: '陕西周至', distanceKm: 42.0, ownerName: '杨氏果园', ownerMobile: '134****2222', createdAt: new Date(Date.now() - 11 * 60 * 60 * 1000).toISOString(), status: 'active' },
     { id: 'F12', category: '禽蛋', content: '老鸭蛋，腌制咸鸭蛋原料，个大壳青', qty: 3000, unit: '枚', price: 2.0, location: '江西九江', distanceKm: 55.0, ownerName: '鸭蛋批发部', ownerMobile: '133****1111', createdAt: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(), status: 'active' },
     { id: 'F13', category: '粮油', content: '糯玉米棒子，甜糯可口，适合煮食', qty: 8000, unit: '斤', price: 1.5, location: '河北张家口', distanceKm: 62.0, ownerName: '王大爷农场', ownerMobile: '132****0000', createdAt: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(), status: 'active' },
     { id: 'F14', category: '肉类', content: '山羊羊肉，放养草饲，肉质鲜嫩', qty: 600, unit: '斤', price: 35.0, location: '内蒙古赤峰', distanceKm: 120.0, ownerName: '草原牧业', ownerMobile: '131****9999', createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' },
@@ -192,6 +206,31 @@ function loadSupplyDetail() {
     } else {
         statusTag.textContent = '已下架';
         statusTag.className = 'text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium';
+    }
+
+    // 图片渲染
+    var gallery = document.getElementById('imageGallery');
+    var imgs = Array.isArray(supply.images) ? supply.images : [];
+    if (imgs.length > 0) {
+        gallery.classList.remove('hidden');
+        gallery.innerHTML = '';
+        var colClass = 'w-[calc(33.33%-5px)] h-24';
+        
+        
+        imgs.slice(0, 3).forEach(function(imgUrl) {
+            var imgContainer = document.createElement('div');
+            imgContainer.className = colClass + ' rounded-lg overflow-hidden border border-black/5 relative cursor-pointer active:scale-95 transition-transform bg-white/50';
+            imgContainer.onclick = function() { openImageViewer(imgUrl); };
+            
+            var imgEl = document.createElement('img');
+            imgEl.src = imgUrl;
+            imgEl.className = 'w-full h-full object-cover';
+            
+            imgContainer.appendChild(imgEl);
+            gallery.appendChild(imgContainer);
+        });
+    } else {
+        gallery.classList.add('hidden');
     }
 
     // 填充数据
@@ -241,6 +280,34 @@ function openContactModal() {
 function closeContact() {
     document.getElementById('contactMask').classList.add('hidden');
     document.getElementById('contactSheet').classList.add('hidden');
+}
+
+function openImageViewer(imgUrl) {
+    if (!imgUrl) return;
+    var mask = document.getElementById('imageViewerMask');
+    var img = document.getElementById('imageViewerImg');
+    if (!mask || !img) return;
+    img.src = imgUrl;
+    mask.style.display = 'flex';
+    void mask.offsetWidth;
+    mask.classList.remove('opacity-0');
+    img.classList.remove('scale-95');
+    img.classList.add('scale-100');
+}
+
+function closeImageViewer(e) {
+    if (e) e.stopPropagation();
+    var mask = document.getElementById('imageViewerMask');
+    var img = document.getElementById('imageViewerImg');
+    if (!mask) return;
+    mask.classList.add('opacity-0');
+    if (img) {
+        img.classList.remove('scale-100');
+        img.classList.add('scale-95');
+    }
+    setTimeout(function() {
+        mask.style.display = 'none';
+    }, 300);
 }
 
 function copyContact() {
