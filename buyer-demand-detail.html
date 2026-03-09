@@ -119,7 +119,15 @@
 
 <script>
 document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader('销售详情', 'buyer-market.html');
+var demandStore = window.DemandMockStore || null;
+var q = new URLSearchParams(window.location.search);
+var sourcePage = q.get('source') || '';
+var backLink = q.get('back') || 'buyer-market.html';
+if (!q.get('back')) {
+    if (sourcePage === 'home') backLink = 'buyer-home.html';
+    else if (sourcePage === 'manage') backLink = 'buyer-demand-manage.html';
+}
+document.getElementById('navBar').innerHTML = renderHeader('销售详情', backLink);
 
 // 品类颜色映射
 function getCategoryColor(cat) {
@@ -184,8 +192,14 @@ function loadSupplyDetail() {
     var params = new URLSearchParams(window.location.search);
     var id = params.get('id');
 
-    // 从 fallbackList 查找对应数据
-    var supply = fallbackList.find(function(item) { return item.id === id; });
+    var supply = null;
+    if (id && demandStore && typeof demandStore.findDemandById === 'function') {
+        supply = demandStore.findDemandById(id);
+    }
+
+    if (!supply) {
+        supply = fallbackList.find(function(item) { return item.id === id; });
+    }
 
     // 如果没有找到，使用第一条数据
     if (!supply) {

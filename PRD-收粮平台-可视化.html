@@ -778,7 +778,7 @@ stateDiagram-v2
           <div class="p-5 border-t border-gray-100">
             <div class="mb-5 p-4 bg-wheat-50 rounded-xl border border-wheat-200">
               <div class="text-xs font-semibold text-wheat-600 mb-2">💡 价值陈述</div>
-              <p class="text-sm text-gray-700"><strong>作为</strong>收购商/农户，<strong>我希望</strong>在小程序中发布需求到市场，<strong>以便于</strong>同一营业所区域内的对方能看到我的需求促成交易。</p>
+              <p class="text-sm text-gray-700"><strong>作为</strong>收购商/农户，<strong>我希望</strong>在小程序中发布需求到市场，<strong>以便于</strong>同一营业所区域内的用户能看到我的需求促成交易。</p>
             </div>
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
@@ -787,15 +787,15 @@ stateDiagram-v2
                 <div>• 表单字段口径：品类（必填）+ 标题（必填）+ 描述（选填）+ 发布地址（必填，可定位）+ 数量（必填）+ 单价（选填）</div>
                 <div>• 图片能力：支持上传最多 <strong>3 张</strong>图片，发布成功后随需求一起进入市场详情、需求管理详情；编辑时可继续增删图片。</div>
                 <div>• 当前原型入口：<code>buyer-publish.html</code>、<code>farmer-publish.html</code>；收购商端标题文案为“需求标题/需求描述”，农户端为“销售标题/描述（选填）”。</div>
-                <div>• 发布后仅<strong>对方角色</strong>可见（收购商发布 → 农户可见，反之亦然）</div>
+                <div>• 发布后在同一营业所区域内<strong>默认对全部用户可见</strong>，市场页可按需求分类筛选收购/销售</div>
                 <div>• 最多同时发布 <strong>20 条</strong>未关闭需求</div>
               </div>
             </div>
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">✅ 验收标准</h5>
               <div class="space-y-3">
-                <div class="ac-item"><div class="text-sm">收购商发布求购 → 同一营业所区域的农户市场中展示</div></div>
-                <div class="ac-item"><div class="text-sm">农户发布销售 → 同一营业所区域的收购商市场中展示</div></div>
+                <div class="ac-item"><div class="text-sm">收购商发布求购 → 同一营业所区域的市场默认混合列表中展示，并可被“收购”筛选命中</div></div>
+                <div class="ac-item"><div class="text-sm">农户发布销售 → 同一营业所区域的市场默认混合列表中展示，并可被“销售”筛选命中</div></div>
                 <div class="ac-item"><div class="text-sm">已有 20 条未关闭需求 → 提示"最多同时发布 20 条"</div></div>
                 <div class="ac-item"><div class="text-sm">上传图片超过 3 张 → 仅保留前 3 张并提示“最多上传 3 张图片”</div></div>
                 <div class="ac-item"><div class="text-sm">已上传图片的需求进入详情页 → 正常展示缩略图并支持点击预览大图</div></div>
@@ -812,7 +812,7 @@ stateDiagram-v2
             <span class="inline-flex items-center justify-center w-10 h-10 bg-emerald-600 text-white rounded-lg font-serif font-bold text-sm">04</span>
             <div>
               <h4 class="font-serif font-bold text-forest-800">浏览市场需求</h4>
-              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 浏览对方角色发布的需求，筛选排序联系</p>
+              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 浏览市场全部需求，筛选排序联系</p>
             </div>
           </div>
           <span class="arrow text-forest-400 text-xl">▶</span>
@@ -823,13 +823,13 @@ stateDiagram-v2
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
               <div class="space-y-2 text-sm text-gray-600">
                 <div>• 当前原型入口：<code>buyer-market.html</code>（收购商视角）与 <code>farmer-market.html</code>（农户视角）</div>
-                <div>• 系统根据角色自动过滤：收购商只看到农户的销售需求，农户只看到收购商的求购需求（读取 <code>DemandMockStore</code> 的 active 数据）</div>
+                <div>• 市场页默认混合展示同一营业所区域内的收购需求与销售需求（读取 <code>DemandMockStore</code> 的 active 数据）</div>
                 <div>• 市场页顶部结构为两行：第一行<strong>搜索框 + 外置筛选按钮</strong>；第二行展示排序与筛选工具入口。</div>
                 <div>• MVP 口径：关键词入口与“我关注/只看关注”筛选已前台隐藏（保留代码，不对用户开放）。</div>
-                <div>• 筛选由底部抽屉承载，MVP 维度：<strong>排序</strong>（最新/最近）、<strong>发布时间</strong>、<strong>品类</strong>、<strong>距离</strong></div>
+                <div>• 筛选由底部抽屉承载，MVP 维度：<strong>排序</strong>（最新/最近）、<strong>发布时间</strong>、<strong>需求分类</strong>（收购/销售）、<strong>品类</strong>、<strong>距离</strong></div>
                 <div>• 顶部不再展示“当前筛选：xxx”长文案，仅在有筛选条件时显示<strong>筛选数量标签</strong>（如“已筛选 2”）</div>
-                <div>• 需求卡片统一为轻量信息结构：品类标签 + 数量标签、内容、价格、发布时间、距离（仅距离，不展示完整地址）</div>
-                <div>• 卡片不展示“销售/求购”类型标签，也不展示发布者名称；收购商视角默认即为农户销售需求</div>
+                <div>• 需求卡片统一为轻量信息结构：需求类型标签 + 数量标签、内容、价格、发布时间、距离（仅距离，不展示完整地址）</div>
+                <div>• 卡片左上角展示“收购需求/销售需求”类型标签并使用区分色；卡片中不展示品类标签，品类仅在详情页展示</div>
                 <div>• 操作区保留“联系”按钮，详情入口使用卡片右侧垂直居中的下钻图标（&gt;）</div>
                 <div>• 点击进入详情页后，如该需求存在图片，则展示最多 3 张缩略图并支持全屏预览；无图片则不占页面空间。</div>
                 <div>• 点击“联系”按钮 → 弹窗展示手机号，支持<strong>拨打电话</strong>和<strong>复制号码</strong></div>

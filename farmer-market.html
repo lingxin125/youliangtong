@@ -48,7 +48,7 @@
                         </button>
                         <button type="button" class="w-full text-left text-[11px] px-3 py-2 hover:bg-gray-50 flex items-center gap-2" onclick="setSortOption('oldest')">
                             <span class="w-4 text-center"><i class="fas fa-check text-primary text-[10px] opacity-0" id="check-oldest"></i></span>
-                            最晚发布
+                            最早发布
                         </button>
                         <button type="button" class="w-full text-left text-[11px] px-3 py-2 hover:bg-gray-50 flex items-center gap-2" onclick="setSortOption('nearest')">
                             <span class="w-4 text-center"><i class="fas fa-check text-primary text-[10px] opacity-0" id="check-nearest"></i></span>
@@ -112,6 +112,13 @@
             </div>
             <div>
                 <div class="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                    <i class="fas fa-tags text-gray-400"></i>
+                    需求分类
+                </div>
+                <div id="typeGroup" class="grid grid-cols-3 gap-2"></div>
+            </div>
+            <div>
+                <div class="text-xs text-gray-500 mb-2 flex items-center gap-1">
                     <i class="fas fa-th-large text-gray-400"></i>
                     品类
                 </div>
@@ -154,12 +161,17 @@ document.getElementById('statusBar').innerHTML = renderStatusBar();
 document.getElementById('navBar').innerHTML = renderHeader('市场');
 document.getElementById('tabBar').innerHTML = renderFarmerTabBar('market');
 
+var demandStore = window.DemandMockStore || null;
+var marketPage = 'farmer-market.html';
+var fallbackDemandRole = 'buyer';
+
 var state = {
     sort: 'latest',
     activeTab: 'latest',
     timeRange: 'all',
     customDateStart: '',
     customDateEnd: '',
+    demandType: 'all',
     category: '全部',
     maxDistance: 'all',
     keyword: '',
@@ -203,6 +215,11 @@ var FILTER_META = {
         { value: 'today', label: '今天' },
         { value: '3d', label: '3天内' },
         { value: 'custom', label: '自定义' }
+    ],
+    demandType: [
+        { value: 'all', label: '全部' },
+        { value: 'buyer', label: '收购' },
+        { value: 'farmer', label: '销售' }
     ],
     category: ['全部', '水果', '蔬菜', '粮油', '禽蛋', '肉类', '其他'],
     maxDistance: [
@@ -276,6 +293,7 @@ function resetAllFilters() {
     state.timeRange = 'all';
     state.customDateStart = '';
     state.customDateEnd = '';
+    state.demandType = 'all';
     state.category = '全部';
     state.maxDistance = 'all';
     state.onlyFocus = false;
@@ -300,6 +318,7 @@ function openFilter() {
         timeRange: state.timeRange,
         customDateStart: state.customDateStart,
         customDateEnd: state.customDateEnd,
+        demandType: state.demandType,
         category: state.category,
         maxDistance: state.maxDistance
     };
@@ -365,11 +384,19 @@ function optionClass(active) {
 
 function renderFilterOptions() {
     var timeGroup = document.getElementById('timeGroup');
+    var typeGroup = document.getElementById('typeGroup');
     var categoryGroup = document.getElementById('categoryGroup');
     var distanceGroup = document.getElementById('distanceGroup');
 
     timeGroup.innerHTML = FILTER_META.timeRange.map(function(item) {
         return '<button type="button" data-key="timeRange" data-value="' + item.value + '" class="' + optionClass(draftFilter.timeRange === item.value) + '" onclick="pickFilterByDataset(this)">' + item.label + '</button>';
+    }).join('');
+
+    typeGroup.innerHTML = FILTER_META.demandType.map(function(item) {
+        var cls = draftFilter.demandType === item.value
+            ? 'text-[11px] text-primary font-medium bg-primary/5 border border-primary/20 rounded-lg py-1.5'
+            : 'text-[11px] text-gray-500 font-medium bg-gray-50 border border-gray-200 rounded-lg py-1.5';
+        return '<button type="button" data-key="demandType" data-value="' + item.value + '" class="' + cls + '" onclick="pickFilterByDataset(this)">' + item.label + '</button>';
     }).join('');
 
     categoryGroup.innerHTML = FILTER_META.category.map(function(name) {
@@ -385,7 +412,7 @@ function renderFilterOptions() {
 }
 
 function resetFilter() {
-    draftFilter = { timeRange: 'all', customDateStart: '', customDateEnd: '', category: '全部', maxDistance: 'all' };
+    draftFilter = { timeRange: 'all', customDateStart: '', customDateEnd: '', demandType: 'all', category: '全部', maxDistance: 'all' };
     renderFilterOptions();
     var dateBox = document.getElementById('customDateBox');
     var dateStart = document.getElementById('customDateStart');
@@ -399,6 +426,7 @@ function applyFilter() {
     state.timeRange = draftFilter.timeRange;
     state.customDateStart = draftFilter.customDateStart;
     state.customDateEnd = draftFilter.customDateEnd;
+    state.demandType = draftFilter.demandType;
     state.category = draftFilter.category;
     state.maxDistance = draftFilter.maxDistance;
     closeFilter();
@@ -407,7 +435,7 @@ function applyFilter() {
 }
 
 function hasActiveFilters() {
-    return state.timeRange !== 'all' || state.category !== '全部' || state.maxDistance !== 'all';
+    return state.timeRange !== 'all' || state.demandType !== 'all' || state.category !== '全部' || state.maxDistance !== 'all';
 }
 
 function renderFilterDot() {
@@ -452,7 +480,13 @@ function isInTimeRange(iso, range, customDateStart, customDateEnd) {
 }
 
 function readList() {
-    var list = fallbackList.slice();
+    var list = demandStore && typeof demandStore.getDemands === 'function'
+        ? demandStore.getDemands({ status: 'active', sort: 'latest' })
+        : fallbackList.slice();
+
+    if (state.demandType !== 'all') {
+        list = list.filter(function(item) { return getDemandRole(item) === state.demandType; });
+    }
 
     if (state.category !== '全部') {
         list = list.filter(function(item) { return item.category === state.category; });
@@ -472,12 +506,12 @@ function readList() {
     if (state.keyword) {
         var key = state.keyword.toLowerCase();
         list = list.filter(function(item) {
-            var haystack = [item.category, item.content, item.location, item.ownerName].join(' ').toLowerCase();
+            var haystack = [item.category, getDemandTypeLabel(item), item.content, item.location, item.ownerName].join(' ').toLowerCase();
             return haystack.indexOf(key) !== -1;
         });
     }
 
-    // MVP暂不启用“只看关注”筛选逻辑
+    // MVP暂不启用“我关注”筛选逻辑
 
     if (state.sort === 'nearest') {
         list.sort(function(a, b) {
@@ -523,14 +557,27 @@ function formatPrice(item) {
     return '¥' + Number(item.price).toFixed(2) + '/' + unit;
 }
 
-function categoryTagClass(category) {
-    if (category === '水果') return 'bg-red-50 text-red-500';
-    if (category === '蔬菜') return 'bg-green-50 text-green-500';
-    if (category === '粮油') return 'bg-amber-50 text-amber-500';
-    if (category === '禽蛋') return 'bg-violet-50 text-violet-500';
-    if (category === '肉类') return 'bg-orange-50 text-orange-500';
-    if (category === '其他') return 'bg-gray-100 text-gray-400';
-    return 'bg-gray-100 text-gray-400';
+function getDemandRole(item) {
+    if (item && item.role) return item.role;
+    var id = String((item && item.id) || '');
+    if (id.indexOf('B') === 0) return 'buyer';
+    if (id.indexOf('F') === 0) return 'farmer';
+    return fallbackDemandRole;
+}
+
+function getDemandTypeLabel(item) {
+    return getDemandRole(item) === 'buyer' ? '收购' : '销售';
+}
+
+function demandTypeTagClass(item) {
+    return getDemandRole(item) === 'buyer'
+        ? 'bg-blue-50 text-blue-600'
+        : 'bg-green-50 text-green-600';
+}
+
+function getDetailHref(item) {
+    var detailPage = getDemandRole(item) === 'buyer' ? 'farmer-demand-detail.html' : 'buyer-demand-detail.html';
+    return detailPage + '?id=' + encodeURIComponent(item.id || '') + '&source=market&back=' + encodeURIComponent(marketPage);
 }
 
 function showToast(msg) {
@@ -561,15 +608,15 @@ function renderList() {
     box.innerHTML = list.map(function(item) {
         var encodeName = encodeURIComponent(item.ownerName || '发布者');
         var encodePhone = encodeURIComponent(item.ownerMobile || '-');
-        var detailHref = 'farmer-demand-detail.html?id=' + encodeURIComponent(item.id || '') + '&source=market';
-        var statusLabel = item.status === 'active' ? '进行中' : '已结束';
+        var detailHref = getDetailHref(item);
+        var statusLabel = item.status === 'active' ? '进行中' : '已下架';
         var statusClass = item.status === 'active' ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-500';
         return '' +
             '<div class="glass-card rounded-2xl p-3.5 pr-10 relative">' +
                 '<a href="' + detailHref + '" class="absolute inset-0 no-underline" style="text-decoration:none;" aria-label="查看详情"></a>' +
                 '<div class="flex items-center justify-between mb-1.5">' +
                     '<div class="flex items-center gap-1.5">' +
-                        '<span class="text-[10px] px-2 py-0.5 rounded-full font-medium ' + categoryTagClass(item.category) + '">' + (item.category || '其他') + '</span>' +
+                        '<span class="text-[10px] px-2 py-0.5 rounded-full font-medium ' + demandTypeTagClass(item) + '">' + getDemandTypeLabel(item) + '</span>' +
                         '<span class="text-[10px] text-gray-400"><i class="fas fa-location-dot mr-0.5"></i>' + Number(item.distanceKm || 0).toFixed(1) + 'km</span>' +
                     '</div>' +
                     '<span class="text-[10px] ' + statusClass + ' px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">' + statusLabel + '</span>' +

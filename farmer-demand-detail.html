@@ -157,11 +157,14 @@ function formatTime(iso) {
 }
 
 // 动态返回链接
+var demandStore = window.DemandMockStore || null;
 var q = new URLSearchParams(window.location.search);
 var sourcePage = q.get('source') || '';
-var backLink = 'farmer-market.html';
-if (sourcePage === 'home') backLink = 'farmer-home.html';
-else if (sourcePage === 'manage') backLink = 'farmer-demand-manage.html';
+var backLink = q.get('back') || 'farmer-market.html';
+if (!q.get('back')) {
+    if (sourcePage === 'home') backLink = 'farmer-home.html';
+    else if (sourcePage === 'manage') backLink = 'farmer-demand-manage.html';
+}
 
 // 重新渲染导航栏
 document.getElementById('navBar').innerHTML = renderHeader('收购详情', backLink);
@@ -174,7 +177,10 @@ function loadDemandDetail() {
 
     // 从数据列表中查找
     var demand = null;
-    if (id) {
+    if (id && demandStore && typeof demandStore.findDemandById === 'function') {
+        demand = demandStore.findDemandById(id);
+    }
+    if (!demand && id) {
         demand = demandList.find(function(item) { return item.id === id; });
     }
 
