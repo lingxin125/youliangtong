@@ -978,9 +978,9 @@
         }
 
         .channel-meta {
-            border: 1px solid #efe7d4;
+            border: 1px solid #d6ead6;
             border-radius: 14px;
-            background: #fcfaf4;
+            background: linear-gradient(180deg, rgba(17, 122, 55, 0.05), #fbfefc 34%, #ffffff);
             padding: 14px 16px;
         }
 
@@ -995,7 +995,7 @@
             justify-content: space-between;
             gap: 10px;
             padding: 7px 0;
-            border-bottom: 1px dashed #eadfc8;
+            border-bottom: 1px dashed #d9e9d7;
             font-size: 13px;
         }
 
@@ -1084,9 +1084,26 @@
         }
 
         .merge-payee-card {
-            border-color: #efe7d4;
-            background: linear-gradient(180deg, #fffefb, #fcfaf4);
+            border-color: #d6ead6;
+            background: linear-gradient(180deg, rgba(17, 122, 55, 0.05), #fbfefc 34%, #ffffff);
             box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+            padding: 10px 12px 10px;
+        }
+
+        .merge-payee-card .merge-payee-head {
+            margin-bottom: 6px;
+        }
+
+        .merge-payee-card .merge-summary-list {
+            padding: 0 4px 0;
+        }
+
+        .merge-payee-card .merge-detail-card {
+            padding: 8px 10px 10px;
+        }
+
+        .merge-payee-card .merge-detail-card-top {
+            margin-bottom: 6px;
         }
 
         .merge-payee-head {
@@ -2355,7 +2372,7 @@
             const groups = Array.isArray(payeeGroups) ? payeeGroups : [];
             if (groups.length === 0) {
                 return '<div class="channel-meta merge-payee-card">'
-                    + '<div class="merge-payee-head"><h4 class="merge-payee-title">收款人信息</h4><span class="merge-payee-badge">共 0 户</span></div>'
+                    + '<div class="merge-payee-head"><h4 class="merge-payee-title">收款人信息</h4><span class="merge-payee-badge">共 0 人</span></div>'
                     + '<div class="merge-modal-empty">暂无收款人信息</div>'
                 + '</div>';
             }
@@ -2368,12 +2385,10 @@
                     + '<h4 class="merge-payee-title">收款人信息</h4>'
                     + '<span class="merge-payee-badge">共 ' + groups.length + ' 户</span>'
                 + '</div>'
-               
-                + '<div class="meta-row"><span class="k">商户名称</span><span class="v">' + escapeHtml(first.payeeCompany || '--') + '</span></div>'
-                + '<div class="meta-row"><span class="k">收款人</span><span class="v">' + escapeHtml(first.payeeName || '--') + '</span></div>'
-                + '<div class="meta-row"><span class="k">收款银行</span><span class="v">' + escapeHtml(first.payeeBank || '--') + '</span></div>'
-                + '<div class="meta-row"><span class="k">收款卡号</span><span class="v">' + escapeHtml(first.payeeCard || '--') + '</span></div>'
-                + (moreBtn ? '<div class="merge-payee-foot actions-only">' + moreBtn + '</div>' : '')
+                + '<div class="merge-summary-list">'
+                    + buildMergePayeeDetailCardHTML(first, 0)
+                    + (moreBtn ? '<div class="merge-payee-foot actions-only">' + moreBtn + '</div>' : '')
+                + '</div>'
             + '</div>';
         }
 
@@ -2408,6 +2423,21 @@
             + '</div>';
         }
 
+
+        function buildMergePayeeDetailCardHTML(group, index) {
+            return '<div class="merge-detail-card">'
+                + '<div class="merge-detail-card-top">'
+                    + '<div class="merge-order-card-index">收款人' + (index + 1) + '</div>'
+                + '</div>'
+                + '<div class="merge-detail-grid">'
+                    + '<div class="merge-detail-row"><span class="merge-detail-label">商户名称</span><span class="merge-detail-value">' + escapeHtml(group.payeeCompany || '--') + '</span></div>'
+                    + '<div class="merge-detail-row"><span class="merge-detail-label">收款人</span><span class="merge-detail-value">' + escapeHtml(group.payeeName || '--') + '</span></div>'
+                    + '<div class="merge-detail-row"><span class="merge-detail-label">收款银行</span><span class="merge-detail-value">' + escapeHtml(group.payeeBank || '--') + '</span></div>'
+                    + '<div class="merge-detail-row"><span class="merge-detail-label">收款卡号</span><span class="merge-detail-value">' + escapeHtml(group.payeeCard || '--') + '</span></div>'
+                + '</div>'
+            + '</div>';
+        }
+
         function renderMergeOrdersModal() {
             const body = document.getElementById('mergeOrdersModalBody');
             const subtitle = document.getElementById('mergeOrdersModalSubtitle');
@@ -2431,18 +2461,7 @@
                 body.innerHTML = '<div class="merge-modal-empty">暂无收款人信息</div>';
                 return;
             }
-            body.innerHTML = groups.map((group) => {
-                return '<div class="merge-detail-card">'
-                    + '<div class="merge-detail-card-top">'
-                        + '<div class="merge-detail-card-title">' + escapeHtml(group.payeeCompany || '--') + '</div>'
-                    + '</div>'
-                    + '<div class="merge-detail-grid">'
-                        + '<div class="merge-detail-row"><span class="merge-detail-label">收款人</span><span class="merge-detail-value">' + escapeHtml(group.payeeName || '--') + '</span></div>'
-                        + '<div class="merge-detail-row"><span class="merge-detail-label">收款银行</span><span class="merge-detail-value">' + escapeHtml(group.payeeBank || '--') + '</span></div>'
-                        + '<div class="merge-detail-row"><span class="merge-detail-label">收款卡号</span><span class="merge-detail-value">' + escapeHtml(group.payeeCard || '--') + '</span></div>'
-                    + '</div>'
-                + '</div>';
-            }).join('');
+            body.innerHTML = groups.map((group, index) => buildMergePayeeDetailCardHTML(group, index)).join('');
         }
 
         function openMergeOrdersModal() {
