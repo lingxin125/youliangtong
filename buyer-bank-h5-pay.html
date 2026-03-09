@@ -99,25 +99,6 @@
             opacity: 1;
         }
 
-        /* 商品明细表格 */
-        .detail-table { width: 100%; border-collapse: collapse; }
-        .detail-table th {
-            font-size: 10px;
-            color: #9CA3AF;
-            font-weight: 500;
-            padding: 6px 0;
-            text-align: left;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        .detail-table th:last-child,
-        .detail-table td:last-child { text-align: right; }
-        .detail-table td {
-            font-size: 12px;
-            color: #374151;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
-        }
-        .detail-table tr:last-child td { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -151,8 +132,7 @@
                 <i class="fas fa-building-columns text-[20px]"></i>
             </div> -->
             
-            <!-- <div class="text-[13px] text-gray-500 font-medium mb-1.5 z-10">向收款方付款</div> -->
-            <div class="text-[16px] font-semibold text-gray-800 mb-4 z-10" id="mainPayee">加载中...</div>
+            <div class="text-[16px] text-gray-900 font-medium mb-3 z-10">应付金额</div>
             
             <div class="text-[36px] font-bold text-gray-900 tracking-tight flex items-baseline gap-1 z-10" style="font-family:Poppins;">
                 <span class="text-[20px]">¥</span>
@@ -203,29 +183,28 @@
                 <span id="payeeCardNoText" class="info-value"></span>
             </div>
 
-        </div>
-
-        <!-- 卡片3：商品明细 -->
-        <div class="glass-panel rounded-2xl p-4 mb-4">
-            <div class="flex items-center gap-2 mb-3 text-[14px] font-bold text-gray-800">
+            <!-- 付款方信息 -->
+            <div class="flex items-center gap-2 mb-3 mt-4 text-[14px] font-bold text-gray-800">
                 <div class="w-1 h-3.5 bg-[#13b15a] rounded-full"></div>
-                <span>商品明细</span>
+                <span>付款方信息</span>
             </div>
-            <table class="detail-table mb-3">
-                <thead>
-                    <tr>
-                        <th>商品名称</th>
-                        <th>单价</th>
-                        <th>数量</th>
-                        <th>小计</th>
-                    </tr>
-                </thead>
-                <tbody id="itemBody"></tbody>
-            </table>
-            <div class="flex items-center justify-between py-3 border-t border-gray-100 bg-gray-50/50 -mx-4 px-4 -mb-4 rounded-b-2xl">
-                <span id="itemCountText" class="text-xs text-gray-500 font-medium">合计（0项商品）</span>
-                <span id="itemTotalText" class="text-base font-bold text-[#13b15a]" style="font-family:Poppins;">¥ 0.00</span>
+            <div class="info-row">
+                <span class="info-label">商户名称</span>
+                <span id="payerCompanyText" class="info-value"></span>
             </div>
+            <div class="info-row">
+                <span class="info-label">付款方</span>
+                <span id="payerNameText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款银行</span>
+                <span id="payerBankText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款卡号</span>
+                <span id="payerCardText" class="info-value"></span>
+            </div>
+
         </div>
 
     </div>
@@ -244,6 +223,9 @@
 // 解析参数
 const params = new URLSearchParams(window.location.search);
 const fallbackNow = new Date();
+const payerProfile = (typeof mockStore !== 'undefined' && mockStore && typeof mockStore.getPayer === 'function')
+    ? mockStore.getPayer()
+    : { name: '张老板', org: '保定收购站' };
 
 const state = {
     grainOrderNo: params.get('grainOrderNo') || params.get('orderNo') || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
@@ -253,33 +235,13 @@ const state = {
     payeeName: params.get('payeeName') || '李大姐',
     payeeBank: params.get('payeeBank') || '中国邮政储蓄银行',
     payeeCard: params.get('payeeCard') || '尾号 8888',
+    payerName: params.get('payerName') || payerProfile.name || '张老板',
+    payerCompany: params.get('payerCompany') || params.get('companyName') || params.get('payerOrg') || payerProfile.org || '保定收购站有限公司',
+    payerBank: params.get('payerBank') || '中国农业银行',
+    payerCard: params.get('payerCard') || '尾号 5678',
     createdAt: params.get('createdAt') || fallbackNow.toISOString(),
-    summary: params.get('summary') || '苹果 x 50斤',
-    items: parseItems(params.get('items')),
 };
 state.paymentOrderNo = state.paymentOrderNo || buildPaymentOrderNo(state.grainOrderNo);
-
-function parseItems(raw) {
-    if (!raw) return [];
-    try {
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
-    } catch (err) {
-        return [];
-    }
-}
-
-// 如果没有传入明细，基于金额和摘要生成一条默认明细
-function ensureItems() {
-    if (state.items.length > 0) return;
-    state.items = [{
-        name: state.summary || '订单商品',
-        qty: 1,
-        unit: '单',
-        price: Number(state.amount.toFixed(2)),
-        subtotal: Number(state.amount.toFixed(2))
-    }];
-}
 
 // 渲染基础 UI
 document.getElementById('statusBar').innerHTML = renderStatusBar();
@@ -316,22 +278,7 @@ function buildPaymentOrderNo(grainOrderNo) {
     return 'ZF' + deterministicDigits('PAY-' + (grainOrderNo || ''), 18);
 }
 
-function formatUnitPrice(price, unit) {
-    const num = Number(price);
-    if (!Number.isFinite(num) || num <= 0) return '--';
-    const cleanPrice = Number.isInteger(num) ? String(num) : String(Number(num.toFixed(2)));
-    const cleanUnit = String(unit || '').trim();
-    return '¥' + cleanPrice + (cleanUnit ? '/' + cleanUnit : '');
-}
-
-function formatQtyOnly(qty) {
-    const num = Number(qty);
-    if (!Number.isFinite(num) || num <= 0) return '--';
-    return Number.isInteger(num) ? String(num) : String(num);
-}
-
 function fillPage() {
-    document.getElementById('mainPayee').textContent = '向 ' + state.payeeName + ' 付款';
     document.getElementById('mainAmount').textContent = formatMoney(state.amount);
     
     // 订单信息
@@ -345,34 +292,11 @@ function fillPage() {
     document.getElementById('payeeBankNameText').textContent = state.payeeBank;
     document.getElementById('payeeCardNoText').textContent = state.payeeCard;
 
-    // 商品明细
-    ensureItems();
-    renderItems();
-}
-
-function renderItems() {
-    const body = document.getElementById('itemBody');
-    body.innerHTML = state.items.map(item => {
-        const qty = Number(item.qty || 0);
-        const unit = item.unit || '斤';
-        const price = Number(item.price || 0);
-        const subtotal = Number(item.subtotal || qty * price);
-        return `
-            <tr>
-                <td class="font-medium">${item.name || '-'}</td>
-                <td style="font-family:Poppins;">${formatUnitPrice(price, unit)}</td>
-                <td>${formatQtyOnly(qty)}</td>
-                <td class="font-medium" style="font-family:Poppins;">¥${subtotal.toFixed(2)}</td>
-            </tr>
-        `;
-    }).join('');
-
-    const total = state.items.reduce((sum, item) => {
-        const subtotal = Number(item.subtotal || (Number(item.qty || 0) * Number(item.price || 0)));
-        return sum + subtotal;
-    }, 0);
-    document.getElementById('itemCountText').textContent = '合计（' + state.items.length + '项商品）';
-    document.getElementById('itemTotalText').textContent = '¥ ' + total.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    // 付款方信息
+    document.getElementById('payerCompanyText').textContent = state.payerCompany;
+    document.getElementById('payerNameText').textContent = state.payerName;
+    document.getElementById('payerBankText').textContent = state.payerBank;
+    document.getElementById('payerCardText').textContent = state.payerCard;
 }
 
 function showToast(msg) {
