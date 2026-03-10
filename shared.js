@@ -1536,30 +1536,140 @@ if (typeof window !== "undefined") {
     ];
   }
 
+  function inferDemandType(role, demandType) {
+    if (demandType === "purchase" || demandType === "sale") return demandType;
+    if (demandType === "buyer") return "purchase";
+    if (demandType === "farmer") return "sale";
+    return role === "farmer" ? "sale" : "purchase";
+  }
+
+  function normalizeDemand(item) {
+    if (!item || typeof item !== "object") return null;
+    var role = item.role === "farmer" ? "farmer" : "buyer";
+    var demandType = inferDemandType(role, item.demandType);
+    var title = item.title || item.content || "";
+    var note = item.note || "";
+    var content = item.content || "";
+    if (!content && note) content = note;
+    if (!content && title) content = title;
+    var price =
+      item.price === "" || item.price === null || item.price === undefined
+        ? null
+        : Number(item.price);
+    var distanceKm =
+      item.distanceKm === undefined ||
+      item.distanceKm === null ||
+      Number.isNaN(Number(item.distanceKm))
+        ? Number((1 + Math.random() * 20).toFixed(1))
+        : Number(item.distanceKm);
+
+    return Object.assign({}, item, {
+      role: role,
+      demandType: demandType,
+      title: title,
+      content: content,
+      note: note,
+      category: item.category || "其他",
+      qty: Number(item.qty || 0),
+      unit: item.unit || "斤",
+      price: price,
+      location: item.location || "",
+      images: Array.isArray(item.images) ? item.images.slice(0, 3) : [],
+      distanceKm: distanceKm,
+      status: item.status || "active",
+      createdAt: item.createdAt || "",
+      updatedAt: item.updatedAt || item.createdAt || "",
+      closedAt: item.closedAt || "",
+    });
+  }
+
+  function normalizeDemandList(list) {
+    return (Array.isArray(list) ? list : []).map(normalizeDemand).filter(Boolean);
+  }
+
+  function getDemandType(item) {
+    var demand = typeof item === "string" ? { demandType: item } : normalizeDemand(item);
+    return inferDemandType(demand && demand.role, demand && demand.demandType);
+  }
+
+  function getDemandTypeLabel(item, shortLabel) {
+    var demandType = getDemandType(item);
+    if (demandType === "sale") {
+      return shortLabel === false ? "销售需求" : "销售";
+    }
+    return shortLabel === false ? "收购需求" : "收购";
+  }
+
+  function getDemandTypeTagClass(item) {
+    return getDemandType(item) === "sale"
+      ? "bg-green-50 text-green-600"
+      : "bg-blue-50 text-blue-600";
+  }
+
+  function getDemandTitle(item) {
+    var demand = normalizeDemand(item);
+    return demand ? demand.title || demand.content || "" : "";
+  }
+
+  function getDemandDescription(item) {
+    var demand = normalizeDemand(item);
+    if (!demand) return "";
+    if (demand.note) return demand.note;
+    if (demand.title && demand.content && demand.content !== demand.title) {
+      return demand.content;
+    }
+    return "";
+  }
+
+  function getRoleLabel(roleOrItem) {
+    var role =
+      typeof roleOrItem === "string"
+        ? roleOrItem
+        : (normalizeDemand(roleOrItem) || {}).role;
+    return role === "farmer" ? "农户" : "收购商";
+  }
+
+  function getRoleTagClass(roleOrItem) {
+    var role =
+      typeof roleOrItem === "string"
+        ? roleOrItem
+        : (normalizeDemand(roleOrItem) || {}).role;
+    return role === "farmer"
+      ? "bg-green-50 text-green-700"
+      : "bg-amber-50 text-amber-700";
+  }
+
   function loadDemandsRaw() {
     var text = safeGetStorageItem(DEMAND_STORAGE_KEY);
     if (!text) {
-      var init = buildBaseDemands();
-      safeSetStorageItem(DEMAND_STORAGE_KEY, JSON.stringify(init));
+      var init = normalizeDemandList(buildBaseDemands());
+      saveDemandsRaw(init);
       return init;
     }
     try {
       var parsed = JSON.parse(text);
       if (!Array.isArray(parsed)) {
-        var fallback = buildBaseDemands();
-        safeSetStorageItem(DEMAND_STORAGE_KEY, JSON.stringify(fallback));
+        var fallback = normalizeDemandList(buildBaseDemands());
+        saveDemandsRaw(fallback);
         return fallback;
       }
-      return parsed;
+      var normalized = normalizeDemandList(parsed);
+      if (JSON.stringify(parsed) !== JSON.stringify(normalized)) {
+        saveDemandsRaw(normalized);
+      }
+      return normalized;
     } catch (err) {
-      var recovery = buildBaseDemands();
-      safeSetStorageItem(DEMAND_STORAGE_KEY, JSON.stringify(recovery));
+      var recovery = normalizeDemandList(buildBaseDemands());
+      saveDemandsRaw(recovery);
       return recovery;
     }
   }
 
   function saveDemandsRaw(list) {
-    safeSetStorageItem(DEMAND_STORAGE_KEY, JSON.stringify(list));
+    safeSetStorageItem(
+      DEMAND_STORAGE_KEY,
+      JSON.stringify(normalizeDemandList(list)),
+    );
   }
 
   function getDemands(options) {
@@ -1567,8 +1677,14 @@ if (typeof window !== "undefined") {
     var role = opts.role || "";
     var status = opts.status || "all";
     var sort = opts.sort || "latest";
+    var demandType = opts.demandType || "";
+    var normalizedType =
+      demandType && demandType !== "all"
+        ? inferDemandType(role, demandType)
+        : "";
     var list = loadDemandsRaw().filter(function (item) {
       if (role && item.role !== role) return false;
+      if (normalizedType && item.demandType !== normalizedType) return false;
       if (status !== "all" && item.status !== status) return false;
       return true;
     });
@@ -1593,13 +1709,17 @@ if (typeof window !== "undefined") {
     if (!payload || !payload.role) return null;
     var now = new Date().toISOString();
     var profile = ROLE_PROFILE[payload.role] || ROLE_PROFILE.buyer;
-    var demand = {
+    var description = payload.note || payload.content || "";
+    var demand = normalizeDemand({
       id: buildDemandId(new Date()),
       role: payload.role,
+      demandType: payload.demandType,
       ownerName: payload.ownerName || profile.name,
       ownerMobile: payload.ownerMobile || profile.mobile,
       category: payload.category || "其他",
-      content: payload.content || "",
+      title: payload.title || payload.content || "",
+      content: payload.content || description || "",
+      note: description,
       qty: Number(payload.qty || 0),
       unit: payload.unit || "斤",
       price:
@@ -1608,7 +1728,6 @@ if (typeof window !== "undefined") {
         payload.price === undefined
           ? null
           : Number(payload.price),
-      note: payload.note || "",
       location: payload.location || "",
       images: Array.isArray(payload.images) ? payload.images.slice(0, 3) : [],
       distanceKm:
@@ -1619,7 +1738,7 @@ if (typeof window !== "undefined") {
       createdAt: now,
       updatedAt: now,
       closedAt: "",
-    };
+    });
     var list = loadDemandsRaw();
     list.unshift(demand);
     saveDemandsRaw(list);
@@ -1633,11 +1752,16 @@ if (typeof window !== "undefined") {
       return item.id === demandId;
     });
     if (idx < 0) return null;
-    var next = Object.assign({}, list[idx], cloneData(patch), {
-      updatedAt: new Date().toISOString(),
-    });
+    var next = normalizeDemand(
+      Object.assign({}, list[idx], cloneData(patch), {
+        updatedAt: new Date().toISOString(),
+      }),
+    );
     if (next.status === "closed" && !next.closedAt) {
       next.closedAt = new Date().toISOString();
+    }
+    if (next.status !== "closed") {
+      next.closedAt = "";
     }
     list[idx] = next;
     saveDemandsRaw(list);
@@ -1654,6 +1778,14 @@ if (typeof window !== "undefined") {
 
   window.DemandMockStore = {
     buildDemandId: buildDemandId,
+    normalizeDemand: normalizeDemand,
+    getDemandType: getDemandType,
+    getDemandTypeLabel: getDemandTypeLabel,
+    getDemandTypeTagClass: getDemandTypeTagClass,
+    getDemandTitle: getDemandTitle,
+    getDemandDescription: getDemandDescription,
+    getRoleLabel: getRoleLabel,
+    getRoleTagClass: getRoleTagClass,
     getDemands: getDemands,
     findDemandById: findDemandById,
     createDemand: createDemand,

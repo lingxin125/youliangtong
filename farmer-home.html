@@ -67,7 +67,7 @@
                     <div class="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
                         <i class="fas fa-bullhorn text-primary text-base"></i>
                     </div>
-                    <span class="text-[10px] text-gray-600 font-medium">发布销售</span>
+                    <span class="text-[10px] text-gray-600 font-medium">发布需求</span>
                 </a>
                 <a href="farmer-collection.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
                     <div class="w-11 h-11 rounded-full bg-emerald-500/10 flex items-center justify-center">
@@ -105,71 +105,16 @@
             </div>
         </div>
 
-        <!-- 我发布的销售需求 -->
+        <!-- 我发布的需求 -->
         <div>
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-1.5">
                     <div class="w-[3px] h-[14px] rounded-sm bg-primary"></div>
-                    <span class="text-sm font-medium text-gray-700">我发布的销售需求</span>
+                    <span class="text-sm font-medium text-gray-700">我发布的需求</span>
                 </div>
-                <a href="farmer-demand-manage.html" class="text-[10px] text-primary no-underline" style="text-decoration:none;">查看更多 <i class="fas fa-chevron-right text-[8px]"></i></a>
+                <a href="farmer-demand-manage.html?source=home" class="text-[10px] text-primary no-underline" style="text-decoration:none;">查看更多 <i class="fas fa-chevron-right text-[8px]"></i></a>
             </div>
-            <div class="space-y-2.5">
-                <!-- 需求1：有咨询（高优先级） -->
-                <a href="farmer-publish.html?mode=edit&id=F1&source=home" class="glass-card rounded-2xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
-                    <div class="flex justify-between items-start mb-1.5">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] bg-green-50 text-green-600 px-2 py-0.5 rounded-full font-medium">销售</span>
-                        </div>
-                        <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">进行中</span>
-                    </div>
-                    <div class="text-sm text-gray-800 font-medium mb-1 truncate">出售红富士苹果 5000斤</div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥2.6/斤</span>
-                            <span class="text-[11px] text-gray-500 font-medium">共 5000斤</span>
-                        </div>
-                        <span class="text-[10px] text-gray-400 absolute right-3 bottom-3.5">5分钟前</span>
-                    </div>
-                    <i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>
-                </a>
-                <!-- 需求2：普通状态 -->
-                <a href="farmer-publish.html?mode=edit&id=F2&source=home" class="glass-card rounded-2xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
-                    <div class="flex justify-between items-start mb-1.5">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] bg-green-50 text-green-600 px-2 py-0.5 rounded-full font-medium">销售</span>
-                        </div>
-                        <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">进行中</span>
-                    </div>
-                    <div class="text-sm text-gray-800 font-medium mb-1 truncate">出售有机西红柿 3000斤</div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥2.3/斤</span>
-                            <span class="text-[11px] text-gray-500 font-medium">共 3000斤</span>
-                        </div>
-                        <span class="text-[10px] text-gray-400 absolute right-3 bottom-3.5">18分钟前</span>
-                    </div>
-                    <i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>
-                </a>
-                <!-- 需求3：已下架 -->
-                <a href="farmer-publish.html?mode=edit&id=F3&source=home" class="glass-card rounded-2xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">
-                    <div class="flex justify-between items-start mb-1.5">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] bg-green-50 text-green-600 px-2 py-0.5 rounded-full font-medium">销售</span>
-                        </div>
-                        <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">已下架</span>
-                    </div>
-                    <div class="text-sm text-gray-800 font-medium mb-1 truncate">出售东北大米 2000斤</div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs text-primary font-bold" style="font-family:Poppins;">¥2.2/斤</span>
-                            <span class="text-[11px] text-gray-500 font-medium">共 2000斤</span>
-                        </div>
-                        <span class="text-[10px] text-gray-400 absolute right-3 bottom-3.5">1小时前</span>
-                    </div>
-                    <i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>
-                </a>
-            </div>
+            <div id="myPublishedDemandList" class="space-y-2.5"></div>
         </div>
 
     </div>
@@ -244,9 +189,92 @@ function renderFollowedDemands() {
     container.innerHTML = html;
 }
 
+var homeDemandStore = window.DemandMockStore || null;
+
+function formatPublishedTime(iso) {
+    var d = new Date(iso || '');
+    if (Number.isNaN(d.getTime())) return '-';
+    var diff = Date.now() - d.getTime();
+    var minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return '刚刚';
+    if (minutes < 60) return minutes + '分钟前';
+    var hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + '小时前';
+    var days = Math.floor(hours / 24);
+    return days + '天前';
+}
+
+function formatPublishedPrice(item) {
+    if (item.price === null || item.price === undefined || item.price === '') return '面议';
+    return '¥' + Number(item.price).toFixed(2) + '/' + (item.unit || '斤');
+}
+
+function getPublishedDemandTypeLabel(item) {
+    if (homeDemandStore && typeof homeDemandStore.getDemandTypeLabel === 'function') {
+        return homeDemandStore.getDemandTypeLabel(item);
+    }
+    return item && item.role === 'farmer' ? '销售' : '收购';
+}
+
+function getPublishedDemandTypeClass(item) {
+    if (homeDemandStore && typeof homeDemandStore.getDemandTypeTagClass === 'function') {
+        return homeDemandStore.getDemandTypeTagClass(item);
+    }
+    return item && item.role === 'farmer' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600';
+}
+
+function getPublishedDemandTitle(item) {
+    if (homeDemandStore && typeof homeDemandStore.getDemandTitle === 'function') {
+        return homeDemandStore.getDemandTitle(item);
+    }
+    return (item && (item.title || item.content)) || '-';
+}
+
+function renderPublishedDemands() {
+    var container = document.getElementById('myPublishedDemandList');
+    if (!container) return;
+    var fallbackList = [
+        { id: 'F1', role: 'farmer', demandType: 'sale', title: '销售红富士苹果 3000斤', qty: 3000, unit: '斤', price: 2.8, status: 'active', updatedAt: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
+        { id: 'F2', role: 'farmer', demandType: 'purchase', title: '收购包装箱 200件', qty: 200, unit: '件', price: 8.0, status: 'active', updatedAt: new Date(Date.now() - 22 * 60 * 1000).toISOString() },
+        { id: 'F3', role: 'farmer', demandType: 'sale', title: '销售东北大米 2000斤', qty: 2000, unit: '斤', price: 2.2, status: 'closed', updatedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString() }
+    ];
+    var list = homeDemandStore && typeof homeDemandStore.getDemands === 'function'
+        ? homeDemandStore.getDemands({ role: 'farmer', status: 'all' }).slice(0, 3)
+        : fallbackList;
+
+    if (!list.length) {
+        container.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center"><div class="text-xs text-gray-400">暂未发布需求</div></div>';
+        return;
+    }
+
+    container.innerHTML = list.map(function(item) {
+        var href = 'farmer-publish.html?mode=' + (item.status === 'active' ? 'edit' : 'view') + '&id=' + encodeURIComponent(item.id || '') + '&source=home';
+        var statusClass = item.status === 'active' ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-500';
+        var statusLabel = item.status === 'active' ? '进行中' : '已下架';
+        return '<a href="' + href + '" class="glass-card rounded-2xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">' +
+            '<div class="flex justify-between items-start mb-1.5">' +
+                '<div class="flex items-center gap-1.5">' +
+                    '<span class="text-[10px] ' + getPublishedDemandTypeClass(item) + ' px-2 py-0.5 rounded-full font-medium">' + getPublishedDemandTypeLabel(item) + '</span>' +
+                '</div>' +
+                '<span class="text-[10px] ' + statusClass + ' px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">' + statusLabel + '</span>' +
+            '</div>' +
+            '<div class="text-sm text-gray-800 font-medium mb-1 truncate">' + getPublishedDemandTitle(item) + '</div>' +
+            '<div class="flex items-center justify-between">' +
+                '<div class="flex items-center gap-3">' +
+                    '<span class="text-xs text-primary font-bold" style="font-family:Poppins;">' + formatPublishedPrice(item) + '</span>' +
+                    '<span class="text-[11px] text-gray-500 font-medium">共 ' + String(item.qty || 0) + (item.unit || '斤') + '</span>' +
+                '</div>' +
+                '<span class="text-[10px] text-gray-400 absolute right-3 bottom-3.5">' + formatPublishedTime(item.updatedAt || item.createdAt) + '</span>' +
+            '</div>' +
+            '<i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>' +
+        '</a>';
+    }).join('');
+}
+
 // 页面加载时渲染
 document.addEventListener('DOMContentLoaded', function() {
     renderFollowedDemands();
+    renderPublishedDemands();
 });
 </script>
 </body>

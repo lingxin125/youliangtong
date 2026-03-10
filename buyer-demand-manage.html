@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>丰收云 - 收购需求管理</title>
+    <title>丰收云 - 需求管理</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -98,7 +98,7 @@
 document.getElementById('statusBar').innerHTML = renderStatusBar();
 var _source = new URLSearchParams(window.location.search).get('source') || 'my';
 var _backLink = _source === 'home' ? 'buyer-home.html' : 'buyer-my.html';
-document.getElementById('navBar').innerHTML = renderHeader('收购需求管理', _backLink);
+document.getElementById('navBar').innerHTML = renderHeader('需求管理', _backLink);
 
 var currentTab = 'active';
 var pendingCloseId = null;
@@ -179,6 +179,27 @@ function formatTime(iso, isHistory) {
     return Math.floor(days / 30) + '个月前';
 }
 
+function getDemandTypeLabel(item) {
+    if (demandStore && typeof demandStore.getDemandTypeLabel === 'function') {
+        return demandStore.getDemandTypeLabel(item);
+    }
+    return item && item.role === 'farmer' ? '销售' : '收购';
+}
+
+function getDemandTypeTagClass(item) {
+    if (demandStore && typeof demandStore.getDemandTypeTagClass === 'function') {
+        return demandStore.getDemandTypeTagClass(item);
+    }
+    return item && item.role === 'farmer' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600';
+}
+
+function getDemandTitleText(item) {
+    if (demandStore && typeof demandStore.getDemandTitle === 'function') {
+        return demandStore.getDemandTitle(item);
+    }
+    return (item && (item.title || item.content)) || '-';
+}
+
 function readList(status) {
     if (demandStore && typeof demandStore.getDemands === 'function') {
         return demandStore.getDemands({ role: 'buyer', status: status });
@@ -227,10 +248,10 @@ function renderList() {
             '<a href="' + detailHref + '" class="block no-underline" style="text-decoration:none;">' +
                 '<div class="flex justify-between items-start mb-1.5">' +
                     '<div class="flex items-center gap-1.5">' +
-                        '<span class="text-[10px] ' + colorClass(item.category) + ' px-2 py-0.5 rounded-full font-medium">' + item.category + '</span>' +
+                        '<span class="text-[10px] ' + getDemandTypeTagClass(item) + ' px-2 py-0.5 rounded-full font-medium">' + getDemandTypeLabel(item) + '</span>' +
                     '</div>' +
                 '</div>' +
-                '<div class="text-sm text-gray-800 font-medium mb-1 truncate pr-16">' + (item.title || item.content) + '</div>' +
+                '<div class="text-sm text-gray-800 font-medium mb-1 truncate pr-16">' + getDemandTitleText(item) + '</div>' +
                 '<div class="flex items-center justify-between">' +
                     '<div class="flex items-center gap-3">' +
                         '<span class="text-xs text-primary font-bold" style="font-family:Poppins;">' + formatPrice(item) + '</span>' +

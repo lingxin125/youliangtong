@@ -259,16 +259,16 @@ tailwind.config = {
           <p class="text-sm text-gray-600 leading-relaxed">农产品的生产者和销售者，通过平台接收收购款项，查看交易记录</p>
           <div class="mt-4 flex flex-wrap gap-2">
             <span class="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">收款</span>
-            <span class="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">发布销售</span>
+            <span class="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">发布需求</span>
             <span class="px-2.5 py-1 bg-green-50 text-green-700 rounded-full text-xs font-medium">查看记录</span>
           </div>
         </div>
         <div class="card role-card buyer p-6">
           <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-3xl mb-4">🏪</div>
           <h4 class="font-serif font-bold text-lg text-wheat-600 mb-2">收购商</h4>
-          <p class="text-sm text-gray-600 leading-relaxed">农产品的收购方，通过平台发布采购需求、开单、支付</p>
+          <p class="text-sm text-gray-600 leading-relaxed">农产品的收购方，通过平台发布需求、开单、支付</p>
           <div class="mt-4 flex flex-wrap gap-2">
-            <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">发布求购</span>
+            <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">发布需求</span>
             <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">开单</span>
             <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">支付</span>
           </div>
@@ -514,12 +514,12 @@ stateDiagram-v2
           <div>• 开单商品推荐口径更新：添加商品弹层不再展示“自定义常用商品”，改为按当前品类展示“历史录入商品 Top5”（按频次+最近使用排序）；无历史数据时仅提示手动输入。</div>
           <div>• 订单状态口径更新：稍后结算生成<strong>待支付（unpaid）</strong>订单，立即付款生成<strong>支付中（paying）</strong>订单；支付中的订单 30 分钟超时自动取消。</div>
           <div>• 账号安全口径补充：登录页支持密码登录 / 验证码登录切换，支持“忘记密码”短信校验重置；我的模块新增“账户安全”入口，进入后可发起“修改登录密码”。</div>
-          <div>• 需求图片口径补充：收购商发布求购、农户发布销售均支持上传最多 <strong>3 张</strong>图片；编辑态保留已上传图片，可删除后重新上传。</div>
+          <div>• 需求图片口径补充：收购商发布需求、农户发布需求均支持上传最多 <strong>3 张</strong>图片；编辑态保留已上传图片，可删除后重新上传。</div>
           <div>• 需求详情补充：市场详情页支持展示发布时上传的图片，最多展示 3 张缩略图，点击进入全屏预览；无图片时隐藏图片区，不展示空占位。</div>
           <div>• 订单详情编号口径更新：按状态展示分段订单号（收粮订单号 / 支付订单号），银行支付单号当前原型已下线，不再前台展示。</div>
           <div>• 合并付款能力上线：合并付款页仅汇总待支付订单，支持勾选多笔统一支付，付款后沉淀“已完成”记录并回写子订单状态。</div>
           <div>• 首页快捷入口口径更新（收购商）：原“消息通知”位置替换为“合并付款”，用于集中处理稍后结算订单。</div>
-          <div>• 发布需求页口径更新：收购商与农户发布页均新增“发布地址（必填，可定位）”；收购商端字段口径为“需求标题 + 需求描述（选填）”。</div>
+          <div>• 发布需求页口径更新：保留收购商端与农户端两个入口页，但两端都支持切换“收购需求 / 销售需求”；字段统一为“需求类型、需求品类、需求标题、需求描述、上传图片、需求单价、单位、需求数量、地址”。</div>
           <div>• 个人信息与我的模块口径更新：顶部展示“商户名称 + 商户号（可复制）+ 身份标签（圆角）”；个人信息页移除“当前角色”。</div>
           <div>• “我的”页补充口径更新：当前前台开放“账户安全”入口用于修改登录密码；“关于我们”页面保留原型文件，但在我的模块中为 MVP 隐藏，版本号改为退出登录按钮下方静态展示。</div>
           <div>• 市场卡片口径更新：状态统一“进行中”；数量标签去掉“约/余”字样；详情入口为卡片右侧居中下钻图标。</div>
@@ -542,8 +542,8 @@ stateDiagram-v2
           <div class="space-y-1.5 text-sm">
             <div><a class="text-forest-700 hover:underline" href="./buyer-home.html">buyer-home.html</a> · 首页</div>
             <div><a class="text-forest-700 hover:underline" href="./buyer-market.html">buyer-market.html</a> · 市场</div>
-            <div><a class="text-forest-700 hover:underline" href="./buyer-publish.html">buyer-publish.html</a> · 发布求购</div>
-            <div><a class="text-forest-700 hover:underline" href="./buyer-demand-manage.html">buyer-demand-manage.html</a> · 收购需求管理</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-publish.html">buyer-publish.html</a> · 发布需求</div>
+            <div><a class="text-forest-700 hover:underline" href="./buyer-demand-manage.html">buyer-demand-manage.html</a> · 需求管理</div>
             <div><a class="text-forest-700 hover:underline" href="./buyer-demand-detail.html">buyer-demand-detail.html</a> · 销售需求详情</div>
             <div><a class="text-forest-700 hover:underline" href="./buyer-billing.html">buyer-billing.html</a> · 开单</div>
             <div><a class="text-forest-700 hover:underline" href="./buyer-contacts.html">buyer-contacts.html</a> · 合作农户</div>
@@ -566,8 +566,8 @@ stateDiagram-v2
           <div class="space-y-1.5 text-sm">
             <div><a class="text-forest-700 hover:underline" href="./farmer-home.html">farmer-home.html</a> · 首页</div>
             <div><a class="text-forest-700 hover:underline" href="./farmer-market.html">farmer-market.html</a> · 市场</div>
-            <div><a class="text-forest-700 hover:underline" href="./farmer-publish.html">farmer-publish.html</a> · 发布销售</div>
-            <div><a class="text-forest-700 hover:underline" href="./farmer-demand-manage.html">farmer-demand-manage.html</a> · 销售需求管理</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-publish.html">farmer-publish.html</a> · 发布需求</div>
+            <div><a class="text-forest-700 hover:underline" href="./farmer-demand-manage.html">farmer-demand-manage.html</a> · 需求管理</div>
             <div><a class="text-forest-700 hover:underline" href="./farmer-demand-detail.html">farmer-demand-detail.html</a> · 收购需求详情</div>
             <div><a class="text-forest-700 hover:underline" href="./farmer-collection.html">farmer-collection.html</a> · 收款码综合页</div>
             <div><a class="text-forest-700 hover:underline" href="./farmer-collection-records.html">farmer-collection-records.html</a> · 收款记录</div>
@@ -769,7 +769,7 @@ stateDiagram-v2
             <span class="inline-flex items-center justify-center w-10 h-10 bg-emerald-600 text-white rounded-lg font-serif font-bold text-sm">03</span>
             <div>
               <h4 class="font-serif font-bold text-forest-800">发布需求到市场</h4>
-              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 发布求购/销售需求，同一营业所区域可见</p>
+              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 发布需求/销售需求，同一营业所区域可见</p>
             </div>
           </div>
           <span class="arrow text-forest-400 text-xl">▶</span>
@@ -783,19 +783,19 @@ stateDiagram-v2
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 业务规则</h5>
               <div class="space-y-2 text-sm text-gray-600">
-                <div>• 系统根据角色<strong>自动确定</strong>需求类型：收购商 → 求购需求，农户 → 销售需求</div>
-                <div>• 表单字段口径：品类（必填）+ 标题（必填）+ 描述（选填）+ 发布地址（必填，可定位）+ 数量（必填）+ 单价（选填）</div>
+                <div>• 系统保留收购商端与农户端两个发布入口，但不再根据角色自动锁定需求类型；用户可主动选择“收购需求 / 销售需求”</div>
+                <div>• 表单字段口径统一为：需求类型（必填）+ 需求品类（必填）+ 需求标题（必填）+ 需求描述（选填）+ 上传图片（选填，最多 3 张）+ 需求单价（选填）+ 单位（必填）+ 需求数量（必填）+ 地址（必填，可定位）</div>
                 <div>• 图片能力：支持上传最多 <strong>3 张</strong>图片，发布成功后随需求一起进入市场详情、需求管理详情；编辑时可继续增删图片。</div>
-                <div>• 当前原型入口：<code>buyer-publish.html</code>、<code>farmer-publish.html</code>；收购商端标题文案为“需求标题/需求描述”，农户端为“销售标题/描述（选填）”。</div>
-                <div>• 发布后在同一营业所区域内<strong>默认对全部用户可见</strong>，市场页可按需求分类筛选收购/销售</div>
+                <div>• 当前原型入口：<code>buyer-publish.html</code>、<code>farmer-publish.html</code>；两端均为“发布需求”页，收购商默认选中“收购需求”，农户默认选中“销售需求”，但都可切换。</div>
+                <div>• 发布后在同一营业所区域内<strong>默认对全部用户可见</strong>，市场页默认混合展示收购需求与销售需求，并可按需求分类筛选。</div>
                 <div>• 最多同时发布 <strong>20 条</strong>未关闭需求</div>
               </div>
             </div>
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">✅ 验收标准</h5>
               <div class="space-y-3">
-                <div class="ac-item"><div class="text-sm">收购商发布求购 → 同一营业所区域的市场默认混合列表中展示，并可被“收购”筛选命中</div></div>
-                <div class="ac-item"><div class="text-sm">农户发布销售 → 同一营业所区域的市场默认混合列表中展示，并可被“销售”筛选命中</div></div>
+                <div class="ac-item"><div class="text-sm">收购商发布需求 → 同一营业所区域的市场默认混合列表中展示，并可被“收购”筛选命中</div></div>
+                <div class="ac-item"><div class="text-sm">农户发布需求 → 同一营业所区域的市场默认混合列表中展示，并可被“销售”筛选命中</div></div>
                 <div class="ac-item"><div class="text-sm">已有 20 条未关闭需求 → 提示"最多同时发布 20 条"</div></div>
                 <div class="ac-item"><div class="text-sm">上传图片超过 3 张 → 仅保留前 3 张并提示“最多上传 3 张图片”</div></div>
                 <div class="ac-item"><div class="text-sm">已上传图片的需求进入详情页 → 正常展示缩略图并支持点击预览大图</div></div>
@@ -1419,7 +1419,7 @@ stateDiagram-v2
                 </div>
                 <div class="p-3 bg-purple-50 rounded-lg border border-purple-100">
                   <div class="font-semibold text-sm text-purple-700 mb-1">🔍 需求信息模块</div>
-                  <div class="text-xs text-gray-600">MVP 当前仅展示“我发布的收购需求”；“我关注的销售需求”入口与列表隐藏。卡片下钻图标统一放在右侧垂直居中，且“我发布”卡片不展示距离信息</div>
+                  <div class="text-xs text-gray-600">MVP 当前仅展示“我发布的需求”；“我关注的销售需求”入口与列表隐藏。卡片左上角展示需求类型标签，右侧保留统一下钻图标，且“我发布”卡片不展示距离信息</div>
                 </div>
               </div>
               <div class="mt-3 text-xs text-gray-500">MVP 口径：收购商首页暂不包含“采购趋势 / 品类占比”等数据洞察模块。</div>
@@ -1453,11 +1453,11 @@ stateDiagram-v2
                 </div>
                 <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
                   <div class="font-semibold text-sm text-amber-700 mb-1">⚡ 快捷入口</div>
-                  <div class="text-xs text-gray-600">当前为 4 项：发布销售、收款码、收款记录、消息通知</div>
+                  <div class="text-xs text-gray-600">当前为 4 项：发布需求、收款码、收款记录、消息通知</div>
                 </div>
                 <div class="p-3 bg-purple-50 rounded-lg border border-purple-100">
                   <div class="font-semibold text-sm text-purple-700 mb-1">🔍 双列表模块</div>
-                  <div class="text-xs text-gray-600">MVP 当前仅展示“我发布的销售需求”；“我关注的采购需求”列表隐藏。卡片样式与收购商首页保持同一视觉结构。</div>
+                  <div class="text-xs text-gray-600">MVP 当前仅展示“我发布的需求”；“我关注的采购需求”列表隐藏。卡片左上角统一展示需求类型标签，整体样式与收购商首页保持同一视觉结构。</div>
                 </div>
               </div>
               <div class="mt-3 text-xs text-gray-400">* 当前以 <code>farmer-home.html</code> 页面为原型基准，布局骨架与收购商首页保持一致，后续调整以该页面为准同步 PRD</div>

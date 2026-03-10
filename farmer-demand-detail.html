@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>丰收云 - 收购详情</title>
+    <title>丰收云 - 需求详情</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,84 +14,72 @@
     <div id="statusBar"></div>
     <div id="navBar"></div>
 
-    <!-- 主内容区 -->
-    <div class="flex-1 overflow-y-auto no-scrollbar p-4">
-
-        <!-- 收购信息卡片 -->
-        <div class="glass-panel rounded-2xl p-5">
-            <!-- 品类标签 + 状态（右侧） -->
+    <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-6">
+        <div class="glass-panel rounded-2xl p-5 mb-4">
             <div class="flex items-center justify-between mb-3">
-                <span id="categoryTag" class="text-[11px] bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full font-medium">粮油</span>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <span id="categoryTag" class="text-[11px] bg-amber-50 text-amber-600 px-2.5 py-1 rounded-full font-medium">粮油</span>
+                    <span id="demandTypeTag" class="text-[11px] bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full font-medium">收购</span>
+                </div>
                 <span id="statusTag" class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">进行中</span>
             </div>
 
-            <!-- 需求标题 -->
-            <h1 id="demandTitle" class="text-lg font-bold text-gray-800 mb-2 leading-relaxed">收购优质东北大米，2024年新米，含水量14%以下</h1>
+            <h1 id="demandTitle" class="text-lg font-bold text-gray-800 mb-2 leading-relaxed">需求标题</h1>
 
-            <!-- 描述（浅绿色容器） -->
             <div class="bg-green-50/60 rounded-lg p-3 mb-4">
-                <p id="demandDesc" class="text-sm text-gray-700 leading-relaxed break-words">粒粒饱满，口感香糯，产地直供，可提供质检报告</p>
-                <!-- 图片画廊：如果只有1张，则宽；如果是2张，则平分；如果3张，则平分 -->
-                <div id="imageGallery" class="mt-3 gap-2 flex hidden overflow-hidden rounded-md">
-                    <!-- Images will be injected here -->
-                </div>
+                <p id="demandDesc" class="text-sm text-gray-700 leading-relaxed break-words">暂无补充描述</p>
+                <div id="imageGallery" class="mt-3 gap-2 flex hidden overflow-hidden rounded-md"></div>
             </div>
 
-            <!-- 数量 & 单价 -->
             <div class="flex items-center py-4 border-y border-gray-100 mb-4">
                 <div class="flex-1 text-center">
-                    <div class="text-[10px] text-gray-400 mb-1">求购数量</div>
+                    <div class="text-[10px] text-gray-400 mb-1">需求数量</div>
                     <div class="text-base font-semibold text-gray-800" style="font-family:Poppins;">
                         <span id="quantity">5000</span><span id="unit" class="text-sm ml-0.5">斤</span>
                     </div>
                 </div>
                 <div class="w-px h-10 bg-gray-200"></div>
                 <div class="flex-1 text-center">
-                    <div class="text-[10px] text-gray-400 mb-1">收购价格</div>
-                    <div class="text-base font-semibold text-primary" style="font-family:Poppins;">
-                        ¥<span id="price">2.8</span>/<span id="priceUnit">斤</span>
-                    </div>
+                    <div class="text-[10px] text-gray-400 mb-1">需求单价</div>
+                    <div id="priceValue" class="text-base font-semibold text-primary" style="font-family:Poppins;">面议</div>
                 </div>
             </div>
 
-            <!-- 距离（左下） + 时间（右下） -->
-            <div class="flex items-center justify-between text-[11px] text-gray-500">
+            <div class="flex items-center justify-between text-[11px] text-gray-500 mb-2">
                 <div class="flex items-center gap-1">
                     <i class="fas fa-location-dot text-primary/60"></i>
-                    <span id="distance" class="font-medium text-primary">距您 12.5km</span>
+                    <span id="distance" class="font-medium text-primary">距您12.5km</span>
                 </div>
                 <span id="publishTime">2小时前</span>
             </div>
+            <div class="flex items-center gap-1 text-[11px] text-gray-500">
+                <i class="fas fa-map-location-dot text-primary/60"></i>
+                <span id="locationText">地址待补充</span>
+            </div>
         </div>
 
-        <!-- 收购商信息卡片 -->
-        <div class="glass-panel rounded-2xl p-4 mt-4">
-            <div class="text-xs font-medium text-gray-700 mb-3">收购商信息</div>
-            <div class="flex items-start gap-3">
+        <div class="glass-panel rounded-2xl p-4 mb-4">
+            <div class="text-xs font-medium text-gray-700 mb-3">发布方信息</div>
+            <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                     <i class="fas fa-user text-primary text-sm"></i>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span id="buyerName" class="text-sm font-medium text-gray-800">张老板</span>
-                        <span class="text-[9px] bg-green-50 text-primary px-2 py-0.5 rounded-full">收购商</span>
+                    <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+                        <span id="ownerName" class="text-sm font-medium text-gray-800">发布者</span>
+                        <span id="ownerRoleTag" class="text-[9px] bg-green-50 text-primary px-2 py-0.5 rounded-full">农户</span>
                     </div>
-                    <div id="buyerPhone" class="text-sm text-gray-600 font-medium" style="font-family:Poppins;">138****8888</div>
+                    <div id="ownerPhone" class="text-sm text-gray-600 font-medium" style="font-family:Poppins;">138****8888</div>
                 </div>
             </div>
         </div>
 
-    </div>
-
-    <!-- 底部操作按钮 -->
-    <div class="px-4 py-4 bg-gradient-to-t from-[#FFFBF0] via-[#FFFBF0] to-transparent border-t border-gray-100">
         <button id="contactBtn" class="w-full h-11 bg-primary text-white font-medium text-sm rounded-lg shadow-glow active:scale-[0.98] transition-transform flex items-center justify-center gap-2">
             <i class="fas fa-phone text-sm"></i>
-            <span>联系收购商</span>
+            <span>联系发布方</span>
         </button>
     </div>
 
-    <!-- 联系方式弹层 (放在 mobile-container 内部) -->
     <div id="contactMask" class="absolute inset-0 bg-black/30 z-[70] hidden" onclick="closeContact()"></div>
     <div id="contactSheet" class="absolute left-0 right-0 bottom-0 z-[71] bg-white rounded-t-2xl p-4 hidden">
         <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-3"></div>
@@ -104,8 +92,7 @@
             <button class="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-2xl text-sm font-semibold" onclick="copyContact()">复制号码</button>
         </div>
     </div>
-    
-    <!-- 图片预览弹层（在手机容器内部） -->
+
     <div id="imageViewerMask" class="absolute inset-0 z-[100] bg-black/95 hidden items-center justify-center transition-opacity opacity-0" style="display:none;" onclick="closeImageViewer()">
         <div class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-white/70 active:bg-white/10 rounded-full cursor-pointer z-[101]" onclick="closeImageViewer(event)">
             <i class="fas fa-times text-xl"></i>
@@ -114,19 +101,29 @@
             <img id="imageViewerImg" src="" class="max-w-full max-h-full object-contain rounded-lg transition-transform transform scale-95" />
         </div>
     </div>
+
+    <div id="toastTip" class="absolute left-4 right-4 bottom-[84px] px-3.5 py-2.5 bg-black/85 text-white text-xs rounded-lg opacity-0 pointer-events-none transition-all duration-200 z-[74]"></div>
 </div>
 
 <script>
 document.getElementById('statusBar').innerHTML = renderStatusBar();
 
-// 收购需求数据（与 farmer-market.html 保持一致）
-var demandList = [
-    { id: 'B1', category: '水果', content: '收购红富士苹果，果径80mm以上，连续采购15天', qty: 8000, unit: '斤', price: 3.4, location: '山东烟台', distanceKm: 2.8, ownerName: '泰丰收购站', ownerMobile: '13800138001', createdAt: new Date(Date.now() - 3 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/apple01/400/400', 'https://picsum.photos/seed/apple02/400/400', 'https://picsum.photos/seed/apple03/400/400'] },
-    { id: 'B2', category: '粮油', content: '求购新季玉米，水分14%以下，现场验货后当天结算', qty: 12000, unit: '斤', price: 1.6, location: '河南周口', distanceKm: 9.0, ownerName: '鑫源粮贸', ownerMobile: '13800138002', createdAt: new Date(Date.now() - 12 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/corn01/400/400', 'https://picsum.photos/seed/corn02/400/400'] },
-    { id: 'B3', category: '蔬菜', content: '大量收购有机西红柿，要求无破损，支持分批装车', qty: 6000, unit: '斤', price: 2.5, location: '河北保定', distanceKm: 11.5, ownerName: '绿鲜配送中心', ownerMobile: '13800138003', createdAt: new Date(Date.now() - 24 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/tomato01/400/400'] }
-];
+var demandStore = window.DemandMockStore || null;
+var q = new URLSearchParams(window.location.search);
+var sourcePage = q.get('source') || '';
+var backLink = q.get('back') || 'farmer-market.html';
+if (!q.get('back')) {
+    if (sourcePage === 'home') backLink = 'farmer-home.html';
+    else if (sourcePage === 'manage') backLink = 'farmer-demand-manage.html';
+}
+document.getElementById('navBar').innerHTML = renderHeader('需求详情', backLink);
 
-// 品类颜色映射
+var fallbackList = [
+    { id: 'B1', role: 'buyer', demandType: 'purchase', category: '水果', title: '收购红富士苹果 8000斤', content: '收购红富士苹果 8000斤', note: '果径80mm以上，连续采购15天。', qty: 8000, unit: '斤', price: 3.4, location: '山东烟台', distanceKm: 2.8, ownerName: '泰丰收购站', ownerMobile: '13800138011', createdAt: new Date(Date.now() - 3 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/apple31/400/400', 'https://picsum.photos/seed/apple32/400/400'] },
+    { id: 'B2', role: 'buyer', demandType: 'purchase', category: '粮油', title: '收购新季玉米 12000斤', content: '收购新季玉米 12000斤', note: '水分14%以下，现场验货后当天结算。', qty: 12000, unit: '斤', price: 1.6, location: '河南周口', distanceKm: 9.0, ownerName: '鑫源粮贸', ownerMobile: '13800138012', createdAt: new Date(Date.now() - 12 * 60 * 1000).toISOString(), status: 'active', images: ['https://picsum.photos/seed/corn31/400/400'] },
+    { id: 'B3', role: 'buyer', demandType: 'purchase', category: '蔬菜', title: '收购有机西红柿 6000斤', content: '收购有机西红柿 6000斤', note: '要求无破损，支持分批装车。', qty: 6000, unit: '斤', price: 2.5, location: '河北保定', distanceKm: 11.5, ownerName: '绿鲜配送中心', ownerMobile: '13800138013', createdAt: new Date(Date.now() - 24 * 60 * 1000).toISOString(), status: 'closed' }];
+var currentContactPhone = '';
+
 function getCategoryColor(cat) {
     var colors = {
         '水果': { bg: 'bg-red-50', text: 'text-red-500' },
@@ -139,78 +136,105 @@ function getCategoryColor(cat) {
     return colors[cat] || colors['其他'];
 }
 
-// 格式化时间
 function formatTime(iso) {
     var d = new Date(iso || '');
     if (Number.isNaN(d.getTime())) return '-';
-    var now = new Date();
-    var diff = Math.floor((now - d) / 1000);
-
+    var diff = Math.floor((Date.now() - d.getTime()) / 1000);
     if (diff < 60) return '刚刚';
     if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
     if (diff < 86400) return Math.floor(diff / 3600) + '小时前';
     if (diff < 604800) return Math.floor(diff / 86400) + '天前';
-
-    var m = d.getMonth() + 1;
-    var day = d.getDate();
-    return m + '月' + day + '日';
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日';
 }
 
-// 动态返回链接
-var demandStore = window.DemandMockStore || null;
-var q = new URLSearchParams(window.location.search);
-var sourcePage = q.get('source') || '';
-var backLink = q.get('back') || 'farmer-market.html';
-if (!q.get('back')) {
-    if (sourcePage === 'home') backLink = 'farmer-home.html';
-    else if (sourcePage === 'manage') backLink = 'farmer-demand-manage.html';
+function maskPhone(phone) {
+    if (!phone || phone.length !== 11) return phone;
+    return phone.substring(0, 3) + '****' + phone.substring(7);
 }
 
-// 重新渲染导航栏
-document.getElementById('navBar').innerHTML = renderHeader('收购详情', backLink);
+function getDemandTypeLabel(item) {
+    if (demandStore && typeof demandStore.getDemandTypeLabel === 'function') {
+        return demandStore.getDemandTypeLabel(item);
+    }
+    return item && item.demandType === 'sale' ? '销售' : '收购';
+}
 
-// 加载收购详情
-function loadDemandDetail() {
-    // 从URL获取ID
-    var params = new URLSearchParams(window.location.search);
-    var id = params.get('id');
+function getDemandTypeClass(item) {
+    if (demandStore && typeof demandStore.getDemandTypeTagClass === 'function') {
+        return demandStore.getDemandTypeTagClass(item);
+    }
+    return item && item.demandType === 'sale' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600';
+}
 
-    // 从数据列表中查找
+function getDemandTitle(item) {
+    if (demandStore && typeof demandStore.getDemandTitle === 'function') {
+        return demandStore.getDemandTitle(item);
+    }
+    return (item && (item.title || item.content)) || '';
+}
+
+function getDemandDesc(item) {
+    if (demandStore && typeof demandStore.getDemandDescription === 'function') {
+        return demandStore.getDemandDescription(item);
+    }
+    return (item && (item.note || '')) || '';
+}
+
+function getRoleLabel(item) {
+    if (demandStore && typeof demandStore.getRoleLabel === 'function') {
+        return demandStore.getRoleLabel(item);
+    }
+    return item && item.role === 'farmer' ? '农户' : '收购商';
+}
+
+function getRoleClass(item) {
+    if (demandStore && typeof demandStore.getRoleTagClass === 'function') {
+        return demandStore.getRoleTagClass(item);
+    }
+    return item && item.role === 'farmer' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700';
+}
+
+function renderImages(images) {
+    var gallery = document.getElementById('imageGallery');
+    var imgs = Array.isArray(images) ? images.slice(0, 3) : [];
+    if (!imgs.length) {
+        gallery.classList.add('hidden');
+        gallery.innerHTML = '';
+        return;
+    }
+    gallery.classList.remove('hidden');
+    gallery.innerHTML = '';
+    imgs.forEach(function(imgUrl) {
+        var item = document.createElement('div');
+        item.className = 'w-[calc(33.33%-5px)] h-24 rounded-lg overflow-hidden border border-black/5 relative cursor-pointer active:scale-95 transition-transform bg-white/50';
+        item.onclick = function() { openImageViewer(imgUrl); };
+        item.innerHTML = '<img src="' + imgUrl + '" class="w-full h-full object-cover" />';
+        gallery.appendChild(item);
+    });
+}
+
+function renderDemandDetail() {
+    var id = q.get('id');
     var demand = null;
     if (id && demandStore && typeof demandStore.findDemandById === 'function') {
         demand = demandStore.findDemandById(id);
     }
     if (!demand && id) {
-        demand = demandList.find(function(item) { return item.id === id; });
+        demand = fallbackList.find(function(item) { return item.id === id; });
     }
-
-    // 如果没有找到，使用默认数据（第一条）
     if (!demand) {
-        demand = demandList[0];
+        demand = fallbackList[0];
     }
 
-    // 应用品类颜色
     var color = getCategoryColor(demand.category);
-    var tagEl = document.getElementById('categoryTag');
-    tagEl.textContent = demand.category;
-    tagEl.className = 'text-[11px] ' + color.bg + ' ' + color.text + ' px-2.5 py-1 rounded-full font-medium';
+    var categoryTag = document.getElementById('categoryTag');
+    categoryTag.textContent = demand.category || '其他';
+    categoryTag.className = 'text-[11px] ' + color.bg + ' ' + color.text + ' px-2.5 py-1 rounded-full font-medium';
 
-    // 填充数据
-    document.getElementById('publishTime').textContent = formatTime(demand.createdAt);
-    document.getElementById('demandTitle').textContent = demand.content || '';
-    document.getElementById('demandDesc').textContent = demand.remark || demand.content || '';
-    document.getElementById('quantity').textContent = demand.qty || 0;
-    document.getElementById('unit').textContent = demand.unit || '斤';
-    document.getElementById('price').textContent = demand.price || 0;
-    document.getElementById('priceUnit').textContent = demand.unit || '斤';
-    document.getElementById('buyerName').textContent = demand.ownerName || '未知';
-    document.getElementById('buyerPhone').textContent = maskPhone(demand.ownerMobile) || '暂无电话';
+    var demandTypeTag = document.getElementById('demandTypeTag');
+    demandTypeTag.textContent = getDemandTypeLabel(demand);
+    demandTypeTag.className = 'text-[11px] px-2.5 py-1 rounded-full font-medium ' + getDemandTypeClass(demand);
 
-    // 存储完整电话用于弹窗
-    document.getElementById('contactBtn').dataset.phone = demand.ownerMobile || '';
-    document.getElementById('contactBtn').dataset.name = demand.ownerName || '收购商';
-
-    // 状态标签
     var statusTag = document.getElementById('statusTag');
     if (demand.status === 'active') {
         statusTag.textContent = '进行中';
@@ -220,59 +244,50 @@ function loadDemandDetail() {
         statusTag.className = 'text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium';
     }
 
-    // 图片渲染
-    var gallery = document.getElementById('imageGallery');
-    var imgs = Array.isArray(demand.images) ? demand.images : [];
-    if (imgs.length > 0) {
-        gallery.classList.remove('hidden');
-        gallery.innerHTML = '';
-        var colClass = 'w-[calc(33.33%-5px)] h-24';
-        
-        
-        imgs.slice(0, 3).forEach(function(imgUrl) {
-            var imgContainer = document.createElement('div');
-            imgContainer.className = colClass + ' rounded-lg overflow-hidden border border-black/5 relative cursor-pointer active:scale-95 transition-transform bg-white/50';
-            imgContainer.onclick = function() { openImageViewer(imgUrl); };
-            
-            var imgEl = document.createElement('img');
-            imgEl.src = imgUrl;
-            imgEl.className = 'w-full h-full object-cover';
-            
-            imgContainer.appendChild(imgEl);
-            gallery.appendChild(imgContainer);
-        });
-    } else {
-        gallery.classList.add('hidden');
-    }
+    document.getElementById('demandTitle').textContent = getDemandTitle(demand) || '未命名需求';
+    document.getElementById('demandDesc').textContent = getDemandDesc(demand) || '暂无补充描述';
+    document.getElementById('quantity').textContent = demand.qty || 0;
+    document.getElementById('unit').textContent = demand.unit || '斤';
+    document.getElementById('priceValue').textContent = demand.price === null || demand.price === undefined || demand.price === ''
+        ? '面议'
+        : '¥' + Number(demand.price).toFixed(2) + '/' + (demand.unit || '斤');
+    document.getElementById('distance').textContent = '距您' + Number(demand.distanceKm || 0).toFixed(1) + 'km';
+    document.getElementById('publishTime').textContent = formatTime(demand.createdAt);
+    document.getElementById('locationText').textContent = demand.location || '地址待补充';
+    document.getElementById('ownerName').textContent = demand.ownerName || '未知';
+    document.getElementById('ownerPhone').textContent = maskPhone(demand.ownerMobile) || '暂无电话';
+    document.getElementById('ownerRoleTag').textContent = getRoleLabel(demand);
+    document.getElementById('ownerRoleTag').className = 'text-[9px] px-2 py-0.5 rounded-full ' + getRoleClass(demand);
 
-    // 位置和距离
-    document.getElementById('location').textContent = demand.location || '未知位置';
-    document.getElementById('distance').textContent = '距您 ' + (demand.distanceKm || 0).toFixed(1) + 'km';
+    document.getElementById('contactBtn').dataset.phone = demand.ownerMobile || '';
+    document.getElementById('contactBtn').dataset.name = demand.ownerName || '发布者';
+    renderImages(demand.images);
 }
 
-// 手机号脱敏
-function maskPhone(phone) {
-    if (!phone || phone.length !== 11) return phone;
-    return phone.substring(0, 3) + '****' + phone.substring(7);
+function showToast(msg) {
+    var tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.remove('opacity-0');
+    tip.classList.add('opacity-100');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() {
+        tip.classList.remove('opacity-100');
+        tip.classList.add('opacity-0');
+    }, 1700);
 }
-
-// 联系方式弹窗
-var currentContactPhone = '';
 
 function openContactModal() {
     var btn = document.getElementById('contactBtn');
-    var phone = btn.dataset.phone;
-    var name = btn.dataset.name;
-
+    var phone = btn.dataset.phone || '';
+    var name = btn.dataset.name || '发布者';
     if (!phone) {
-        alert('暂无联系方式');
+        showToast('暂无联系方式');
         return;
     }
-
     currentContactPhone = phone;
-    document.getElementById('contactName').textContent = name || '收购商';
-    document.getElementById('contactPhone').textContent = maskPhone(phone);
-    document.getElementById('callLink').setAttribute('href', 'tel:' + (phone || '').replace(/\*/g, ''));
+    document.getElementById('contactName').textContent = name;
+    document.getElementById('contactPhone').textContent = phone;
+    document.getElementById('callLink').setAttribute('href', 'tel:' + phone.replace(/\*/g, ''));
     document.getElementById('contactMask').classList.remove('hidden');
     document.getElementById('contactSheet').classList.remove('hidden');
 }
@@ -280,34 +295,6 @@ function openContactModal() {
 function closeContact() {
     document.getElementById('contactMask').classList.add('hidden');
     document.getElementById('contactSheet').classList.add('hidden');
-}
-
-function openImageViewer(imgUrl) {
-    if (!imgUrl) return;
-    var mask = document.getElementById('imageViewerMask');
-    var img = document.getElementById('imageViewerImg');
-    if (!mask || !img) return;
-    img.src = imgUrl;
-    mask.style.display = 'flex';
-    void mask.offsetWidth;
-    mask.classList.remove('opacity-0');
-    img.classList.remove('scale-95');
-    img.classList.add('scale-100');
-}
-
-function closeImageViewer(e) {
-    if (e) e.stopPropagation();
-    var mask = document.getElementById('imageViewerMask');
-    var img = document.getElementById('imageViewerImg');
-    if (!mask) return;
-    mask.classList.add('opacity-0');
-    if (img) {
-        img.classList.remove('scale-100');
-        img.classList.add('scale-95');
-    }
-    setTimeout(function() {
-        mask.style.display = 'none';
-    }, 300);
 }
 
 function copyContact() {
@@ -321,24 +308,37 @@ function copyContact() {
         });
         return;
     }
-    showToast('当前环境不支持自动复制');
+    showToast('复制失败，请手动复制');
 }
 
-function showToast(msg) {
-    var tip = document.createElement('div');
-    tip.className = 'fixed left-1/2 -translate-x-1/2 bottom-24 px-4 py-2 bg-black/85 text-white text-xs rounded-lg z-[74] whitespace-nowrap';
-    tip.textContent = msg;
-    document.body.appendChild(tip);
+function openImageViewer(imgUrl) {
+    if (!imgUrl) return;
+    var mask = document.getElementById('imageViewerMask');
+    var img = document.getElementById('imageViewerImg');
+    img.src = imgUrl;
+    mask.style.display = 'flex';
+    void mask.offsetWidth;
+    mask.classList.remove('opacity-0');
+    img.classList.remove('scale-95');
+    img.classList.add('scale-100');
+}
+
+function closeImageViewer(e) {
+    if (e) e.stopPropagation();
+    var mask = document.getElementById('imageViewerMask');
+    var img = document.getElementById('imageViewerImg');
+    mask.classList.add('opacity-0');
+    if (img) {
+        img.classList.remove('scale-100');
+        img.classList.add('scale-95');
+    }
     setTimeout(function() {
-        tip.remove();
-    }, 2000);
+        mask.style.display = 'none';
+    }, 300);
 }
 
-// 绑定事件
 document.getElementById('contactBtn').addEventListener('click', openContactModal);
-
-// 初始化
-loadDemandDetail();
+renderDemandDetail();
 </script>
 </body>
 </html>
