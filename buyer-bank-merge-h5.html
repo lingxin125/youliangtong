@@ -367,6 +367,72 @@
             font-size: 13px;
             background: #fbfdfb;
         }
+
+        .result-option {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            border-radius: 16px;
+            padding: 14px 14px 13px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .result-option:active {
+            transform: scale(0.98);
+        }
+
+        .result-option-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .result-option-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .result-option.success .result-option-icon {
+            background: rgba(17, 122, 55, 0.10);
+            color: var(--brand-strong);
+        }
+
+        .result-option.partial .result-option-icon {
+            background: rgba(245, 158, 11, 0.12);
+            color: #b45309;
+        }
+
+        .result-option.failed .result-option-icon {
+            background: rgba(239, 68, 68, 0.10);
+            color: #dc2626;
+        }
+
+        .result-option-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.4;
+        }
+
+        .result-option-desc {
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -481,6 +547,18 @@
         </div>
         <div id="payeesSheetBody" class="sheet-body"></div>
     </div>
+
+    <div id="resultSheet" class="bottom-sheet" aria-hidden="true">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <div class="sheet-title-wrap">
+                <div class="sheet-title">支付结果</div>
+                <div id="resultSheetSubtitle" class="sheet-subtitle">请选择本次合并支付结果</div>
+            </div>
+            <button type="button" class="sheet-close" onclick="closeSheet('result')">×</button>
+        </div>
+        <div id="resultSheetBody" class="sheet-body"></div>
+    </div>
 </div>
 
 <script>
@@ -567,24 +645,51 @@ function calcSubOrderAmount(subOrder) {
 function normalizeMergedStatus(status) {
     if (status === 'paid' || status === 'completed') return 'success';
     if (status === 'paying') return 'processing';
-    if (status === 'processing' || status === 'failed' || status === 'success') return status;
+    if (status === 'processing' || status === 'failed' || status === 'success' || status === 'partial') return status;
     return 'processing';
 }
 
+function getSubOrderStatus(status, fallbackStatus) {
+    return normalizeMergedStatus(status || fallbackStatus || 'processing');
+}
+
+function resolveMergedStatusFromSubOrders(subOrders, fallbackStatus) {
+    if (!Array.isArray(subOrders) || subOrders.length === 0) {
+        return normalizeMergedStatus(fallbackStatus);
+    }
+    const counts = { processing: 0, success: 0, failed: 0 };
+    subOrders.forEach(function(sub) {
+        const subStatus = getSubOrderStatus(sub.status, fallbackStatus);
+        if (subStatus === 'processing') counts.processing += 1;
+        if (subStatus === 'success') counts.success += 1;
+        if (subStatus === 'failed') counts.failed += 1;
+    });
+    if (counts.processing > 0) return 'processing';
+    if (counts.success > 0 && counts.failed > 0) return 'partial';
+    if (counts.success > 0) return 'success';
+    if (counts.failed > 0) return 'failed';
+    return normalizeMergedStatus(fallbackStatus);
+}
+
+function getProcessingSubOrders(record) {
+    return (record && Array.isArray(record.subOrders) ? record.subOrders : []).filter(function(sub) {
+        return getSubOrderStatus(sub.status, record && record.status) === 'processing';
+    });
+}
+
+function getPayableSubOrders(record) {
+    const processingSubOrders = getProcessingSubOrders(record);
+    if (processingSubOrders.length > 0) return processingSubOrders;
+    return record && Array.isArray(record.subOrders) ? record.subOrders : [];
+}
+
 function normalizeMergedRecord(record, idx) {
-    const status = normalizeMergedStatus(record.status);
+    const fallbackStatus = normalizeMergedStatus(record.status);
     const mergeKey = record.id || `HB${Date.now()}${idx || 0}`;
     const createdAt = record.createdAt || record.updatedAt || new Date().toISOString();
-    return {
-        id: mergeKey,
-        status,
-        totalAmount: Number(record.totalAmount || 0),
-        createdAt,
-        updatedAt: record.updatedAt || record.paidAt || createdAt,
-        paidAt: record.paidAt || '',
-        failReason: record.failReason || '',
-        payMethod: record.payMethod || 'industry',
-        subOrders: (record.subOrders || []).map((sub, subIdx) => ({
+    const subOrders = (record.subOrders || []).map((sub, subIdx) => {
+        const subStatus = getSubOrderStatus(sub.status, fallbackStatus);
+        return {
             id: sub.id || sub.grainOrderNo || `${mergeKey}-${subIdx + 1}`,
             grainOrderNo: sub.grainOrderNo || sub.id || `${mergeKey}-${subIdx + 1}`,
             paymentOrderNo: sub.paymentOrderNo || `ZF${String(mergeKey).replace(/\D/g, '').slice(-10)}${String(subIdx + 1).padStart(2, '0')}`,
@@ -596,8 +701,23 @@ function normalizeMergedRecord(record, idx) {
             payeeCard: sub.payeeCard || '--',
             amount: Number(sub.amount || 0),
             items: Array.isArray(sub.items) ? sub.items : [],
-            status
-        }))
+            status: subStatus,
+            paidAt: sub.paidAt || '',
+            failReason: sub.failReason || ''
+        };
+    });
+    const status = resolveMergedStatusFromSubOrders(subOrders, fallbackStatus);
+    const firstFailed = subOrders.find(function(sub) { return sub.status === 'failed' && sub.failReason; });
+    return {
+        id: mergeKey,
+        status,
+        totalAmount: Number(record.totalAmount || subOrders.reduce((sum, sub) => sum + Number(sub.amount || 0), 0)),
+        createdAt,
+        updatedAt: record.updatedAt || record.paidAt || createdAt,
+        paidAt: record.paidAt || '',
+        failReason: record.failReason || (firstFailed ? firstFailed.failReason : ''),
+        payMethod: record.payMethod || 'industry',
+        subOrders
     };
 }
 
@@ -617,14 +737,19 @@ function saveMergedOrders(list) {
 }
 
 function findMergedOrderById(targetId) {
+
     return loadMergedOrders().find(item => item.id === targetId) || null;
 }
 
 function buildPageDataFromMerged(record) {
+    const payableSubOrders = getPayableSubOrders(record);
     return {
         paymentOrderNo: record.id,
         createdAt: record.createdAt,
-        subOrders: (record.subOrders || []).map(sub => ({
+        totalSubOrderCount: (record.subOrders || []).length,
+        payableSubOrderCount: payableSubOrders.length,
+        isRetry: payableSubOrders.length < (record.subOrders || []).length,
+        subOrders: payableSubOrders.map(sub => ({
             grainOrderNo: sub.grainOrderNo || sub.id,
             paymentOrderNo: sub.paymentOrderNo || '',
             createTime: sub.createTime || sub.createdAt || record.createdAt,
@@ -676,37 +801,50 @@ function buildPayeeCard(subOrder, index, inlineMode) {
     ].join('');
 }
 
+function hasOpenSheet() {
+    return ['ordersSheet', 'payeesSheet', 'resultSheet'].some(function(id) {
+        const el = document.getElementById(id);
+        return el && el.classList.contains('show');
+    });
+}
+
 function setSheetState(sheetId, visible) {
     const mask = document.getElementById('sheetMask');
     const sheet = document.getElementById(sheetId);
     if (!mask || !sheet) return;
-    mask.classList.toggle('show', visible);
     sheet.classList.toggle('show', visible);
     sheet.setAttribute('aria-hidden', visible ? 'false' : 'true');
-    document.body.classList.toggle('sheet-open', visible || document.getElementById('ordersSheet').classList.contains('show') || document.getElementById('payeesSheet').classList.contains('show'));
+    const anyOpen = hasOpenSheet();
+    mask.classList.toggle('show', anyOpen);
+    document.body.classList.toggle('sheet-open', anyOpen);
 }
 
 function openSheet(type) {
     if (type === 'orders') setSheetState('ordersSheet', true);
     if (type === 'payees') setSheetState('payeesSheet', true);
+    if (type === 'result') setSheetState('resultSheet', true);
 }
 
 function closeSheet(type) {
     if (type === 'orders') setSheetState('ordersSheet', false);
     if (type === 'payees') setSheetState('payeesSheet', false);
-    const anyOpen = document.getElementById('ordersSheet').classList.contains('show') || document.getElementById('payeesSheet').classList.contains('show');
-    document.body.classList.toggle('sheet-open', anyOpen);
-    document.getElementById('sheetMask').classList.toggle('show', anyOpen);
+    if (type === 'result') setSheetState('resultSheet', false);
 }
 
 function closeAllSheets() {
-    document.getElementById('ordersSheet').classList.remove('show');
-    document.getElementById('payeesSheet').classList.remove('show');
+    ['ordersSheet', 'payeesSheet', 'resultSheet'].forEach(function(id) {
+        const sheet = document.getElementById(id);
+        if (sheet) {
+            sheet.classList.remove('show');
+            sheet.setAttribute('aria-hidden', 'true');
+        }
+    });
     document.getElementById('sheetMask').classList.remove('show');
     document.body.classList.remove('sheet-open');
 }
 
 function fillPage() {
+
     const subOrders = activeMergeData.subOrders || [];
     const totalAmount = subOrders.reduce((sum, sub) => sum + calcSubOrderAmount(sub), 0);
     const orderCount = subOrders.length;
@@ -739,47 +877,118 @@ function fillPage() {
         : '<div class="sheet-empty">暂无收款人信息</div>';
 }
 
-function finalizeMergedPayment(targetId) {
-    if (!targetId) return;
-    const list = loadMergedOrders();
-    const idx = list.findIndex(item => item.id === targetId);
-    if (idx < 0) return;
-    const now = new Date().toISOString();
-    list[idx] = normalizeMergedRecord({
-        ...list[idx],
-        status: 'success',
-        updatedAt: now,
-        paidAt: now,
-        failReason: '',
-        payMethod: 'industry',
-        subOrders: (list[idx].subOrders || []).map(sub => ({ ...sub, status: 'success' }))
-    }, idx);
-    saveMergedOrders(list);
+function syncMockStoreFromMergedRecord(record) {
+    if (!mockStore || !mockStore.updateOrder) return;
+    (record.subOrders || []).forEach(function(sub) {
+        mockStore.updateOrder(sub.id, {
+            status: getSubOrderStatus(sub.status, record.status),
+            payMethod: record.payMethod || 'industry',
+            paymentOrderNo: sub.paymentOrderNo || '',
+            paidAt: sub.paidAt || '',
+            failReason: sub.failReason || ''
+        });
+    });
+}
 
-    if (mockStore && mockStore.updateOrder) {
-        list[idx].subOrders.forEach(sub => {
-            mockStore.updateOrder(sub.id, {
+function buildOutcomeSubOrders(record, outcome, now) {
+    const payableSubOrders = getPayableSubOrders(record);
+    const payableIds = payableSubOrders.map(function(sub) { return sub.id; });
+    const payableIdSet = new Set(payableIds);
+    const partialSuccessIds = new Set(
+        outcome === 'partial'
+            ? payableIds.slice(0, Math.ceil(payableIds.length / 2))
+            : []
+    );
+
+    return (record.subOrders || []).map(function(sub) {
+        if (!payableIdSet.has(sub.id)) return { ...sub };
+        if (outcome === 'success' || (outcome === 'partial' && partialSuccessIds.has(sub.id))) {
+            return {
+                ...sub,
                 status: 'success',
-                payMethod: 'industry',
-                paymentOrderNo: sub.paymentOrderNo || '',
                 paidAt: now,
                 failReason: ''
-            });
-        });
-    }
+            };
+        }
+        return {
+            ...sub,
+            status: 'failed',
+            paidAt: '',
+            failReason: '银行返回失败，请重新支付'
+        };
+    });
 }
 
-function showToast(msg) {
-    const tip = document.getElementById('toastTip');
-    tip.textContent = msg;
-    tip.classList.add('show');
-    clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(() => {
-        tip.classList.remove('show');
-    }, 2500);
+function finalizeMergedPayment(targetId, outcome) {
+    if (!targetId) return null;
+    const list = loadMergedOrders();
+    const idx = list.findIndex(function(item) { return item.id === targetId; });
+    if (idx < 0) return null;
+    const current = normalizeMergedRecord(list[idx], idx);
+    const now = new Date().toISOString();
+    const nextSubOrders = buildOutcomeSubOrders(current, outcome, now);
+    const nextStatus = resolveMergedStatusFromSubOrders(nextSubOrders, current.status);
+    const updatedRecord = normalizeMergedRecord({
+        ...current,
+        updatedAt: now,
+        paidAt: nextStatus === 'success' ? now : (current.paidAt || ''),
+        failReason: nextStatus === 'failed'
+            ? '银行返回失败，请重新支付'
+            : (nextStatus === 'partial' ? '部分订单支付失败，可重新支付' : ''),
+        payMethod: 'industry',
+        subOrders: nextSubOrders
+    }, idx);
+    list[idx] = updatedRecord;
+    saveMergedOrders(list);
+    syncMockStoreFromMergedRecord(updatedRecord);
+    return updatedRecord;
 }
 
-function processPayment() {
+function renderResultSheet() {
+    const subOrders = activeMergeData.subOrders || [];
+    const totalAmount = subOrders.reduce((sum, sub) => sum + calcSubOrderAmount(sub), 0);
+    const canPartial = subOrders.length > 1;
+    document.getElementById('resultSheetSubtitle').textContent = `本次支付 ${subOrders.length} 笔，合计 ¥${formatMoney(totalAmount)}`;
+    document.getElementById('resultSheetBody').innerHTML = [
+        `<button type="button" class="result-option success" onclick="confirmPaymentOutcome('success')">
+            <div class="result-option-main">
+                <div class="result-option-icon"><i class="fas fa-circle-check"></i></div>
+                <div>
+                    <div class="result-option-title">全部成功</div>
+                    <div class="result-option-desc">全部子单支付成功，合并单进入已完成</div>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right text-gray-300"></i>
+        </button>`,
+        canPartial ? `<button type="button" class="result-option partial" onclick="confirmPaymentOutcome('partial')">
+            <div class="result-option-main">
+                <div class="result-option-icon"><i class="fas fa-circle-half-stroke"></i></div>
+                <div>
+                    <div class="result-option-title">部分成功</div>
+                    <div class="result-option-desc">仅本次部分子单成功，其余失败，可在原合并单重付</div>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right text-gray-300"></i>
+        </button>` : '',
+        `<button type="button" class="result-option failed" onclick="confirmPaymentOutcome('failed')">
+            <div class="result-option-main">
+                <div class="result-option-icon"><i class="fas fa-circle-xmark"></i></div>
+                <div>
+                    <div class="result-option-title">全部失败</div>
+                    <div class="result-option-desc">本次子单全部支付失败，可回到原合并单重新支付</div>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right text-gray-300"></i>
+        </button>`
+    ].filter(Boolean).join('');
+}
+
+function confirmPaymentOutcome(outcome) {
+    closeSheet('result');
+    startPaymentProcess(outcome);
+}
+
+function startPaymentProcess(outcome) {
     const btn = document.getElementById('payBtn');
     if (btn.disabled) return;
 
@@ -787,17 +996,51 @@ function processPayment() {
     btn.classList.add('opacity-90');
     btn.innerHTML = '<div class="spinner"></div><span class="ml-2">处理中...</span>';
 
-    setTimeout(() => {
+    setTimeout(function() {
         if (activeMergedRecord && mergeId) {
-            finalizeMergedPayment(mergeId);
+            finalizeMergedPayment(mergeId, outcome);
         }
-        btn.innerHTML = '<i class="fas fa-check-circle"></i><span class="ml-2">支付成功</span>';
-        btn.classList.add('bg-[#13b15a]');
-        showToast('支付处理完成');
-        setTimeout(() => {
+        const buttonMeta = {
+            success: {
+                text: '支付成功',
+                color: '#13b15a',
+                icon: 'fa-check-circle'
+            },
+            partial: {
+                text: '部分完成',
+                color: '#f59e0b',
+                icon: 'fa-circle-half-stroke'
+            },
+            failed: {
+                text: '支付失败',
+                color: '#ef4444',
+                icon: 'fa-circle-xmark'
+            }
+        }[outcome] || { text: '支付成功', color: '#13b15a', icon: 'fa-check-circle' };
+        btn.innerHTML = `<i class="fas ${buttonMeta.icon}"></i><span class="ml-2">${buttonMeta.text}</span>`;
+        btn.style.backgroundColor = buttonMeta.color;
+        showToast('支付结果已同步');
+        setTimeout(function() {
             history.back();
-        }, 1500);
-    }, 2000);
+        }, 1400);
+    }, 1200);
+}
+
+function showToast(msg) {
+    const tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() {
+        tip.classList.remove('show');
+    }, 2200);
+}
+
+function processPayment() {
+    const btn = document.getElementById('payBtn');
+    if (btn.disabled) return;
+    renderResultSheet();
+    openSheet('result');
 }
 
 fillPage();

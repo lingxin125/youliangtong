@@ -327,10 +327,10 @@ tailwind.config = {
           <div class="text-sm font-semibold text-cyan-600 mb-1">终端 D</div>
           <h4 class="font-serif font-bold text-lg mb-2">银行 App 跳转 H5</h4>
           <p class="text-sm text-gray-500 mb-3">移动端 H5</p>
-          <p class="text-sm text-gray-600 leading-relaxed">扫码行业支付时唤起银行 App 内付款落地页（承接订单号、金额、收款方信息）</p>
+          <p class="text-sm text-gray-600 leading-relaxed">PC 收银台扫码后唤起银行 App 内付款落地页，覆盖普通订单与合并付款两类场景（承接订单信息、付款方/收款方信息）</p>
           <div class="mt-3 pt-3 border-t border-gray-100">
             <span class="text-xs text-gray-400">原型入口：</span>
-            <span class="text-xs font-medium text-cyan-700"><code>buyer-bank-h5-pay.html</code></span>
+            <span class="text-xs font-medium text-cyan-700"><code>buyer-bank-h5-pay.html</code> / <code>buyer-bank-merge-h5.html</code></span>
           </div>
         </div>
       </div>
@@ -425,7 +425,7 @@ flowchart TD
     H3 -->|稍后结算| H4[生成待支付订单（进入合并付款池）]
     H3 -->|立即付款| H5[生成支付中订单并进入收银台]
     H4 --> J1
-    H5 --> H6{选择支付方式}
+    H5 --> H6{订单支付方式}
     H6 -->|行业支付| H7[银行转账，直接到账农户银行卡]
     H6 -->|订单付| H8[企业网银订单付：收银台仅做引导]
     H7 --> I1[支付完成，订单完成]
@@ -517,13 +517,14 @@ stateDiagram-v2
           <div>• 需求图片口径补充：收购商发布需求、农户发布需求均支持上传最多 <strong>3 张</strong>图片；编辑态保留已上传图片，可删除后重新上传。</div>
           <div>• 需求详情补充：市场详情页支持展示发布时上传的图片，最多展示 3 张缩略图，点击进入全屏预览；无图片时隐藏图片区，不展示空占位。</div>
           <div>• 订单详情编号口径更新：按状态展示分段订单号（收粮订单号 / 支付订单号），银行支付单号当前原型已下线，不再前台展示。</div>
-          <div>• 合并付款能力上线：合并付款页仅汇总待支付订单，支持勾选多笔统一支付，付款后沉淀“已完成”记录并回写子订单状态。</div>
+          <div>• 合并付款能力上线：合并付款页一级页签为<strong>待合并 / 已合并</strong>；已合并下再细分<strong>支付中 / 支付失败 / 已完成</strong>三个二级状态，发起后先进入支付中，再根据结果流转。</div>
           <div>• 首页快捷入口口径更新（收购商）：原“消息通知”位置替换为“合并付款”，用于集中处理稍后结算订单。</div>
           <div>• 发布需求页口径更新：保留收购商端与农户端两个入口页，但两端都支持切换“收购需求 / 销售需求”；字段统一为“需求类型、需求品类、需求标题、需求描述、上传图片、需求单价、单位、需求数量、地址”。</div>
           <div>• 个人信息与我的模块口径更新：顶部展示“商户名称 + 商户号（可复制）+ 身份标签（圆角）”；个人信息页移除“当前角色”。</div>
           <div>• “我的”页补充口径更新：当前前台开放“账户安全”入口用于修改登录密码；“关于我们”页面保留原型文件，但在我的模块中为 MVP 隐藏，版本号改为退出登录按钮下方静态展示。</div>
           <div>• 市场卡片口径更新：状态统一“进行中”；数量标签去掉“约/余”字样；详情入口为卡片右侧居中下钻图标。</div>
-          <div>• 收银台口径更新：支付方式为<strong>行业支付 + 订单付</strong>；PC 端不再展示数字人民币；订单付在收银台页仅做网银登录引导。</div>
+          <div>• 收银台口径更新：支付方式为<strong>行业支付 + 订单付</strong>；PC 端不再展示数字人民币；PC 收银台两种方式均改为<strong>二维码承接</strong>，商品明细模块当前前台隐藏。</div>
+          <div>• 银行 App H5 口径更新：新增<strong>普通订单 H5</strong>与<strong>合并付款 H5</strong>两类承接页，普通订单展示订单信息 / 收款方信息 / 付款方信息，合并付款展示多笔子订单与多收款方信息。</div>
           <div>• PC 收银台有效期口径：展示“请在 10天内完成支付（剩余 xx）”；顶部提示语“交易全程加密，请在有效期内完成支付”。</div>
         </div>
       </div>
@@ -604,11 +605,12 @@ stateDiagram-v2
       </div>
 
       <div class="card p-5">
-        <div class="font-serif font-bold text-forest-700 mb-3">支付与外跳页面（3）</div>
-        <div class="grid md:grid-cols-3 gap-3 text-sm">
+        <div class="font-serif font-bold text-forest-700 mb-3">支付与外跳页面（4）</div>
+        <div class="grid md:grid-cols-4 gap-3 text-sm">
           <a class="p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-white text-forest-700 hover:underline" href="./buyer-cashier.html">buyer-cashier.html<br><span class="text-xs text-gray-500">小程序收银台</span></a>
           <a class="p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-white text-forest-700 hover:underline" href="./pc-cashier.html">pc-cashier.html<br><span class="text-xs text-gray-500">PC 收银台</span></a>
           <a class="p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-white text-forest-700 hover:underline" href="./buyer-bank-h5-pay.html">buyer-bank-h5-pay.html<br><span class="text-xs text-gray-500">银行 App 扫码跳转 H5 支付页</span></a>
+          <a class="p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-white text-forest-700 hover:underline" href="./buyer-bank-merge-h5.html">buyer-bank-merge-h5.html<br><span class="text-xs text-gray-500">银行 App 合并付款 H5 页</span></a>
         </div>
       </div>
 
@@ -616,7 +618,7 @@ stateDiagram-v2
         <div class="font-serif font-bold text-forest-700 mb-2">链接核验结论</div>
         <div class="text-sm text-gray-700 space-y-1.5">
           <div>• 主可视化 PRD 中静态链接已核验通过：<code>PRD-收粮平台-功能模块版.html</code>、<code>需求标注-收购商农户.html</code> 可访问。</div>
-          <div>• 页面清单区静态跳转链接已核验通过（含新增 <code>buyer-merge-pay.html</code> 与 <code>about-us.html</code>）。</div>
+          <div>• 页面清单区静态跳转链接已核验通过（含新增 <code>buyer-merge-pay.html</code>、<code>buyer-bank-merge-h5.html</code> 与 <code>about-us.html</code>）。</div>
           <div>• 页面内动态拼接链接（如 <code>${backLink}</code>）为运行时变量，不纳入静态断链判定。</div>
         </div>
       </div>
@@ -1045,7 +1047,7 @@ stateDiagram-v2
             <span class="inline-flex items-center justify-center w-10 h-10 bg-orange-600 text-white rounded-lg font-serif font-bold text-sm">10</span>
             <div>
               <h4 class="font-serif font-bold text-forest-800">小程序收银台支付</h4>
-              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 选择支付方式（行业支付/订单付）完成付款</p>
+              <p class="text-xs text-gray-500 mt-0.5">收购商 → 小程序 → 按订单既定支付方式进入对应付款指引并查询结果</p>
             </div>
           </div>
           <span class="arrow text-forest-400 text-xl">▶</span>
@@ -1054,32 +1056,33 @@ stateDiagram-v2
           <div class="p-5 border-t border-gray-100">
             <div class="mb-5 p-4 bg-wheat-50 rounded-xl border border-wheat-200">
               <div class="text-xs font-semibold text-wheat-600 mb-2">💡 价值陈述</div>
-              <p class="text-sm text-gray-700"><strong>作为</strong>收购商，<strong>我希望</strong>在小程序收银台中选择支付方式并完成付款，<strong>以便于</strong>将收购款安全、快捷地支付给农户。</p>
+              <p class="text-sm text-gray-700"><strong>作为</strong>收购商，<strong>我希望</strong>在小程序收银台中按订单既定支付方式完成付款指引与状态查询，<strong>以便于</strong>将收购款安全、快捷地支付给农户。</p>
             </div>
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-forest-700 mb-3">📋 操作流程</h5>
               <div class="space-y-2 text-sm text-gray-600">
-                <div class="flex gap-2"><span class="text-orange-500 font-bold">1.</span> 收银台展示：订单金额、收款方、收款银行、支付方式选择</div>
-                <div class="flex gap-2"><span class="text-orange-500 font-bold">2.</span> 选择支付方式：</div>
+                <div class="flex gap-2"><span class="text-orange-500 font-bold">1.</span> 收银台展示：付款金额、当前收款方、当前支付方式对应的付款指引</div>
+                <div class="flex gap-2"><span class="text-orange-500 font-bold">2.</span> 按订单支付方式渲染对应引导：</div>
               </div>
               <div class="ml-6 mt-2 grid md:grid-cols-2 gap-3">
                 <div class="p-3 bg-green-50 rounded-lg border border-green-200">
                   <div class="font-semibold text-sm text-green-700 mb-1">💰 行业支付（银行转账）</div>
-                  <div class="text-xs text-gray-600">直接到账农户银行卡，适合常规交易</div>
+                  <div class="text-xs text-gray-600">展示二维码，提示打开邮储银行 APP 扫码付款</div>
                 </div>
                 <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <div class="font-semibold text-sm text-blue-700 mb-1">🔒 订单付（企业网银）</div>
-                  <div class="text-xs text-gray-600">收银台仅做支付引导，企业需登录企业网银完成订单支付</div>
+                  <div class="text-xs text-gray-600">展示企业网银订单付步骤，用户在银行侧完成支付后返回小程序查询结果</div>
                 </div>
               </div>
               <div class="space-y-2 text-sm text-gray-600 mt-3">
-                <div class="flex gap-2"><span class="text-orange-500 font-bold">3.</span> 点击"确认付款" → 跳转银行 APP 完成支付</div>
-                <div class="flex gap-2"><span class="text-orange-500 font-bold">4.</span> 支付成功 → 返回小程序展示成功页（金额、订单号、时间、支付方式、付款方、收款方）</div>
+                <div class="flex gap-2"><span class="text-orange-500 font-bold">3.</span> 用户完成银行侧付款后，返回当前页面点击“刷新支付状态”</div>
+                <div class="flex gap-2"><span class="text-orange-500 font-bold">4.</span> 支付成功 → 跳转结果页，展示金额、订单号、时间、付款方、收款方与商品明细</div>
               </div>
             </div>
             <div class="mb-5">
               <h5 class="font-serif font-bold text-sm text-red-600 mb-3">⚠️ 关键业务规则</h5>
               <div class="grid md:grid-cols-2 gap-2 text-sm">
+                <div class="p-2.5 bg-emerald-50 rounded-lg text-emerald-700 border border-emerald-200">🧭 真实场景下支付方式由上游订单确定；原型右下角悬浮按钮仅用于演示切换渠道</div>
                 <div class="p-2.5 bg-amber-50 rounded-lg text-amber-800 border border-amber-200">⏱ 支付中途退出 → 订单"待支付"，<strong>30 分钟内</strong>可继续支付</div>
                 <div class="p-2.5 bg-red-50 rounded-lg text-red-700 border border-red-200">⏰ 超过 30 分钟未支付 → 订单<strong>自动取消</strong></div>
               </div>
@@ -1093,21 +1096,19 @@ stateDiagram-v2
 │  ← 返回     收银台      │
 ├────────────────────────┤
 │  ┌────────────────────┐│
+│  │    向李大姐付款     ││
 │  │    ¥ 5,000.00      ││
-│  │    订单金额         ││
-│  └────────────────────┘│
-│  收款方：李大姐         │
-│  收款银行：邮储银行     │
-│  ── 选择支付方式 ────  │
-│  ┌────────────────────┐│
-│  │ ○ 行业支付（转账）  ││
-│  ├────────────────────┤│
-│  │ ○ 订单付（网银）    ││
+│  │     付款金额        ││
 │  └────────────────────┘│
 │  ┌────────────────────┐│
-│  │     确认付款        ││
+│  │ 行业支付 / 订单付   ││
+│  │ 对应付款指引卡片    ││
+│  │ 二维码或步骤说明    ││
 │  └────────────────────┘│
-│  ⏱ 30分钟内完成支付    │
+│  ┌────────────────────┐│
+│  │   刷新支付状态      ││
+│  └────────────────────┘│
+│    [悬浮按钮:演示切换]  │
 └────────────────────────┘</div>
                 </div>
                 <div>
@@ -1158,14 +1159,16 @@ stateDiagram-v2
                 <div>• 收购商 PC 端系统调用我方支付接口 → 跳转 <code>pc-cashier.html</code>。</div>
                 <div>• 顶部品牌口径：<strong>微邮付收银台</strong>；文案“交易全程加密，请在有效期内完成支付”。</div>
                 <div>• 支付方式仅保留两种：<strong>行业支付</strong>、<strong>订单付</strong>（已移除数字人民币、三方代付）。</div>
-                <div>• 行业支付：展示二维码与“行业支付信息”；点击“已完成支付”后执行支付结果查询。</div>
-                <div>• 订单付：不在收银台内直接扣款，仅展示企业网银引导（提示“请某公司登录企业网银完成订单支付”）。</div>
+                <div>• 收银台前台不提供人工切换支付方式；真实场景由上游订单确定支付渠道，原型通过右下角悬浮预设切换演示场景。</div>
+                <div>• 行业支付 / 订单付当前均展示二维码；点击“已完成支付”后执行支付结果查询。</div>
+                <div>• 左侧信息区整合展示订单信息、付款方信息；右侧展示收款方信息。商品明细模块当前原型前台隐藏。</div>
+                <div>• 合并付款场景支持展示多个子订单与多个收款方，默认预览 1 笔订单 / 1 户收款人，并通过弹窗查看全部明细。</div>
                 <div>• 倒计时口径：页面提示“请在 10天内完成支付（剩余 xx）”。</div>
-                <div>• App 扫码落地页入口：<code>buyer-bank-h5-pay.html</code>（手机银行侧支付承接页）。</div>
+                <div>• App 扫码落地页入口：<code>buyer-bank-h5-pay.html</code>（普通订单）与 <code>buyer-bank-merge-h5.html</code>（合并付款）。</div>
               </div>
             </div>
             <div class="p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm text-blue-700">
-              <strong>技术备注：</strong>PC 收银台负责“展示订单 + 选择渠道 + 引导完成支付 + 查询支付状态”，真实支付处理依赖银行侧回调与订单状态查询接口。
+              <strong>技术备注：</strong>PC 收银台负责“展示订单 + 按渠道承接二维码/信息 + 引导完成支付 + 查询支付状态”，真实支付处理依赖银行侧回调与订单状态查询接口。
             </div>
           </div>
         </div>
@@ -1236,7 +1239,9 @@ stateDiagram-v2
                 <div>• 已取消订单号展示：按撤销来源展示，待支付撤销显示 1 段号，支付中撤销显示 2 段号</div>
                 <div>• "待支付/支付中"状态<strong>不展示</strong>支付方式，支付成功/失败/已取消展示支付信息</div>
                 <div>• 超时文案统一口径：<strong>超时未支付，系统自动取消</strong>（收银台/订单列表/订单详情保持一致）</div>
-                <div>• 合并付款入口仅处理待支付订单，合并成功后子订单状态回写为支付成功</div>
+                <div>• 合并付款页仅处理待支付订单：一级页签为<strong>待合并 / 已合并</strong>，已合并页签下按<strong>支付中 / 支付失败 / 已完成</strong>细分。
+                <div>• 发起合并支付后，批次先进入“已合并 &gt; 支付中”；支付成功后进入“已合并 &gt; 已完成”；支付失败后保留在“已合并 &gt; 支付失败”。</div>
+                <div>• 一批合并单不存在“部分成功 / 部分失败”；失败批次不回退到待合并池，需按失败批次单独处理。</div></div>
               </div>
             </div>
             <div>
@@ -1332,7 +1337,7 @@ stateDiagram-v2
             <span class="inline-flex items-center justify-center w-10 h-10 bg-teal-600 text-white rounded-lg font-serif font-bold text-sm">15</span>
             <div>
               <h4 class="font-serif font-bold text-forest-800">个人中心（"我的"页面）</h4>
-              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 查看个人信息、邀请农户、消息通知、账户安全与系统设置</p>
+              <p class="text-xs text-gray-500 mt-0.5">收购商/农户 → 小程序 → 查看个人信息、邀请农户、消息通知、账户安全、版本信息与退出登录</p>
             </div>
           </div>
           <span class="arrow text-forest-400 text-xl">▶</span>

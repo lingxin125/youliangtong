@@ -144,33 +144,8 @@
         <div class="glass-panel rounded-2xl mt-3 overflow-hidden">
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
-                    <i class="fas fa-shuffle text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">需求类型 <span class="text-red-400">*</span></span>
-                </div>
-                <div class="grid grid-cols-2 gap-3" id="demandTypeGroup">
-                    <button type="button" class="type-option purchase" id="typePurchaseBtn" onclick="selectDemandType('purchase')">
-                        <div class="type-icon"><i class="fas fa-cart-shopping text-sm"></i></div>
-                        <div class="text-left min-w-0">
-                            <div class="text-sm font-semibold text-gray-800">收购需求</div>
-                            <div class="text-[11px] text-gray-500 mt-0.5">我要找货源</div>
-                        </div>
-                    </button>
-                    <button type="button" class="type-option sale" id="typeSaleBtn" onclick="selectDemandType('sale')">
-                        <div class="type-icon"><i class="fas fa-seedling text-sm"></i></div>
-                        <div class="text-left min-w-0">
-                            <div class="text-sm font-semibold text-gray-800">销售需求</div>
-                            <div class="text-[11px] text-gray-500 mt-0.5">我要卖货源</div>
-                        </div>
-                    </button>
-                </div>
-            </div>
-
-            <div class="border-t border-gray-100"></div>
-
-            <div class="p-4">
-                <div class="flex items-center gap-2 mb-3">
                     <i class="fas fa-apple-whole text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">需求品类 <span class="text-red-400">*</span></span>
+                    <span class="text-sm font-medium text-gray-700">收购品类 <span class="text-red-400">*</span></span>
                 </div>
                 <div class="grid grid-cols-4 gap-2" id="cateGrid">
                     <div class="category-tag bg-red-50" data-cate="水果" data-border="border-red-200" onclick="selectCate(this)"><i class="fas fa-apple-whole text-xs"></i>水果</div>
@@ -187,9 +162,9 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fas fa-edit text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">需求标题 <span class="text-red-400">*</span></span>
+                    <span class="text-sm font-medium text-gray-700">收购标题 <span class="text-red-400">*</span></span>
                 </div>
-                <input type="text" id="titleInput" class="custom-input mb-2" placeholder="请输入清晰的需求标题" maxlength="20">
+                <input type="text" id="titleInput" class="custom-input mb-2" placeholder="请输入清晰的收购标题" maxlength="20">
                 <div class="flex justify-end items-center">
                     <!-- <span class="text-[11px] text-gray-400">建议写清品种、规格或交易意向</span> -->
                     <span class="text-[10px] text-gray-400" id="titleCount">0/20</span>
@@ -201,9 +176,9 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fas fa-note-sticky text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">需求描述 <span class="text-gray-400 text-xs font-normal">（选填）</span></span>
+                    <span class="text-sm font-medium text-gray-700">收购描述 <span class="text-gray-400 text-xs font-normal">（选填）</span></span>
                 </div>
-                <textarea id="descInput" rows="3" class="custom-input resize-none" placeholder="补充描述品种、规格、品质要求、交付方式等"></textarea>
+                <textarea id="descInput" rows="3" class="custom-input resize-none" placeholder="补充描述收购品种、规格、品质要求、交付方式等"></textarea>
             </div>
 
             <div class="border-t border-gray-100"></div>
@@ -221,7 +196,7 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fas fa-tag text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">需求单价 <span class="text-gray-400 text-xs font-normal">（选填）</span></span>
+                    <span class="text-sm font-medium text-gray-700">收购单价 <span class="text-gray-400 text-xs font-normal">（选填）</span></span>
                 </div>
                 <div class="grid grid-cols-[1fr_116px] gap-3">
                     <div>
@@ -249,9 +224,9 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fas fa-weight-hanging text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">需求数量 <span class="text-red-400">*</span></span>
+                    <span class="text-sm font-medium text-gray-700">收购数量 <span class="text-red-400">*</span></span>
                 </div>
-                <input type="number" id="qtyInput" class="custom-input" placeholder="请输入需求数量">
+                <input type="number" id="qtyInput" class="custom-input" placeholder="请输入收购数量">
             </div>
 
             <div class="border-t border-gray-100"></div>
@@ -259,10 +234,10 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fas fa-location-dot text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">地址 <span class="text-red-400">*</span></span>
+                    <span class="text-sm font-medium text-gray-700">收购地址 <span class="text-red-400">*</span></span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <input type="text" id="locationInput" class="custom-input flex-1" placeholder="请输入需求地址">
+                    <input type="text" id="locationInput" class="custom-input flex-1" placeholder="请输入收购地址">
                     <button id="locateBtn" type="button" class="shrink-0 px-3 py-2.5 text-xs font-medium rounded-xl border border-primary/30 text-primary bg-primary/5" onclick="fillCurrentLocation()">
                         <i class="fas fa-location-crosshairs mr-1"></i>定位
                     </button>
@@ -286,7 +261,7 @@
 
 <script>
 const PAGE_ROLE = 'buyer';
-const DEFAULT_DEMAND_TYPE = 'purchase';
+const FIXED_DEMAND_TYPE = 'purchase';
 const MARKET_PAGE = 'buyer-market.html';
 const MANAGE_PAGE = 'buyer-demand-manage.html';
 const HOME_PAGE = 'buyer-home.html';
@@ -304,7 +279,6 @@ const editingDemand = (isEdit || isView) && demandStore && typeof demandStore.fi
     ? demandStore.findDemandById(editId)
     : null;
 let selectedCategory = '';
-let selectedDemandType = DEFAULT_DEMAND_TYPE;
 let uploadedImages = [];
 
 let backLink = MARKET_PAGE;
@@ -317,7 +291,7 @@ if ((isEdit || isView) && fromPage === 'manage') {
 }
 
 document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader(isView ? '需求详情' : (isEdit ? '编辑需求' : '发布需求'), backLink);
+document.getElementById('navBar').innerHTML = renderHeader(isView ? '收购详情' : (isEdit ? '编辑收购需求' : '发布收购需求'), backLink);
 
 if (isEdit) {
     document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save mr-1"></i>保存需求';
@@ -332,7 +306,6 @@ document.getElementById('titleInput').addEventListener('input', function() {
     document.getElementById('titleCount').classList.toggle('text-red-400', count >= 20);
     document.getElementById('titleCount').classList.toggle('text-gray-400', count < 20);
 });
-document.getElementById('unitInput').addEventListener('input', updatePricePlaceholder);
 document.getElementById('negotiableCheckbox').addEventListener('change', toggleNegotiableState);
 
 var queryDemand = parseDemandFromQuery();
@@ -346,17 +319,9 @@ if (queryDemand) {
 if (formDemand) {
     hydrateForm(formDemand);
 } else {
-    selectDemandType(DEFAULT_DEMAND_TYPE);
     renderImageUploader();
     updatePricePlaceholder();
     toggleNegotiableState();
-}
-
-function normalizeDemandTypeValue(value) {
-    if (value === 'sale' || value === 'purchase') return value;
-    if (value === 'farmer') return 'sale';
-    if (value === 'buyer') return 'purchase';
-    return DEFAULT_DEMAND_TYPE;
 }
 
 function lockReadonlyView() {
@@ -367,11 +332,6 @@ function lockReadonlyView() {
         tag.removeAttribute('onclick');
         tag.style.cursor = 'default';
     });
-    document.querySelectorAll('.type-option').forEach(function(button) {
-        button.disabled = true;
-        button.style.cursor = 'default';
-    });
-
     ['titleInput', 'descInput', 'locationInput', 'qtyInput', 'priceInput'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.readOnly = true;
@@ -411,7 +371,7 @@ function parseDemandFromQuery() {
 
     return {
         role: PAGE_ROLE,
-        demandType: normalizeDemandTypeValue(demandType),
+        demandType: FIXED_DEMAND_TYPE,
         category: category || '其他',
         title: title,
         content: content,
@@ -421,15 +381,6 @@ function parseDemandFromQuery() {
         unit: unit || '斤',
         price: price
     };
-}
-
-function selectDemandType(type) {
-    if (isView) return;
-    selectedDemandType = normalizeDemandTypeValue(type);
-    var purchaseBtn = document.getElementById('typePurchaseBtn');
-    var saleBtn = document.getElementById('typeSaleBtn');
-    purchaseBtn.classList.toggle('active', selectedDemandType === 'purchase');
-    saleBtn.classList.toggle('active', selectedDemandType === 'sale');
 }
 
 function selectCate(el) {
@@ -468,9 +419,6 @@ function toggleNegotiableState() {
 
 function hydrateForm(demand) {
     selectedCategory = demand.category || '';
-    selectedDemandType = normalizeDemandTypeValue(demand.demandType || demand.role);
-    selectDemandType(selectedDemandType);
-
     document.querySelectorAll('.category-tag').forEach(function(btn) {
         var isActive = (btn.getAttribute('data-cate') || '') === selectedCategory;
         btn.classList.toggle('active', isActive);
@@ -615,16 +563,12 @@ function submitDemand() {
     const isNegotiable = document.getElementById('negotiableCheckbox').checked;
     document.getElementById('unitInput').value = unit;
 
-    if (!selectedDemandType) {
-        showToast('请选择需求类型');
-        return;
-    }
     if (!selectedCategory) {
-        showToast('请选择需求品类');
+        showToast('请选择收购品类');
         return;
     }
     if (!title) {
-        showToast('请填写需求标题');
+        showToast('请填写收购标题');
         return;
     }
     if (!qty || qty <= 0) {
@@ -632,13 +576,13 @@ function submitDemand() {
         return;
     }
     if (!location) {
-        showToast('请填写地址');
+        showToast('请填写收购地址');
         return;
     }
 
     const payload = {
         role: PAGE_ROLE,
-        demandType: selectedDemandType,
+        demandType: FIXED_DEMAND_TYPE,
         category: selectedCategory,
         title: title,
         content: desc,

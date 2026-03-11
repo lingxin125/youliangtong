@@ -84,6 +84,10 @@
             background: linear-gradient(145deg, rgba(239, 68, 68, 0.06) 0%, #FFFFFF 100%) !important;
             border: 1px solid rgba(239, 68, 68, 0.12);
         }
+        .merged-group-card--partial {
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.08) 0%, #FFFFFF 100%) !important;
+            border: 1px solid rgba(245, 158, 11, 0.16);
+        }
         .merged-group-card--success {
             background: linear-gradient(145deg, rgba(17, 166, 74, 0.06) 0%, #FFFFFF 100%) !important;
             border: 1px solid rgba(17, 166, 74, 0.12);
@@ -259,8 +263,7 @@
         <div class="merged-filter-bar">
             <div class="merged-segment">
                 <button id="mergedTabProcessing" class="merged-segment-item active" onclick="switchMergedStatus('processing')">支付中 (<span id="countMergedProcessing">0</span>)</button>
-                <button id="mergedTabFailed" class="merged-segment-item" onclick="switchMergedStatus('failed')">支付失败 (<span id="countMergedFailed">0</span>)</button>
-                <button id="mergedTabSuccess" class="merged-segment-item" onclick="switchMergedStatus('success')">已完成 (<span id="countMergedSuccess">0</span>)</button>
+                <button id="mergedTabCompleted" class="merged-segment-item" onclick="switchMergedStatus('completed')">已完成 (<span id="countMergedCompleted">0</span>)</button>
             </div>
         </div>
 
@@ -296,7 +299,7 @@ const mockStore = window.BuyerMockStore || null;
 const MERGED_STORAGE_KEY = 'MERGED_ORDERS';
 const state = {
     currentTab: urlQs.get('tab') === 'merged' ? 'merged' : 'mergeable',
-    currentMergedStatus: ['processing', 'failed', 'success'].includes(urlQs.get('mergedStatus')) ? urlQs.get('mergedStatus') : 'processing',
+    currentMergedStatus: ['completed', 'failed', 'success'].includes(urlQs.get('mergedStatus')) ? 'completed' : 'processing',
     selectedIds: new Set(),
     mergeableOrders: [],
     mergedOrders: []
@@ -320,7 +323,7 @@ function normalizeOrderStatus(status) {
 function normalizeMergedStatus(status) {
     if (status === 'paid' || status === 'completed') return 'success';
     if (status === 'paying') return 'processing';
-    if (status === 'processing' || status === 'failed' || status === 'success') return status;
+    if (status === 'processing' || status === 'failed' || status === 'success' || status === 'partial') return status;
     return 'processing';
 }
 
@@ -382,18 +385,72 @@ function buildSubOrderFromOrder(order, index, mergeId, status) {
         createdAt: order.createdAt || new Date().toISOString(),
         createTime: order.createdAt || new Date().toISOString(),
         items: Array.isArray(order.items) ? order.items : [],
-        status,
+        status: normalizeMergedStatus(status),
+        paidAt: order.paidAt || '',
+        failReason: order.failReason || '',
         mergeId
     };
 }
 
+function getSubOrderStatus(status, fallbackStatus) {
+    return normalizeMergedStatus(status || fallbackStatus || 'processing');
+}
+
+function resolveMergedStatusFromSubOrders(subOrders, fallbackStatus) {
+    if (!Array.isArray(subOrders) || subOrders.length === 0) {
+        return normalizeMergedStatus(fallbackStatus);
+    }
+
+    const counts = { processing: 0, success: 0, failed: 0 };
+    subOrders.forEach(function(sub) {
+        const subStatus = getSubOrderStatus(sub.status, fallbackStatus);
+        if (subStatus === 'processing') counts.processing += 1;
+        if (subStatus === 'success') counts.success += 1;
+        if (subStatus === 'failed') counts.failed += 1;
+    });
+
+    if (counts.processing > 0) return 'processing';
+    if (counts.success > 0 && counts.failed > 0) return 'partial';
+    if (counts.success > 0) return 'success';
+    if (counts.failed > 0) return 'failed';
+    return normalizeMergedStatus(fallbackStatus);
+}
+
+function getMergedStatusBreakdown(record) {
+    const counts = { processing: 0, success: 0, failed: 0 };
+    (record && Array.isArray(record.subOrders) ? record.subOrders : []).forEach(function(sub) {
+        const subStatus = getSubOrderStatus(sub.status, record && record.status);
+        if (subStatus === 'processing') counts.processing += 1;
+        if (subStatus === 'success') counts.success += 1;
+        if (subStatus === 'failed') counts.failed += 1;
+    });
+    return counts;
+}
+
+function getFailedSubOrders(record) {
+    return (record && Array.isArray(record.subOrders) ? record.subOrders : []).filter(function(sub) {
+        return getSubOrderStatus(sub.status, record && record.status) === 'failed';
+    });
+}
+
+function getProcessingSubOrders(record) {
+    return (record && Array.isArray(record.subOrders) ? record.subOrders : []).filter(function(sub) {
+        return getSubOrderStatus(sub.status, record && record.status) === 'processing';
+    });
+}
+
+function hasFailedSubOrders(record) {
+    return getFailedSubOrders(record).length > 0;
+}
+
 function normalizeMergedRecord(record, idx) {
-    const status = normalizeMergedStatus(record.status);
+    const fallbackStatus = normalizeMergedStatus(record.status);
     const mergeId = record.id || `HB${Date.now()}${idx || 0}`;
     const createdAt = record.createdAt || record.updatedAt || new Date().toISOString();
     const subOrders = (record.subOrders || []).map((sub, subIdx) => {
         const paymentOrderNo = sub.paymentOrderNo || `ZF${String(mergeId).replace(/\D/g, '').slice(-10)}${String(subIdx + 1).padStart(2, '0')}`;
         const amount = Number(sub.amount || calcItemsAmount(sub.items));
+        const subStatus = getSubOrderStatus(sub.status, fallbackStatus);
         return {
             id: sub.id || sub.grainOrderNo || `${mergeId}-${subIdx + 1}`,
             grainOrderNo: sub.grainOrderNo || sub.id || `${mergeId}-${subIdx + 1}`,
@@ -409,10 +466,14 @@ function normalizeMergedRecord(record, idx) {
             createdAt: sub.createdAt || sub.createTime || createdAt,
             createTime: sub.createTime || sub.createdAt || createdAt,
             items: Array.isArray(sub.items) ? sub.items : [],
-            status,
+            status: subStatus,
+            paidAt: sub.paidAt || '',
+            failReason: sub.failReason || '',
             mergeId
         };
     });
+    const status = resolveMergedStatusFromSubOrders(subOrders, fallbackStatus);
+    const firstFailed = subOrders.find(function(sub) { return sub.status === 'failed' && sub.failReason; });
     return {
         id: mergeId,
         status,
@@ -420,7 +481,7 @@ function normalizeMergedRecord(record, idx) {
         createdAt,
         updatedAt: record.updatedAt || record.paidAt || record.failedAt || createdAt,
         paidAt: record.paidAt || '',
-        failReason: record.failReason || '',
+        failReason: record.failReason || (firstFailed ? firstFailed.failReason : ''),
         payMethod: record.payMethod || 'industry',
         subOrders
     };
@@ -508,18 +569,21 @@ function loadStoredMergedOrders(allOrders) {
 
 function syncSubOrdersStatus(mergedRecord, status, extraPatch = {}) {
     if (!mockStore || !mockStore.updateOrder) return;
-    mergedRecord.subOrders.forEach(sub => {
+    const fallbackStatus = normalizeMergedStatus(status || mergedRecord.status);
+    mergedRecord.subOrders.forEach(function(sub) {
+        const subStatus = getSubOrderStatus(sub.status, fallbackStatus);
         mockStore.updateOrder(sub.id, {
-            status,
+            status: subStatus,
             payMethod: extraPatch.payMethod || mergedRecord.payMethod || 'industry',
             paymentOrderNo: sub.paymentOrderNo || '',
-            paidAt: extraPatch.paidAt || '',
-            failReason: extraPatch.failReason || ''
+            paidAt: extraPatch.paidAt !== undefined ? extraPatch.paidAt : (sub.paidAt || ''),
+            failReason: extraPatch.failReason !== undefined ? extraPatch.failReason : (sub.failReason || '')
         });
     });
 }
 
 function upsertMergedRecord(record) {
+
     const normalized = normalizeMergedRecord(record);
     const list = state.mergedOrders.slice();
     const idx = list.findIndex(item => item.id === normalized.id);
@@ -559,9 +623,9 @@ function syncTabs() {
     document.getElementById('panelMergeable').classList.toggle('hidden', state.currentTab !== 'mergeable');
     document.getElementById('panelMerged').classList.toggle('hidden', state.currentTab !== 'merged');
     document.getElementById('mergedTabProcessing').classList.toggle('active', state.currentMergedStatus === 'processing');
-    document.getElementById('mergedTabFailed').classList.toggle('active', state.currentMergedStatus === 'failed');
-    document.getElementById('mergedTabSuccess').classList.toggle('active', state.currentMergedStatus === 'success');
+    document.getElementById('mergedTabCompleted').classList.toggle('active', state.currentMergedStatus === 'completed');
 }
+
 
 function toggleSelect(orderId, e) {
     if (e) e.stopPropagation();
@@ -586,14 +650,50 @@ function toggleSelectAll() {
     renderMergeableList();
 }
 
-function getMergedStatusMeta(status) {
+function getOrderStatusMeta(status) {
+    const normalizedStatus = normalizeMergedStatus(status);
+    if (normalizedStatus === 'failed') {
+        return {
+            label: '支付失败',
+            chipClass: 'bg-red-50 text-red-600 border border-red-100',
+            amountClass: 'text-red-600'
+        };
+    }
+    if (normalizedStatus === 'success') {
+        return {
+            label: '支付成功',
+            chipClass: 'bg-green-50 text-green-700 border border-green-100',
+            amountClass: 'text-gray-900'
+        };
+    }
+    return {
+        label: '支付中',
+        chipClass: 'bg-sky-50 text-sky-600 border border-sky-100',
+        amountClass: 'text-sky-700'
+    };
+}
+
+function getMergedStatusMeta(merged) {
+    const status = resolveMergedStatusFromSubOrders(merged.subOrders, merged.status);
+    const counts = getMergedStatusBreakdown(merged);
     if (status === 'failed') {
         return {
             label: '支付失败',
             chipClass: 'bg-red-50 text-red-600 border border-red-100',
             amountClass: 'text-red-600',
             cardClass: 'merged-group-card merged-group-card--failed',
-            helper: '本次合并支付失败，可重新发起支付'
+            helper: `共 ${counts.failed} 笔支付失败，可重新支付`,
+            helperClass: 'text-red-500'
+        };
+    }
+    if (status === 'partial') {
+        return {
+            label: '部分完成',
+            chipClass: 'bg-amber-50 text-amber-700 border border-amber-100',
+            amountClass: 'text-amber-700',
+            cardClass: 'merged-group-card merged-group-card--partial',
+            helper: `已成功 ${counts.success} 笔，失败 ${counts.failed} 笔`,
+            helperClass: 'text-amber-600'
         };
     }
     if (status === 'success') {
@@ -602,7 +702,8 @@ function getMergedStatusMeta(status) {
             chipClass: 'bg-green-50 text-green-700 border border-green-100',
             amountClass: 'text-gray-900',
             cardClass: 'merged-group-card merged-group-card--success',
-            helper: '本次合并支付已完成'
+            helper: `共 ${counts.success} 笔，已全部支付成功`,
+            helperClass: 'text-green-600'
         };
     }
     return {
@@ -610,12 +711,19 @@ function getMergedStatusMeta(status) {
         chipClass: 'bg-sky-50 text-sky-600 border border-sky-100',
         amountClass: 'text-sky-700',
         cardClass: 'merged-group-card merged-group-card--processing',
-        helper: '已发起合并支付，等待支付结果'
+        helper: counts.success > 0
+            ? `待处理 ${counts.processing} 笔，已成功 ${counts.success} 笔`
+            : `共 ${counts.processing} 笔支付处理中`,
+        helperClass: 'text-sky-600'
     };
 }
 
 function getFilteredMergedOrders() {
-    return state.mergedOrders.filter(item => normalizeMergedStatus(item.status) === state.currentMergedStatus);
+    return state.mergedOrders.filter(function(item) {
+        const mergedStatus = resolveMergedStatusFromSubOrders(item.subOrders, item.status);
+        if (state.currentMergedStatus === 'processing') return mergedStatus === 'processing';
+        return mergedStatus !== 'processing';
+    });
 }
 
 function render() {
@@ -627,18 +735,21 @@ function render() {
 }
 
 function renderCounts() {
-    const processingCount = state.mergedOrders.filter(item => normalizeMergedStatus(item.status) === 'processing').length;
-    const failedCount = state.mergedOrders.filter(item => normalizeMergedStatus(item.status) === 'failed').length;
-    const successCount = state.mergedOrders.filter(item => normalizeMergedStatus(item.status) === 'success').length;
+    const processingCount = state.mergedOrders.filter(function(item) {
+        return resolveMergedStatusFromSubOrders(item.subOrders, item.status) === 'processing';
+    }).length;
+    const completedCount = state.mergedOrders.filter(function(item) {
+        return resolveMergedStatusFromSubOrders(item.subOrders, item.status) !== 'processing';
+    }).length;
 
     document.getElementById('countMergeable').textContent = state.mergeableOrders.length;
     document.getElementById('countMerged').textContent = state.mergedOrders.length;
     document.getElementById('countMergedProcessing').textContent = processingCount;
-    document.getElementById('countMergedFailed').textContent = failedCount;
-    document.getElementById('countMergedSuccess').textContent = successCount;
+    document.getElementById('countMergedCompleted').textContent = completedCount;
 }
 
 function renderBottomBar() {
+
     const bottomBar = document.getElementById('bottomBar');
     const shouldShowBottom = state.currentTab === 'mergeable' && state.mergeableOrders.length > 0;
     bottomBar.classList.toggle('hidden', !shouldShowBottom);
@@ -721,15 +832,10 @@ function renderMergedList() {
                 title: '暂无支付中合并记录',
                 desc: '发起合并支付后，将在此跟踪支付状态'
             },
-            failed: {
-                icon: 'fa-circle-exclamation',
-                title: '暂无支付失败记录',
-                desc: '支付失败的合并批次将在此保留，可重新支付'
-            },
-            success: {
+            completed: {
                 icon: 'fa-circle-check',
                 title: '暂无已完成合并记录',
-                desc: '支付完成的合并批次将在此沉淀历史记录'
+                desc: '已完成中会展示成功、失败和部分完成的合并批次'
             }
         }[state.currentMergedStatus];
         document.getElementById('emptyMergedIcon').className = `fas ${emptyMeta.icon} text-gray-300 text-2xl`;
@@ -739,10 +845,19 @@ function renderMergedList() {
     }
     empty.classList.add('hidden');
 
-    container.innerHTML = filtered.map((merged) => {
+    container.innerHTML = filtered.map(function(merged) {
         const domId = merged.id;
-        const meta = getMergedStatusMeta(merged.status);
-        const subHtml = merged.subOrders.map((sub, subIdx) => {
+        const meta = getMergedStatusMeta(merged);
+        const mergedStatus = resolveMergedStatusFromSubOrders(merged.subOrders, merged.status);
+        const retryableSubOrders = getFailedSubOrders(merged);
+        const hasRetryAction = mergedStatus !== 'processing' && retryableSubOrders.length > 0;
+        const headerPaddingClass = hasRetryAction ? 'pr-[110px] min-h-[92px]' : 'pr-12';
+        const rightActionsHtml = hasRetryAction
+            ? `<div class="absolute right-4 top-4 flex flex-col items-end gap-2"><i id="micon-${domId}" class="fas fa-chevron-down text-gray-400 text-[13px] transition-transform duration-200"></i><button type="button" class="text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-red-200 text-red-600 bg-red-50 active:scale-[0.98]" onclick="retryMergePay('${domId}', event)">重新支付</button></div>`
+            : `<i id="micon-${domId}" class="fas fa-chevron-down text-gray-400 text-[13px] absolute right-4 top-4 transition-transform duration-200"></i>`;
+
+        const subHtml = merged.subOrders.map(function(sub, subIdx) {
+            const subMeta = getOrderStatusMeta(sub.status);
             const isLast = subIdx === merged.subOrders.length - 1;
             const borderClass = isLast ? '' : 'border-b border-gray-100/50';
             return `
@@ -751,16 +866,16 @@ function renderMergedList() {
                         <div class="text-[15px] text-gray-800 font-semibold" style="font-family:Poppins, sans-serif;">
                             ${smartTime(sub.createdAt || merged.createdAt)}
                         </div>
-                        <div class="${meta.chipClass} text-[11px] px-2 py-0.5 rounded-md font-medium">${meta.label}</div>
+                        <div class="${subMeta.chipClass} text-[11px] px-2 py-0.5 rounded-md font-medium">${subMeta.label}</div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <div class="text-[13px] text-gray-500 font-medium flex items-center gap-1.5">
+                    <div class="flex justify-between items-center gap-4">
+                        <div class="text-[13px] text-gray-500 font-medium flex items-center gap-1.5 min-w-0">
                             <div class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
                                 <i class="fas fa-user text-[10px] text-gray-400"></i>
                             </div>
-                            付给 ${sub.payeeName || '未知'}
+                            <span class="truncate">付给 ${sub.payeeName || '未知'}</span>
                         </div>
-                        <div class="text-[18px] font-bold ${meta.amountClass}" style="font-family:Poppins;">
+                        <div class="text-[18px] font-bold ${subMeta.amountClass}" style="font-family:Poppins;">
                             ¥${fmt(sub.amount)}
                         </div>
                     </div>
@@ -770,16 +885,14 @@ function renderMergedList() {
 
         return `
             <div class="${meta.cardClass} mb-3">
-                <div class="px-4 py-3.5 pr-10 relative cursor-pointer" onclick="toggleMerged('${domId}')">
-                    <i id="micon-${domId}" class="fas fa-chevron-down text-gray-400 text-[13px] absolute right-4 top-1/2 -translate-y-1/2 transition-transform duration-200"></i>
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-2 text-gray-800">
-                            <span class="text-[15px] font-semibold" style="font-family:Poppins, sans-serif;">${smartMergedTime(merged.updatedAt || merged.createdAt)}</span>
-                        </div>
+                <div class="px-4 py-3.5 ${headerPaddingClass} relative cursor-pointer" onclick="toggleMerged('${domId}')">
+                    ${rightActionsHtml}
+                    <div class="flex items-center gap-2 text-gray-800 mb-2">
+                        <span class="text-[15px] font-semibold" style="font-family:Poppins, sans-serif;">${smartMergedTime(merged.updatedAt || merged.createdAt)}</span>
                     </div>
-                    <div class="flex items-baseline gap-2 mb-2">
+                    <div class="flex items-baseline gap-2">
                         <span class="text-[12px] text-gray-500 font-medium">合计</span>
-                        <div class="flex items-baseline gap-2">
+                        <div class="flex items-baseline gap-2 flex-wrap">
                             <span class="text-[20px] font-bold text-gray-900" style="font-family:Poppins; line-height: 1;">¥${fmt(merged.totalAmount)}</span>
                             <span class="text-[12px] text-gray-500 font-medium whitespace-nowrap">共 ${merged.subOrders.length} 笔</span>
                         </div>
@@ -796,6 +909,7 @@ function renderMergedList() {
 }
 
 function toggleMerged(id) {
+
     const list = document.getElementById('msub-' + id);
     const icon = document.getElementById('micon-' + id);
     if (!list || !icon) return;
@@ -830,6 +944,8 @@ function goOrderDetail(orderId) {
                 payeeCard: fallback.sub.payeeCard,
                 summary: fallback.sub.summary,
                 createdAt: fallback.sub.createdAt,
+                paidAt: fallback.sub.paidAt || fallback.merged.paidAt || '',
+                failReason: fallback.sub.failReason || fallback.merged.failReason || '',
                 status: fallback.sub.status || fallback.merged.status,
                 payMethod: fallback.merged.payMethod || 'industry',
                 items: fallback.sub.items || [],
@@ -857,6 +973,8 @@ function goOrderDetail(orderId) {
         payeeCard: order.payeeCard || '',
         summary: order.summary || '',
         createdAt: order.createdAt || '',
+        paidAt: order.paidAt || '',
+        failReason: order.failReason || '',
         status: normalizeOrderStatus(order.status || ''),
         payMethod: order.payMethod || '',
         items: JSON.stringify(order.items || []),
@@ -918,9 +1036,15 @@ function retryMergePay(mergedId, e) {
         showToast('合并记录不存在');
         return;
     }
+    const failedSubOrders = getFailedSubOrders(merged);
+    if (failedSubOrders.length === 0) {
+        showToast('当前没有可重付的失败订单');
+        return;
+    }
+    const failedAmount = failedSubOrders.reduce((sum, sub) => sum + Number(sub.amount || 0), 0);
     showAppModal({
         title: '重新发起支付',
-        message: `将重新发起 <b>${merged.subOrders.length}</b> 笔订单的合并支付<br>合计金额 <b style="font-family:Poppins; color:#11A64A;">¥${fmt(merged.totalAmount)}</b>`,
+        message: `将重新支付 <b>${failedSubOrders.length}</b> 笔失败订单<br>合计金额 <b style="font-family:Poppins; color:#11A64A;">¥${fmt(failedAmount)}</b>`,
         confirmText: '重新支付',
         onConfirm: function() { resumeMergedPay(mergedId); }
     });
@@ -932,15 +1056,27 @@ function resumeMergedPay(mergedId) {
         showToast('合并记录不存在');
         return;
     }
+    const failedSubOrders = getFailedSubOrders(current);
+    if (failedSubOrders.length === 0) {
+        showToast('当前没有可重付的失败订单');
+        return;
+    }
     const now = new Date().toISOString();
     const reopened = normalizeMergedRecord({
         ...current,
-        status: 'processing',
         updatedAt: now,
         failReason: '',
-        subOrders: (current.subOrders || []).map(sub => ({ ...sub, status: 'processing' }))
+        subOrders: (current.subOrders || []).map(function(sub) {
+            if (getSubOrderStatus(sub.status, current.status) !== 'failed') return { ...sub };
+            return {
+                ...sub,
+                status: 'processing',
+                failReason: '',
+                paidAt: ''
+            };
+        })
     });
-    syncSubOrdersStatus(reopened, 'processing', { payMethod: 'industry', failReason: '' });
+    syncSubOrdersStatus(reopened, null, { payMethod: 'industry' });
     upsertMergedRecord(reopened);
     loadData();
     state.currentTab = 'merged';
