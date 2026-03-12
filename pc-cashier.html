@@ -1626,7 +1626,7 @@
                     <h2 class="panel-title" id="orderInfoTitle">订单信息</h2>
                     <div class="info-list" id="orderInfoList">
                         <div class="info-item"><span class="info-label">收粮订单号</span><span id="orderNo" class="info-value">-</span></div>
-                        <div class="info-item"><span class="info-label">支付订单号</span><span id="paymentOrderNo" class="info-value">-</span></div>
+                        <!-- <div class="info-item"><span class="info-label">支付订单号</span><span id="paymentOrderNo" class="info-value">-</span></div> -->
                         <div class="info-item"><span class="info-label">下单时间</span><span id="orderTime" class="info-value">-</span></div>
                         <div id="paidAtRow" class="info-item" style="display:none;"><span class="info-label">支付时间</span><span id="paidAt" class="info-value">-</span></div>
                     </div>
@@ -1684,7 +1684,7 @@
                             <div class="qr-amount">¥ <span class="pay-amount">0.00</span></div>
                             <div class="qr-tip">请使用邮储银行APP扫描上方二维码完成付款</div>
                             <div class="action-row qr-action-row">
-                                <button class="btn btn-primary" data-pay-action onclick="openScanResult('bank')">已完成支付</button>
+                                <button class="btn btn-primary" data-pay-action onclick="openScanResult('bank')">查询订单状态</button>
                             </div>
                         </div>
                         <div class="pay-side" id="bankPaySide">
@@ -2416,7 +2416,7 @@
                 + '<div class="merge-detail-grid">'
                     + '<div class="merge-detail-row"><span class="merge-detail-label">商户名称</span><span class="merge-detail-value">' + escapeHtml(sub.payeeCompany || sub.payeeName || '--') + '</span></div>'
                     + '<div class="merge-detail-row"><span class="merge-detail-label">收粮订单号</span><span class="merge-detail-value">' + escapeHtml(sub.grainOrderNo || '--') + '</span></div>'
-                    + '<div class="merge-detail-row"><span class="merge-detail-label">支付订单号</span><span class="merge-detail-value">' + escapeHtml(sub.paymentOrderNo || '--') + '</span></div>'
+                    // + '<div class="merge-detail-row"><span class="merge-detail-label">支付订单号</span><span class="merge-detail-value">' + escapeHtml(sub.paymentOrderNo || '--') + '</span></div>'
                     + '<div class="merge-detail-row"><span class="merge-detail-label">应付金额</span><span class="merge-detail-value merge-detail-card-amount">' + formatMoney(sub.amount || 0) + '</span></div>'
                     + '<div class="merge-detail-row"><span class="merge-detail-label">下单时间</span><span class="merge-detail-value">' + escapeHtml(timeStr) + '</span></div>'
                 + '</div>'
