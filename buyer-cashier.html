@@ -16,7 +16,7 @@
             background: linear-gradient(180deg, #13b15a 0%, #17c967 100%);
             position: absolute;
             top: 48px; left: 0; right: 0; /* 从状态栏下方开始 */
-            height: 190px;
+            height: 138px;
             z-index: 0;
             border-bottom-left-radius: 24px;
             border-bottom-right-radius: 24px;
@@ -75,11 +75,10 @@
     <!-- 主内容区 -->
     <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-20 pt-2 relative z-10" style="height: calc(100vh - 180px);">
 
-        <!-- 付款金额卡片 (完全保留原有文案) -->
-        <div class="bg-white rounded-[20px] p-6 text-center mt-2 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-gray-50">
-            <div id="mainPayee" class="text-[13px] text-gray-500 mb-2 font-medium">-</div>
-            <div id="mainAmount" class="text-[34px] font-bold text-[#13b15a] mb-2 font-medium" style="font-family:Poppins;">¥ 0.00</div>
-            <div class="text-[11px] text-gray-400 bg-gray-50 inline-block px-3 py-1 rounded-full border border-gray-100">付款金额</div>
+        <!-- 付款金额卡片 -->
+        <div class="bg-white rounded-[20px] p-6 text-center mt-3 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-gray-50">
+            <div id="mainPayee" class="text-[15px] text-[#111827] mb-3 font-medium">应付金额</div>
+            <div id="mainAmount" class="text-[38px] font-bold text-[#111827] font-medium leading-none" style="font-family:Poppins;">¥ 0.00</div>
         </div>
 
         <!-- 动态引导区域容器 -->
@@ -248,7 +247,7 @@ function showToast(msg) {
 }
 
 function formatMoney(amount) {
-    return '¥ ' + amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function parseItems(raw) {
@@ -285,9 +284,13 @@ function buildBankFlowNo(orderNo) {
 
 function fillPage() {
     ensureOrderInStore();
-    // 保持顶层金额卡片的文案内容一字不变
-    document.getElementById('mainAmount').textContent = formatMoney(state.amount);
-    document.getElementById('mainPayee').textContent = '向 ' + state.payeeName + ' 付款';
+    const mainAmountEl = document.getElementById('mainAmount');
+    const mainPayeeEl = document.getElementById('mainPayee');
+    mainAmountEl.className = 'inline-flex items-baseline justify-center gap-[2px] text-[34px] font-bold text-[#111827] tracking-tight leading-none';
+    mainAmountEl.style.fontFamily = 'Poppins';
+    mainAmountEl.innerHTML = '<span class="text-[18px] font-bold leading-none">¥</span><span>' + formatMoney(state.amount) + '</span>';
+    mainPayeeEl.className = 'text-[16px] text-[#111827] mb-3 font-medium';
+    mainPayeeEl.textContent = '应付金额';
     
     // 订单取付款指引动态展示渲染
     if (state.payMethod === 'industry') {
