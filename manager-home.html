@@ -89,9 +89,10 @@
             font-size: 20px;
             margin-bottom: 12px;
         }
-        .action-icon-1 { background: #E8F5E9; color: #13b15a; } /* 开户 - 科技绿 */
-        .action-icon-2 { background: #EBF5FF; color: #3B82F6; } /* 查询 - 商务蓝 */
+        .action-icon-1 { background: #E8F5E9; color: #13b15a; } /* 收购商进件 - 科技绿 */
+        .action-icon-2 { background: #EBF5FF; color: #3B82F6; } /* 商户管理 - 商务蓝 */
         .action-icon-3 { background: #FFF3E0; color: #F59E0B; } /* 看板 - 麦穗黄 */
+        .action-icon-4 { background: #FFF7E6; color: #F59E0B; } /* 农户建档 - 暖橙色 */
 
         .action-title {
             font-size: 13px;
@@ -159,7 +160,7 @@
                     <div class="stat-num text-[#13b15a] mt-1">12<span class="text-xs text-gray-400 font-normal ml-1">户</span></div>
                 </div>
                 <div>
-                    <div class="stat-label">今日新增农户</div>
+                    <div class="stat-label">今日建档农户</div>
                     <div class="stat-num text-[#13b15a] mt-1">45<span class="text-xs text-gray-400 font-normal ml-1">户</span></div>
                 </div>
             </div>
@@ -171,7 +172,7 @@
                     <div class="stat-num mt-1">1,250<span class="text-xs text-gray-400 font-normal ml-1">户</span></div>
                 </div>
                 <div>
-                    <div class="stat-label">累计入驻农户</div>
+                    <div class="stat-label">累计建档农户</div>
                     <div class="stat-num mt-1">8,432<span class="text-xs text-gray-400 font-normal ml-1">户</span></div>
                 </div>
             </div>
@@ -179,18 +180,25 @@
 
         <!-- 快捷操作入口区 (方案A结构) -->
         <div class="action-grid">
-            <a href="manager-account.html" class="action-tile">
+            <a href="manager-account-buyer.html" class="action-tile">
                 <div class="action-icon-wrap action-icon-1">
-                    <i class="fas fa-file-signature"></i>
+                    <i class="fas fa-store"></i>
                 </div>
-                <div class="action-title">进件开户</div>
+                <div class="action-title">收购商进件</div>
+            </a>
+
+            <a href="manager-account-farmer.html" class="action-tile">
+                <div class="action-icon-wrap action-icon-4">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="action-title">农户建档</div>
             </a>
             
             <a href="manager-users.html" class="action-tile">
                 <div class="action-icon-wrap action-icon-2">
                     <i class="fas fa-search"></i>
                 </div>
-                <div class="action-title">商户管理</div>
+                <div class="action-title">客户管理</div>
             </a>
             
             <a href="manager-dashboard.html" class="action-tile">
