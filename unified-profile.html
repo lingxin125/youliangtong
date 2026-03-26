@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 个人信息</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js?v=20260324"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #FFFBF0;
+        }
+        .glass-panel {
+            background: #FFFFFF;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-size: 15px;
+            color: #1F2937;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .info-label i {
+            color: #9CA3AF;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+        .info-value {
+            font-size: 15px;
+            color: #6B7280;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            padding: 12px 20px 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .section-title i {
+            color: #11A64A;
+            font-size: 13px;
+        }
+        .copy-icon {
+            color: #9CA3AF;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+        .copy-icon:active {
+            color: #11A64A;
+        }
+        .tag-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: #F9FAFB;
+            color: #6B7280;
+        }
+        .tag-chip.active {
+            background: rgba(17, 166, 74, 0.1);
+            color: #11A64A;
+            border-color: rgba(17, 166, 74, 0.3);
+        }
+        .tag-chip:active {
+            transform: scale(0.95);
+        }
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:100px;">
+
+        <!-- 区域A: 基本信息 -->
+        <div class="section-title mt-3"><i class="fas fa-user-circle"></i>基本信息</div>
+        <div class="glass-panel rounded-2xl overflow-hidden">
+            <!-- 姓名 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-user"></i>姓名</span>
+                <span class="info-value">
+                    <input id="fieldName" type="text" class="text-right bg-transparent outline-none text-[15px] text-gray-700 w-40" placeholder="请输入姓名">
+                </span>
+            </div>
+            <!-- 手机号 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-phone"></i>手机号</span>
+                <span class="info-value">
+                    <input id="fieldMobile" type="tel" class="text-right bg-transparent outline-none text-[15px] text-gray-700 w-40" placeholder="请输入手机号">
+                </span>
+            </div>
+            <!-- 银行卡号 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-credit-card"></i>银行卡号</span>
+                <span class="info-value">
+                    <input id="fieldBankCard" type="text" class="text-right bg-transparent outline-none text-[15px] text-gray-700 w-40" placeholder="请输入银行卡号">
+                </span>
+            </div>
+        </div>
+
+        <!-- 区域B: 身份标签 -->
+        <div class="section-title mt-5"><i class="fas fa-tags"></i>身份标签</div>
+        <div class="glass-panel rounded-2xl p-4">
+            <div class="text-[12px] text-gray-400 mb-3">选择您的身份角色（可多选）</div>
+            <div id="tagGroup" class="flex flex-wrap gap-2.5"></div>
+        </div>
+
+        <!-- 区域C: 商户信息（只读） -->
+        <div class="section-title mt-5"><i class="fas fa-store"></i>商户信息</div>
+        <div class="glass-panel rounded-2xl overflow-hidden">
+            <!-- 商户ID -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-hashtag"></i>商户ID</span>
+                <span class="info-value">
+                    <span id="merchantId">—</span>
+                    <i class="far fa-copy copy-icon" onclick="copyText('merchantId')"></i>
+                </span>
+            </div>
+            <!-- 归属机构 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-building"></i>归属机构</span>
+                <span class="info-value" id="orgName">邮政集团XX县分公司</span>
+            </div>
+        </div>
+
+        <!-- 保存按钮 -->
+        <div class="mt-6 px-2">
+            <button onclick="saveProfile()" class="w-full h-12 rounded-2xl bg-primary text-white text-[15px] font-medium active:scale-[0.98] transition-transform shadow-glow">
+                保存修改
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast 提示 -->
+<div id="toast" class="toast"></div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('个人信息', 'unified-my.html');
+
+var store = window.UnifiedMockStore;
+var allTags = store ? store.getIdentityTags() : ['农户', '收粮贩子', '收购商', '合作社'];
+var selectedTags = [];
+
+function initPage() {
+    if (!store) return;
+    var profile = store.getUserProfile();
+
+    // 基本信息
+    document.getElementById('fieldName').value = profile.name || '';
+    document.getElementById('fieldMobile').value = profile.mobile || '';
+    document.getElementById('fieldBankCard').value = profile.bankCard || '';
+
+    // 商户信息（只读）
+    document.getElementById('merchantId').textContent = profile.merchantId || '—';
+
+    // 身份标签
+    selectedTags = (profile.identityTags || []).slice();
+    renderTags();
+}
+
+function renderTags() {
+    var container = document.getElementById('tagGroup');
+    container.innerHTML = allTags.map(function(tag) {
+        var isActive = selectedTags.indexOf(tag) !== -1;
+        return '<div class="tag-chip ' + (isActive ? 'active' : '') + '" onclick="toggleTag(\'' + tag + '\')">' +
+            (isActive ? '<i class="fas fa-check text-[11px] mr-1.5"></i>' : '') +
+            tag + '</div>';
+    }).join('');
+}
+
+function toggleTag(tag) {
+    var idx = selectedTags.indexOf(tag);
+    if (idx === -1) {
+        selectedTags.push(tag);
+    } else {
+        selectedTags.splice(idx, 1);
+    }
+    renderTags();
+}
+
+function saveProfile() {
+    if (!store) {
+        showToast('数据服务不可用');
+        return;
+    }
+    var name = document.getElementById('fieldName').value.trim();
+    var mobile = document.getElementById('fieldMobile').value.trim();
+    var bankCard = document.getElementById('fieldBankCard').value.trim();
+
+    if (!name) { showToast('请输入姓名'); return; }
+    if (!mobile) { showToast('请输入手机号'); return; }
+
+    store.setUserProfile({
+        name: name,
+        mobile: mobile,
+        bankCard: bankCard,
+        identityTags: selectedTags
+    });
+    showToast('保存成功');
+}
+
+function showToast(msg) {
+    var toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(function() {
+        toast.classList.remove('show');
+    }, 2000);
+}
+
+function copyText(id) {
+    var text = (document.getElementById(id) || {}).textContent || '';
+    if (!text || text === '—') {
+        showToast('无内容可复制');
+        return;
+    }
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(function() {
+            showToast('已复制');
+        }).catch(function() {
+            showToast('复制失败');
+        });
+    } else {
+        var input = document.createElement('input');
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        try {
+            document.execCommand('copy');
+            showToast('已复制');
+        } catch (e) {
+            showToast('复制失败');
+        }
+        document.body.removeChild(input);
+    }
+}
+
+initPage();
+</script>
+</body>
+</html>

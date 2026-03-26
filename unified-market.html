@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 市场</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js?v=20260324"></script>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 顶部：搜索 + 筛选 -->
+    <div class="px-4 mt-2 mb-3 shrink-0">
+        <div class="flex gap-2 items-center">
+            <div class="glass-card rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 flex-1">
+                <i class="fas fa-search text-gray-400 text-sm"></i>
+                <input id="searchInput" type="text" placeholder="搜索标题内容" class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
+            </div>
+            <button type="button" id="filterBtn" class="w-10 h-10 rounded-2xl bg-white/90 border border-gray-200 text-gray-500 flex items-center justify-center shadow-sm relative" onclick="openFilter()" aria-label="打开筛选">
+                <i class="fas fa-filter text-[13px]"></i>
+                <span id="filterDot" class="hidden absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 方向筛选标签 -->
+    <div class="px-4 mb-2 shrink-0">
+        <div class="flex items-center gap-2">
+            <span class="filter-chip active text-[11px] px-3 py-1.5" onclick="switchDirection(this, 'all')">全部</span>
+            <span class="filter-chip text-[11px] px-3 py-1.5" onclick="switchDirection(this, 'purchase')">求购</span>
+            <span class="filter-chip text-[11px] px-3 py-1.5" onclick="switchDirection(this, 'sale')">出售</span>
+        </div>
+    </div>
+
+    <!-- 工具入口：排序下拉 + 筛选标签 -->
+    <div class="px-4 mb-3 shrink-0">
+        <div class="flex items-center gap-2">
+            <!-- 左侧：排序 + 筛选 -->
+            <div class="flex items-center gap-2 flex-1">
+                <!-- 排序下拉 -->
+                <div class="relative shrink-0">
+                    <button id="sortDropdownBtn" type="button" class="text-[10px] text-gray-700 font-medium bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 whitespace-nowrap flex items-center gap-1.5" onclick="toggleSortDropdown()">
+                        <i class="fas fa-sort-amount-down text-[10px] text-gray-400"></i>
+                        <span id="sortLabel">最新发布</span>
+                        <i class="fas fa-chevron-down text-[8px] text-gray-400 transition-transform" id="sortArrow"></i>
+                    </button>
+                    <!-- 排序下拉菜单 -->
+                    <div id="sortDropdown" class="hidden absolute top-full left-0 mt-1.5 bg-white rounded-2xl shadow-lg border border-gray-100 py-1 min-w-[120px] z-50">
+                        <button type="button" class="w-full text-left text-[11px] px-3 py-2 hover:bg-gray-50 flex items-center gap-2" onclick="setSortOption('latest')">
+                            <span class="w-4 text-center"><i class="fas fa-check text-primary text-[10px] opacity-0" id="check-latest"></i></span>
+                            最新发布
+                        </button>
+                        <button type="button" class="w-full text-left text-[11px] px-3 py-2 hover:bg-gray-50 flex items-center gap-2" onclick="setSortOption('oldest')">
+                            <span class="w-4 text-center"><i class="fas fa-check text-primary text-[10px] opacity-0" id="check-oldest"></i></span>
+                            最晚发布
+                        </button>
+                        <button type="button" class="w-full text-left text-[11px] px-3 py-2 hover:bg-gray-50 flex items-center gap-2" onclick="setSortOption('nearest')">
+                            <span class="w-4 text-center"><i class="fas fa-check text-primary text-[10px] opacity-0" id="check-nearest"></i></span>
+                            距离最近
+                        </button>
+                        <button type="button" class="w-full text-left text-[11px] px-3 py-2 hover:bg-gray-50 flex items-center gap-2" onclick="setSortOption('farthest')">
+                            <span class="w-4 text-center"><i class="fas fa-check text-primary text-[10px] opacity-0" id="check-farthest"></i></span>
+                            距离最远
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 我关注筛选（MVP暂隐藏） -->
+                <button id="focusOnlyBtn" type="button" style="display:none;" class="text-[10px] text-gray-500 font-medium bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 whitespace-nowrap flex items-center gap-1">
+                    <span>我关注的</span>
+                    <i id="focusCloseIcon" class="fas fa-times text-[9px] hidden"></i>
+                </button>
+            </div>
+
+            <!-- 关键词功能（MVP暂隐藏） -->
+        </div>
+    </div>
+
+    <!-- 列表 -->
+    <div id="demandList" class="flex-1 overflow-y-auto no-scrollbar px-4 space-y-3" style="padding-bottom:120px;"></div>
+
+    <!-- 悬浮发布按钮 -->
+    <a href="unified-publish.html" class="absolute right-5 bottom-24 w-12 h-12 rounded-full bg-green-50 text-primary flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.15)] border border-green-200 no-underline z-[60] active:scale-95 transition-transform" style="text-decoration:none;" aria-label="发布需求">
+        <i class="fas fa-bullhorn text-xl"></i>
+    </a>
+
+    <div id="tabBar"></div>
+
+    <!-- 筛选抽屉 -->
+    <div id="filterMask" class="absolute inset-0 bg-black/30 z-[72] hidden" onclick="closeFilter()"></div>
+    <div id="filterSheet" class="absolute left-0 right-0 bottom-0 z-[73] bg-white rounded-t-2xl p-4 hidden">
+        <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-3"></div>
+        <div class="text-sm font-semibold text-gray-800 mb-3">筛选条件</div>
+
+        <div class="space-y-4 max-h-[46vh] overflow-y-auto no-scrollbar pb-2">
+            <div>
+                <div class="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                    <i class="far fa-clock text-gray-400"></i>
+                    发布时间
+                </div>
+                <div id="timeGroup" class="flex flex-wrap gap-2"></div>
+                <div id="customDateBox" class="hidden mt-3 p-3 bg-gray-50 rounded-2xl">
+                    <div class="text-[11px] text-gray-500 mb-2">选择日期范围</div>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-1">
+                            <div class="text-[10px] text-gray-400 mb-1">开始日期</div>
+                            <input type="date" id="customDateStart" class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-primary bg-white" onchange="onCustomDateChange()">
+                        </div>
+                        <div class="text-gray-300 mt-4">—</div>
+                        <div class="flex-1">
+                            <div class="text-[10px] text-gray-400 mb-1">结束日期</div>
+                            <input type="date" id="customDateEnd" class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-primary bg-white" onchange="onCustomDateChange()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                    <i class="fas fa-tags text-gray-400"></i>
+                    需求分类
+                </div>
+                <div id="typeGroup" class="grid grid-cols-3 gap-2"></div>
+            </div>
+            <div>
+                <div class="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                    <i class="fas fa-th-large text-gray-400"></i>
+                    品类
+                </div>
+                <div id="categoryGroup" class="grid grid-cols-4 gap-2"></div>
+            </div>
+            <div>
+                <div class="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                    <i class="fas fa-map-marker-alt text-gray-400"></i>
+                    距离
+                </div>
+                <div id="distanceGroup" class="flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+            <button type="button" class="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-2xl text-sm font-semibold" onclick="resetFilter()">重置</button>
+            <button type="button" class="flex-1 py-2.5 bg-primary text-white rounded-2xl text-sm font-semibold" onclick="applyFilter()">确认</button>
+        </div>
+    </div>
+
+    <!-- 联系方式弹层 -->
+    <div id="contactMask" class="absolute inset-0 bg-black/30 z-[70] hidden" onclick="closeContact()"></div>
+    <div id="contactSheet" class="absolute left-0 right-0 bottom-0 z-[71] bg-white rounded-t-2xl p-4 hidden">
+        <div class="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-3"></div>
+        <div class="text-sm font-semibold text-gray-800 mb-1" id="contactName">发布者</div>
+        <div class="text-xs text-gray-500 mb-4">手机号：<span id="contactPhone" class="font-medium text-gray-700"></span></div>
+        <div class="flex gap-2">
+            <a id="callLink" href="javascript:void(0)" class="flex-1 py-2.5 bg-primary text-white rounded-2xl text-sm font-semibold text-center no-underline" style="text-decoration:none;">
+                <i class="fas fa-phone mr-1"></i>拨打电话
+            </a>
+            <button class="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-2xl text-sm font-semibold" onclick="copyContact()">复制号码</button>
+        </div>
+    </div>
+
+    <div id="toastTip" class="absolute left-4 right-4 bottom-[84px] px-3.5 py-2.5 bg-black/85 text-white text-xs rounded-lg opacity-0 pointer-events-none transition-all duration-200 z-[74]"></div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('市场');
+document.getElementById('tabBar').innerHTML = renderUnifiedTabBar('market');
+
+var demandStore = window.DemandMockStore || null;
+var marketPage = 'unified-market.html';
+var fallbackDemandRole = 'farmer';
+
+var state = {
+    sort: 'latest',
+    activeTab: 'latest', // 'latest' | 'oldest' | 'nearest' | 'farthest'
+    direction: 'all', // 'all' | 'purchase' | 'sale'
+    timeRange: 'all',
+    customDateStart: '',
+    customDateEnd: '',
+    demandType: 'all',
+    category: '全部',
+    maxDistance: 'all',
+    keyword: '',
+    onlyFocus: false
+};
+
+var draftFilter = null;
+var currentContactPhone = '';
+var focusedDemandIds = ['F1', 'F3', 'F4', 'F7', 'F11', 'F14'];
+
+var fallbackList = [
+    // 刚刚（0-1分钟内）
+    { id: 'F1', role: 'farmer', category: '水果', content: '出售红富士苹果，果径80mm以上，自家果园直发', qty: 5000, unit: '斤', price: 2.6, location: '山东烟台', distanceKm: 3.2, ownerName: '李大姐果园', ownerMobile: '138****1234', createdAt: new Date(Date.now() - 30 * 1000).toISOString(), status: 'active' },
+    { id: 'B1', role: 'buyer', category: '蔬菜', content: '求购新鲜黄瓜，长度25cm左右，大量收购', qty: 2000, unit: '斤', price: 1.8, location: '山东潍坊', distanceKm: 2.1, ownerName: '张大哥菜棚', ownerMobile: '136****8888', createdAt: new Date(Date.now() - 45 * 1000).toISOString(), status: 'active' },
+    // 几分钟前（5-50分钟）
+    { id: 'F3', role: 'farmer', category: '粮油', content: '出售优质小麦，含水量13%以内，可提供质检', qty: 20000, unit: '斤', price: 1.9, location: '河南周口', distanceKm: 7.5, ownerName: '王建国家庭农场', ownerMobile: '139****5678', createdAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'B2', role: 'buyer', category: '蔬菜', content: '求购有机西红柿，需有机认证', qty: 3000, unit: '斤', price: 2.3, location: '河北保定', distanceKm: 12.0, ownerName: '老周蔬菜棚', ownerMobile: '137****6002', createdAt: new Date(Date.now() - 18 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F5', role: 'farmer', category: '禽蛋', content: '散养土鸡蛋，蛋黄饱满，50枚/箱，100箱起批', qty: 5000, unit: '枚', price: 1.2, location: '江苏南通', distanceKm: 8.3, ownerName: '赵姐养殖场', ownerMobile: '150****2345', createdAt: new Date(Date.now() - 32 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'B3', role: 'buyer', category: '水果', content: '求购巨峰葡萄，甜度18+，大量收购', qty: 3000, unit: '斤', price: 4.5, location: '浙江金华', distanceKm: 15.6, ownerName: '刘庄主葡萄园', ownerMobile: '139****7777', createdAt: new Date(Date.now() - 48 * 60 * 1000).toISOString(), status: 'active' },
+    // 几小时前（1-12小时）
+    { id: 'F7', role: 'farmer', category: '肉类', content: '散养黑猪肉，当天宰杀，排骨五花肉齐全', qty: 800, unit: '斤', price: 28.0, location: '安徽阜阳', distanceKm: 22.0, ownerName: '老李养猪场', ownerMobile: '138****6666', createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'B4', role: 'buyer', category: '其他', content: '求购鲜活草鱼，规格2-3斤/条', qty: 1500, unit: '斤', price: 8.5, location: '湖北荆州', distanceKm: 35.0, ownerName: '周师傅鱼塘', ownerMobile: '137****5555', createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F9', role: 'farmer', category: '粮油', content: '新榨花生油，纯物理压榨，5L/桶', qty: 200, unit: '桶', price: 85.0, location: '山东临沂', distanceKm: 18.5, ownerName: '孙家油坊', ownerMobile: '136****4444', createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'B5', role: 'buyer', category: '蔬菜', content: '求购紫皮大蒜头，蒜头饱满，适合储存', qty: 5000, unit: '斤', price: 3.2, location: '河南商丘', distanceKm: 28.0, ownerName: '大蒜种植合作社', ownerMobile: '135****3333', createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F11', role: 'farmer', category: '水果', content: '黄心猕猴桃，单果90g+，甜度高', qty: 2500, unit: '斤', price: 5.8, location: '陕西周至', distanceKm: 42.0, ownerName: '杨氏果园', ownerMobile: '134****2222', createdAt: new Date(Date.now() - 11 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    // 十几个小时前
+    { id: 'F12', role: 'farmer', category: '禽蛋', content: '老鸭蛋，腌制咸鸭蛋原料，个大壳青', qty: 3000, unit: '枚', price: 2.0, location: '江西九江', distanceKm: 55.0, ownerName: '鸭蛋批发部', ownerMobile: '133****1111', createdAt: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'B6', role: 'buyer', category: '粮油', content: '求购糯玉米棒子，甜糯可口', qty: 8000, unit: '斤', price: 1.5, location: '河北张家口', distanceKm: 62.0, ownerName: '王大爷农场', ownerMobile: '132****0000', createdAt: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    // 几天前（1-5天）
+    { id: 'F14', role: 'farmer', category: '肉类', content: '山羊羊肉，放养草饲，肉质鲜嫩', qty: 600, unit: '斤', price: 35.0, location: '内蒙古赤峰', distanceKm: 120.0, ownerName: '草原牧业', ownerMobile: '131****9999', createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'B7', role: 'buyer', category: '水果', content: '求购冰糖心苹果，甜脆多汁', qty: 10000, unit: '斤', price: 3.8, location: '新疆阿克苏', distanceKm: 350.0, ownerName: '疆果直发', ownerMobile: '130****8888', createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F16', role: 'farmer', category: '其他', content: '干海带丝，无沙免洗，泡发率高', qty: 500, unit: '斤', price: 12.0, location: '福建宁德', distanceKm: 180.0, ownerName: '海产品批发', ownerMobile: '129****7777', createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'B8', role: 'buyer', category: '蔬菜', content: '求购东北黑木耳，肉厚朵大', qty: 300, unit: '斤', price: 45.0, location: '黑龙江牡丹江', distanceKm: 280.0, ownerName: '山珍特产店', ownerMobile: '128****6666', createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' },
+    { id: 'F18', role: 'farmer', category: '其他', content: '干香菇，香味浓郁，无硫熏', qty: 400, unit: '斤', price: 38.0, location: '湖北随州', distanceKm: 95.0, ownerName: '香菇种植基地', ownerMobile: '127****5555', createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), status: 'active' }
+];
+
+var FILTER_META = {
+    timeRange: [
+        { value: 'all', label: '全部时间' },
+        { value: '1h', label: '1小时内' },
+        { value: 'today', label: '今天' },
+        { value: '3d', label: '3天内' },
+        { value: 'custom', label: '自定义' }
+    ],
+    demandType: [
+        { value: 'all', label: '全部' },
+        { value: 'purchase', label: '收购' },
+        { value: 'sale', label: '销售' }
+    ],
+    category: ['全部', '水果', '蔬菜', '粮油', '禽蛋', '肉类', '其他'],
+    maxDistance: [
+        { value: 'all', label: '全部距离' },
+        { value: '5', label: '5km内' },
+        { value: '10', label: '10km内' },
+        { value: '20', label: '20km内' }
+    ]
+};
+
+function switchDirection(el, direction) {
+    state.direction = direction;
+    var chips = el.parentElement.querySelectorAll('.filter-chip');
+    chips.forEach(function(chip) { chip.classList.remove('active'); });
+    el.classList.add('active');
+    renderList();
+}
+
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    state.keyword = e.target.value.trim();
+    renderList();
+});
+
+function isFocusedDemand(item) {
+    return focusedDemandIds.indexOf(String(item.id || '')) !== -1;
+}
+
+function toggleFocusOnly() {
+    state.onlyFocus = !state.onlyFocus;
+    var focusBtn = document.getElementById('focusOnlyBtn');
+    var closeIcon = document.getElementById('focusCloseIcon');
+    if (state.onlyFocus) {
+        focusBtn.className = 'text-[10px] text-primary font-medium bg-green-50 border border-green-200 rounded-full px-3 py-1.5 whitespace-nowrap flex items-center gap-1';
+        closeIcon.classList.remove('hidden');
+    } else {
+        focusBtn.className = 'text-[10px] text-gray-500 font-medium bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 whitespace-nowrap flex items-center gap-1';
+        closeIcon.classList.add('hidden');
+    }
+    renderList();
+}
+
+function toggleSortDropdown() {
+    var dropdown = document.getElementById('sortDropdown');
+    var arrow = document.getElementById('sortArrow');
+    if (dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('hidden');
+        arrow.style.transform = 'rotate(180deg)';
+    } else {
+        dropdown.classList.add('hidden');
+        arrow.style.transform = 'rotate(0deg)';
+    }
+}
+
+function setSortOption(value) {
+    state.activeTab = value;
+    state.sort = value;
+
+    var labelMap = {
+        'latest': '最新发布',
+        'oldest': '最晚发布',
+        'nearest': '距离最近',
+        'farthest': '距离最远'
+    };
+    document.getElementById('sortLabel').textContent = labelMap[value];
+
+    document.getElementById('check-latest').classList.add('opacity-0');
+    document.getElementById('check-oldest').classList.add('opacity-0');
+    document.getElementById('check-nearest').classList.add('opacity-0');
+    document.getElementById('check-farthest').classList.add('opacity-0');
+    document.getElementById('check-' + value).classList.remove('opacity-0');
+
+    toggleSortDropdown();
+    renderList();
+}
+
+function resetAllFilters() {
+    state.sort = 'latest';
+    state.activeTab = 'latest';
+    state.direction = 'all';
+    state.timeRange = 'all';
+    state.customDateStart = '';
+    state.customDateEnd = '';
+    state.demandType = 'all';
+    state.category = '全部';
+    state.maxDistance = 'all';
+    state.onlyFocus = false;
+    state.keyword = '';
+    document.getElementById('searchInput').value = '';
+
+    document.getElementById('sortLabel').textContent = '最新发布';
+    document.getElementById('check-latest').classList.remove('opacity-0');
+    document.getElementById('check-oldest').classList.add('opacity-0');
+    document.getElementById('check-nearest').classList.add('opacity-0');
+    document.getElementById('check-farthest').classList.add('opacity-0');
+
+    document.getElementById('focusOnlyBtn').className = 'text-[10px] text-gray-500 font-medium bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 whitespace-nowrap flex items-center gap-1';
+    document.getElementById('focusCloseIcon').classList.add('hidden');
+
+    // 重置方向筛选
+    var dirChips = document.querySelectorAll('.filter-chip');
+    dirChips.forEach(function(c, i) { c.classList.toggle('active', i === 0); });
+
+    renderList();
+    renderFilterDot();
+}
+
+function renderSortBtns() {
+    var labelMap = {
+        'latest': '最新发布',
+        'oldest': '最晚发布',
+        'nearest': '距离最近',
+        'farthest': '距离最远'
+    };
+    document.getElementById('sortLabel').textContent = labelMap[state.activeTab] || '最新发布';
+
+    document.getElementById('check-latest').classList.add('opacity-0');
+    document.getElementById('check-oldest').classList.add('opacity-0');
+    document.getElementById('check-nearest').classList.add('opacity-0');
+    document.getElementById('check-farthest').classList.add('opacity-0');
+    document.getElementById('check-' + (state.activeTab || 'latest')).classList.remove('opacity-0');
+
+    var focusBtn = document.getElementById('focusOnlyBtn');
+    var closeIcon = document.getElementById('focusCloseIcon');
+    if (state.onlyFocus) {
+        focusBtn.className = 'text-[10px] text-primary font-medium bg-green-50 border border-green-200 rounded-full px-3 py-1.5 whitespace-nowrap flex items-center gap-1';
+        closeIcon.classList.remove('hidden');
+    } else {
+        focusBtn.className = 'text-[10px] text-gray-500 font-medium bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 whitespace-nowrap flex items-center gap-1';
+        closeIcon.classList.add('hidden');
+    }
+}
+
+function openFilter() {
+    draftFilter = {
+        timeRange: state.timeRange,
+        customDateStart: state.customDateStart,
+        customDateEnd: state.customDateEnd,
+        demandType: state.demandType,
+        category: state.category,
+        maxDistance: state.maxDistance
+    };
+    renderFilterOptions();
+    var dateBox = document.getElementById('customDateBox');
+    var dateStart = document.getElementById('customDateStart');
+    var dateEnd = document.getElementById('customDateEnd');
+    if (dateBox) {
+        if (draftFilter.timeRange === 'custom') {
+            dateBox.classList.remove('hidden');
+            if (dateStart) dateStart.value = draftFilter.customDateStart || '';
+            if (dateEnd) dateEnd.value = draftFilter.customDateEnd || '';
+        } else {
+            dateBox.classList.add('hidden');
+        }
+    }
+    document.getElementById('filterMask').classList.remove('hidden');
+    document.getElementById('filterSheet').classList.remove('hidden');
+}
+
+function closeFilter() {
+    document.getElementById('filterMask').classList.add('hidden');
+    document.getElementById('filterSheet').classList.add('hidden');
+}
+
+function pickFilter(key, value) {
+    draftFilter[key] = value;
+    renderFilterOptions();
+
+    if (key === 'timeRange' && value === 'custom') {
+        var dateBox = document.getElementById('customDateBox');
+        if (dateBox) {
+            dateBox.classList.remove('hidden');
+        }
+    } else if (key === 'timeRange') {
+        var dateBox = document.getElementById('customDateBox');
+        if (dateBox) {
+            dateBox.classList.add('hidden');
+        }
+    }
+}
+
+function onCustomDateChange() {
+    var dateStart = document.getElementById('customDateStart');
+    var dateEnd = document.getElementById('customDateEnd');
+    if (dateStart) draftFilter.customDateStart = dateStart.value;
+    if (dateEnd) draftFilter.customDateEnd = dateEnd.value;
+}
+
+function pickFilterByDataset(el) {
+    if (!el) return;
+    var key = el.getAttribute('data-key');
+    var value = el.getAttribute('data-value');
+    if (!key) return;
+    pickFilter(key, value || '');
+}
+
+function optionClass(active) {
+    return active
+        ? 'text-[11px] text-primary font-medium bg-primary/5 border border-primary/20 rounded-lg px-3 py-1.5'
+        : 'text-[11px] text-gray-500 font-medium bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5';
+}
+
+function renderFilterOptions() {
+    var timeGroup = document.getElementById('timeGroup');
+    var typeGroup = document.getElementById('typeGroup');
+    var categoryGroup = document.getElementById('categoryGroup');
+    var distanceGroup = document.getElementById('distanceGroup');
+
+    timeGroup.innerHTML = FILTER_META.timeRange.map(function(item) {
+        return '<button type="button" data-key="timeRange" data-value="' + item.value + '" class="' + optionClass(draftFilter.timeRange === item.value) + '" onclick="pickFilterByDataset(this)">' + item.label + '</button>';
+    }).join('');
+
+    typeGroup.innerHTML = FILTER_META.demandType.map(function(item) {
+        var cls = draftFilter.demandType === item.value
+            ? 'text-[11px] text-primary font-medium bg-primary/5 border border-primary/20 rounded-lg py-1.5'
+            : 'text-[11px] text-gray-500 font-medium bg-gray-50 border border-gray-200 rounded-lg py-1.5';
+        return '<button type="button" data-key="demandType" data-value="' + item.value + '" class="' + cls + '" onclick="pickFilterByDataset(this)">' + item.label + '</button>';
+    }).join('');
+
+    categoryGroup.innerHTML = FILTER_META.category.map(function(name) {
+        var cls = draftFilter.category === name
+            ? 'text-[11px] text-primary font-medium bg-primary/5 border border-primary/20 rounded-lg py-1.5'
+            : 'text-[11px] text-gray-500 font-medium bg-gray-50 border border-gray-200 rounded-lg py-1.5';
+        return '<button type="button" data-key="category" data-value="' + name + '" class="' + cls + '" onclick="pickFilterByDataset(this)">' + name + '</button>';
+    }).join('');
+
+    distanceGroup.innerHTML = FILTER_META.maxDistance.map(function(item) {
+        return '<button type="button" data-key="maxDistance" data-value="' + item.value + '" class="' + optionClass(draftFilter.maxDistance === item.value) + '" onclick="pickFilterByDataset(this)">' + item.label + '</button>';
+    }).join('');
+}
+
+function resetFilter() {
+    draftFilter = { timeRange: 'all', customDateStart: '', customDateEnd: '', demandType: 'all', category: '全部', maxDistance: 'all' };
+    renderFilterOptions();
+    var dateBox = document.getElementById('customDateBox');
+    var dateStart = document.getElementById('customDateStart');
+    var dateEnd = document.getElementById('customDateEnd');
+    if (dateBox) dateBox.classList.add('hidden');
+    if (dateStart) dateStart.value = '';
+    if (dateEnd) dateEnd.value = '';
+}
+
+function applyFilter() {
+    state.timeRange = draftFilter.timeRange;
+    state.customDateStart = draftFilter.customDateStart;
+    state.customDateEnd = draftFilter.customDateEnd;
+    state.demandType = draftFilter.demandType;
+    state.category = draftFilter.category;
+    state.maxDistance = draftFilter.maxDistance;
+    closeFilter();
+    renderList();
+    renderFilterDot();
+}
+
+function hasActiveFilters() {
+    return state.timeRange !== 'all' || state.demandType !== 'all' || state.category !== '全部' || state.maxDistance !== 'all';
+}
+
+function renderFilterDot() {
+    var dot = document.getElementById('filterDot');
+    if (!dot) return;
+    if (hasActiveFilters()) {
+        dot.classList.remove('hidden');
+    } else {
+        dot.classList.add('hidden');
+    }
+}
+
+function isInTimeRange(iso, range, customDateStart, customDateEnd) {
+    if (range === 'all') return true;
+    var t = new Date(iso || '').getTime();
+    if (Number.isNaN(t)) return false;
+    var now = Date.now();
+    if (range === '1h') return now - t <= 60 * 60 * 1000;
+    if (range === '3d') return now - t <= 3 * 24 * 60 * 60 * 1000;
+    if (range === 'today') {
+        var d = new Date(t);
+        var n = new Date(now);
+        return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
+    }
+    if (range === 'custom') {
+        var d = new Date(t);
+        d.setHours(0, 0, 0, 0);
+
+        if (customDateStart) {
+            var start = new Date(customDateStart);
+            start.setHours(0, 0, 0, 0);
+            if (d < start) return false;
+        }
+        if (customDateEnd) {
+            var end = new Date(customDateEnd);
+            end.setHours(23, 59, 59, 999);
+            if (d > end) return false;
+        }
+        return true;
+    }
+    return true;
+}
+
+function getItemRole(item) {
+    if (item && item.role) return item.role;
+    var id = String((item && item.id) || '');
+    if (id.indexOf('B') === 0) return 'buyer';
+    if (id.indexOf('F') === 0) return 'farmer';
+    return 'farmer';
+}
+
+function readList() {
+    var list = demandStore && typeof demandStore.getDemands === 'function'
+        ? demandStore.getDemands({ status: 'active', sort: 'latest' })
+        : fallbackList.slice();
+
+    // 方向筛选：按 role 过滤
+    if (state.direction === 'purchase') {
+        list = list.filter(function(item) { return getItemRole(item) === 'buyer'; });
+    } else if (state.direction === 'sale') {
+        list = list.filter(function(item) { return getItemRole(item) === 'farmer'; });
+    }
+
+    if (state.demandType !== 'all') {
+        list = list.filter(function(item) { return getDemandTypeValue(item) === state.demandType; });
+    }
+
+    if (state.category !== '全部') {
+        list = list.filter(function(item) { return item.category === state.category; });
+    }
+
+    list = list.filter(function(item) {
+        return isInTimeRange(item.createdAt, state.timeRange, state.customDateStart, state.customDateEnd);
+    });
+
+    if (state.maxDistance !== 'all') {
+        var max = Number(state.maxDistance);
+        list = list.filter(function(item) {
+            return Number(item.distanceKm || 999) <= max;
+        });
+    }
+
+    if (state.keyword) {
+        var key = state.keyword.toLowerCase();
+        list = list.filter(function(item) {
+            var haystack = [item.category, getDemandTypeLabel(item), getDemandTitleText(item), getDemandDescText(item), item.location, item.ownerName].join(' ').toLowerCase();
+            return haystack.indexOf(key) !== -1;
+        });
+    }
+
+    if (state.sort === 'nearest') {
+        list.sort(function(a, b) {
+            return Number(a.distanceKm || 999) - Number(b.distanceKm || 999);
+        });
+    } else if (state.sort === 'farthest') {
+        list.sort(function(a, b) {
+            return Number(b.distanceKm || 0) - Number(a.distanceKm || 0);
+        });
+    } else if (state.sort === 'oldest') {
+        list.sort(function(a, b) {
+            var timeA = new Date(a.createdAt || 0).getTime();
+            var timeB = new Date(b.createdAt || 0).getTime();
+            return timeA - timeB;
+        });
+    } else {
+        list.sort(function(a, b) {
+            var timeA = new Date(a.createdAt || 0).getTime();
+            var timeB = new Date(b.createdAt || 0).getTime();
+            return timeB - timeA;
+        });
+    }
+
+    return list;
+}
+
+function formatAgo(iso) {
+    var t = new Date(iso || '').getTime();
+    if (Number.isNaN(t)) return '-';
+    var diff = Math.max(0, Date.now() - t);
+    var minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return '刚刚';
+    if (minutes < 60) return minutes + '分钟前';
+    var hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + '小时前';
+    var days = Math.floor(hours / 24);
+    return days + '天前';
+}
+
+function formatPrice(item) {
+    if (item.price === null || item.price === undefined || item.price === '') return '面议';
+    var unit = item.unit || '斤';
+    return '¥' + Number(item.price).toFixed(2) + '/' + unit;
+}
+
+function getDemandTypeValue(item) {
+    if (demandStore && typeof demandStore.getDemandType === 'function') {
+        return demandStore.getDemandType(item);
+    }
+    if (item && (item.demandType === 'purchase' || item.demandType === 'sale')) {
+        return item.demandType;
+    }
+    if (item && item.role) {
+        return item.role === 'farmer' ? 'sale' : 'purchase';
+    }
+    var id = String((item && item.id) || '');
+    if (id.indexOf('B') === 0) return 'purchase';
+    if (id.indexOf('F') === 0) return 'sale';
+    return fallbackDemandRole === 'farmer' ? 'sale' : 'purchase';
+}
+
+function getDemandTypeLabel(item) {
+    if (demandStore && typeof demandStore.getDemandTypeLabel === 'function') {
+        return demandStore.getDemandTypeLabel(item);
+    }
+    return getDemandTypeValue(item) === 'sale' ? '销售' : '收购';
+}
+
+function demandTypeTagClass(item) {
+    if (demandStore && typeof demandStore.getDemandTypeTagClass === 'function') {
+        return demandStore.getDemandTypeTagClass(item);
+    }
+    return getDemandTypeValue(item) === 'sale'
+        ? 'bg-green-50 text-green-600'
+        : 'bg-blue-50 text-blue-600';
+}
+
+function getDirectionTag(item) {
+    var role = getItemRole(item);
+    if (role === 'buyer') {
+        return '<span class="text-[9px] px-1.5 py-0.5 rounded bg-green-50 text-green-600 font-medium">求购</span>';
+    }
+    return '<span class="text-[9px] px-1.5 py-0.5 rounded bg-orange-50 text-orange-600 font-medium">出售</span>';
+}
+
+function getDemandTitleText(item) {
+    if (demandStore && typeof demandStore.getDemandTitle === 'function') {
+        return demandStore.getDemandTitle(item);
+    }
+    return (item && (item.title || item.content)) || '';
+}
+
+function getDemandDescText(item) {
+    if (demandStore && typeof demandStore.getDemandDescription === 'function') {
+        return demandStore.getDemandDescription(item);
+    }
+    return (item && (item.note || '')) || '';
+}
+
+function getDetailHref(item) {
+    return 'unified-demand-detail.html?id=' + encodeURIComponent(item.id || '') + '&source=market&back=' + encodeURIComponent(marketPage);
+}
+
+function showToast(msg) {
+    var tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.remove('opacity-0');
+    tip.classList.add('opacity-100');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() {
+        tip.classList.remove('opacity-100');
+        tip.classList.add('opacity-0');
+    }, 1700);
+}
+
+function renderList() {
+    var list = readList();
+    var box = document.getElementById('demandList');
+
+    if (!list.length) {
+        box.innerHTML = '' +
+            '<div class="glass-card rounded-2xl p-6 text-center mt-2">' +
+                '<div class="text-sm text-gray-500 mb-1">暂无匹配需求</div>' +
+                '<div class="text-[11px] text-gray-400">可尝试调整筛选条件或清空搜索关键词</div>' +
+            '</div>';
+        return;
+    }
+
+    box.innerHTML = list.map(function(item) {
+        var encodeName = encodeURIComponent(item.ownerName || '发布者');
+        var encodePhone = encodeURIComponent(item.ownerMobile || '-');
+        var detailHref = getDetailHref(item);
+        var statusLabel = item.status === 'active' ? '进行中' : '已下架';
+        var statusClass = item.status === 'active' ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-500';
+        return '' +
+            '<div class="glass-card rounded-2xl p-3.5 pr-10 relative">' +
+                '<a href="' + detailHref + '" class="absolute inset-0 no-underline" style="text-decoration:none;" aria-label="查看详情"></a>' +
+                '<div class="flex items-center justify-between mb-1.5">' +
+                    '<div class="flex items-center gap-1.5">' +
+                        getDirectionTag(item) +
+                        '<span class="text-[10px] px-2 py-0.5 rounded-full font-medium ' + demandTypeTagClass(item) + '">' + getDemandTypeLabel(item) + '</span>' +
+                        '<span class="text-[10px] text-gray-400"><i class="fas fa-location-dot mr-0.5"></i>' + Number(item.distanceKm || 0).toFixed(1) + 'km</span>' +
+                    '</div>' +
+                    '<span class="text-[10px] ' + statusClass + ' px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">' + statusLabel + '</span>' +
+                '</div>' +
+                '<div class="text-sm text-gray-800 font-medium mb-2 leading-5 truncate">' + (getDemandTitleText(item) || '-') + '</div>' +
+                '<div class="flex items-center justify-between">' +
+                    '<div class="flex items-center gap-3">' +
+                        '<span class="text-xs text-primary font-bold" style="font-family:Poppins;">' + formatPrice(item) + '</span>' +
+                        '<span class="text-[11px] text-gray-500 font-medium">共 ' + String(item.qty || 0) + (item.unit || '斤') + '</span>' +
+                    '</div>' +
+                    '<div class="flex items-center gap-2 absolute right-3 bottom-3">' +
+                        '<button class="text-[10px] text-white font-medium px-2.5 py-1 bg-primary rounded-full z-10 shadow-sm active:opacity-90" onclick="event.preventDefault();event.stopPropagation();openContact(\'' + encodeName + '\',\'' + encodePhone + '\')">联系</button>' +
+                        '<span class="text-[10px] text-gray-400">' + formatAgo(item.createdAt) + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>' +
+            '</div>';
+    }).join('');
+}
+
+function openContact(encodedName, encodedPhone) {
+    var name = decodeURIComponent(encodedName || '');
+    var phone = decodeURIComponent(encodedPhone || '');
+    currentContactPhone = phone;
+    document.getElementById('contactName').textContent = name || '发布者';
+    document.getElementById('contactPhone').textContent = phone || '-';
+    document.getElementById('callLink').setAttribute('href', 'tel:' + (phone || '').replace(/\*/g, ''));
+    document.getElementById('contactMask').classList.remove('hidden');
+    document.getElementById('contactSheet').classList.remove('hidden');
+}
+
+function copyContact() {
+    if (!currentContactPhone || currentContactPhone === '-') return;
+    var text = currentContactPhone;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            showToast('号码已复制');
+        }).catch(function() {
+            showToast('复制失败，请手动复制');
+        });
+        return;
+    }
+    showToast('当前环境不支持自动复制');
+}
+
+function closeContact() {
+    document.getElementById('contactMask').classList.add('hidden');
+    document.getElementById('contactSheet').classList.add('hidden');
+}
+
+// 初始化：根据当前状态设置正确的 activeTab
+if (state.sort === 'nearest') {
+    state.activeTab = 'nearest';
+} else if (state.sort === 'farthest') {
+    state.activeTab = 'farthest';
+} else if (state.sort === 'oldest') {
+    state.activeTab = 'oldest';
+} else {
+    state.activeTab = 'latest';
+}
+
+// 点击页面其他地方关闭排序下拉菜单
+document.addEventListener('click', function(e) {
+    var dropdown = document.getElementById('sortDropdown');
+    var btn = document.getElementById('sortDropdownBtn');
+    if (!dropdown.classList.contains('hidden') &&
+        !dropdown.contains(e.target) &&
+        !btn.contains(e.target)) {
+        dropdown.classList.add('hidden');
+        document.getElementById('sortArrow').style.transform = 'rotate(0deg)';
+    }
+});
+
+// 初始化勾选状态（默认选中最新发布）
+document.getElementById('check-latest').classList.remove('opacity-0');
+
+renderSortBtns();
+renderFilterDot();
+renderList();
+</script>
+</body>
+</html>

@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>丰收云 · 实地调研报告 — 一线真实需求</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+tailwind.config={theme:{extend:{colors:{wheat:'#FFFBF0',postal:{DEFAULT:'#11A64A',dark:'#388E3C',light:'#81C784'}}}}}
+</script>
+<style>
+  body{background:#FFFBF0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+  .glass-panel{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:16px}
+  .glass-card{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:12px;transition:transform .25s cubic-bezier(.4,0,.2,1)}
+  .quote-card{border-left:4px solid #11A64A;background:linear-gradient(135deg,#f0fdf4,#fff);padding:16px 20px;border-radius:0 12px 12px 0;position:relative}
+  .quote-card::before{content:'\201C';position:absolute;top:-8px;left:8px;font-size:48px;color:rgba(17,166,74,.15);font-family:Georgia}
+  .pain-severity-critical{border-left:4px solid #DC2626;background:linear-gradient(135deg,#fef2f2,#fff)}
+  .pain-severity-major{border-left:4px solid #F59E0B;background:linear-gradient(135deg,#fffbeb,#fff)}
+  .pain-severity-moderate{border-left:4px solid #3B82F6;background:linear-gradient(135deg,#eff6ff,#fff)}
+  .tab-btn{transition:all .3s ease;cursor:pointer}
+  .tab-btn.active{background:#11A64A;color:#fff;box-shadow:0 4px 20px rgba(76,163,84,.15)}
+  .section-title{position:relative;padding-left:16px}
+  .section-title::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:4px;background:#11A64A;border-radius:2px}
+  .fade-in{animation:fadeIn .4s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .req-row:hover{background:#f9fafb}
+  .tag{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:600;white-space:nowrap}
+  .source-tag{font-size:10px;padding:1px 6px;border-radius:4px;background:#f3f4f6;color:#6b7280}
+  details summary{cursor:pointer;list-style:none}
+  details summary::-webkit-details-marker{display:none}
+  details summary::after{content:'展开 ▾';font-size:12px;color:#9ca3af;margin-left:8px}
+  details[open] summary::after{content:'收起 ▴'}
+  .counter{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:12px;font-weight:700;flex-shrink:0}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:3px}
+  @media print{body{background:#fff}.no-print{display:none!important}}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- 顶部 -->
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-postal to-postal-dark flex items-center justify-center">
+        <i class="fas fa-wheat-awn text-white text-lg"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-gray-900">丰收云 · 实地调研报告</h1>
+        <p class="text-xs text-gray-400">2026.03.18-19 吉林 · 来自一线的真实声音</p>
+      </div>
+    </div>
+    <span class="text-xs text-gray-400">10场会议 · 4家粮站走访 · 18条问题清单</span>
+  </div>
+</header>
+
+<!-- Tab -->
+<nav class="sticky top-[57px] z-40 bg-wheat border-b border-gray-100 no-print">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex gap-2 overflow-x-auto">
+    <button class="tab-btn active px-4 py-2 rounded-xl text-sm font-medium" onclick="switchTab('voices')"><i class="fas fa-microphone mr-1.5"></i>一线声音</button>
+    <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-500 bg-white" style="box-shadow:0 1px 3px rgba(0,0,0,.06)" onclick="switchTab('scenes')"><i class="fas fa-eye mr-1.5"></i>真实场景</button>
+    <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-500 bg-white" style="box-shadow:0 1px 3px rgba(0,0,0,.06)" onclick="switchTab('pains')"><i class="fas fa-fire mr-1.5"></i>痛点清单</button>
+    <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-500 bg-white" style="box-shadow:0 1px 3px rgba(0,0,0,.06)" onclick="switchTab('reqs')"><i class="fas fa-list-check mr-1.5"></i>需求逐条</button>
+    <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-500 bg-white" style="box-shadow:0 1px 3px rgba(0,0,0,.06)" onclick="switchTab('users')"><i class="fas fa-users mr-1.5"></i>用户画像</button>
+    <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-500 bg-white" style="box-shadow:0 1px 3px rgba(0,0,0,.06)" onclick="switchTab('data')"><i class="fas fa-chart-bar mr-1.5"></i>关键数据</button>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-6 py-6">
+
+<!-- ==================== TAB 1: 一线声音 ==================== -->
+<section id="tab-voices" class="fade-in space-y-6">
+
+  <div class="glass-panel p-6" style="box-shadow:0 8px 24px rgba(0,0,0,.10)">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-2">他们到底说了什么</h2>
+    <p class="text-sm text-gray-500 mb-6">以下引述均来自调研录音原文，未经修饰。让老板听到一线最真实的声音。</p>
+
+    <!-- 支付痛点 -->
+    <h3 class="text-base font-bold text-red-600 mb-3"><i class="fas fa-credit-card mr-2"></i>关于支付——最痛的点</h3>
+    <div class="space-y-4 mb-8">
+      <div class="quote-card">
+        <p class="text-sm text-gray-800 font-medium italic">"额度是最大的。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 省公司业务老师，被问到当前最主要问题时的回答（3/18 14:27会议）</p>
+      </div>
+      <div class="quote-card">
+        <p class="text-sm text-gray-800 font-medium italic">"依照咱这个限制，你讲话，你丫的不行，这整不了你。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 收菜商理事长，对邮政手机银行转账限额的直白评价（3/19 17:04 收菜商走访）</p>
+      </div>
+      <div class="quote-card">
+        <p class="text-sm text-gray-800 font-medium italic">"我十条道路在走，你掐成一条道。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 参会者描述多出纳但只有一张银行卡的瓶颈（3/18 14:27会议）</p>
+      </div>
+      <div class="quote-card">
+        <p class="text-sm text-gray-800 font-medium italic">"五个出纳，可能四个出纳都在那等着。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 多位参与者描述大型粮站付款排队（3/18 14:27会议）</p>
+      </div>
+      <div class="quote-card">
+        <p class="text-sm text-gray-800 font-medium italic">"手机号扫完之后PC端再跳一个，跳完之后再确定……挺复杂的。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 瑞粮站工作人员描述支付跳转流程（3/19 09:03 瑞粮站走访）</p>
+      </div>
+      <div class="quote-card">
+        <p class="text-sm text-gray-800 font-medium italic">"能不能不限制于我们邮政的手机银行？有可能他额度不够……能不能用农行建行的手机银行？"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 省公司业务老师，语气强烈（3/18 14:27会议）</p>
+      </div>
+      <div class="quote-card">
+        <p class="text-sm text-gray-800 font-medium italic">"农户他就是没有邮储银行卡，那我就不转账了吗？"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 省公司业务老师，对邮储卡限制的质疑（3/18 14:27会议）</p>
+      </div>
+    </div>
+
+    <!-- 操作与效率 -->
+    <h3 class="text-base font-bold text-amber-600 mb-3"><i class="fas fa-bolt mr-2"></i>关于操作效率——现场的焦虑</h3>
+    <div class="space-y-4 mb-8">
+      <div class="quote-card" style="border-left-color:#F59E0B">
+        <p class="text-sm text-gray-800 font-medium italic">"现在一个很繁忙很高效的过程可能就是20秒30秒。你需要把它通过系统来加一些录入、支付扫码的环节，可能把一个30秒的流程变成30分钟了。这个老板我觉得他使用的意愿就不会很强。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 驻马店基层业务人员，最务实的声音（3/18 17:16总结会）</p>
+      </div>
+      <div class="quote-card" style="border-left-color:#F59E0B">
+        <p class="text-sm text-gray-800 font-medium italic">"排队一个车都排着，都不往回头路走了。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 瑞粮站，描述高峰期车辆排队的紧迫感（3/19 09:03）</p>
+      </div>
+      <div class="quote-card" style="border-left-color:#F59E0B">
+        <p class="text-sm text-gray-800 font-medium italic">"这不是要设计一个iPhone，我是要设计一个老人机。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 项目负责人，强调系统必须极简（3/18 09:04晨会）</p>
+      </div>
+      <div class="quote-card" style="border-left-color:#F59E0B">
+        <p class="text-sm text-gray-800 font-medium italic">"收粮现场场景，车辆排队一旦出现卡壳，一旦出现坎坷，就会非常着急。因为业务就不通了。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 集团负责人，描述现场压力（3/18 17:16总结会）</p>
+      </div>
+    </div>
+
+    <!-- 农户信任 -->
+    <h3 class="text-base font-bold text-purple-600 mb-3"><i class="fas fa-user-shield mr-2"></i>关于农户——信任与门槛</h3>
+    <div class="space-y-4 mb-8">
+      <div class="quote-card" style="border-left-color:#8B5CF6">
+        <p class="text-sm text-gray-800 font-medium italic">"你让他填个号，我觉得费劲。我们就卖一卖一点粮食，这好家伙又要填那个又要填那个的，甚至说我要上传拍照身份证。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 集团负责人，以农户视角表达建档的抗拒（3/18 17:16总结会）</p>
+      </div>
+      <div class="quote-card" style="border-left-color:#8B5CF6">
+        <p class="text-sm text-gray-800 font-medium italic">"他以为做贷款。对，就是让他提供身份证号码……卡号给你，我都有点顾虑，万一拿我的卡随便……"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 集团负责人，还原农户的真实心理（3/18 17:16总结会）</p>
+      </div>
+      <div class="quote-card" style="border-left-color:#8B5CF6">
+        <p class="text-sm text-gray-800 font-medium italic">"人家就不要，人家说不咋会使，你说，那就给我司丢了。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 收菜商，描述老年农户宁可丢钱也不敢用手机支付（3/19 17:04）</p>
+      </div>
+      <div class="quote-card" style="border-left-color:#8B5CF6">
+        <p class="text-sm text-gray-800 font-medium italic">"我不需要你给我转账，你现金给我就行。但我这系统里面必须得要求他。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 项目负责人，描述现金支付农户与系统要求的矛盾（3/18 16:20会议）</p>
+      </div>
+    </div>
+
+    <!-- 竞品与行业 -->
+    <h3 class="text-base font-bold text-blue-600 mb-3"><i class="fas fa-scale-balanced mr-2"></i>关于竞品——已经有人在做了</h3>
+    <div class="space-y-4 mb-8">
+      <div class="quote-card" style="border-left-color:#3B82F6">
+        <p class="text-sm text-gray-800 font-medium italic">"人家直接就详细的上面就加上这个公关费都出来了。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 第三家粮站员工，描述竞品系统的费用自动计算能力（3/19 14:36）</p>
+      </div>
+      <div class="quote-card" style="border-left-color:#3B82F6">
+        <p class="text-sm text-gray-800 font-medium italic">"你把卡递给人家，给你照相一刷脸，人家就弹出来了。你送了多少粮食，多少钱，你点直接算出来就行了。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 第三家粮站，描述竞品的刷脸+一键结算体验（3/19 14:36）</p>
+      </div>
+      <div class="quote-card" style="border-left-color:#3B82F6">
+        <p class="text-sm text-gray-800 font-medium italic">"转账没有转账，还用手机银行？这个系统直接出来。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 第三家粮站，竞品系统内直接完成支付，不跳手机银行（3/19 14:36）</p>
+      </div>
+      <div class="quote-card" style="border-left-color:#3B82F6">
+        <p class="text-sm text-gray-800 font-medium italic">"支付只不过是他一个附加小功能。主要就是这个记账本。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 红瑞粮站，揭示粮站最需要的是台账管理而非支付工具（3/19 10:40）</p>
+      </div>
+    </div>
+
+    <!-- 税务顾虑 -->
+    <h3 class="text-base font-bold text-gray-700 mb-3"><i class="fas fa-shield-halved mr-2"></i>关于税务——推广最大的心理障碍</h3>
+    <div class="space-y-4">
+      <div class="quote-card" style="border-left-color:#6B7280">
+        <p class="text-sm text-gray-800 font-medium italic">"在东北这块儿，有个大的农户，他卖完了250万或者20万、30万。这个到底是不是要上税？"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 省公司业务老师，反复追问（3/18 14:27会议）</p>
+      </div>
+      <div class="quote-card" style="border-left-color:#6B7280">
+        <p class="text-sm text-gray-800 font-medium italic">"就比如说税务查我，然后我要知道我今天付出去20笔，这20笔每一个后面是要写名字的。"</p>
+        <p class="text-xs text-gray-500 mt-2">—— 红瑞粮站，描述税务稽查时需要完整交易记录（3/19 10:40）</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TAB 2: 真实场景 ==================== -->
+<section id="tab-scenes" class="fade-in space-y-6 hidden">
+
+  <!-- 收粮全流程 -->
+  <div class="glass-panel p-6" style="box-shadow:0 8px 24px rgba(0,0,0,.10)">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-2">实地观察：一笔收粮交易是怎么发生的</h2>
+    <p class="text-sm text-gray-500 mb-6">综合瑞粮站、红瑞粮站、第三家粮站的实际操作还原</p>
+
+    <div class="space-y-4">
+      <div class="flex gap-4 items-start">
+        <div class="counter bg-postal/10 text-postal mt-1">1</div>
+        <div class="glass-card p-4 flex-1" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+          <h4 class="font-bold text-gray-900">农户拉粮进场</h4>
+          <p class="text-sm text-gray-600 mt-1">农户开车拉粮到粮站，车辆排队等候。工作人员确认身份：老客户报名字/手机号直接识别；新客户需现场登记。</p>
+          <p class="text-xs text-amber-600 mt-2"><i class="fas fa-exclamation-triangle mr-1"></i>新客户信息登记是最大的摩擦点——「好家伙又要填那个又要填那个」</p>
+        </div>
+      </div>
+
+      <div class="flex gap-4 items-start">
+        <div class="counter bg-postal/10 text-postal mt-1">2</div>
+        <div class="glass-card p-4 flex-1" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+          <h4 class="font-bold text-gray-900">满载过磅（称毛重）</h4>
+          <p class="text-sm text-gray-600 mt-1">车辆上地磅，地磅通过串口/USB连电脑自动读数。现场LED大屏实时显示重量。称重人员通过对讲机与室内人员沟通。</p>
+          <p class="text-xs text-blue-600 mt-2"><i class="fas fa-info-circle mr-1"></i>如果农户对重量有异议，需要重称——「第一次过的不准，你再重复一遍，以哪次为准？」</p>
+        </div>
+      </div>
+
+      <div class="flex gap-4 items-start">
+        <div class="counter bg-postal/10 text-postal mt-1">3</div>
+        <div class="glass-card p-4 flex-1" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+          <h4 class="font-bold text-gray-900">质检 · 水分检测</h4>
+          <p class="text-sm text-gray-600 mt-1">抽样检测粮食水分含量，精度到0.1%。不同水分对应不同收购价——水分越高，价格越低。这是定价的核心依据。</p>
+          <p class="text-xs text-red-600 mt-2"><i class="fas fa-fire mr-1"></i>第三家粮站原话：「七个水收的，三个水卖的」——水分折干是整个利润空间的核心</p>
+        </div>
+      </div>
+
+      <div class="flex gap-4 items-start">
+        <div class="counter bg-postal/10 text-postal mt-1">4</div>
+        <div class="glass-card p-4 flex-1" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+          <h4 class="font-bold text-gray-900">卸粮 → 空车过磅（称皮重）</h4>
+          <p class="text-sm text-gray-600 mt-1">卸粮入库后空车再称，毛重 - 皮重 = 净重。<strong>车牌号</strong>是两次称重关联的唯一标识——「车号是必须的，咱们系统里没有车号」。</p>
+        </div>
+      </div>
+
+      <div class="flex gap-4 items-start">
+        <div class="counter bg-postal/10 text-postal mt-1">5</div>
+        <div class="glass-card p-4 flex-1" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+          <h4 class="font-bold text-gray-900">议价 · 定最终单价</h4>
+          <p class="text-sm text-gray-600 mt-1">双方根据品质、水分、市场行情协商最终单价。可能在称重后临时调整——「议价那个环节，他们可能要调整一下价格」。</p>
+        </div>
+      </div>
+
+      <div class="flex gap-4 items-start">
+        <div class="counter bg-postal/10 text-postal mt-1">6</div>
+        <div class="glass-card p-4 flex-1" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+          <h4 class="font-bold text-gray-900">开单 · 打印结算凭证</h4>
+          <p class="text-sm text-gray-600 mt-1">系统生成订单（品类+数量+单价+总额+车牌号+各项费用），打印结算单据。农户拿着单子作为收据。</p>
+          <p class="text-xs text-amber-600 mt-2"><i class="fas fa-exclamation-triangle mr-1"></i>结算单要包含车牌号、水分、农户信息——「打出来的东西不能还不如手写的详细」</p>
+        </div>
+      </div>
+
+      <div class="flex gap-4 items-start">
+        <div class="counter bg-postal/10 text-postal mt-1">7</div>
+        <div class="glass-card p-4 flex-1" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+          <h4 class="font-bold text-gray-900">付款结算</h4>
+          <p class="text-sm text-gray-600 mt-1">老板用手机银行扫码付款。可以单笔付，也有大量「先开单、后统一付」的合并付款需求。一上午收30-50车粮，逐笔付太慢。</p>
+          <p class="text-xs text-red-600 mt-2"><i class="fas fa-fire mr-1"></i>付款只能老板手机操作——「会计有自己手机银行，但是也扫不了，只能用老板的」</p>
+        </div>
+      </div>
+
+      <div class="flex gap-4 items-start">
+        <div class="counter bg-postal/10 text-postal mt-1">8</div>
+        <div class="glass-card p-4 flex-1" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+          <h4 class="font-bold text-gray-900">日终结算 · 报表</h4>
+          <p class="text-sm text-gray-600 mt-1">日结报表、交易流水、农户台账明细。粮食局要求必须出具含身份证号、车牌号、结算明细的收购报表，用于粮食溯源。</p>
+          <p class="text-xs text-red-600 mt-2"><i class="fas fa-fire mr-1"></i>「粮食局要求必须得有这两个报表」——合规刚需，不满足就不能推广</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 蔬菜收购场景 -->
+  <div class="glass-panel p-6" style="box-shadow:0 4px 12px rgba(0,0,0,.08)">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-2">实地观察：流动收菜商的一天</h2>
+    <p class="text-sm text-gray-500 mb-4">来自3/19 17:04 收菜商走访</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="glass-card p-4" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-gray-900 mb-2">收菜环节</h4>
+        <ul class="space-y-1.5 text-sm text-gray-600">
+          <li>走村串户或农户送菜到交易点</li>
+          <li>现场看菜、谈价——「大哥多少钱？豆角三块钱一斤」</li>
+          <li>称重——「380斤……385斤」</li>
+          <li>微信转账给农户（占90%），少量现金</li>
+        </ul>
+      </div>
+      <div class="glass-card p-4" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-gray-900 mb-2">卖菜环节</h4>
+        <ul class="space-y-1.5 text-sm text-gray-600">
+          <li>外地客商（长春/辽宁/黑龙江）开大车来</li>
+          <li>装车走——当天装当天运（蔬菜不能隔夜）</li>
+          <li>客商微信/银行卡转账给收菜商</li>
+          <li>利润极薄——「385斤上车走380，放一宿就蔫了掉秤」</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-4 p-4 rounded-xl bg-green-50 border border-green-100">
+      <p class="text-sm text-green-800"><strong>核心吸引力：</strong>如果平台能省掉微信提现到银行卡的手续费（约5‰），对收菜商就有价值——「跳过了微信支付，就咱自个支付省了手续费了是吧？」</p>
+    </div>
+  </div>
+
+  <!-- 竞品场景 -->
+  <div class="glass-panel p-6" style="box-shadow:0 4px 12px rgba(0,0,0,.08)">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-2">竞品对比：第三家粮站用的系统长什么样</h2>
+    <p class="text-sm text-gray-500 mb-4">这家粮站已有同业系统，我们的系统要替换它，必须比它好</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="glass-card p-4 border-l-4 border-l-blue-400" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-blue-700 mb-2">竞品已有的能力</h4>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><i class="fas fa-check text-blue-500 mr-2"></i>摄像头自动识别车牌号，绑定订单</li>
+          <li><i class="fas fa-check text-blue-500 mr-2"></i>水分折干自动计算（精度0.1%）</li>
+          <li><i class="fas fa-check text-blue-500 mr-2"></i>每车费用明细（公关费/卸车费/运费）自动叠加</li>
+          <li><i class="fas fa-check text-blue-500 mr-2"></i>收粮+卖粮在同一系统，直接看利润</li>
+          <li><i class="fas fa-check text-blue-500 mr-2"></i>刷脸确认身份，一键结算</li>
+          <li><i class="fas fa-check text-blue-500 mr-2"></i><strong>系统内直接完成支付</strong>——不跳手机银行</li>
+        </ul>
+      </div>
+      <div class="glass-card p-4 border-l-4 border-l-red-400" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-red-700 mb-2">我们目前缺失的</h4>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li><i class="fas fa-xmark text-red-500 mr-2"></i>无车牌号录入</li>
+          <li><i class="fas fa-xmark text-red-500 mr-2"></i>无水分折干计算</li>
+          <li><i class="fas fa-xmark text-red-500 mr-2"></i>无费用明细管理</li>
+          <li><i class="fas fa-xmark text-red-500 mr-2"></i>无卖粮/利润核算模块</li>
+          <li><i class="fas fa-xmark text-red-500 mr-2"></i>无刷脸识别</li>
+          <li><i class="fas fa-xmark text-red-500 mr-2"></i>支付需跳转手机银行APP确认</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-4 p-4 rounded-xl bg-red-50 border border-red-100">
+      <p class="text-sm text-red-800"><strong>第三家粮站态度：</strong>「说这些就是人家现在正用着那个，你说这些是吧」——言下之意：你说的这些人家早就有了，我为什么要换？</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TAB 3: 痛点清单 ==================== -->
+<section id="tab-pains" class="fade-in space-y-6 hidden">
+
+  <div class="glass-panel p-6" style="box-shadow:0 8px 24px rgba(0,0,0,.10)">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-2">按严重程度排列的痛点清单</h2>
+    <p class="text-sm text-gray-500 mb-1">每个痛点都注明了：什么场景、谁遇到的、影响多大、怎么说的</p>
+    <div class="flex gap-3 mt-3 mb-6 text-xs">
+      <span class="tag bg-red-50 text-red-700 border border-red-200">致命 · 不解决不能用</span>
+      <span class="tag bg-amber-50 text-amber-700 border border-amber-200">严重 · 显著影响使用</span>
+      <span class="tag bg-blue-50 text-blue-700 border border-blue-200">中等 · 体验不佳</span>
+    </div>
+  </div>
+
+  <!-- 致命级 -->
+  <div class="space-y-4">
+    <h3 class="text-base font-bold text-red-600 flex items-center gap-2"><span class="tag bg-red-100 text-red-700">致命</span>不解决这些，系统推不动</h3>
+
+    <div class="glass-card pain-severity-critical p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <div class="flex items-start justify-between mb-2">
+        <h4 class="font-bold text-gray-900">1. 转账限额卡死大型粮站</h4>
+        <div class="flex gap-1"><span class="source-tag">瑞粮站</span><span class="source-tag">红瑞</span><span class="source-tag">收菜商</span><span class="source-tag">吉林组#8#9</span></div>
+      </div>
+      <p class="text-sm text-gray-700">吉林大型粮站高峰期日交易额超<strong>100万甚至300万</strong>。邮储手机银行单日限额约50万，额度不到中午就用完了。新开的邮储卡限额更低，收粮站老板开卡当天就会因为限额不够而翻脸——「这卡没用」。</p>
+      <p class="text-xs text-red-600 mt-2 font-medium">影响：限额不够 = 系统废了一半。这是推广的关键阻塞点。</p>
+    </div>
+
+    <div class="glass-card pain-severity-critical p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <div class="flex items-start justify-between mb-2">
+        <h4 class="font-bold text-gray-900">2. 支付流程太复杂 · 多次跳转</h4>
+        <div class="flex gap-1"><span class="source-tag">瑞粮站</span><span class="source-tag">第三家</span><span class="source-tag">收菜商</span><span class="source-tag">吉林组#5</span></div>
+      </div>
+      <p class="text-sm text-gray-700">PC端生成订单 → 弹出二维码 → 掏手机 → 打开银行APP → 扫码 → 跳浏览器 → 跳手机银行 → 输密码确认。一天200单，每单多30秒，累计近2小时浪费。而竞品系统<strong>在系统里一键付款</strong>，不跳手机银行。</p>
+      <p class="text-xs text-red-600 mt-2 font-medium">影响：对比竞品体验落后一代。收粮现场环境恶劣（灰尘大/手脏），掏手机操作极不方便。</p>
+    </div>
+
+    <div class="glass-card pain-severity-critical p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <div class="flex items-start justify-between mb-2">
+        <h4 class="font-bold text-gray-900">3. 只绑一张卡 · 多出纳无法并行付款</h4>
+        <div class="flex gap-1"><span class="source-tag">3/18下午会</span><span class="source-tag">红瑞</span><span class="source-tag">吉林组</span></div>
+      </div>
+      <p class="text-sm text-gray-700">大型粮站4-5个出纳同时工作，但进件时只绑定了一张银行卡。4个出纳干活，到付款环节只能1个人操作——「十条道路在走，掐成一条道」。</p>
+      <p class="text-xs text-red-600 mt-2 font-medium">影响：高峰期严重拖慢效率。建议支持多支付通道（私对私+公对私+第三方），多出纳各自操作。</p>
+    </div>
+
+    <div class="glass-card pain-severity-critical p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <div class="flex items-start justify-between mb-2">
+        <h4 class="font-bold text-gray-900">4. 缺少水分折干计算——粮食定价的地基</h4>
+        <div class="flex gap-1"><span class="source-tag">第三家</span><span class="source-tag">吉林组#16</span></div>
+      </div>
+      <p class="text-sm text-gray-700">粮食收购的定价核心是水分：30%水分的玉米和14%标准水分的玉米价格完全不同。竞品系统可自动折算、配置各档水分单价、计入烘干费。<strong>没有这个功能，系统在粮站老板眼里就是「外行做的玩具」。</strong></p>
+      <p class="text-xs text-red-600 mt-2 font-medium">影响：这是粮食收购行业的核心业务逻辑，缺了等于系统连行业入门都不算。</p>
+    </div>
+
+    <div class="glass-card pain-severity-critical p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <div class="flex items-start justify-between mb-2">
+        <h4 class="font-bold text-gray-900">5. 无法出具监管报表 · 粮食局合规要求</h4>
+        <div class="flex gap-1"><span class="source-tag">瑞粮站</span><span class="source-tag">吉林组#1</span></div>
+      </div>
+      <p class="text-sm text-gray-700">粮食局要求收粮站必须出具含<strong>身份证号、车牌号、银行卡号、结算情况</strong>的农户台账明细表，用于粮食溯源。系统不能出这张表，收粮老板就得两套账并行，那他不会用你的系统。</p>
+      <p class="text-xs text-red-600 mt-2 font-medium">影响：合规刚需。不满足 = 无法推广。</p>
+    </div>
+
+    <div class="glass-card pain-severity-critical p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <div class="flex items-start justify-between mb-2">
+        <h4 class="font-bold text-gray-900">6. 税务顾虑——推广最大心理障碍</h4>
+        <div class="flex gap-1"><span class="source-tag">3/18下午会</span><span class="source-tag">吉林组#3#14</span><span class="source-tag">瑞粮站</span></div>
+      </div>
+      <p class="text-sm text-gray-700">收粮站老板最怕的事：上了系统后交易数据全透明，被税务「秋后算账」。进件数据是否上传银联？手机银行转账记录是否报税？<strong>不给明确答复，老板直接拒绝使用。</strong></p>
+      <p class="text-xs text-red-600 mt-2 font-medium">影响：不是技术问题，是商务信任问题。但直接决定收粮站老板愿不愿意进件。</p>
+    </div>
+  </div>
+
+  <!-- 严重级 -->
+  <div class="space-y-4 mt-6">
+    <h3 class="text-base font-bold text-amber-600 flex items-center gap-2"><span class="tag bg-amber-100 text-amber-700">严重</span>显著影响使用体验和推广</h3>
+
+    <div class="glass-card pain-severity-major p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <h4 class="font-bold text-gray-900 mb-1">7. 缺少车牌号字段</h4>
+      <p class="text-sm text-gray-600">车牌号是两次称重关联的唯一标识，也是监管报表必填项。<span class="source-tag ml-1">吉林组#11#12</span><span class="source-tag ml-1">红瑞</span></p>
+    </div>
+    <div class="glass-card pain-severity-major p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <h4 class="font-bold text-gray-900 mb-1">8. 只支持邮储银行卡</h4>
+      <p class="text-sm text-gray-600">大量农户持农行/信用社卡。强制邮储卡 = 排除掉大量客户。各省一致要求开放。<span class="source-tag ml-1">河南</span><span class="source-tag ml-1">3/18下午会</span><span class="source-tag ml-1">吉林组#2</span></p>
+    </div>
+    <div class="glass-card pain-severity-major p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <h4 class="font-bold text-gray-900 mb-1">9. 农户信息采集过重 · 隐私抗拒</h4>
+      <p class="text-sm text-gray-600">要求身份证拍照、大量字段填写。农户以为在办贷款。共识：三要素（姓名+手机号+银行卡号）够了。<span class="source-tag ml-1">全部会议</span></p>
+    </div>
+    <div class="glass-card pain-severity-major p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <h4 class="font-bold text-gray-900 mb-1">10. 老系统数据无法迁移</h4>
+      <p class="text-sm text-gray-600">有系统的粮站积累了几百上千个农户信息。不能批量导入 = 从零开始 = 老板拒绝换系统。<span class="source-tag ml-1">吉林组#4</span><span class="source-tag ml-1">瑞粮站</span></p>
+    </div>
+    <div class="glass-card pain-severity-major p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <h4 class="font-bold text-gray-900 mb-1">11. 缺少合并付款</h4>
+      <p class="text-sm text-gray-600">一上午收30-50车粮，需要先开单后统一付款。类似购物车模式。粮站/收菜商一致需求。<span class="source-tag ml-1">瑞粮站</span><span class="source-tag ml-1">红瑞</span><span class="source-tag ml-1">收菜商</span></p>
+    </div>
+    <div class="glass-card pain-severity-major p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <h4 class="font-bold text-gray-900 mb-1">12. 付款只能老板手机操作</h4>
+      <p class="text-sm text-gray-600">手机银行实名校验，会计/出纳自己手机扫不了。老板不在 = 全场停。<span class="source-tag ml-1">瑞粮站</span><span class="source-tag ml-1">红瑞</span></p>
+    </div>
+    <div class="glass-card pain-severity-major p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <h4 class="font-bold text-gray-900 mb-1">13. 操作流程太复杂 · 老板不会用</h4>
+      <p class="text-sm text-gray-600">收粮本来20-30秒一单，用系统后可能变30分钟。粮站老板年龄大、IT素养有限。<span class="source-tag ml-1">驻马店基层</span><span class="source-tag ml-1">山东经验</span></p>
+    </div>
+    <div class="glass-card pain-severity-major p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+      <h4 class="font-bold text-gray-900 mb-1">14. 转账备注没有订单信息</h4>
+      <p class="text-sm text-gray-600">农户收到转账，备注只写「转账」。20笔交易对不上哪笔是哪车粮。监管要求备注体现交易信息。<span class="source-tag ml-1">吉林组#15</span><span class="source-tag ml-1">红瑞</span></p>
+    </div>
+  </div>
+
+  <!-- 中等级 -->
+  <div class="space-y-4 mt-6">
+    <h3 class="text-base font-bold text-blue-600 flex items-center gap-2"><span class="tag bg-blue-100 text-blue-700">中等</span>影响体验，有则更好</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="glass-card pain-severity-moderate p-4" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-gray-900 mb-1">15. 无收粮+卖粮利润一体化</h4>
+        <p class="text-xs text-gray-600">第三家粮站核心诉求。收了多少、卖了多少、赚了多少——一个界面看清。</p>
+      </div>
+      <div class="glass-card pain-severity-moderate p-4" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-gray-900 mb-1">16. 已结算订单作废后退款不闭环</h4>
+        <p class="text-xs text-gray-600">作废了但钱已经付了，退款只能线下处理——信息流和资金流分离。</p>
+      </div>
+      <div class="glass-card pain-severity-moderate p-4" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-gray-900 mb-1">17. 结算单内容不完整</h4>
+        <p class="text-xs text-gray-600">缺车牌号、水分、农户信息。农户拿到的凭证不如手写单子。</p>
+      </div>
+      <div class="glass-card pain-severity-moderate p-4" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-gray-900 mb-1">18. 现金支付农户无法记录</h4>
+        <p class="text-xs text-gray-600">约10%农户选现金。系统要求必须有银行卡信息才能开单，现金用户无法入系统。</p>
+      </div>
+      <div class="glass-card pain-severity-moderate p-4" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-gray-900 mb-1">19. 移动端无法完成全流程</h4>
+        <p class="text-xs text-gray-600">瑞粮站强需求：称重确认、选品类、定单价都在手机上完成，农户只跑一趟。</p>
+      </div>
+      <div class="glass-card pain-severity-moderate p-4" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-gray-900 mb-1">20. 微信提现手续费</h4>
+        <p class="text-xs text-gray-600">收菜商90%用微信，提现到银行卡有5‰手续费。如果平台能免——「省了手续费」是核心卖点。</p>
+      </div>
+      <div class="glass-card pain-severity-moderate p-4" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-gray-900 mb-1">21. PC端和小程序密码不同步</h4>
+        <p class="text-xs text-gray-600">改了一端密码另一端不变。用户认为是同一个系统。</p>
+      </div>
+      <div class="glass-card pain-severity-moderate p-4" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-sm text-gray-900 mb-1">22. 委托售粮的溯源需求</h4>
+        <p class="text-xs text-gray-600">A的粮委托B来卖，需在交易记录里注明委托关系，满足税务和收购限额溯源。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TAB 4: 需求逐条 ==================== -->
+<section id="tab-reqs" class="fade-in space-y-6 hidden">
+
+  <div class="glass-panel p-6" style="box-shadow:0 8px 24px rgba(0,0,0,.10)">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-2">调研发现的全部需求（逐条）</h2>
+    <p class="text-sm text-gray-500 mb-4">每一条都对应调研中的真实场景和真实诉求，可直接用于产品规划</p>
+
+    <!-- 支付与结算 -->
+    <h3 class="text-base font-bold text-gray-800 mt-6 mb-3 pb-2 border-b border-gray-100"><i class="fas fa-credit-card text-red-400 mr-2"></i>支付与结算（12条）</h3>
+    <div class="space-y-3">
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">1</span><div><p class="text-sm font-medium text-gray-800">简化支付跳转流程，减少PC→手机→浏览器→银行APP的多次跳转</p><p class="text-xs text-gray-500 mt-1">来源：瑞粮站/收菜商/吉林组#5 · 一线最高频诉求</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">2</span><div><p class="text-sm font-medium text-gray-800">与总行协调提高收购商邮储卡日转账限额（当前约50万，需求至少100-300万）</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#8 · 大型粮站业务刚需</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">3</span><div><p class="text-sm font-medium text-gray-800">新开卡收购商的即时提额白名单机制</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#9 · 新客户当天就要用，额度不够直接劝退</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">4</span><div><p class="text-sm font-medium text-gray-800">支持多支付通道——私对私/公对私/第三方，多出纳各自操作不互锁</p><p class="text-xs text-gray-500 mt-1">来源：3/18 14:27会议技术架构专家提议 · 解决并行瓶颈</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">5</span><div><p class="text-sm font-medium text-gray-800">支持「他行转账」类型选择（农行、信用社等），至少在系统中记录这种支付方式</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#2 · 不支持他行记录=台账残缺</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">6</span><div><p class="text-sm font-medium text-gray-800">合并付款（购物车模式）——多笔不同农户的订单勾选后一次性支付</p><p class="text-xs text-gray-500 mt-1">来源：瑞粮站/红瑞/收菜商 · 类似淘宝购物车</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">7</span><div><p class="text-sm font-medium text-gray-800">合并付款时每笔附言/备注不同，满足税务稽查溯源</p><p class="text-xs text-gray-500 mt-1">来源：红瑞粮站 · 「20笔每一个后面要写名字」</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">8</span><div><p class="text-sm font-medium text-gray-800">银行转账备注字段自动带入订单号/品类/重量等关键信息</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#15 · 方便银行流水直接对上业务台账</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">9</span><div><p class="text-sm font-medium text-gray-800">支持会计/出纳独立付款，不必须用老板手机</p><p class="text-xs text-gray-500 mt-1">来源：瑞粮站/红瑞 · 老板不在=全场停摆</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">10</span><div><p class="text-sm font-medium text-gray-800">支持非邮储银行卡收款（先进来后逐步转化）</p><p class="text-xs text-gray-500 mt-1">来源：河南省/3/18下午会 · 「先进来后转化」是核心策略</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">11</span><div><p class="text-sm font-medium text-gray-800">支持现金支付的订单记录（仅填姓名+电话即可开单）</p><p class="text-xs text-gray-500 mt-1">来源：3/18 16:20会议 · 约10%农户选现金</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-red-50 text-red-600 text-xs">12</span><div><p class="text-sm font-medium text-gray-800">订单作废后的退款流程——信息流和资金流要闭环</p><p class="text-xs text-gray-500 mt-1">来源：3/18 16:49会议 · 「钱怎么回来？你管不了」</p></div></div>
+    </div>
+
+    <!-- 称重与定价 -->
+    <h3 class="text-base font-bold text-gray-800 mt-8 mb-3 pb-2 border-b border-gray-100"><i class="fas fa-weight-scale text-amber-400 mr-2"></i>称重与定价（6条）</h3>
+    <div class="space-y-3">
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-amber-50 text-amber-600 text-xs">13</span><div><p class="text-sm font-medium text-gray-800">订单增加车牌号字段，与两次称重关联</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#11 · 车牌号是现场「人脸识别」</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-amber-50 text-amber-600 text-xs">14</span><div><p class="text-sm font-medium text-gray-800">水分折干计算器——不同水分折算标准干重价格（精度0.1%）</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#16(1)/第三家粮站 · 粮食定价的核心逻辑</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-amber-50 text-amber-600 text-xs">15</span><div><p class="text-sm font-medium text-gray-800">后台可配置各档水分对应的收购单价</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#16(2) · 每天根据行情调整</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-amber-50 text-amber-600 text-xs">16</span><div><p class="text-sm font-medium text-gray-800">订单中体现折干后标准价格 + 烘干费等附加成本</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#16(3) · 每车详细成本明细</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-amber-50 text-amber-600 text-xs">17</span><div><p class="text-sm font-medium text-gray-800">支持录入每车附加费用（公关费/卸车费/人工费/运费）</p><p class="text-xs text-gray-500 mt-1">来源：第三家粮站 · 「公关费都出来了，直接加上」</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-amber-50 text-amber-600 text-xs">18</span><div><p class="text-sm font-medium text-gray-800">支持重复称重（首次不准时重称，以哪次为准可选）</p><p class="text-xs text-gray-500 mt-1">来源：3/18 16:49会议 · 称重争议处理</p></div></div>
+    </div>
+
+    <!-- 农户管理 -->
+    <h3 class="text-base font-bold text-gray-800 mt-8 mb-3 pb-2 border-b border-gray-100"><i class="fas fa-user-plus text-green-400 mr-2"></i>农户管理（6条）</h3>
+    <div class="space-y-3">
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-green-50 text-green-600 text-xs">19</span><div><p class="text-sm font-medium text-gray-800">农户建档简化为三要素：姓名 + 手机号 + 银行卡号</p><p class="text-xs text-gray-500 mt-1">来源：收菜商/红瑞/总结会 · 「三要素就可以」</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-green-50 text-green-600 text-xs">20</span><div><p class="text-sm font-medium text-gray-800">取消身份证拍照要求，信息采集增加隐私承诺弹窗</p><p class="text-xs text-gray-500 mt-1">来源：3/18总结会 · 「光登记卡号，不填身份证号，顾虑低一点」</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-green-50 text-green-600 text-xs">21</span><div><p class="text-sm font-medium text-gray-800">支持农户自行扫码注册（二维码自助建档）</p><p class="text-xs text-gray-500 mt-1">来源：总结会/瑞粮站 · 减轻网点客户经理工作量</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-green-50 text-green-600 text-xs">22</span><div><p class="text-sm font-medium text-gray-800">支持Excel批量导入老客户数据（姓名/手机号/身份证/银行卡）</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#4/瑞粮站 · 老系统迁移必备</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-green-50 text-green-600 text-xs">23</span><div><p class="text-sm font-medium text-gray-800">老客户自动识别——来了能快速带出历史信息</p><p class="text-xs text-gray-500 mt-1">来源：瑞粮站 · 「老客数据能带出来」</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-green-50 text-green-600 text-xs">24</span><div><p class="text-sm font-medium text-gray-800">同一手机号支持双角色注册（同一人既是农户又是收购商）</p><p class="text-xs text-gray-500 mt-1">来源：3/18 14:27会议/收菜商 · 「他既可以是农户，又可以是收购商」</p></div></div>
+    </div>
+
+    <!-- 报表与数据 -->
+    <h3 class="text-base font-bold text-gray-800 mt-8 mb-3 pb-2 border-b border-gray-100"><i class="fas fa-chart-pie text-blue-400 mr-2"></i>报表与数据（4条）</h3>
+    <div class="space-y-3">
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-blue-50 text-blue-600 text-xs">25</span><div><p class="text-sm font-medium text-gray-800">导出农户台账明细表（含身份证/卡号/结算情况），满足粮食局合规</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#1/瑞粮站 · 监管刚需</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-blue-50 text-blue-600 text-xs">26</span><div><p class="text-sm font-medium text-gray-800">日结算报表、交易流水、收款/付款汇总</p><p class="text-xs text-gray-500 mt-1">来源：多家粮站 · 老板每天都要看</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-blue-50 text-blue-600 text-xs">27</span><div><p class="text-sm font-medium text-gray-800">收粮+卖粮利润核算——入库成本vs实际售价，计算差价利润</p><p class="text-xs text-gray-500 mt-1">来源：第三家粮站 · 竞品已有此功能</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-blue-50 text-blue-600 text-xs">28</span><div><p class="text-sm font-medium text-gray-800">数据导出支持Excel格式，关键信息可脱敏也可完整导出</p><p class="text-xs text-gray-500 mt-1">来源：瑞粮站 · 脱敏存储+按需完整导出</p></div></div>
+    </div>
+
+    <!-- 系统与体验 -->
+    <h3 class="text-base font-bold text-gray-800 mt-8 mb-3 pb-2 border-b border-gray-100"><i class="fas fa-laptop-code text-purple-400 mr-2"></i>系统与体验（8条）</h3>
+    <div class="space-y-3">
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-purple-50 text-purple-600 text-xs">29</span><div><p class="text-sm font-medium text-gray-800">移动端（小程序）支持全流程操作——称重确认/选品类/定单价/开单</p><p class="text-xs text-gray-500 mt-1">来源：瑞粮站 · 农户只需要跑一趟</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-purple-50 text-purple-600 text-xs">30</span><div><p class="text-sm font-medium text-gray-800">优化结算单模板——增加车牌号/水分/农户信息/各项费用</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#12 · 「打出来的不能不如手写」</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-purple-50 text-purple-600 text-xs">31</span><div><p class="text-sm font-medium text-gray-800">PC端和小程序密码同步，统一使用手机号+密码登录</p><p class="text-xs text-gray-500 mt-1">来源：3/18测试会 · 用户认为是同一个系统</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-purple-50 text-purple-600 text-xs">32</span><div><p class="text-sm font-medium text-gray-800">支持多员工子账号——粮站老板可自行维护员工账号和权限</p><p class="text-xs text-gray-500 mt-1">来源：3/18总结会 · 减轻网点压力</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-purple-50 text-purple-600 text-xs">33</span><div><p class="text-sm font-medium text-gray-800">进件入口统一到丰收云，去掉不必要字段（店面照片等）</p><p class="text-xs text-gray-500 mt-1">来源：3/18 09:04晨会 · 进件页沿用了商贸端传统模板</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-purple-50 text-purple-600 text-xs">34</span><div><p class="text-sm font-medium text-gray-800">地磅不可连时支持手动录入重量作为降级方案</p><p class="text-xs text-gray-500 mt-1">来源：3/18 09:04晨会 · 不是所有粮站都有对接线</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-purple-50 text-purple-600 text-xs">35</span><div><p class="text-sm font-medium text-gray-800">进件后短信内容明确区分PC端和小程序的登录方式</p><p class="text-xs text-gray-500 mt-1">来源：3/18测试会 · 用户看不懂短信</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-purple-50 text-purple-600 text-xs">36</span><div><p class="text-sm font-medium text-gray-800">密码重置通过短信验证码实现，不依赖网点人员</p><p class="text-xs text-gray-500 mt-1">来源：3/18总结会 · 减轻运维压力</p></div></div>
+    </div>
+
+    <!-- 运营与推广 -->
+    <h3 class="text-base font-bold text-gray-800 mt-8 mb-3 pb-2 border-b border-gray-100"><i class="fas fa-bullhorn text-teal-400 mr-2"></i>运营与推广（5条）</h3>
+    <div class="space-y-3">
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-teal-50 text-teal-600 text-xs">37</span><div><p class="text-sm font-medium text-gray-800">给出税务数据上报问题的明确官方口径——消除收粮站老板顾虑</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#3 · 推广最大心理障碍</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-teal-50 text-teal-600 text-xs">38</span><div><p class="text-sm font-medium text-gray-800">分三类客群制定推广话术——有系统的/无系统的/流动商贩</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#18 · 客户经理不知道怎么开口</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-teal-50 text-teal-600 text-xs">39</span><div><p class="text-sm font-medium text-gray-800">确保上线后运维响应速度——客户经理一站式解决进件+系统部署</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#13/河南 · 「上了很多系统，电话都打不通」</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-teal-50 text-teal-600 text-xs">40</span><div><p class="text-sm font-medium text-gray-800">微邮付审核加速——收粮有季节窗口，审核慢了就错过了</p><p class="text-xs text-gray-500 mt-1">来源：吉林组#13 · 东北秋粮集中在9-12月</p></div></div>
+      <div class="req-row flex gap-3 p-3 rounded-lg"><span class="counter bg-teal-50 text-teal-600 text-xs">41</span><div><p class="text-sm font-medium text-gray-800">增加系统粘性功能（统计分析/临期提醒/增值服务），让老板「离不开」</p><p class="text-xs text-gray-500 mt-1">来源：3/18总结会 · 解决持续使用问题</p></div></div>
+    </div>
+
+    <div class="mt-8 p-4 rounded-xl bg-gray-50 text-center">
+      <p class="text-sm text-gray-600"><strong>共计 41 条需求</strong>，来自 10 场会议录音 + 4 家实地走访 + 18 条吉林组问题清单</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TAB 5: 用户画像 ==================== -->
+<section id="tab-users" class="fade-in space-y-6 hidden">
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div class="glass-panel p-6" style="box-shadow:0 4px 12px rgba(0,0,0,.08)">
+      <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-4">
+        <i class="fas fa-building text-blue-500 text-2xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-1">有成熟同业系统的粮站</h3>
+      <p class="text-xs text-gray-500 mb-4">典型代表：第三家粮站</p>
+      <div class="space-y-3 text-sm text-gray-600">
+        <div><strong class="text-gray-800">规模：</strong>大型，有地磅/摄像头/烘干设备，日交易额百万级</div>
+        <div><strong class="text-gray-800">当前状态：</strong>使用功能完善的同业竞品系统，支持车牌自动识别/水分折干计算/费用明细自动叠加/系统内直接付款到银行卡，全流程高度数字化</div>
+        <div><strong class="text-gray-800">核心关切：</strong>你比我现在用的好在哪？我为什么要换？</div>
+        <div><strong class="text-gray-800">打动他的：</strong>邮政金融优势（免手续费/更高额度/政策支持）+ 功能不低于竞品（折干/利润核算）</div>
+        <div><strong class="text-gray-800">阻碍：</strong>老系统数据迁移、当前功能差距明显、替换成本高</div>
+      </div>
+      <div class="mt-4 p-3 rounded-xl bg-blue-50 text-xs text-blue-700">
+        <strong>原话：</strong>「说这些就是人家现在正用着那个」
+      </div>
+    </div>
+
+    <div class="glass-panel p-6" style="box-shadow:0 4px 12px rgba(0,0,0,.08)">
+      <div class="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center mb-4">
+        <i class="fas fa-warehouse text-amber-500 text-2xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-1">有本地基础系统的粮站</h3>
+      <p class="text-xs text-gray-500 mb-4">典型代表：瑞粮站、红瑞粮站</p>
+      <div class="space-y-3 text-sm text-gray-600">
+        <div><strong class="text-gray-800">规模：</strong>中大型，有地磅、有PC电脑、有打印机，配置较齐全</div>
+        <div><strong class="text-gray-800">当前状态：</strong>有本地电脑系统可完成过磅/计重/开单/打印结算凭证，但<strong>未对接银行</strong>——付款仍靠手机银行单独操作，系统只管数据记录，不管资金流转</div>
+        <div><strong class="text-gray-800">核心关切：</strong>新系统能不能把支付也打通？能不能比现在更高效？</div>
+        <div><strong class="text-gray-800">打动他的：</strong>记账+支付一体化（系统管全场），移动端全流程操作，合规报表自动生成</div>
+        <div><strong class="text-gray-800">阻碍：</strong>支付流程复杂/限额不够/多出纳并行/老系统数据迁移</div>
+      </div>
+      <div class="mt-4 p-3 rounded-xl bg-amber-50 text-xs text-amber-700">
+        <strong>原话：</strong>「支付只不过是他一个附加小功能，主要就是这个记账本」
+      </div>
+    </div>
+
+    <div class="glass-panel p-6" style="box-shadow:0 4px 12px rgba(0,0,0,.08)">
+      <div class="w-14 h-14 rounded-2xl bg-green-50 flex items-center justify-center mb-4">
+        <i class="fas fa-truck text-green-500 text-2xl"></i>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-1">流动收购商贩</h3>
+      <p class="text-xs text-gray-500 mb-4">典型代表：蔬菜收菜商</p>
+      <div class="space-y-3 text-sm text-gray-600">
+        <div><strong class="text-gray-800">规模：</strong>小型流动，无固定场地无PC，微信支付占90%</div>
+        <div><strong class="text-gray-800">当前状态：</strong>微信转账完成一切，提现到银行卡有手续费</div>
+        <div><strong class="text-gray-800">核心关切：</strong>比微信好用吗？能省手续费吗？</div>
+        <div><strong class="text-gray-800">打动他的：</strong>免手续费直接到银行卡 + 小程序简单易用</div>
+        <div><strong class="text-gray-800">阻碍：</strong>限额/操作复杂/老年农户不会用</div>
+      </div>
+      <div class="mt-4 p-3 rounded-xl bg-green-50 text-xs text-green-700">
+        <strong>原话：</strong>「跳过了微信支付，就咱自个支付省了手续费了是吧？」
+      </div>
+    </div>
+  </div>
+
+  <!-- 农户画像 -->
+  <div class="glass-panel p-6" style="box-shadow:0 4px 12px rgba(0,0,0,.08)">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-4">农户群体特征（来自一线观察）</h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="glass-card p-4 text-center" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <div class="text-3xl font-bold text-postal">80%</div>
+        <div class="text-sm text-gray-600 mt-1">能接受电子支付</div>
+        <div class="text-xs text-gray-400 mt-1">收菜商数据</div>
+      </div>
+      <div class="glass-card p-4 text-center" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <div class="text-3xl font-bold text-amber-600">60-70岁</div>
+        <div class="text-sm text-gray-600 mt-1">也有人在用手机支付</div>
+        <div class="text-xs text-gray-400 mt-1">年龄不是绝对障碍</div>
+      </div>
+      <div class="glass-card p-4 text-center" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <div class="text-3xl font-bold text-red-500">~10%</div>
+        <div class="text-sm text-gray-600 mt-1">只接受现金</div>
+        <div class="text-xs text-gray-400 mt-1">系统需兜底</div>
+      </div>
+      <div class="glass-card p-4 text-center" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <div class="text-3xl font-bold text-purple-500">极高</div>
+        <div class="text-sm text-gray-600 mt-1">对信息采集的抗拒</div>
+        <div class="text-xs text-gray-400 mt-1">「以为办贷款」</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TAB 6: 关键数据 ==================== -->
+<section id="tab-data" class="fade-in space-y-6 hidden">
+
+  <div class="glass-panel p-6" style="box-shadow:0 8px 24px rgba(0,0,0,.10)">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-5">调研中的关键数字</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="glass-card p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4">吉林省收粮规模</h4>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">中型粮站日交易额</span><span class="text-lg font-bold text-gray-900">&gt;100万</span></div>
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">大型粮站日交易额</span><span class="text-lg font-bold text-red-600">300万</span></div>
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">东北大车一车</span><span class="text-lg font-bold text-gray-900">数万斤</span></div>
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">东北大农户单笔</span><span class="text-lg font-bold text-gray-900">20-50万</span></div>
+        </div>
+      </div>
+
+      <div class="glass-card p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4">山东先行数据</h4>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">已推广粮站</span><span class="text-lg font-bold text-postal">790个</span></div>
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">有效活跃</span><span class="text-lg font-bold text-gray-900">700个</span></div>
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">每天在用</span><span class="text-lg font-bold text-gray-900">60-70%</span></div>
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">养成习惯</span><span class="text-lg font-bold text-gray-900">~50%</span></div>
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">第三方系统年费</span><span class="text-lg font-bold text-gray-900">500-5000元</span></div>
+        </div>
+      </div>
+
+      <div class="glass-card p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-4">时间节点</h4>
+        <div class="space-y-3">
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">内部测试</span><span class="text-sm font-bold text-gray-900">3/18</span></div>
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">试点推广</span><span class="text-sm font-bold text-amber-600">3/25</span></div>
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">全国推广会</span><span class="text-sm font-bold text-red-600">清明后(~4/5)</span></div>
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">全面推广</span><span class="text-sm font-bold text-red-600">4月</span></div>
+          <div class="flex justify-between items-center"><span class="text-sm text-gray-600">测试发现问题</span><span class="text-lg font-bold text-gray-900">39个</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-panel p-6" style="box-shadow:0 4px 12px rgba(0,0,0,.08)">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-5">支付现状</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div class="glass-card p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-gray-900 mb-3">邮储手机银行限额</h4>
+        <div class="space-y-2 text-sm text-gray-600">
+          <div>• 单日限额约 <strong>50万</strong>（未提额）</div>
+          <div>• 新开卡限额更低</div>
+          <div>• 手机银行转账额度：100万-1200万不等</div>
+          <div class="text-red-600 font-medium mt-2">vs 大型粮站日需求 100-300万 → 缺口巨大</div>
+        </div>
+      </div>
+      <div class="glass-card p-5" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+        <h4 class="font-bold text-gray-900 mb-3">收菜商支付结构</h4>
+        <div class="space-y-2 text-sm text-gray-600">
+          <div>• 微信支付：<strong>90%</strong></div>
+          <div>• 银行卡转账：补充大额</div>
+          <div>• 现金：极少</div>
+          <div>• 微信提现手续费：<strong>~5‰</strong></div>
+          <div class="text-green-600 font-medium mt-2">→ 免手续费是平台核心吸引力</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="max-w-6xl mx-auto px-6 py-8 text-center text-xs text-gray-400 border-t border-gray-100 mt-8">
+  <p>丰收云 · 实地调研报告 — 基于 2026.03.18-19 全部调研录音分析</p>
+  <p class="mt-1">5场内部会议 + 4家实地走访 + 18条吉林组问题 → 22个痛点 + 41条需求</p>
+</footer>
+
+<script>
+function switchTab(t){
+  document.querySelectorAll('[id^="tab-"]').forEach(e=>e.classList.add('hidden'));
+  document.getElementById('tab-'+t).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    b.classList.remove('active');b.style.boxShadow='0 1px 3px rgba(0,0,0,.06)';
+    b.classList.add('text-gray-500','bg-white');
+  });
+  event.target.closest('.tab-btn').classList.add('active');
+  event.target.closest('.tab-btn').classList.remove('text-gray-500','bg-white');
+  event.target.closest('.tab-btn').style.boxShadow='0 4px 20px rgba(76,163,84,.15)';
+}
+</script>
+</body>
+</html>

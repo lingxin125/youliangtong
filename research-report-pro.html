@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>丰收云 · 实地调研洞察报告（专业版）</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>tailwind.config={theme:{extend:{colors:{wheat:'#FFFBF0',postal:{DEFAULT:'#11A64A',dark:'#388E3C',light:'#81C784'}}}}}</script>
+<style>
+  body{background:#FFFBF0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1f2937}
+  .panel{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+  .card{background:#fff;border:1px solid rgba(0,0,0,.04);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .hero-panel{background:linear-gradient(135deg,#065f46 0%,#11A64A 60%,#22c55e 100%);color:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(17,166,74,.25)}
+  .tab-btn{transition:all .3s;cursor:pointer}
+  .tab-btn.active{background:#11A64A;color:#fff;box-shadow:0 4px 16px rgba(17,166,74,.2)}
+  .section-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9ca3af}
+  .empathy-quad{border:2px solid;border-radius:12px;padding:20px;position:relative}
+  .empathy-quad h4{position:absolute;top:-12px;left:16px;background:#fff;padding:0 8px;font-size:13px;font-weight:700}
+  .journey-stage{position:relative;text-align:center;flex:1}
+  .journey-stage::after{content:'';position:absolute;top:20px;right:-12px;width:24px;height:2px;background:#d1d5db}
+  .journey-stage:last-child::after{display:none}
+  .emotion-dot{width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .quote{border-left:3px solid #11A64A;padding:8px 16px;background:#f0fdf4;border-radius:0 8px 8px 0;font-style:italic;font-size:14px;color:#374151}
+  .jtbd{background:linear-gradient(135deg,#fefce8,#fff);border:1px solid #fde68a;border-radius:12px;padding:16px}
+  .blueprint-row{display:grid;grid-template-columns:140px repeat(8,1fr);gap:1px;background:#e5e7eb}
+  .blueprint-cell{background:#fff;padding:8px;font-size:11px;display:flex;align-items:center;justify-content:center;text-align:center;min-height:48px}
+  .blueprint-label{background:#f3f4f6;font-weight:700;font-size:11px;color:#6b7280;justify-content:flex-end;padding-right:12px}
+  .affinity-cluster{border-top:4px solid;border-radius:12px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .insight-card{border-left:4px solid #11A64A;background:linear-gradient(135deg,#f0fdf4,#fff);border-radius:0 12px 12px 0;padding:16px 20px}
+  .fade-in{animation:fadeIn .4s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .tag{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:600;white-space:nowrap}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:3px}
+  @media print{body{background:#fff}}
+  .vis-line{height:2px;background:#d1d5db;position:absolute;left:0;right:0}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- 顶部 -->
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100" style="box-shadow:0 1px 3px rgba(0,0,0,.06)">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-postal to-postal-dark flex items-center justify-center">
+        <i class="fas fa-wheat-awn text-white"></i>
+      </div>
+      <div>
+        <h1 class="text-base font-bold text-gray-900">丰收云 · 实地调研洞察报告</h1>
+        <p class="text-[11px] text-gray-400">Field Research Insights · 2026.03.18-19 吉林</p>
+      </div>
+    </div>
+    <div class="text-xs text-gray-400">v2.0 · Professional Edition</div>
+  </div>
+</header>
+
+<!-- Tab -->
+<nav class="sticky top-[53px] z-40 bg-wheat border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-6 py-2.5 flex gap-2 overflow-x-auto text-xs">
+    <button class="tab-btn active px-3 py-1.5 rounded-lg font-medium" onclick="switchTab('summary')">执行摘要</button>
+    <button class="tab-btn px-3 py-1.5 rounded-lg font-medium text-gray-500 bg-white" onclick="switchTab('method')">研究方法</button>
+    <button class="tab-btn px-3 py-1.5 rounded-lg font-medium text-gray-500 bg-white" onclick="switchTab('persona')">用户画像</button>
+    <button class="tab-btn px-3 py-1.5 rounded-lg font-medium text-gray-500 bg-white" onclick="switchTab('empathy')">同理心地图</button>
+    <button class="tab-btn px-3 py-1.5 rounded-lg font-medium text-gray-500 bg-white" onclick="switchTab('journey')">旅程地图</button>
+    <button class="tab-btn px-3 py-1.5 rounded-lg font-medium text-gray-500 bg-white" onclick="switchTab('blueprint')">服务蓝图</button>
+    <button class="tab-btn px-3 py-1.5 rounded-lg font-medium text-gray-500 bg-white" onclick="switchTab('affinity')">亲和图</button>
+    <button class="tab-btn px-3 py-1.5 rounded-lg font-medium text-gray-500 bg-white" onclick="switchTab('jtbd')">JTBD</button>
+    <button class="tab-btn px-3 py-1.5 rounded-lg font-medium text-gray-500 bg-white" onclick="switchTab('actions')">行动建议</button>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-6 py-6">
+
+<!-- ===================== 1. 执行摘要 ===================== -->
+<section id="tab-summary" class="fade-in space-y-6">
+
+  <!-- Hero -->
+  <div class="hero-panel p-8">
+    <p class="section-label text-green-200 mb-3">EXECUTIVE SUMMARY</p>
+    <h2 class="text-2xl font-bold mb-2">一句话结论</h2>
+    <p class="text-lg text-green-100 leading-relaxed mb-6">粮站老板最需要的不是「支付工具」，而是一本<strong class="text-white">「能打通银行的电子台账」</strong>——支付只是台账的一个附属功能。而我们的系统恰恰在台账核心能力（水分折干、车牌号、监管报表）上严重缺失，在支付体验上又落后于竞品一代。</p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
+        <div class="text-3xl font-bold">10</div><div class="text-sm text-green-200">场会议</div>
+      </div>
+      <div class="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
+        <div class="text-3xl font-bold">4</div><div class="text-sm text-green-200">家实地走访</div>
+      </div>
+      <div class="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
+        <div class="text-3xl font-bold">22</div><div class="text-sm text-green-200">个痛点</div>
+      </div>
+      <div class="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
+        <div class="text-3xl font-bold">41</div><div class="text-sm text-green-200">条需求</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 五大核心发现 -->
+  <div class="panel p-6">
+    <p class="section-label mb-4">TOP 5 KEY FINDINGS · 五大核心发现</p>
+    <div class="space-y-4">
+      <div class="insight-card">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl font-black text-postal/20">01</span>
+          <div>
+            <h3 class="font-bold text-gray-900">「记账本」比「支付」重要</h3>
+            <p class="text-sm text-gray-600 mt-1">红瑞粮站原话：「支付只不过是他一个附加小功能，主要就是这个记账本。」——粮站老板需要的是台账管理能力（过磅/议价/结算/报表），支付只是其中一个环节。</p>
+          </div>
+        </div>
+      </div>
+      <div class="insight-card">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl font-black text-postal/20">02</span>
+          <div>
+            <h3 class="font-bold text-gray-900">转账限额是最大的生意拦路虎</h3>
+            <p class="text-sm text-gray-600 mt-1">吉林大型粮站高峰期日交易额超100万甚至300万，邮储手机银行限额约50万——不到中午就用完了。收菜商原话：「依照咱这个限制，你丫的不行，这整不了你。」</p>
+          </div>
+        </div>
+      </div>
+      <div class="insight-card">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl font-black text-postal/20">03</span>
+          <div>
+            <h3 class="font-bold text-gray-900">竞品已经存在且很成熟</h3>
+            <p class="text-sm text-gray-600 mt-1">第三家粮站的竞品系统：车牌自动识别→水分折干计算→费用自动叠加→刷脸一键结算→系统内直接付款，不跳手机银行。我们在功能上明显落后。</p>
+          </div>
+        </div>
+      </div>
+      <div class="insight-card">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl font-black text-postal/20">04</span>
+          <div>
+            <h3 class="font-bold text-gray-900">税务恐惧是推广的隐形杀手</h3>
+            <p class="text-sm text-gray-600 mt-1">收粮站老板最怕：上了系统后交易数据全透明，被税务「秋后算账」。不给明确官方答复，老板直接拒绝进件——这不是技术问题，是信任问题。</p>
+          </div>
+        </div>
+      </div>
+      <div class="insight-card">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl font-black text-postal/20">05</span>
+          <div>
+            <h3 class="font-bold text-gray-900">粮食和蔬菜是完全不同的场景</h3>
+            <p class="text-sm text-gray-600 mt-1">粮食：大宗/低频/高额（一车几万斤几万元），需要地磅/水分折干/利润核算。蔬菜：小额/高频/快速流转（385斤×3元≈1155元），微信支付占90%，核心诉求是省手续费。不能一套方案打天下。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 2. 研究方法 ===================== -->
+<section id="tab-method" class="fade-in space-y-6 hidden">
+  <div class="panel p-6">
+    <p class="section-label mb-4">RESEARCH METHODOLOGY · 研究方法</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div>
+        <h3 class="font-bold text-gray-900 mb-3">研究目的</h3>
+        <p class="text-sm text-gray-600">深入理解农产品收购场景中各角色的真实工作流程、痛点和需求，验证丰收云系统的产品方向，发现功能缺口和推广阻碍。</p>
+        <h3 class="font-bold text-gray-900 mt-5 mb-3">研究方法</h3>
+        <ul class="text-sm text-gray-600 space-y-2">
+          <li><i class="fas fa-check text-postal mr-2"></i><strong>情境调查（Contextual Inquiry）</strong>——在粮站现场观察实际操作流程，边看边问</li>
+          <li><i class="fas fa-check text-postal mr-2"></i><strong>半结构化深度访谈</strong>——与粮站老板/会计/收菜商深入对谈</li>
+          <li><i class="fas fa-check text-postal mr-2"></i><strong>系统可用性测试</strong>——现场实操丰收云系统，观察问题</li>
+          <li><i class="fas fa-check text-postal mr-2"></i><strong>竞品现场对比</strong>——在第三家粮站观察竞品系统的实际使用</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold text-gray-900 mb-3">调研对象</h3>
+        <div class="space-y-2">
+          <div class="card p-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center"><i class="fas fa-building text-blue-500 text-sm"></i></div>
+            <div><div class="text-sm font-medium">瑞粮站</div><div class="text-xs text-gray-500">中大型 · 有本地基础系统 · 粮食</div></div>
+          </div>
+          <div class="card p-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center"><i class="fas fa-warehouse text-amber-500 text-sm"></i></div>
+            <div><div class="text-sm font-medium">红瑞粮站</div><div class="text-xs text-gray-500">中大型 · 有本地基础系统 · 粮食</div></div>
+          </div>
+          <div class="card p-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center"><i class="fas fa-laptop-code text-purple-500 text-sm"></i></div>
+            <div><div class="text-sm font-medium">第三家粮站</div><div class="text-xs text-gray-500">大型 · 使用成熟同业竞品 · 粮食/烘干</div></div>
+          </div>
+          <div class="card p-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center"><i class="fas fa-truck text-green-500 text-sm"></i></div>
+            <div><div class="text-sm font-medium">收菜商（流动商贩）</div><div class="text-xs text-gray-500">小型流动 · 蔬菜 · 合作社模式</div></div>
+          </div>
+        </div>
+        <h3 class="font-bold text-gray-900 mt-5 mb-3">研究局限性</h3>
+        <ul class="text-sm text-gray-500 space-y-1">
+          <li>• 样本集中在吉林省，东北粮站规模偏大，不代表全国</li>
+          <li>• 走访在非收粮旺季进行，未能观察到高峰期实际压力</li>
+          <li>• 未直接访谈农户本人，农户视角来自收购商转述</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="font-bold text-gray-900 mb-3">调研时间线</h3>
+    <div class="flex gap-2 overflow-x-auto pb-2">
+      <div class="card p-3 min-w-[160px] text-center border-t-4 border-t-postal">
+        <div class="text-xs text-gray-400">3/18 AM</div>
+        <div class="text-sm font-medium mt-1">系统培训晨会</div>
+      </div>
+      <div class="card p-3 min-w-[160px] text-center border-t-4 border-t-postal">
+        <div class="text-xs text-gray-400">3/18 PM</div>
+        <div class="text-sm font-medium mt-1">深度功能测试</div>
+      </div>
+      <div class="card p-3 min-w-[160px] text-center border-t-4 border-t-postal">
+        <div class="text-xs text-gray-400">3/18 PM</div>
+        <div class="text-sm font-medium mt-1">合并付款/建档讨论</div>
+      </div>
+      <div class="card p-3 min-w-[160px] text-center border-t-4 border-t-postal">
+        <div class="text-xs text-gray-400">3/18 PM</div>
+        <div class="text-sm font-medium mt-1">地磅称重讨论</div>
+      </div>
+      <div class="card p-3 min-w-[160px] text-center border-t-4 border-t-postal">
+        <div class="text-xs text-gray-400">3/18 EVE</div>
+        <div class="text-sm font-medium mt-1">当日总结会</div>
+      </div>
+      <div class="card p-3 min-w-[160px] text-center border-t-4 border-t-red-500">
+        <div class="text-xs text-gray-400">3/19 AM</div>
+        <div class="text-sm font-bold mt-1">瑞粮站走访</div>
+      </div>
+      <div class="card p-3 min-w-[160px] text-center border-t-4 border-t-red-500">
+        <div class="text-xs text-gray-400">3/19 AM</div>
+        <div class="text-sm font-bold mt-1">红瑞粮站走访</div>
+      </div>
+      <div class="card p-3 min-w-[160px] text-center border-t-4 border-t-red-500">
+        <div class="text-xs text-gray-400">3/19 PM</div>
+        <div class="text-sm font-bold mt-1">第三家粮站走访</div>
+      </div>
+      <div class="card p-3 min-w-[160px] text-center border-t-4 border-t-red-500">
+        <div class="text-xs text-gray-400">3/19 PM</div>
+        <div class="text-sm font-bold mt-1">收菜商走访</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 3. 用户画像 ===================== -->
+<section id="tab-persona" class="fade-in space-y-6 hidden">
+  <p class="section-label">USER PERSONAS · 用户画像</p>
+
+  <!-- Persona 1 -->
+  <div class="panel p-6">
+    <div class="flex items-start gap-5">
+      <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-user-tie text-blue-600 text-3xl"></i>
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-1">
+          <h3 class="text-xl font-bold text-gray-900">老张</h3>
+          <span class="tag bg-blue-50 text-blue-700 border border-blue-200">有成熟同业系统的粮站老板</span>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">50岁 · 经营粮站8年 · 日交易额100-300万 · 10+员工</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div><span class="text-xs text-gray-400">品类</span><div class="font-medium">玉米、大豆</div></div>
+          <div><span class="text-xs text-gray-400">设备</span><div class="font-medium">地磅/摄像头/烘干机</div></div>
+          <div><span class="text-xs text-gray-400">现有系统</span><div class="font-medium">成熟竞品（折干/利润核算）</div></div>
+          <div><span class="text-xs text-gray-400">支付方式</span><div class="font-medium">系统内直接付款到卡</div></div>
+        </div>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="card p-3"><span class="text-xs text-gray-400">核心目标</span><p class="text-sm mt-1">以最低成本收到最多粮、以最高价卖出</p></div>
+          <div class="card p-3"><span class="text-xs text-gray-400">最大挫败</span><p class="text-sm mt-1">新系统还不如我现在用的好</p></div>
+          <div class="card p-3"><span class="text-xs text-gray-400">转换条件</span><p class="text-sm mt-1">功能不低于竞品 + 邮政金融优势</p></div>
+        </div>
+        <div class="quote mt-4">「说这些就是人家现在正用着那个，你说这些是吧。」</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Persona 2 -->
+  <div class="panel p-6">
+    <div class="flex items-start gap-5">
+      <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-user-gear text-amber-600 text-3xl"></i>
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-1">
+          <h3 class="text-xl font-bold text-gray-900">李姐</h3>
+          <span class="tag bg-amber-50 text-amber-700 border border-amber-200">有本地基础系统的粮站老板娘</span>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">45岁 · 夫妻经营 · 有PC+地磅+打印机 · 日交易几十车</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div><span class="text-xs text-gray-400">品类</span><div class="font-medium">小麦、玉米</div></div>
+          <div><span class="text-xs text-gray-400">设备</span><div class="font-medium">PC+地磅+对讲机+打印机</div></div>
+          <div><span class="text-xs text-gray-400">现有系统</span><div class="font-medium">本地系统（过磅/开单/打单，未接银行）</div></div>
+          <div><span class="text-xs text-gray-400">支付方式</span><div class="font-medium">手机银行单独操作</div></div>
+        </div>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="card p-3"><span class="text-xs text-gray-400">核心目标</span><p class="text-sm mt-1">记账和付款打通，不用两头跑</p></div>
+          <div class="card p-3"><span class="text-xs text-gray-400">最大挫败</span><p class="text-sm mt-1">系统比手工操作更慢更复杂</p></div>
+          <div class="card p-3"><span class="text-xs text-gray-400">转换条件</span><p class="text-sm mt-1">操作简单 + 支付一体化 + 报表合规</p></div>
+        </div>
+        <div class="quote mt-4">「支付只不过是他一个附加小功能，主要就是这个记账本。」</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Persona 3 -->
+  <div class="panel p-6">
+    <div class="flex items-start gap-5">
+      <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-person-walking text-green-600 text-3xl"></i>
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-1">
+          <h3 class="text-xl font-bold text-gray-900">刘哥</h3>
+          <span class="tag bg-green-50 text-green-700 border border-green-200">流动收菜商 / 合作社经纪人</span>
+        </div>
+        <p class="text-sm text-gray-500 mb-4">40岁 · 走村串户收蔬菜 · 微信支付占90% · 利润极薄</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div><span class="text-xs text-gray-400">品类</span><div class="font-medium">草莓、豆角等蔬菜</div></div>
+          <div><span class="text-xs text-gray-400">设备</span><div class="font-medium">手机（无PC无固定场地）</div></div>
+          <div><span class="text-xs text-gray-400">现有系统</span><div class="font-medium">无（微信转账记录）</div></div>
+          <div><span class="text-xs text-gray-400">支付方式</span><div class="font-medium">微信90% + 银行卡10%</div></div>
+        </div>
+        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="card p-3"><span class="text-xs text-gray-400">核心目标</span><p class="text-sm mt-1">快速收菜、快速付款、省手续费</p></div>
+          <div class="card p-3"><span class="text-xs text-gray-400">最大挫败</span><p class="text-sm mt-1">比微信还复杂，老农户不会用</p></div>
+          <div class="card p-3"><span class="text-xs text-gray-400">转换条件</span><p class="text-sm mt-1">免手续费 + 操作≤微信复杂度</p></div>
+        </div>
+        <div class="quote mt-4">「跳过了微信支付，就咱自个支付省了手续费了是吧？」</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 4. 同理心地图 ===================== -->
+<section id="tab-empathy" class="fade-in space-y-6 hidden">
+  <p class="section-label">EMPATHY MAPS · 同理心地图</p>
+  <p class="text-sm text-gray-500 mb-2">区分用户「说了什么」和「实际做了什么」——两者的矛盾就是产品机会</p>
+
+  <!-- 收购商同理心地图 -->
+  <div class="panel p-6">
+    <h3 class="text-lg font-bold text-gray-900 mb-4 text-center">粮站收购商（李姐型）</h3>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="empathy-quad border-blue-300">
+        <h4 class="text-blue-600"><i class="fas fa-comment mr-1"></i> 说 Says</h4>
+        <ul class="text-sm text-gray-600 space-y-2 mt-2">
+          <li>「系统好不好用？能不能比手工快？」</li>
+          <li>「额度是最大的问题」</li>
+          <li>「车号是必须的，咱们系统里没有车号」</li>
+          <li>「粮食局要求必须得有这两个报表」</li>
+          <li>「能不能全流程在PC端完成，不掏手机？」</li>
+        </ul>
+      </div>
+      <div class="empathy-quad border-purple-300">
+        <h4 class="text-purple-600"><i class="fas fa-brain mr-1"></i> 想 Thinks</h4>
+        <ul class="text-sm text-gray-600 space-y-2 mt-2">
+          <li>这系统会不会暴露我的交易数据？</li>
+          <li>上了系统后会不会被追税？</li>
+          <li>人家竞品早就有折干计算了</li>
+          <li>我现在的方式虽然笨，但至少稳定</li>
+          <li>这么多车排着队，系统卡了怎么办？</li>
+        </ul>
+      </div>
+      <div class="empathy-quad border-green-300">
+        <h4 class="text-green-600"><i class="fas fa-hand mr-1"></i> 做 Does</h4>
+        <ul class="text-sm text-gray-600 space-y-2 mt-2">
+          <li>用对讲机协调称重现场和结算室</li>
+          <li>老板娘拿着手机在现场逐笔扫码付</li>
+          <li>先开单挂账，攒一批再统一付款</li>
+          <li>手动记录车牌号在纸上对应订单</li>
+          <li>4-5个出纳排队等老板手机付款</li>
+        </ul>
+      </div>
+      <div class="empathy-quad border-red-300">
+        <h4 class="text-red-600"><i class="fas fa-heart mr-1"></i> 感 Feels</h4>
+        <ul class="text-sm text-gray-600 space-y-2 mt-2">
+          <li><strong>焦虑：</strong>高峰期车辆排队，系统出问题就完了</li>
+          <li><strong>无奈：</strong>限额不够但又没有替代方案</li>
+          <li><strong>怀疑：</strong>用了系统真的会比现在快吗？</li>
+          <li><strong>恐惧：</strong>交易数据透明后的税务风险</li>
+          <li><strong>期待：</strong>如果真能管全场就太好了</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 农户同理心地图（收购商转述视角） -->
+  <div class="panel p-6">
+    <h3 class="text-lg font-bold text-gray-900 mb-1 text-center">农户（收购商转述视角）</h3>
+    <p class="text-xs text-gray-400 text-center mb-4">注：本次调研未直接访谈农户，以下来自收购商和业务人员的转述观察</p>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="empathy-quad border-blue-300">
+        <h4 class="text-blue-600"><i class="fas fa-comment mr-1"></i> 说 Says</h4>
+        <ul class="text-sm text-gray-600 space-y-2 mt-2">
+          <li>「我不需要你给我转账，你现金给我就行」</li>
+          <li>「不咋会使，你说那就给我司丢了」</li>
+          <li>「卡号给你，我都有点顾虑」</li>
+        </ul>
+      </div>
+      <div class="empathy-quad border-purple-300">
+        <h4 class="text-purple-600"><i class="fas fa-brain mr-1"></i> 想 Thinks</h4>
+        <ul class="text-sm text-gray-600 space-y-2 mt-2">
+          <li>这是不是在办贷款？要我身份证干嘛？</li>
+          <li>卖个粮食还要下载APP？太复杂了</li>
+          <li>钱能不能马上到账？别骗我</li>
+        </ul>
+      </div>
+      <div class="empathy-quad border-green-300">
+        <h4 class="text-green-600"><i class="fas fa-hand mr-1"></i> 做 Does</h4>
+        <ul class="text-sm text-gray-600 space-y-2 mt-2">
+          <li>80%的人能接受手机支付</li>
+          <li>60-70岁的也在用微信收款</li>
+          <li>10%坚持只收现金</li>
+        </ul>
+      </div>
+      <div class="empathy-quad border-red-300">
+        <h4 class="text-red-600"><i class="fas fa-heart mr-1"></i> 感 Feels</h4>
+        <ul class="text-sm text-gray-600 space-y-2 mt-2">
+          <li><strong>戒备：</strong>对提供个人信息非常敏感</li>
+          <li><strong>无助：</strong>不会用手机但怕被时代淘汰</li>
+          <li><strong>在意：</strong>到账速度和金额是否准确</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 5. 旅程地图 ===================== -->
+<section id="tab-journey" class="fade-in space-y-6 hidden">
+  <p class="section-label">USER JOURNEY MAP · 收购商收粮旅程地图</p>
+  <p class="text-sm text-gray-500 mb-4">从农户进场到日终结算的完整体验，标注每阶段的行为、痛点和情绪</p>
+
+  <div class="panel p-6 overflow-x-auto">
+    <div class="min-w-[900px]">
+      <!-- 阶段标题 -->
+      <div class="flex gap-2 mb-1">
+        <div class="w-20 flex-shrink-0"></div>
+        <div class="journey-stage"><div class="card p-2 bg-postal text-white text-xs font-bold">进场登记</div></div>
+        <div class="journey-stage"><div class="card p-2 bg-postal text-white text-xs font-bold">满载过磅</div></div>
+        <div class="journey-stage"><div class="card p-2 bg-postal text-white text-xs font-bold">质检水分</div></div>
+        <div class="journey-stage"><div class="card p-2 bg-postal text-white text-xs font-bold">卸粮·空车磅</div></div>
+        <div class="journey-stage"><div class="card p-2 bg-postal text-white text-xs font-bold">议价定价</div></div>
+        <div class="journey-stage"><div class="card p-2 bg-postal text-white text-xs font-bold">开单打印</div></div>
+        <div class="journey-stage"><div class="card p-2 bg-postal text-white text-xs font-bold">支付结算</div></div>
+        <div class="journey-stage"><div class="card p-2 bg-postal text-white text-xs font-bold">日终报表</div></div>
+      </div>
+
+      <!-- 行为 -->
+      <div class="flex gap-2 mt-3">
+        <div class="w-20 flex-shrink-0 text-xs font-bold text-gray-400 text-right pr-2 pt-2">行为</div>
+        <div class="flex-1 card p-2 text-xs text-gray-600">确认农户身份·记车牌号·确认品类</div>
+        <div class="flex-1 card p-2 text-xs text-gray-600">地磅读数·LED显示·对讲机沟通</div>
+        <div class="flex-1 card p-2 text-xs text-gray-600">抽样检测·水分折干·扣杂比例</div>
+        <div class="flex-1 card p-2 text-xs text-gray-600">卸粮入库·空车称重·算净重</div>
+        <div class="flex-1 card p-2 text-xs text-gray-600">双方协商·根据品质水分定最终单价</div>
+        <div class="flex-1 card p-2 text-xs text-gray-600">系统生成订单·打印结算凭证</div>
+        <div class="flex-1 card p-2 text-xs text-gray-600">扫码/合并付款·手机银行确认</div>
+        <div class="flex-1 card p-2 text-xs text-gray-600">导出台账·对账·生成监管报表</div>
+      </div>
+
+      <!-- 情绪曲线（用色块代替） -->
+      <div class="flex gap-2 mt-2">
+        <div class="w-20 flex-shrink-0 text-xs font-bold text-gray-400 text-right pr-2 pt-2">情绪</div>
+        <div class="flex-1 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-xs">😐 一般</div>
+        <div class="flex-1 h-8 rounded-lg bg-green-100 flex items-center justify-center text-xs">😊 顺畅</div>
+        <div class="flex-1 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-xs">😐 繁琐</div>
+        <div class="flex-1 h-8 rounded-lg bg-green-100 flex items-center justify-center text-xs">😊 顺畅</div>
+        <div class="flex-1 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-xs">😐 紧张</div>
+        <div class="flex-1 h-8 rounded-lg bg-green-100 flex items-center justify-center text-xs">😊 满意</div>
+        <div class="flex-1 h-8 rounded-lg bg-red-100 flex items-center justify-center text-xs">😫 痛苦</div>
+        <div class="flex-1 h-8 rounded-lg bg-red-100 flex items-center justify-center text-xs">😤 缺失</div>
+      </div>
+
+      <!-- 痛点 -->
+      <div class="flex gap-2 mt-2">
+        <div class="w-20 flex-shrink-0 text-xs font-bold text-red-400 text-right pr-2 pt-2">痛点</div>
+        <div class="flex-1 card p-2 text-xs text-red-600 bg-red-50 border-red-100">新客信息采集太重·农户抗拒提供身份证</div>
+        <div class="flex-1 card p-2 text-xs text-red-600 bg-red-50 border-red-100">重称时不知以哪次为准</div>
+        <div class="flex-1 card p-2 text-xs text-red-600 bg-red-50 border-red-100">系统无折干计算·全靠手算</div>
+        <div class="flex-1 card p-2 text-xs text-red-600 bg-red-50 border-red-100">无车牌号·两次称重靠人记</div>
+        <div class="flex-1 card p-2 text-xs text-gray-400">（流程已有）</div>
+        <div class="flex-1 card p-2 text-xs text-red-600 bg-red-50 border-red-100">结算单缺车牌号/水分信息</div>
+        <div class="flex-1 card p-2 text-xs text-red-600 bg-red-50 border-red-100">限额不够·多次跳转·只能老板操作</div>
+        <div class="flex-1 card p-2 text-xs text-red-600 bg-red-50 border-red-100">无台账导出·无监管报表</div>
+      </div>
+
+      <!-- 机会 -->
+      <div class="flex gap-2 mt-2">
+        <div class="w-20 flex-shrink-0 text-xs font-bold text-postal text-right pr-2 pt-2">机会</div>
+        <div class="flex-1 card p-2 text-xs text-postal bg-green-50 border-green-100">三要素极简注册·扫码自助建档</div>
+        <div class="flex-1 card p-2 text-xs text-postal bg-green-50 border-green-100">地磅自动读数·支持重称</div>
+        <div class="flex-1 card p-2 text-xs text-postal bg-green-50 border-green-100">折干计算器·水分-价格配置</div>
+        <div class="flex-1 card p-2 text-xs text-postal bg-green-50 border-green-100">车牌号字段·自动关联两次称重</div>
+        <div class="flex-1 card p-2 text-xs text-postal bg-green-50 border-green-100">议价灵活调价</div>
+        <div class="flex-1 card p-2 text-xs text-postal bg-green-50 border-green-100">完善结算单模板</div>
+        <div class="flex-1 card p-2 text-xs text-postal bg-green-50 border-green-100">提额·多通道·合并付款</div>
+        <div class="flex-1 card p-2 text-xs text-postal bg-green-50 border-green-100">一键导出合规台账报表</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 6. 服务蓝图 ===================== -->
+<section id="tab-blueprint" class="fade-in space-y-6 hidden">
+  <p class="section-label">SERVICE BLUEPRINT · 服务蓝图（简化版）</p>
+  <p class="text-sm text-gray-500 mb-4">展示用户可见的前台体验与不可见的后台运作，找出断裂点</p>
+
+  <div class="panel p-4 overflow-x-auto">
+    <div class="min-w-[1000px]">
+      <div class="blueprint-row">
+        <div class="blueprint-cell blueprint-label">阶段</div>
+        <div class="blueprint-cell font-bold text-xs bg-postal/5 text-postal">进场登记</div>
+        <div class="blueprint-cell font-bold text-xs bg-postal/5 text-postal">称重</div>
+        <div class="blueprint-cell font-bold text-xs bg-postal/5 text-postal">质检</div>
+        <div class="blueprint-cell font-bold text-xs bg-postal/5 text-postal">卸粮·复磅</div>
+        <div class="blueprint-cell font-bold text-xs bg-postal/5 text-postal">议价</div>
+        <div class="blueprint-cell font-bold text-xs bg-postal/5 text-postal">开单</div>
+        <div class="blueprint-cell font-bold text-xs bg-postal/5 text-postal">支付</div>
+        <div class="blueprint-cell font-bold text-xs bg-postal/5 text-postal">日终</div>
+      </div>
+      <div class="blueprint-row">
+        <div class="blueprint-cell blueprint-label">农户行为</div>
+        <div class="blueprint-cell">报姓名/电话·出示身份</div>
+        <div class="blueprint-cell">开车上磅·等待读数</div>
+        <div class="blueprint-cell">提供样品</div>
+        <div class="blueprint-cell">卸粮·空车上磅</div>
+        <div class="blueprint-cell">与老板讨价</div>
+        <div class="blueprint-cell">确认金额·拿单子</div>
+        <div class="blueprint-cell">等待到账通知</div>
+        <div class="blueprint-cell">—</div>
+      </div>
+      <div class="blueprint-row" style="position:relative">
+        <div class="blueprint-cell blueprint-label">收购商前台</div>
+        <div class="blueprint-cell">查客户/录新客</div>
+        <div class="blueprint-cell">读地磅数据</div>
+        <div class="blueprint-cell">检测水分·定扣杂</div>
+        <div class="blueprint-cell">记录皮重·算净重</div>
+        <div class="blueprint-cell">确定最终单价</div>
+        <div class="blueprint-cell">PC生成订单·打印</div>
+        <div class="blueprint-cell">掏手机·扫码·确认</div>
+        <div class="blueprint-cell">查报表·导台账</div>
+      </div>
+      <!-- 可见线 -->
+      <div class="flex items-center my-1 px-2"><div class="flex-1 border-t-2 border-dashed border-red-300"></div><span class="text-[10px] text-red-400 mx-2 whitespace-nowrap">—— 可见线（Line of Visibility）——</span><div class="flex-1 border-t-2 border-dashed border-red-300"></div></div>
+      <div class="blueprint-row">
+        <div class="blueprint-cell blueprint-label">后台系统</div>
+        <div class="blueprint-cell text-gray-400">农户数据库查询</div>
+        <div class="blueprint-cell text-gray-400">地磅串口读数</div>
+        <div class="blueprint-cell bg-red-50 text-red-500 font-bold">❌ 无折干计算</div>
+        <div class="blueprint-cell bg-red-50 text-red-500 font-bold">❌ 无车牌关联</div>
+        <div class="blueprint-cell text-gray-400">价格配置表</div>
+        <div class="blueprint-cell text-gray-400">订单生成·打印</div>
+        <div class="blueprint-cell bg-red-50 text-red-500 font-bold">❌ 需跳转银行APP</div>
+        <div class="blueprint-cell bg-red-50 text-red-500 font-bold">❌ 无台账导出</div>
+      </div>
+      <div class="blueprint-row">
+        <div class="blueprint-cell blueprint-label">支撑系统</div>
+        <div class="blueprint-cell text-gray-400">进件/开户</div>
+        <div class="blueprint-cell text-gray-400">地磅硬件</div>
+        <div class="blueprint-cell text-gray-400">水分仪</div>
+        <div class="blueprint-cell text-gray-400">地磅硬件</div>
+        <div class="blueprint-cell text-gray-400">—</div>
+        <div class="blueprint-cell text-gray-400">打印机</div>
+        <div class="blueprint-cell text-gray-400">微邮付·银行系统</div>
+        <div class="blueprint-cell text-gray-400">数据仓库</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel p-5">
+    <h3 class="font-bold text-gray-900 mb-3"><i class="fas fa-triangle-exclamation text-red-500 mr-2"></i>服务蓝图揭示的四个断裂点</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="card p-3 border-l-4 border-l-red-400"><p class="text-sm"><strong>断裂1：</strong>质检阶段无折干计算——水分检测后人工换算，效率低且易出错</p></div>
+      <div class="card p-3 border-l-4 border-l-red-400"><p class="text-sm"><strong>断裂2：</strong>两次称重无车牌号关联——靠人脑记忆匹配，高峰期极易出错</p></div>
+      <div class="card p-3 border-l-4 border-l-red-400"><p class="text-sm"><strong>断裂3：</strong>支付环节脱离系统——必须跳转手机银行APP，前台体验中断</p></div>
+      <div class="card p-3 border-l-4 border-l-red-400"><p class="text-sm"><strong>断裂4：</strong>日终无报表能力——监管台账只能手工整理，合规风险</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 7. 亲和图 ===================== -->
+<section id="tab-affinity" class="fade-in space-y-6 hidden">
+  <p class="section-label">AFFINITY DIAGRAM · 亲和图聚类</p>
+  <p class="text-sm text-gray-500 mb-4">将41条调研发现自底向上聚类为6大主题，每个主题下的数字代表该类发现的条数</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+    <div class="affinity-cluster p-5" style="border-top-color:#DC2626">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-900"><i class="fas fa-credit-card text-red-500 mr-2"></i>支付与结算</h3>
+        <span class="tag bg-red-50 text-red-700">12条</span>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0"></span>支付跳转流程过多</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0"></span>转账限额远低于业务需求</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0"></span>单一银行卡绑定阻碍并行</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0"></span>合并付款需求（先开单后统一付）</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0"></span>需支持他行卡/多通道/现金记录</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 flex-shrink-0"></span>转账备注需带订单信息</div>
+        <div class="flex items-start gap-2 text-sm text-gray-400 text-xs">+6条更多…</div>
+      </div>
+    </div>
+
+    <div class="affinity-cluster p-5" style="border-top-color:#F59E0B">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-900"><i class="fas fa-weight-scale text-amber-500 mr-2"></i>称重与定价</h3>
+        <span class="tag bg-amber-50 text-amber-700">6条</span>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></span>缺少车牌号字段（两次称重关联）</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></span>无水分折干计算器</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></span>无水分-价格配置管理</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></span>无附加费用明细（公关费/卸车费）</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></span>不支持重复称重</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></span>订单未体现折干后标准价+烘干费</div>
+      </div>
+    </div>
+
+    <div class="affinity-cluster p-5" style="border-top-color:#22C55E">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-900"><i class="fas fa-user-plus text-green-500 mr-2"></i>农户管理</h3>
+        <span class="tag bg-green-50 text-green-700">6条</span>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-green-400 mt-1.5 flex-shrink-0"></span>信息采集过重（身份证拍照等）</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-green-400 mt-1.5 flex-shrink-0"></span>应简化为三要素（姓名+电话+卡号）</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-green-400 mt-1.5 flex-shrink-0"></span>需支持扫码自助注册</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-green-400 mt-1.5 flex-shrink-0"></span>需支持Excel批量导入老客户</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-green-400 mt-1.5 flex-shrink-0"></span>老客户自动识别</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-green-400 mt-1.5 flex-shrink-0"></span>双角色注册（同一人既收又卖）</div>
+      </div>
+    </div>
+
+    <div class="affinity-cluster p-5" style="border-top-color:#3B82F6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-900"><i class="fas fa-chart-pie text-blue-500 mr-2"></i>报表与数据</h3>
+        <span class="tag bg-blue-50 text-blue-700">4条</span>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0"></span>监管台账明细表（粮食局合规刚需）</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0"></span>日结报表/交易流水</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0"></span>收粮+卖粮利润核算</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0"></span>数据导出Excel（可脱敏）</div>
+      </div>
+    </div>
+
+    <div class="affinity-cluster p-5" style="border-top-color:#8B5CF6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-900"><i class="fas fa-laptop-code text-purple-500 mr-2"></i>系统与体验</h3>
+        <span class="tag bg-purple-50 text-purple-700">8条</span>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-1.5 flex-shrink-0"></span>移动端需支持全流程操作</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-1.5 flex-shrink-0"></span>结算单模板需完善</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-1.5 flex-shrink-0"></span>PC端与小程序密码不同步</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-1.5 flex-shrink-0"></span>需支持多员工子账号</div>
+        <div class="flex items-start gap-2 text-sm text-gray-400 text-xs">+4条更多…</div>
+      </div>
+    </div>
+
+    <div class="affinity-cluster p-5" style="border-top-color:#14B8A6">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-gray-900"><i class="fas fa-bullhorn text-teal-500 mr-2"></i>运营与推广</h3>
+        <span class="tag bg-teal-50 text-teal-700">5条</span>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 flex-shrink-0"></span>税务数据上报问题需官方口径</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 flex-shrink-0"></span>分客群制定推广话术</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 flex-shrink-0"></span>上线后运维响应速度</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 flex-shrink-0"></span>微邮付审核加速</div>
+        <div class="flex items-start gap-2 text-sm text-gray-600"><span class="w-1.5 h-1.5 rounded-full bg-teal-400 mt-1.5 flex-shrink-0"></span>增加系统粘性功能</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 8. JTBD ===================== -->
+<section id="tab-jtbd" class="fade-in space-y-6 hidden">
+  <p class="section-label">JOBS TO BE DONE · 用户核心任务</p>
+  <p class="text-sm text-gray-500 mb-4">用户不是在买「功能」，而是「雇佣」产品来完成一项任务。理解任务本质，才能做出对的产品。</p>
+
+  <div class="space-y-4">
+    <div class="jtbd">
+      <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center"><i class="fas fa-user-gear text-amber-600 text-sm"></i></div><span class="font-bold text-gray-900">粮站收购商（李姐型）</span></div>
+      <div class="text-sm text-gray-700 space-y-3">
+        <p><strong>当我</strong> 在收粮高峰期同时处理几十车粮食时，<strong>我想要</strong> 从称重到付款的全流程在一个系统里自动完成，<strong>以便</strong> 我不用两头跑、不用掏手机扫码、不用担心排队堵车。</p>
+        <p><strong>当我</strong> 需要向粮食局提交收购台账时，<strong>我想要</strong> 系统一键导出含身份证/车牌号/结算明细的合规报表，<strong>以便</strong> 我不用花一整天手工整理数据。</p>
+        <p><strong>当我</strong> 考虑换一个新系统时，<strong>我想要</strong> 确定新系统至少有折干计算、利润核算这些我现在就有的功能，<strong>以便</strong> 我不会越换越差。</p>
+      </div>
+    </div>
+
+    <div class="jtbd" style="background:linear-gradient(135deg,#ecfdf5,#fff);border-color:#86efac">
+      <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center"><i class="fas fa-person-walking text-green-600 text-sm"></i></div><span class="font-bold text-gray-900">流动收菜商（刘哥型）</span></div>
+      <div class="text-sm text-gray-700 space-y-3">
+        <p><strong>当我</strong> 走村串户收菜、一天要给十几个农户付款时，<strong>我想要</strong> 用手机快速开单、攒一批后统一付款，<strong>以便</strong> 我不用一笔笔在微信里转账。</p>
+        <p><strong>当我</strong> 微信里的钱需要提现到银行卡时，<strong>我想要</strong> 绕过微信直接银行卡对银行卡转账，<strong>以便</strong> 我省掉5‰的提现手续费。</p>
+        <p><strong>当我</strong> 面对60-70岁不会用手机的老农户时，<strong>我想要</strong> 只要他报出姓名和卡号就能完成建档，<strong>以便</strong> 生意不被信息门槛卡住。</p>
+      </div>
+    </div>
+
+    <div class="jtbd" style="background:linear-gradient(135deg,#eff6ff,#fff);border-color:#93c5fd">
+      <div class="flex items-center gap-2 mb-2"><div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center"><i class="fas fa-user-shield text-blue-600 text-sm"></i></div><span class="font-bold text-gray-900">农户（被服务者视角）</span></div>
+      <div class="text-sm text-gray-700 space-y-3">
+        <p><strong>当我</strong> 拉了一车粮食到粮站时，<strong>我想要</strong> 用最短的时间完成称重、定价、拿到钱，<strong>以便</strong> 我赶紧回去拉下一车。</p>
+        <p><strong>当我</strong> 第一次去一个粮站卖粮被要求登记信息时，<strong>我想要</strong> 只提供最少的信息（姓名+卡号），<strong>以便</strong> 我不用担心个人信息泄露。</p>
+        <p><strong>当我</strong> 卖完粮离开后，<strong>我想要</strong> 实时收到到账通知和电子凭证，<strong>以便</strong> 我确认钱到了、金额对了。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 9. 行动建议 ===================== -->
+<section id="tab-actions" class="fade-in space-y-6 hidden">
+  <p class="section-label">RECOMMENDATIONS · 行动建议</p>
+
+  <div class="panel p-6">
+    <h3 class="font-bold text-lg text-gray-900 mb-4">按优先级排列的行动项</h3>
+    <p class="text-sm text-gray-500 mb-5">每条建议直接关联到调研发现，标注了影响范围和建议负责方</p>
+
+    <!-- 立即行动 -->
+    <div class="mb-6">
+      <div class="flex items-center gap-2 mb-3"><span class="tag bg-red-100 text-red-700 text-xs">立即行动 · Now</span><span class="text-sm text-gray-500">4月推广前必须解决</span></div>
+      <div class="space-y-3">
+        <div class="card p-4 border-l-4 border-l-red-500">
+          <div class="flex justify-between items-start"><h4 class="font-bold text-sm text-gray-900">与总行协调收购商卡片提额和新卡即时白名单</h4><span class="tag bg-gray-100 text-gray-600">银行侧</span></div>
+          <p class="text-xs text-gray-500 mt-1">关联发现：限额问题（6/10场提及）· 影响全部大型粮站</p>
+        </div>
+        <div class="card p-4 border-l-4 border-l-red-500">
+          <div class="flex justify-between items-start"><h4 class="font-bold text-sm text-gray-900">出具税务数据上报问题的官方书面答复</h4><span class="tag bg-gray-100 text-gray-600">合规/商务</span></div>
+          <p class="text-xs text-gray-500 mt-1">关联发现：税务恐惧（4/10场提及）· 推广的最大心理障碍</p>
+        </div>
+        <div class="card p-4 border-l-4 border-l-red-500">
+          <div class="flex justify-between items-start"><h4 class="font-bold text-sm text-gray-900">订单增加车牌号字段 + 结算单模板完善</h4><span class="tag bg-gray-100 text-gray-600">产品/开发</span></div>
+          <p class="text-xs text-gray-500 mt-1">关联发现：车牌号是现场核心标识 · 结算单信息不完整 · 开发量小</p>
+        </div>
+        <div class="card p-4 border-l-4 border-l-red-500">
+          <div class="flex justify-between items-start"><h4 class="font-bold text-sm text-gray-900">农户建档简化为三要素 + 支持扫码自助注册</h4><span class="tag bg-gray-100 text-gray-600">产品/开发</span></div>
+          <p class="text-xs text-gray-500 mt-1">关联发现：信息采集抗拒（全部会议提及）· 各省一致要求</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 短期 -->
+    <div class="mb-6">
+      <div class="flex items-center gap-2 mb-3"><span class="tag bg-amber-100 text-amber-700 text-xs">短期 · Next</span><span class="text-sm text-gray-500">Q2 重点迭代</span></div>
+      <div class="space-y-3">
+        <div class="card p-4 border-l-4 border-l-amber-400">
+          <h4 class="font-bold text-sm text-gray-900">开发水分折干计算器 + 水分-价格配置管理</h4>
+          <p class="text-xs text-gray-500 mt-1">关联发现：粮食定价核心逻辑 · 竞品标配 · 没有它就不是「收粮系统」</p>
+        </div>
+        <div class="card p-4 border-l-4 border-l-amber-400">
+          <h4 class="font-bold text-sm text-gray-900">台账报表导出能力（满足粮食局合规要求）</h4>
+          <p class="text-xs text-gray-500 mt-1">关联发现：监管刚需 · 不满足无法推广</p>
+        </div>
+        <div class="card p-4 border-l-4 border-l-amber-400">
+          <h4 class="font-bold text-sm text-gray-900">支付流程优化——减少跳转步骤，探索PC端免扫码方案</h4>
+          <p class="text-xs text-gray-500 mt-1">关联发现：支付跳转是最高频痛点 · 竞品在系统内一步完成</p>
+        </div>
+        <div class="card p-4 border-l-4 border-l-amber-400">
+          <h4 class="font-bold text-sm text-gray-900">支持多支付通道（私对私/公对私/他行）+ 合并付款完善</h4>
+          <p class="text-xs text-gray-500 mt-1">关联发现：并行瓶颈 + 他行卡覆盖 + 合并付款刚需</p>
+        </div>
+        <div class="card p-4 border-l-4 border-l-amber-400">
+          <h4 class="font-bold text-sm text-gray-900">老系统数据迁移能力（Excel批量导入农户信息）</h4>
+          <p class="text-xs text-gray-500 mt-1">关联发现：替换系统的前提条件 · 影响有系统客户的获取</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中期 -->
+    <div>
+      <div class="flex items-center gap-2 mb-3"><span class="tag bg-blue-100 text-blue-700 text-xs">中期 · Later</span><span class="text-sm text-gray-500">Q3-Q4 能力建设</span></div>
+      <div class="space-y-3">
+        <div class="card p-4 border-l-4 border-l-blue-400">
+          <h4 class="font-bold text-sm text-gray-900">收粮+卖粮利润核算一体化</h4>
+          <p class="text-xs text-gray-500 mt-1">关联发现：第三家粮站核心需求 · 竞品差异化竞争点</p>
+        </div>
+        <div class="card p-4 border-l-4 border-l-blue-400">
+          <h4 class="font-bold text-sm text-gray-900">移动端全流程操作（称重确认/选品类/定价/开单）</h4>
+          <p class="text-xs text-gray-500 mt-1">关联发现：瑞粮站强需求 · 让农户只跑一趟</p>
+        </div>
+        <div class="card p-4 border-l-4 border-l-blue-400">
+          <h4 class="font-bold text-sm text-gray-900">多员工子账号 + 角色权限体系</h4>
+          <p class="text-xs text-gray-500 mt-1">关联发现：大型粮站有多个出纳/会计 · 付款只能老板操作是痛点</p>
+        </div>
+        <div class="card p-4 border-l-4 border-l-blue-400">
+          <h4 class="font-bold text-sm text-gray-900">全流程环节管理（进场→检测→出场）</h4>
+          <p class="text-xs text-gray-500 mt-1">关联发现：吉林组第17条 · 产品从「工具」升级为「平台」的关键</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="max-w-6xl mx-auto px-6 py-6 text-center text-xs text-gray-400 border-t border-gray-100 mt-8">
+  丰收云 · 实地调研洞察报告 · 基于 Nielsen Norman Group / IDEO 方法论框架<br>
+  数据来源：2026.03.18-19 吉林实地调研（10场会议 · 4家走访 · 18条问题清单）
+</footer>
+
+<script>
+function switchTab(t){
+  document.querySelectorAll('[id^="tab-"]').forEach(e=>e.classList.add('hidden'));
+  document.getElementById('tab-'+t).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(b=>{b.classList.remove('active');b.classList.add('text-gray-500','bg-white')});
+  event.target.closest('.tab-btn').classList.add('active');
+  event.target.closest('.tab-btn').classList.remove('text-gray-500','bg-white');
+}
+</script>
+</body>
+</html>

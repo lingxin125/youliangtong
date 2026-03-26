@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 发布需求</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js?v=20260324"></script>
+    <style>
+        .type-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid #E5E7EB;
+            background: #F8FAFC;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            min-height: 56px;
+        }
+        .type-option:active {
+            transform: scale(0.98);
+        }
+        .type-option.active.purchase {
+            background: #EFF6FF;
+            border-color: #BFDBFE;
+            box-shadow: 0 6px 18px rgba(59, 130, 246, 0.12);
+        }
+        .type-option.active.sale {
+            background: #ECFDF5;
+            border-color: #BBF7D0;
+            box-shadow: 0 6px 18px rgba(34, 197, 94, 0.12);
+        }
+        .type-option.active.purchase .type-icon {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+        .type-option.active.sale .type-icon {
+            background: #DCFCE7;
+            color: #16A34A;
+        }
+        .type-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F3F4F6;
+            color: #6B7280;
+            flex-shrink: 0;
+        }
+        .category-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            min-height: 38px;
+        }
+        .category-tag:active {
+            transform: scale(0.96);
+        }
+        .category-tag.bg-red-50 { background: #FEE2E2; color: #EF4444; }
+        .category-tag.bg-green-50 { background: #DCFCE7; color: #22C55E; }
+        .category-tag.bg-amber-50 { background: #FEF3C7; color: #F59E0B; }
+        .category-tag.bg-violet-50 { background: #EDE9FE; color: #8B5CF6; }
+        .category-tag.bg-orange-50 { background: #FFE4D6; color: #F97316; }
+        .category-tag.bg-gray-100 { background: #F3F4F6; color: #6B7280; }
+        .category-tag.active {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            font-weight: 600;
+        }
+        .category-tag.active.border-red-200 { border-color: #FECACA; }
+        .category-tag.active.border-green-200 { border-color: #BBF7D0; }
+        .category-tag.active.border-amber-200 { border-color: #FDE68A; }
+        .category-tag.active.border-violet-200 { border-color: #DDD6FE; }
+        .category-tag.active.border-orange-200 { border-color: #FED7AA; }
+        .category-tag.active.border-gray-200 { border-color: #E5E7EB; }
+        .custom-input {
+            width: 100%;
+            background: #F3F4F6;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 14px;
+            color: #1F2937;
+            outline: none;
+            transition: all 0.2s ease;
+            min-height: 44px;
+        }
+        .custom-input:focus {
+            border-color: #11A64A;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(17, 166, 74, 0.08);
+        }
+        .custom-input::placeholder {
+            color: #9CA3AF;
+        }
+        .helper-card {
+            background: linear-gradient(180deg, rgba(240,253,244,0.95) 0%, rgba(255,255,255,0.98) 100%);
+            border: 1px solid rgba(17, 166, 74, 0.12);
+            border-radius: 16px;
+            padding: 12px 14px;
+        }
+        .toast-tip {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            padding: 12px 20px;
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .toast-tip.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:88px;">
+
+        <!-- 方向选择 Segment -->
+        <div class="glass-panel rounded-2xl mt-3 p-4">
+            <div class="flex items-center gap-2 mb-3">
+                <i class="fas fa-exchange-alt text-gray-400 text-sm"></i>
+                <span class="text-sm font-medium text-gray-700">发布方向 <span class="text-red-400">*</span></span>
+            </div>
+            <div class="flex gap-2">
+                <span class="filter-chip active text-[12px] px-4 py-2 flex-1 text-center" onclick="switchPublishDirection(this, 'purchase')">
+                    <i class="fas fa-shopping-cart mr-1"></i>我要求购
+                </span>
+                <span class="filter-chip text-[12px] px-4 py-2 flex-1 text-center" onclick="switchPublishDirection(this, 'sale')">
+                    <i class="fas fa-store mr-1"></i>我要出售
+                </span>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl mt-3 overflow-hidden">
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-apple-whole text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700" id="catLabel">收购品类 <span class="text-red-400">*</span></span>
+                </div>
+                <div class="grid grid-cols-4 gap-2" id="cateGrid">
+                    <div class="category-tag bg-red-50" data-cate="水果" data-border="border-red-200" onclick="selectCate(this)"><i class="fas fa-apple-whole text-xs"></i>水果</div>
+                    <div class="category-tag bg-green-50" data-cate="蔬菜" data-border="border-green-200" onclick="selectCate(this)"><i class="fas fa-carrot text-xs"></i>蔬菜</div>
+                    <div class="category-tag bg-amber-50" data-cate="粮油" data-border="border-amber-200" onclick="selectCate(this)"><i class="fas fa-wheat-awn text-xs"></i>粮油</div>
+                    <div class="category-tag bg-violet-50" data-cate="禽蛋" data-border="border-violet-200" onclick="selectCate(this)"><i class="fas fa-egg text-xs"></i>禽蛋</div>
+                    <div class="category-tag bg-orange-50" data-cate="肉类" data-border="border-orange-200" onclick="selectCate(this)"><i class="fas fa-drumstick-bite text-xs"></i>肉类</div>
+                    <div class="category-tag bg-gray-100" data-cate="其他" data-border="border-gray-200" onclick="selectCate(this)"><i class="fas fa-box-open text-xs"></i>其他</div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100"></div>
+
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-edit text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700" id="titleLabel">收购标题 <span class="text-red-400">*</span></span>
+                </div>
+                <input type="text" id="titleInput" class="custom-input mb-2" placeholder="请输入清晰的收购标题" maxlength="20">
+                <div class="flex justify-end items-center">
+                    <span class="text-[10px] text-gray-400" id="titleCount">0/20</span>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100"></div>
+
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-note-sticky text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700" id="descLabel">收购描述 <span class="text-gray-400 text-xs font-normal">（选填）</span></span>
+                </div>
+                <textarea id="descInput" rows="3" class="custom-input resize-none" placeholder="补充描述收购品种、规格、品质要求、交付方式等"></textarea>
+            </div>
+
+            <div class="border-t border-gray-100"></div>
+
+            <div class="p-4">
+                <div class="flex items-center mb-3">
+                    <i class="fas fa-camera text-gray-400 text-sm mr-2"></i>
+                    <span class="text-sm font-medium text-gray-700">上传图片 <span class="text-gray-400 text-xs font-normal">（选填，最多3张）</span></span>
+                </div>
+                <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1" id="imageUploaderContainer"></div>
+            </div>
+
+            <div class="border-t border-gray-100"></div>
+
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-tag text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700" id="priceLabel">收购单价 <span class="text-gray-400 text-xs font-normal">（选填）</span></span>
+                </div>
+                <div class="grid grid-cols-[1fr_116px] gap-3">
+                    <div>
+                        <div class="text-[11px] text-gray-500 mb-1.5">单价</div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-400 text-sm">¥</span>
+                            <input type="number" id="priceInput" step="0.01" class="custom-input" placeholder="元">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] text-gray-500 mb-1.5">单位</div>
+                        <input type="text" id="unitInput" class="custom-input text-center" placeholder="如：斤" value="斤" maxlength="6">
+                    </div>
+                </div>
+                <div class="mt-2 flex items-center justify-end gap-3">
+                    <label class="flex items-center gap-1.5 text-[11px] text-gray-500 cursor-pointer select-none">
+                        <input type="checkbox" id="negotiableCheckbox" class="w-3.5 h-3.5 rounded border-gray-300 text-primary focus:ring-primary/30" onchange="toggleNegotiableState()">
+                        <span>面议</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100"></div>
+
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-weight-hanging text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700" id="qtyLabel">收购数量 <span class="text-red-400">*</span></span>
+                </div>
+                <input type="number" id="qtyInput" class="custom-input" placeholder="请输入收购数量">
+            </div>
+
+            <div class="border-t border-gray-100"></div>
+
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-location-dot text-gray-400 text-sm"></i>
+                    <span class="text-sm font-medium text-gray-700" id="locationLabel">收购地址 <span class="text-red-400">*</span></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="locationInput" class="custom-input flex-1" placeholder="请输入收购地址">
+                    <button id="locateBtn" type="button" class="shrink-0 px-3 py-2.5 text-xs font-medium rounded-xl border border-primary/30 text-primary bg-primary/5" onclick="fillCurrentLocation()">
+                        <i class="fas fa-location-crosshairs mr-1"></i>定位
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3 px-1">
+            <p class="text-xs text-gray-400"><i class="fas fa-info-circle mr-0.5"></i>最多同时发布20条进行中需求</p>
+        </div>
+    </div>
+
+    <div id="submitBar" class="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-[#FFFBF0] via-[#FFFBF0] to-transparent">
+        <button id="submitBtn" class="w-full py-2.5 bg-primary text-white font-medium text-sm rounded-2xl shadow-glow active:scale-[0.98] transition-transform" onclick="submitDemand()">
+            <i class="fas fa-paper-plane mr-1"></i>确认发布
+        </button>
+    </div>
+
+    <div id="toastTip" class="toast-tip"></div>
+</div>
+
+<script>
+var currentDirection = 'purchase'; // 'purchase' | 'sale'
+
+const MARKET_PAGE = 'unified-market.html';
+const MANAGE_PAGE = 'unified-demand-manage.html';
+const HOME_PAGE = 'unified-home.html';
+const MY_PAGE = 'unified-my.html';
+
+const demandStore = window.DemandMockStore || null;
+const q = new URLSearchParams(window.location.search);
+const mode = q.get('mode') || '';
+const isEdit = mode === 'edit';
+const isView = mode === 'view';
+const editId = q.get('id');
+const fromPage = q.get('from') || '';
+const sourcePage = q.get('source') || '';
+const editingDemand = (isEdit || isView) && demandStore && typeof demandStore.findDemandById === 'function'
+    ? demandStore.findDemandById(editId)
+    : null;
+let selectedCategory = '';
+let uploadedImages = [];
+
+let backLink = MARKET_PAGE;
+if ((isEdit || isView) && fromPage === 'manage') {
+    backLink = MANAGE_PAGE;
+} else if (sourcePage === 'home') {
+    backLink = HOME_PAGE;
+} else if (sourcePage === 'my') {
+    backLink = MY_PAGE;
+}
+
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader(isView ? '需求详情' : (isEdit ? '编辑需求' : '发布需求'), backLink);
+
+if (isEdit) {
+    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save mr-1"></i>保存需求';
+}
+if (isView) {
+    lockReadonlyView();
+}
+
+function switchPublishDirection(el, direction) {
+    currentDirection = direction;
+    var chips = el.parentElement.querySelectorAll('.filter-chip');
+    chips.forEach(function(chip) { chip.classList.remove('active'); });
+    el.classList.add('active');
+    updateFormLabels();
+}
+
+function updateFormLabels() {
+    var isSale = currentDirection === 'sale';
+    var prefix = isSale ? '出售' : '收购';
+    document.getElementById('catLabel').innerHTML = prefix + '品类 <span class="text-red-400">*</span>';
+    document.getElementById('titleLabel').innerHTML = prefix + '标题 <span class="text-red-400">*</span>';
+    document.getElementById('descLabel').innerHTML = prefix + '描述 <span class="text-gray-400 text-xs font-normal">（选填）</span>';
+    document.getElementById('priceLabel').innerHTML = prefix + '单价 <span class="text-gray-400 text-xs font-normal">（选填）</span>';
+    document.getElementById('qtyLabel').innerHTML = prefix + '数量 <span class="text-red-400">*</span>';
+    document.getElementById('locationLabel').innerHTML = prefix + '地址 <span class="text-red-400">*</span>';
+
+    document.getElementById('titleInput').placeholder = '请输入清晰的' + prefix + '标题';
+    document.getElementById('descInput').placeholder = '补充描述' + prefix + '品种、规格、品质要求、交付方式等';
+    document.getElementById('qtyInput').placeholder = '请输入' + prefix + '数量';
+    document.getElementById('locationInput').placeholder = '请输入' + prefix + '地址';
+
+    var headerTitle = isView ? '需求详情' : (isEdit ? '编辑需求' : '发布需求');
+    document.getElementById('navBar').innerHTML = renderHeader(headerTitle, backLink);
+}
+
+document.getElementById('titleInput').addEventListener('input', function() {
+    const count = this.value.length;
+    document.getElementById('titleCount').textContent = count + '/20';
+    document.getElementById('titleCount').classList.toggle('text-red-400', count >= 20);
+    document.getElementById('titleCount').classList.toggle('text-gray-400', count < 20);
+});
+document.getElementById('negotiableCheckbox').addEventListener('change', toggleNegotiableState);
+
+var queryDemand = parseDemandFromQuery();
+var formDemand = null;
+if (editingDemand) {
+    formDemand = editingDemand;
+    // 编辑模式：根据已有需求的 role 设置方向
+    if (editingDemand.role === 'farmer') {
+        currentDirection = 'sale';
+    } else {
+        currentDirection = 'purchase';
+    }
+}
+if (queryDemand) {
+    formDemand = Object.assign({}, formDemand || {}, queryDemand);
+}
+if (formDemand) {
+    hydrateForm(formDemand);
+} else {
+    renderImageUploader();
+    updatePricePlaceholder();
+    toggleNegotiableState();
+}
+
+// 初始化方向选择 UI
+(function initDirectionUI() {
+    var chips = document.querySelectorAll('.filter-chip');
+    if (chips.length >= 2) {
+        chips[0].classList.toggle('active', currentDirection === 'purchase');
+        chips[1].classList.toggle('active', currentDirection === 'sale');
+    }
+    updateFormLabels();
+})();
+
+function lockReadonlyView() {
+    var submitBar = document.getElementById('submitBar');
+    if (submitBar) submitBar.classList.add('hidden');
+
+    document.querySelectorAll('.category-tag').forEach(function(tag) {
+        tag.removeAttribute('onclick');
+        tag.style.cursor = 'default';
+    });
+    ['titleInput', 'descInput', 'locationInput', 'qtyInput', 'priceInput'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.readOnly = true;
+    });
+    var locateBtn = document.getElementById('locateBtn');
+    var unitInput = document.getElementById('unitInput');
+    var negotiableCheckbox = document.getElementById('negotiableCheckbox');
+    if (locateBtn) locateBtn.classList.add('hidden');
+    if (unitInput) unitInput.readOnly = true;
+    if (negotiableCheckbox) negotiableCheckbox.disabled = true;
+
+    // 锁定方向选择
+    document.querySelectorAll('.filter-chip').forEach(function(chip) {
+        chip.removeAttribute('onclick');
+        chip.style.cursor = 'default';
+    });
+}
+
+function parseDemandFromQuery() {
+    var category = q.get('category') || '';
+    var title = q.get('title') || '';
+    var content = q.get('content') || '';
+    var location = q.get('location') || '';
+    var qtyRaw = q.get('qty');
+    var unit = q.get('unit') || '';
+    var priceRaw = q.get('price');
+    var demandType = q.get('demandType') || '';
+    var role = q.get('role') || '';
+
+    if (!category && !title && !content && !location && !qtyRaw && !unit && !priceRaw && !demandType && !role) {
+        return null;
+    }
+
+    var qty = qtyRaw === null ? '' : Number(qtyRaw);
+    if (qtyRaw !== null && (!Number.isFinite(qty) || qty <= 0)) {
+        qty = '';
+    }
+
+    var price = null;
+    if (priceRaw !== null && priceRaw !== '') {
+        var parsedPrice = Number(priceRaw);
+        price = Number.isFinite(parsedPrice) ? parsedPrice : null;
+    }
+
+    // 如果 query 中有 role 信息，设置方向
+    if (role === 'farmer') {
+        currentDirection = 'sale';
+    } else if (role === 'buyer') {
+        currentDirection = 'purchase';
+    }
+
+    return {
+        role: role || (currentDirection === 'sale' ? 'farmer' : 'buyer'),
+        demandType: demandType || (currentDirection === 'sale' ? 'sale' : 'purchase'),
+        category: category || '其他',
+        title: title,
+        content: content,
+        note: content,
+        location: location,
+        qty: qty,
+        unit: unit || '斤',
+        price: price
+    };
+}
+
+function selectCate(el) {
+    if (isView) return;
+    document.querySelectorAll('.category-tag').forEach(function(tag) {
+        tag.classList.remove('active');
+        tag.classList.remove('border-red-200', 'border-green-200', 'border-amber-200', 'border-violet-200', 'border-orange-200', 'border-gray-200');
+    });
+    el.classList.add('active');
+    var borderClass = el.getAttribute('data-border');
+    if (borderClass) el.classList.add(borderClass);
+    selectedCategory = el.getAttribute('data-cate') || '';
+}
+
+function updatePricePlaceholder() {
+    var priceInput = document.getElementById('priceInput');
+    if (priceInput) priceInput.placeholder = '元';
+}
+
+function toggleNegotiableState() {
+    var priceInput = document.getElementById('priceInput');
+    var unitInput = document.getElementById('unitInput');
+    var checkbox = document.getElementById('negotiableCheckbox');
+    var isNegotiable = checkbox && checkbox.checked;
+    if (!priceInput || !unitInput) return;
+    priceInput.readOnly = !!isNegotiable || isView;
+    unitInput.readOnly = !!isNegotiable || isView;
+    priceInput.classList.toggle('bg-gray-100', !!isNegotiable || isView);
+    unitInput.classList.toggle('bg-gray-100', !!isNegotiable || isView);
+    priceInput.classList.toggle('text-gray-400', !!isNegotiable || isView);
+    unitInput.classList.toggle('text-gray-400', !!isNegotiable || isView);
+    if (isNegotiable) {
+        priceInput.value = '';
+    }
+}
+
+function hydrateForm(demand) {
+    selectedCategory = demand.category || '';
+    document.querySelectorAll('.category-tag').forEach(function(btn) {
+        var isActive = (btn.getAttribute('data-cate') || '') === selectedCategory;
+        btn.classList.toggle('active', isActive);
+        btn.classList.remove('border-red-200', 'border-green-200', 'border-amber-200', 'border-violet-200', 'border-orange-200', 'border-gray-200');
+        if (isActive) {
+            var borderClass = btn.getAttribute('data-border');
+            if (borderClass) btn.classList.add(borderClass);
+        }
+    });
+
+    document.getElementById('unitInput').value = demand.unit || '斤';
+    document.getElementById('negotiableCheckbox').checked = demand.price === null || demand.price === undefined || demand.price === '';
+    updatePricePlaceholder();
+    toggleNegotiableState();
+
+    var title = demand.title || demand.content || '';
+    var desc = (demandStore && typeof demandStore.getDemandDescription === 'function')
+        ? demandStore.getDemandDescription(demand)
+        : (demand.note || demand.content || '');
+
+    document.getElementById('titleInput').value = title;
+    document.getElementById('titleCount').textContent = title.length + '/20';
+    document.getElementById('descInput').value = desc || '';
+    document.getElementById('locationInput').value = demand.location || '';
+    document.getElementById('qtyInput').value = demand.qty || '';
+    document.getElementById('priceInput').value = demand.price === null || demand.price === undefined ? '' : demand.price;
+
+    uploadedImages = Array.isArray(demand.images) ? demand.images.slice(0, 3) : [];
+    renderImageUploader();
+}
+
+let fileInputForUpload = null;
+
+function triggerImgUpload() {
+    if (isView) return;
+    if (uploadedImages.length >= 3) {
+        showToast('最多只能上传3张图片');
+        return;
+    }
+    if (!fileInputForUpload) {
+        fileInputForUpload = document.createElement('input');
+        fileInputForUpload.type = 'file';
+        fileInputForUpload.accept = 'image/*';
+        fileInputForUpload.multiple = true;
+        fileInputForUpload.style.display = 'none';
+        fileInputForUpload.onchange = function(e) {
+            const files = Array.from(e.target.files || []);
+            if (!files.length) return;
+            const remainingSlots = 3 - uploadedImages.length;
+            const filesToProcess = files.slice(0, remainingSlots);
+            if (files.length > remainingSlots) {
+                showToast('最多只能上传3张图片，多余的已忽略');
+            }
+            let loadedCount = 0;
+            filesToProcess.forEach(function(file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadedImages.push(event.target.result);
+                    loadedCount++;
+                    if (loadedCount === filesToProcess.length) {
+                        renderImageUploader();
+                        fileInputForUpload.value = '';
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+        document.body.appendChild(fileInputForUpload);
+    }
+    fileInputForUpload.click();
+}
+
+function removeImage(index) {
+    if (isView) return;
+    uploadedImages.splice(index, 1);
+    renderImageUploader();
+}
+
+function renderImageUploader() {
+    const container = document.getElementById('imageUploaderContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    uploadedImages.forEach(function(imgUrl, index) {
+        const item = document.createElement('div');
+        item.className = 'shrink-0 w-20 h-20 rounded-xl relative overflow-hidden bg-gray-100 border border-gray-200';
+        item.innerHTML = `
+            <img src="${imgUrl}" class="w-full h-full object-cover" />
+            ${isView ? '' : `<div class="absolute top-1 right-1 w-5 h-5 bg-black/40 rounded-full flex items-center justify-center text-white cursor-pointer active:scale-90" onclick="removeImage(${index})"><i class="fas fa-times text-[10px]"></i></div>`}
+        `;
+        container.appendChild(item);
+    });
+
+    if (!isView && uploadedImages.length < 3) {
+        const btn = document.createElement('div');
+        btn.className = 'shrink-0 w-20 h-20 rounded-xl bg-gray-50 border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 cursor-pointer active:scale-95 transition-transform';
+        btn.onclick = triggerImgUpload;
+        btn.innerHTML = '<i class="fas fa-plus text-lg mb-1"></i><span class="text-[10px]">添加图片</span>';
+        container.appendChild(btn);
+    }
+}
+
+function fillCurrentLocation() {
+    if (isView) return;
+    var input = document.getElementById('locationInput');
+    if (!input) return;
+    var fallback = '河北省保定市莲池区（模拟定位）';
+    if (!navigator.geolocation) {
+        input.value = fallback;
+        showToast('定位能力不可用，已填入默认地址');
+        return;
+    }
+    navigator.geolocation.getCurrentPosition(function(position) {
+        var lat = Number(position.coords.latitude || 0).toFixed(6);
+        var lng = Number(position.coords.longitude || 0).toFixed(6);
+        input.value = '定位坐标：' + lat + ', ' + lng;
+        showToast('定位成功，请按需补充详细地址');
+    }, function() {
+        input.value = fallback;
+        showToast('定位失败，已填入默认地址');
+    }, { enableHighAccuracy: true, timeout: 5000 });
+}
+
+function showToast(msg) {
+    const tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() {
+        tip.classList.remove('show');
+    }, 2000);
+}
+
+function submitDemand() {
+    if (isView) return;
+    const title = document.getElementById('titleInput').value.trim();
+    const desc = document.getElementById('descInput').value.trim();
+    const location = document.getElementById('locationInput').value.trim();
+    const qty = Number(document.getElementById('qtyInput').value);
+    const priceRaw = document.getElementById('priceInput').value.trim();
+    const unit = document.getElementById('unitInput').value.trim() || '斤';
+    const isNegotiable = document.getElementById('negotiableCheckbox').checked;
+    document.getElementById('unitInput').value = unit;
+
+    var isSale = currentDirection === 'sale';
+    var prefix = isSale ? '出售' : '收购';
+
+    if (!selectedCategory) {
+        showToast('请选择' + prefix + '品类');
+        return;
+    }
+    if (!title) {
+        showToast('请填写' + prefix + '标题');
+        return;
+    }
+    if (!qty || qty <= 0) {
+        showToast('请输入有效数量');
+        return;
+    }
+    if (!location) {
+        showToast('请填写' + prefix + '地址');
+        return;
+    }
+
+    var pageRole = isSale ? 'farmer' : 'buyer';
+    var fixedDemandType = isSale ? 'sale' : 'purchase';
+
+    const payload = {
+        role: pageRole,
+        demandType: fixedDemandType,
+        category: selectedCategory,
+        title: title,
+        content: desc,
+        note: desc,
+        location: location,
+        qty: qty,
+        unit: unit,
+        price: isNegotiable ? null : (priceRaw ? Number(priceRaw) : null),
+        images: uploadedImages
+    };
+
+    if (demandStore && typeof demandStore.createDemand === 'function') {
+        if (isEdit && editingDemand && typeof demandStore.updateDemand === 'function') {
+            demandStore.updateDemand(editingDemand.id, payload);
+        } else {
+            demandStore.createDemand(payload);
+        }
+    }
+
+    const jump = new URLSearchParams({ saved: '1' });
+    if (isEdit) jump.set('mode', 'edit');
+    window.location.href = MANAGE_PAGE + '?' + jump.toString();
+}
+</script>
+</body>
+</html>

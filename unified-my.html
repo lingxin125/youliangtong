@@ -7,29 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
-    <script src="shared.js"></script>
+    <script src="shared.js?v=20260324"></script>
     <style>
-        .role-switch-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            height: 30px;
-            padding: 0 11px;
-            border-radius: 999px;
-            border: 1px solid rgba(17, 166, 74, 0.12);
-            background: rgba(17, 166, 74, 0.08);
-            color: #11A64A;
-            font-size: 11px;
-            font-weight: 600;
-            flex-shrink: 0;
-            box-shadow: 0 3px 10px rgba(17, 166, 74, 0.08);
-            transition: transform 0.18s ease, opacity 0.18s ease;
-        }
-        .role-switch-chip:active {
-            transform: scale(0.96);
-            opacity: 0.9;
-        }
         .logout-modal-overlay {
             position: absolute;
             inset: 0;
@@ -57,32 +36,16 @@
         .logout-modal-overlay.show .logout-modal-sheet {
             transform: translateY(0);
         }
-        .switch-role-modal-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.45);
-            z-index: 92;
-            display: flex;
-            align-items: flex-end;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.22s ease;
-        }
-        .switch-role-modal-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .switch-role-modal-sheet {
-            width: 100%;
-            background: #fff;
-            border-radius: 22px 22px 0 0;
-            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
-            transform: translateY(18px);
-            transition: transform 0.22s ease;
-            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
-        }
-        .switch-role-modal-overlay.show .switch-role-modal-sheet {
-            transform: translateY(0);
+        .identity-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border-radius: 9999px;
+            background: rgba(17, 166, 74, 0.08);
+            color: #11A64A;
+            border: 1px solid rgba(17, 166, 74, 0.15);
         }
     </style>
 </head>
@@ -97,43 +60,35 @@
     <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4 space-y-4" style="padding-bottom:80px;">
 
         <!-- 用户信息卡片 -->
-        <div class="glass-panel rounded-2xl p-5 mt-3 relative">
-            <a href="farmer-profile.html?source=my" class="block no-underline active:scale-[0.98] transition-transform" style="text-decoration:none;">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face" alt="头像" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-base font-bold text-gray-800 truncate">李小农果园</span>
-                            <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium shrink-0">卖方</span>
-                        </div>
-                        <div class="text-xs text-gray-400 flex items-center gap-1.5" style="font-family:Poppins;">
-                            <span id="farmerTopMerchantNo">6026248888</span>
-                            <i class="far fa-copy text-gray-400 text-[11px] cursor-pointer active:text-primary" onclick="return copyTopMerchantNo(event, 'farmerTopMerchantNo')" title="复制商户号"></i>
-                        </div>
-                    </div>
-                    <i class="fas fa-chevron-right text-gray-300 text-sm shrink-0"></i>
+        <a href="unified-profile.html" class="glass-panel rounded-2xl p-5 mt-3 block no-underline active:scale-[0.98] transition-transform" style="text-decoration:none;">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face" alt="头像" class="w-full h-full object-cover">
                 </div>
-            </a>
-            <div id="farmerSwitchRoleWrap" class="hidden absolute right-5 bottom-1">
-                <button id="farmerSwitchRoleChip" type="button" class="role-switch-chip" onclick="return openSwitchRoleModal(event)">
-                    <i class="fas fa-arrows-rotate text-[10px]"></i>
-                    <span id="farmerSwitchRoleLabel">切换到买方</span>
-                    
-                </button>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="userName" class="text-base font-bold text-gray-800">王老板</span>
+                    </div>
+                    <!-- 身份标签 -->
+                    <div id="identityTags" class="flex flex-wrap gap-1.5 mb-1"></div>
+                    <div class="text-xs text-gray-400 flex items-center gap-1.5" style="font-family:Poppins;">
+                        <span id="merchantNo">YLT202603001</span>
+                        <i class="far fa-copy text-gray-400 text-[11px] cursor-pointer active:text-primary" onclick="return copyTopMerchantNo(event, 'merchantNo')" title="复制商户号"></i>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
             </div>
-        </div>
+        </a>
 
         <!-- 功能菜单 -->
         <div class="bg-white rounded-2xl overflow-hidden border border-black/[0.04]">
             <!-- 消息通知 -->
-            <a href="farmer-notifications.html?source=my" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+            <a href="unified-notifications.html?source=my" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
                         <i class="fas fa-bell text-orange-500 text-sm"></i>
                     </div>
-                    <span class="text-sm text-gray-700">消息通知（待定）</span>
+                    <span class="text-sm text-gray-700">消息通知</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <div class="w-2 h-2 rounded-full bg-red-500"></div>
@@ -142,7 +97,7 @@
             </a>
             <div class="h-px bg-gray-100 mx-4"></div>
             <!-- 需求管理 -->
-            <a href="farmer-demand-manage.html?source=my" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+            <a href="unified-demand-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
                         <i class="fas fa-list-check text-green-600 text-sm"></i>
@@ -152,13 +107,35 @@
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
             <div class="h-px bg-gray-100 mx-4"></div>
-            <!-- 收款记录 -->
-            <a href="farmer-collection-records.html?source=my" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+            <!-- 交易记录 -->
+            <a href="unified-orders.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
                         <i class="fas fa-receipt text-blue-500 text-sm"></i>
                     </div>
-                    <span class="text-sm text-gray-700">收款记录</span>
+                    <span class="text-sm text-gray-700">交易记录</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-100 mx-4"></div>
+            <!-- 合作农户 -->
+            <a href="unified-contacts.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center">
+                        <i class="fas fa-address-book text-teal-600 text-sm"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">合作农户</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-100 mx-4"></div>
+            <!-- 账户安全 -->
+            <a href="account-security.html?source=unified-my.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                        <i class="fas fa-shield-halved text-slate-500 text-sm"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">账户安全</span>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
@@ -173,44 +150,6 @@
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
-            <div class="h-px bg-gray-100 mx-4"></div>
-            <!-- 账户安全 -->
-            <a href="account-security.html?source=farmer-my.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
-                        <i class="fas fa-shield-halved text-slate-500 text-sm"></i>
-                    </div>
-                    <span class="text-sm text-gray-700">账户安全</span>
-                </div>
-                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
-            </a>
-            <div class="h-px bg-gray-100 mx-4"></div>
-            <!-- 报表分析 -->
-            <a href="buyer-profit-analysis.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                        <i class="fas fa-chart-pie text-blue-500 text-sm"></i>
-                    </div>
-                    <span class="text-sm text-gray-700">报表分析</span>
-                </div>
-                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
-            </a>
-            <!--
-            <div class="h-px bg-gray-100 mx-4"></div>
-            关于模块（MVP 暂不开放）
-            <a href="about-us.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
-                        <i class="fas fa-info-circle text-purple-500 text-sm"></i>
-                    </div>
-                    <span class="text-sm text-gray-700">关于</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs text-gray-400">V1.1.0</span>
-                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
-                </div>
-            </a>
-            -->
         </div>
 
         <!-- 服务通知设置 -->
@@ -222,7 +161,7 @@
                     </div>
                     <div>
                         <div class="text-sm text-gray-700">微信服务通知（待定）</div>
-                        <div class="text-[11px] text-gray-400">开启后接收订单、收款等通知</div>
+                        <div class="text-[11px] text-gray-400">开启后接收订单、支付等通知</div>
                     </div>
                 </div>
                 <!-- 开关 -->
@@ -255,18 +194,6 @@
         </div>
     </div>
 
-    <!-- 身份切换确认弹窗 -->
-    <div id="switchRoleModal" class="switch-role-modal-overlay" onclick="closeSwitchRoleModal()">
-        <div class="switch-role-modal-sheet" onclick="event.stopPropagation()">
-            <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">切换身份</div>
-            <div id="switchRoleModalDesc" class="text-[12px] text-gray-500 text-center mb-4">确认切换到买方身份？切换后将进入买方首页</div>
-            <div class="flex gap-2.5">
-                <button class="flex-1 h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform" onclick="closeSwitchRoleModal()">取消</button>
-                <button id="switchRoleConfirmBtn" class="flex-1 h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-transform" onclick="confirmSwitchRole()">确认切换</button>
-            </div>
-        </div>
-    </div>
-
     <!-- 底部导航栏 -->
     <div id="tabBar"></div>
 </div>
@@ -274,19 +201,85 @@
 <script>
 document.getElementById('statusBar').innerHTML = renderStatusBar();
 document.getElementById('navBar').innerHTML = renderHeader('我的');
-document.getElementById('tabBar').innerHTML = renderFarmerTabBar('mine');
+document.getElementById('tabBar').innerHTML = renderUnifiedTabBar('mine');
+
+// 确保演示用户有登录 session（原型自动登录）
+function ensureDemoSession() {
+    var ids = window.UserIdentityStore;
+    if (!ids) return;
+    if (!ids.getCurrentUser()) {
+        // 默认以王老板（13700005555）登录，roles: ["buyer","farmer"]
+        ids.login("13700005555");
+    }
+}
+
+// 从 UnifiedMockStore 读取用户信息并渲染
+function initProfile() {
+    ensureDemoSession();
+    var store = window.UnifiedMockStore;
+    if (!store) return;
+    var profile = store.getUserProfile();
+
+    // 用户名
+    var nameEl = document.getElementById('userName');
+    if (nameEl && profile.name) {
+        nameEl.textContent = profile.name;
+    }
+
+    // 商户号
+    var merchantEl = document.getElementById('merchantNo');
+    if (merchantEl && profile.merchantId) {
+        merchantEl.textContent = profile.merchantId;
+    }
+
+    // 身份标签 chips + 切换按钮
+    var tagsEl = document.getElementById('identityTags');
+    if (tagsEl) {
+        var html = '';
+        // 渲染身份标签
+        if (profile.identityTags && profile.identityTags.length > 0) {
+            html += profile.identityTags.map(function(tag) {
+                return '<span class="identity-chip">' + tag + '</span>';
+            }).join('');
+        }
+        // 多角色时渲染切换按钮
+        var ids = window.UserIdentityStore;
+        if (ids && ids.hasMultipleRoles()) {
+            var otherRole = ids.getOtherRole();
+            var otherLabel = ids.getRoleLabel(otherRole);
+            html += '<button onclick="switchRole(event)" class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] text-gray-500 bg-gray-100 rounded-full border border-gray-200 active:bg-gray-200 transition-colors" style="font-weight:500;line-height:1.4;">'
+                  + '切换为' + otherLabel
+                  + ' <i class="fas fa-arrow-right-arrow-left text-[9px] text-gray-400"></i>'
+                  + '</button>';
+        }
+        tagsEl.innerHTML = html;
+    }
+}
+
+// 身份切换
+function switchRole(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    var ids = window.UserIdentityStore;
+    if (!ids) return;
+    var otherRole = ids.getOtherRole();
+    if (otherRole) {
+        ids.setCurrentRole(otherRole);
+        location.reload();
+    }
+}
 
 // 微信服务通知开关
 function toggleWechatNotify() {
     var checkbox = document.getElementById('wechatNotifySwitch');
     checkbox.checked = !checkbox.checked;
 
-    // 保存状态到本地存储
     try {
         localStorage.setItem('ylt_wechat_notify_enabled', checkbox.checked ? '1' : '0');
     } catch (e) {}
 
-    // 显示提示
     showToast(checkbox.checked ? '已开启微信服务通知' : '已关闭微信服务通知');
 }
 
@@ -307,7 +300,7 @@ function showToast(msg) {
     if (existing) existing.remove();
 
     var div = document.createElement('div');
-    div.className = 'toast-msg fixed left-1/2 -translate-x-1/2 bottom-24 px-4 py-2 bg-black/80 text-white text-xs rounded-lg z-50';
+    div.className = 'toast-msg fixed left-1/2 -translate-x-1/2 bottom-24 px-4 py-2 bg-black/80 text-white text-xs rounded-lg z-[120]';
     div.textContent = msg;
     document.body.appendChild(div);
 
@@ -373,72 +366,8 @@ function confirmLogout() {
 }
 
 // 页面加载时初始化
+initProfile();
 initWechatNotify();
-
-// === 身份切换逻辑 ===
-var _switchTargetRole = null;
-var _switchTargetLabel = '';
-var _switchTargetActionText = '';
-var _defaultSwitchRole = 'buyer';
-
-function getSwitchActionText(role) {
-    return role === 'buyer' ? '买方' : '卖方';
-}
-
-(function initSwitchRole() {
-    var otherRole = _defaultSwitchRole;
-    var label = getSwitchActionText(otherRole);
-    if (typeof UserIdentityStore !== 'undefined') {
-        var user = UserIdentityStore.getCurrentUser();
-        if (user && UserIdentityStore.hasMultipleRoles()) {
-            otherRole = UserIdentityStore.getOtherRole() || _defaultSwitchRole;
-            label = UserIdentityStore.getRoleLabel(otherRole);
-        }
-    }
-
-    _switchTargetRole = otherRole;
-    _switchTargetLabel = label;
-    _switchTargetActionText = getSwitchActionText(otherRole);
-
-    var chipWrap = document.getElementById('farmerSwitchRoleWrap');
-    var chipLabel = document.getElementById('farmerSwitchRoleLabel');
-    if (chipWrap) {
-        chipWrap.classList.remove('hidden');
-    }
-    if (chipLabel) {
-        chipLabel.textContent = '切换到' + _switchTargetActionText;
-    }
-
-    var modalDesc = document.getElementById('switchRoleModalDesc');
-    if (modalDesc) modalDesc.textContent = '确认切换到' + _switchTargetActionText + '身份？切换后将进入' + _switchTargetActionText + '首页';
-})();
-
-function openSwitchRoleModal(event) {
-    if (event) {
-        if (typeof event.preventDefault === 'function') event.preventDefault();
-        if (typeof event.stopPropagation === 'function') event.stopPropagation();
-    }
-    var modal = document.getElementById('switchRoleModal');
-    if (!modal) return false;
-    modal.classList.add('show');
-    return false;
-}
-
-function closeSwitchRoleModal() {
-    var modal = document.getElementById('switchRoleModal');
-    if (!modal) return;
-    modal.classList.remove('show');
-}
-
-function confirmSwitchRole() {
-    if (!_switchTargetRole) return;
-    if (typeof UserIdentityStore !== 'undefined') {
-        UserIdentityStore.setCurrentRole(_switchTargetRole);
-        window.location.href = UserIdentityStore.getHomeUrl(_switchTargetRole);
-        return;
-    }
-    window.location.href = _switchTargetRole === 'buyer' ? 'buyer-home.html' : 'farmer-home.html';
-}
 </script>
 </body>
 </html>

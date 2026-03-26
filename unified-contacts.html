@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 合作农户</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js?v=20260324"></script>
+    <style>
+        .contact-item {
+            transition: all 0.2s ease;
+        }
+        .contact-item.selected {
+            border-color: rgba(17, 166, 74, 0.35);
+            box-shadow: 0 4px 12px rgba(17, 166, 74, 0.12), 0 2px 4px rgba(0, 0, 0, 0.04);
+            background: rgba(240, 253, 244, 0.65);
+        }
+        .toast-tip {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 98px;
+            padding: 11px 14px;
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 11px;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.45;
+            z-index: 70;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(8px);
+            transition: all 0.2s ease;
+        }
+        .toast-tip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 搜索框 + 添加按钮 -->
+    <div class="px-4 mt-3 shrink-0 mb-2.5 flex items-center gap-2.5">
+        <div class="glass-card rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 border border-gray-100 flex-1">
+            <i class="fas fa-search text-gray-400 text-sm"></i>
+            <input id="searchInput" type="text" placeholder="搜索合作农户..." class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
+        </div>
+        <a href="buyer-farmer-add.html?source=contacts" class="shrink-0 flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-primary text-white text-sm font-medium active:scale-95 transition-transform no-underline" style="text-decoration:none;">
+            <i class="fas fa-user-plus text-xs"></i>
+            <span>添加</span>
+        </a>
+    </div>
+
+    <!-- 合作农户列表 -->
+    <div id="contactList" class="flex-1 overflow-y-auto no-scrollbar px-4 space-y-2.5" style="padding-bottom:130px;"></div>
+    <div id="emptyState" class="px-4" style="display:none;">
+        <div class="glass-card rounded-2xl p-8 text-center">
+            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
+                <i class="fas fa-address-book text-gray-300 text-lg"></i>
+            </div>
+            <div class="text-sm text-gray-500 mb-1">暂无合作农户</div>
+            <div class="text-[11px] text-gray-400">可先通过扫码完成首笔支付</div>
+        </div>
+    </div>
+
+    <div id="billingActions" class="absolute bottom-0 left-0 right-0 px-4 py-4 bg-gradient-to-t from-[#FFFBF0] via-[#FFFBF0] to-transparent" style="display:none;">
+        <div class="flex gap-2.5">
+            <a id="cancelBackBtn" href="unified-billing.html" class="flex-1 py-3 bg-white border border-gray-200 rounded-2xl text-sm text-gray-600 font-medium text-center no-underline" style="text-decoration:none;">
+                取消
+            </a>
+            <button id="confirmPickBtn" class="flex-1 py-3 bg-primary text-white rounded-2xl text-sm font-medium active:scale-95 transition-transform" onclick="confirmPick()">
+                确认选择
+            </button>
+        </div>
+    </div>
+
+    <div id="toastTip" class="toast-tip"></div>
+
+    <!-- 底部导航栏（非 billing 模式时显示） -->
+    <div id="tabBar"></div>
+</div>
+
+<script>
+var query = new URLSearchParams(window.location.search);
+var fromBilling = query.get('from') === 'billing';
+var billingMode = query.get('mode') === 'quick' ? 'quick' : 'detail';
+var quickAmount = query.get('amount');
+var forceEmpty = query.get('empty') === '1';
+var mockStore = window.BuyerMockStore || null;
+
+var fallbackContacts = [
+    { id: 'c01', name: '李大姐', mobile: '13812342233', payCount: 12, bank: '邮储银行', card: '6221 4858 **** 2233' },
+    { id: 'c02', name: '王大哥', mobile: '13976545612', payCount: 8, bank: '邮储银行', card: '6221 8845 **** 5612' },
+    { id: 'c03', name: '赵师傅', mobile: '13688139801', payCount: 5, bank: '农业银行', card: '6228 4801 **** 9801' },
+    { id: 'c04', name: '孙阿姨', mobile: '13722553326', payCount: 3, bank: '农商银行', card: '6215 8533 **** 3326' },
+    { id: 'c05', name: '刘师傅', mobile: '13590007119', payCount: 2, bank: '邮储银行', card: '6221 0071 **** 7119' }
+];
+var contactSource = forceEmpty
+    ? []
+    : ((mockStore && typeof mockStore.getFrequentContacts === 'function')
+        ? mockStore.getFrequentContacts()
+        : fallbackContacts).sort(function(a, b) { return b.payCount - a.payCount; });
+
+var selectedId = null;
+
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader(
+    fromBilling ? '选择合作农户' : '合作农户',
+    getBackHref()
+);
+
+// TabBar: billing模式不显示，普通模式显示
+if (!fromBilling) {
+    document.getElementById('tabBar').innerHTML = renderUnifiedTabBar('mine');
+}
+
+document.getElementById('searchInput').addEventListener('input', renderList);
+
+if (fromBilling) {
+    document.getElementById('billingActions').style.display = '';
+    document.getElementById('cancelBackBtn').href = getBackHref();
+} else {
+    document.getElementById('contactList').style.paddingBottom = '96px';
+}
+
+renderList();
+
+function getBackHref() {
+    if (!fromBilling) {
+        return 'unified-my.html';
+    }
+    var params = new URLSearchParams({ mode: billingMode });
+    if (billingMode === 'quick' && quickAmount) {
+        params.set('amount', quickAmount);
+    }
+    return 'unified-billing.html?' + params.toString();
+}
+
+function showToast(msg) {
+    var tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() { tip.classList.remove('show'); }, 1800);
+}
+
+function renderList() {
+    var keyword = document.getElementById('searchInput').value.trim();
+    var list = contactSource.filter(function(item) {
+        if (!keyword) return true;
+        return item.name.includes(keyword) || item.mobile.includes(keyword) || item.card.includes(keyword) || item.bank.includes(keyword);
+    });
+
+    var listContainer = document.getElementById('contactList');
+    var emptyState = document.getElementById('emptyState');
+
+    if (list.length === 0) {
+        listContainer.innerHTML = '';
+        emptyState.style.display = '';
+        return;
+    }
+    emptyState.style.display = 'none';
+
+    listContainer.innerHTML = list.map(function(item) {
+        var selected = item.id === selectedId;
+        var cardAction = fromBilling ? 'onclick="pickContact(\'' + item.id + '\')"' : '';
+        var rightButton = fromBilling
+            ? '<button class="px-3.5 py-1.5 ' + (selected ? 'bg-primary' : 'bg-white border border-primary/25 text-primary') + ' ' + (selected ? 'text-white' : '') + ' text-[13px] font-medium rounded-full active:scale-95 transition-transform shrink-0" onclick="event.stopPropagation();pickContact(\'' + item.id + '\')">' + (selected ? '已选中' : '选择') + '</button>'
+            : '';
+        var bankCard = item.bank + ' \u00b7 ' + item.card;
+        return '<div class="contact-item glass-card rounded-2xl p-4 flex items-center gap-3.5 ' + (selected ? 'selected' : '') + ' ' + (fromBilling ? 'cursor-pointer' : '') + '" ' + cardAction + '>' +
+            '<div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center shrink-0 border border-green-100/60 self-start mt-0.5">' +
+            '<i class="fas fa-user text-primary/80 text-[20px]"></i>' +
+            '</div>' +
+            '<div class="flex-1 min-w-0 flex flex-col justify-center gap-1">' +
+            '<div class="flex items-center flex-wrap gap-2">' +
+            '<span class="text-[16px] font-semibold text-gray-800 tracking-tight">' + item.name + '</span>' +
+            '<span class="inline-block text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-primary font-medium border border-green-100/60 mt-[1px]">付款' + item.payCount + '次</span>' +
+            '</div>' +
+            '<div class="text-[14px] font-medium text-gray-600 tracking-wide" style="font-family:Poppins,monospace;">' + item.mobile + '</div>' +
+            '<div class="flex items-center gap-1.5 text-[12px] text-gray-400/90 font-medium tracking-wide" style="font-family:Poppins,monospace;">' +
+            '<i class="fas fa-building-columns text-[10px] text-gray-400"></i>' +
+            '<span>' + bankCard + '</span>' +
+            '</div>' +
+            '</div>' +
+            (fromBilling ? '<div class="shrink-0 flex items-center self-stretch pt-2">' + rightButton + '</div>' : '') +
+            '</div>';
+    }).join('');
+}
+
+function pickContact(id) {
+    if (!fromBilling) return;
+    selectedId = id;
+    renderList();
+}
+
+function confirmPick() {
+    if (!selectedId) {
+        showToast('请选择付款对象');
+        return;
+    }
+    var contact = contactSource.find(function(item) { return item.id === selectedId; });
+    if (!contact) return;
+
+    var params = new URLSearchParams({
+        mode: billingMode,
+        picked: '1',
+        payeeName: contact.name,
+        payeeMobile: contact.mobile,
+        payeeBank: contact.bank,
+        payeeCard: contact.card
+    });
+    if (billingMode === 'quick' && quickAmount) {
+        params.set('amount', quickAmount);
+    }
+    window.location.href = 'unified-billing.html?' + params.toString();
+}
+</script>
+</body>
+</html>

@@ -10,6 +10,26 @@
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="shared.js"></script>
     <style>
+        .role-switch-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 30px;
+            padding: 0 11px;
+            border-radius: 999px;
+            border: 1px solid rgba(17, 166, 74, 0.12);
+            background: rgba(17, 166, 74, 0.08);
+            color: #11A64A;
+            font-size: 11px;
+            font-weight: 600;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(17, 166, 74, 0.08);
+            transition: transform 0.18s ease, opacity 0.18s ease;
+        }
+        .role-switch-chip:active {
+            transform: scale(0.96);
+            opacity: 0.9;
+        }
         .invite-modal-overlay {
             position: absolute;
             inset: 0;
@@ -92,6 +112,33 @@
         .logout-modal-overlay.show .logout-modal-sheet {
             transform: translateY(0);
         }
+        .switch-role-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 92;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .switch-role-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .switch-role-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .switch-role-modal-overlay.show .switch-role-modal-sheet {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -105,24 +152,32 @@
     <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4 space-y-4" style="padding-bottom:80px;">
 
         <!-- 用户信息卡片 -->
-        <a href="buyer-profile.html" class="glass-panel rounded-2xl p-5 mt-3 block no-underline active:scale-[0.98] transition-transform" style="text-decoration:none;">
-            <div class="flex items-center gap-4">
-                <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face" alt="头像" class="w-full h-full object-cover">
-                </div>
-                <div class="flex-1">
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-base font-bold text-gray-800">张三的粮站</span>
-                        <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">收购商</span>
+        <div class="glass-panel rounded-2xl p-5 mt-3 relative">
+            <a href="buyer-profile.html" class="block no-underline active:scale-[0.98] transition-transform" style="text-decoration:none;">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face" alt="头像" class="w-full h-full object-cover">
                     </div>
-                    <div class="text-xs text-gray-400 flex items-center gap-1.5" style="font-family:Poppins;">
-                        <span id="buyerTopMerchantNo">6026245559</span>
-                        <i class="far fa-copy text-gray-400 text-[11px] cursor-pointer active:text-primary" onclick="return copyTopMerchantNo(event, 'buyerTopMerchantNo')" title="复制商户号"></i>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-base font-bold text-gray-800 truncate">张三的粮站</span>
+                            <span class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium shrink-0">买方</span>
+                        </div>
+                        <div class="text-xs text-gray-400 flex items-center gap-1.5" style="font-family:Poppins;">
+                            <span id="buyerTopMerchantNo">6026245559</span>
+                            <i class="far fa-copy text-gray-400 text-[11px] cursor-pointer active:text-primary" onclick="return copyTopMerchantNo(event, 'buyerTopMerchantNo')" title="复制商户号"></i>
+                        </div>
                     </div>
+                    <i class="fas fa-chevron-right text-gray-300 text-sm shrink-0"></i>
                 </div>
-                <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
+            </a>
+            <div id="buyerSwitchRoleWrap" class="hidden absolute right-5 bottom-1">
+                <button id="buyerSwitchRoleChip" type="button" class="role-switch-chip" onclick="return openSwitchRoleModal(event)">
+                    <i class="fas fa-arrows-rotate text-[10px]"></i>
+                    <span id="buyerSwitchRoleLabel">切换到卖方</span>
+                </button>
             </div>
-        </a>
+        </div>
 
         <!-- 功能菜单 -->
         <div class="bg-white rounded-2xl overflow-hidden border border-black/[0.04]">
@@ -180,6 +235,17 @@
                         <i class="fas fa-shield-halved text-slate-500 text-sm"></i>
                     </div>
                     <span class="text-sm text-gray-700">账户安全</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-100 mx-4"></div>
+            <!-- 报表分析 -->
+            <a href="buyer-profit-analysis.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <i class="fas fa-chart-pie text-blue-500 text-sm"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">报表分析</span>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
@@ -264,6 +330,18 @@
             <div class="flex gap-2.5">
                 <button class="flex-1 h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform" onclick="closeLogoutModal()">取消</button>
                 <button class="flex-1 h-11 rounded-xl bg-red-500 text-white text-sm font-medium active:scale-[0.98] transition-transform" onclick="confirmLogout()">退出登录</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 身份切换确认弹窗 -->
+    <div id="switchRoleModal" class="switch-role-modal-overlay" onclick="closeSwitchRoleModal()">
+        <div class="switch-role-modal-sheet" onclick="event.stopPropagation()">
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">切换身份</div>
+            <div id="switchRoleModalDesc" class="text-[12px] text-gray-500 text-center mb-4">确认切换到卖方身份？切换后将进入卖方首页</div>
+            <div class="flex gap-2.5">
+                <button class="flex-1 h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform" onclick="closeSwitchRoleModal()">取消</button>
+                <button id="switchRoleConfirmBtn" class="flex-1 h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-transform" onclick="confirmSwitchRole()">确认切换</button>
             </div>
         </div>
     </div>
@@ -504,6 +582,71 @@ function saveInviteQr() {
 
 // 页面加载时初始化
 initWechatNotify();
+
+// === 身份切换逻辑 ===
+var _switchTargetRole = null;
+var _switchTargetLabel = '';
+var _switchTargetActionText = '';
+var _defaultSwitchRole = 'farmer';
+
+function getSwitchActionText(role) {
+    return role === 'buyer' ? '买方' : '卖方';
+}
+
+(function initSwitchRole() {
+    var otherRole = _defaultSwitchRole;
+    var label = getSwitchActionText(otherRole);
+    if (typeof UserIdentityStore !== 'undefined') {
+        var user = UserIdentityStore.getCurrentUser();
+        if (user && UserIdentityStore.hasMultipleRoles()) {
+            otherRole = UserIdentityStore.getOtherRole() || _defaultSwitchRole;
+            label = UserIdentityStore.getRoleLabel(otherRole);
+        }
+    }
+
+    _switchTargetRole = otherRole;
+    _switchTargetLabel = label;
+    _switchTargetActionText = getSwitchActionText(otherRole);
+
+    var chipWrap = document.getElementById('buyerSwitchRoleWrap');
+    var chipLabel = document.getElementById('buyerSwitchRoleLabel');
+    if (chipWrap) {
+        chipWrap.classList.remove('hidden');
+    }
+    if (chipLabel) {
+        chipLabel.textContent = '切换到' + _switchTargetActionText;
+    }
+
+    var modalDesc = document.getElementById('switchRoleModalDesc');
+    if (modalDesc) modalDesc.textContent = '确认切换到' + _switchTargetActionText + '身份？切换后将进入' + _switchTargetActionText + '首页';
+})();
+
+function openSwitchRoleModal(event) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+    }
+    var modal = document.getElementById('switchRoleModal');
+    if (!modal) return false;
+    modal.classList.add('show');
+    return false;
+}
+
+function closeSwitchRoleModal() {
+    var modal = document.getElementById('switchRoleModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function confirmSwitchRole() {
+    if (!_switchTargetRole) return;
+    if (typeof UserIdentityStore !== 'undefined') {
+        UserIdentityStore.setCurrentRole(_switchTargetRole);
+        window.location.href = UserIdentityStore.getHomeUrl(_switchTargetRole);
+        return;
+    }
+    window.location.href = _switchTargetRole === 'buyer' ? 'buyer-home.html' : 'farmer-home.html';
+}
 </script>
 </body>
 </html>

@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>收粮项目 · 调研洞察与需求全景</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        wheat: '#FFFBF0',
+        postal: { DEFAULT: '#11A64A', dark: '#388E3C', light: '#81C784', bg: 'rgba(200,230,201,0.25)' },
+        p0: { bg: '#FEE2E2', text: '#DC2626', border: '#FECACA' },
+        p1: { bg: '#FEF3C7', text: '#D97706', border: '#FDE68A' },
+        p2: { bg: '#DBEAFE', text: '#2563EB', border: '#BFDBFE' },
+        p3: { bg: '#F3F4F6', text: '#6B7280', border: '#E5E7EB' },
+      },
+      boxShadow: {
+        'elevation-1': '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+        'elevation-2': '0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)',
+        'elevation-3': '0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06)',
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { background: #FFFBF0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .glass-panel { background: #fff; border: 1px solid rgba(0,0,0,0.04); border-radius: 16px; }
+  .glass-card { background: #fff; border: 1px solid rgba(0,0,0,0.04); border-radius: 12px; transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), box-shadow 0.25s cubic-bezier(0.4,0,0.2,1); }
+  .glass-card:hover { transform: scale(0.985); }
+  .tab-btn { transition: all 0.3s ease; }
+  .tab-btn.active { background: #11A64A; color: white; box-shadow: 0 4px 20px rgba(76,163,84,0.15); }
+  .priority-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; letter-spacing: 0.5px; }
+  .system-tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; border: 1px solid; }
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .stat-ring { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+  .stat-ring::before { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: white; }
+  .stat-ring .value { position: relative; z-index: 1; }
+  .connector { position: relative; }
+  .connector::after { content: ''; position: absolute; top: 50%; right: -20px; width: 20px; height: 2px; background: #E5E7EB; }
+  .connector:last-child::after { display: none; }
+  .pain-card { border-left: 4px solid; }
+  .section-title { position: relative; padding-left: 16px; }
+  .section-title::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 4px; background: #11A64A; border-radius: 2px; }
+  details summary { cursor: pointer; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::before { content: '▶'; display: inline-block; margin-right: 8px; font-size: 12px; transition: transform 0.2s; color: #9CA3AF; }
+  details[open] summary::before { transform: rotate(90deg); }
+  .scene-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  /* 滚动条 */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
+  .flow-step { position: relative; }
+  .flow-step:not(:last-child)::after { content: ''; position: absolute; left: 50%; top: 100%; width: 2px; height: 16px; background: linear-gradient(to bottom, #11A64A, #81C784); }
+  @media print { body { background: white; } }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ========== 顶部导航 ========== -->
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-elevation-1">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-postal to-postal-dark flex items-center justify-center">
+        <i class="fas fa-wheat-awn text-white text-lg"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-gray-900">丰收云 · 调研洞察与需求全景</h1>
+        <p class="text-xs text-gray-400">2026.03.18-19 吉林实地调研 · 10场会议 · 18条问题清单</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-xs text-gray-400">
+      <span class="px-2 py-1 rounded-lg bg-green-50 text-postal font-medium">V1.0</span>
+      <span>更新: 2026-03-20</span>
+    </div>
+  </div>
+</header>
+
+<!-- ========== Tab 导航 ========== -->
+<nav class="sticky top-[61px] z-40 bg-wheat border-b border-gray-100">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex gap-2 overflow-x-auto">
+    <button class="tab-btn active px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" onclick="switchTab('overview')">
+      <i class="fas fa-globe mr-1.5"></i>项目全景
+    </button>
+    <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-500 bg-white shadow-elevation-1 whitespace-nowrap" onclick="switchTab('painpoints')">
+      <i class="fas fa-fire mr-1.5"></i>痛点热力图
+    </button>
+    <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-500 bg-white shadow-elevation-1 whitespace-nowrap" onclick="switchTab('requirements')">
+      <i class="fas fa-list-check mr-1.5"></i>需求清单
+    </button>
+    <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-500 bg-white shadow-elevation-1 whitespace-nowrap" onclick="switchTab('scenarios')">
+      <i class="fas fa-users mr-1.5"></i>业务场景
+    </button>
+    <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-500 bg-white shadow-elevation-1 whitespace-nowrap" onclick="switchTab('gap')">
+      <i class="fas fa-code-compare mr-1.5"></i>GAP 分析
+    </button>
+    <button class="tab-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-500 bg-white shadow-elevation-1 whitespace-nowrap" onclick="switchTab('sources')">
+      <i class="fas fa-file-lines mr-1.5"></i>调研来源
+    </button>
+  </div>
+</nav>
+
+<!-- ========== 主内容区 ========== -->
+<main class="max-w-7xl mx-auto px-6 py-6">
+
+<!-- ===== TAB 1: 项目全景 ===== -->
+<section id="tab-overview" class="fade-in space-y-6">
+
+  <!-- 核心数据 -->
+  <div class="glass-panel shadow-elevation-3 p-6">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-5">调研概览</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div class="text-center">
+        <div class="stat-ring mx-auto mb-2 bg-gradient-to-br from-postal to-postal-dark">
+          <span class="value text-xl font-bold text-postal-dark">10</span>
+        </div>
+        <div class="text-xs text-gray-500">会议场次</div>
+      </div>
+      <div class="text-center">
+        <div class="stat-ring mx-auto mb-2 bg-gradient-to-br from-red-400 to-red-600">
+          <span class="value text-xl font-bold text-red-600">4</span>
+        </div>
+        <div class="text-xs text-gray-500">实地粮站</div>
+      </div>
+      <div class="text-center">
+        <div class="stat-ring mx-auto mb-2 bg-gradient-to-br from-amber-400 to-amber-600">
+          <span class="value text-xl font-bold text-amber-600">18</span>
+        </div>
+        <div class="text-xs text-gray-500">吉林组问题</div>
+      </div>
+      <div class="text-center">
+        <div class="stat-ring mx-auto mb-2 bg-gradient-to-br from-blue-400 to-blue-600">
+          <span class="value text-xl font-bold text-blue-600">13</span>
+        </div>
+        <div class="text-xs text-gray-500">需求主题</div>
+      </div>
+      <div class="text-center">
+        <div class="stat-ring mx-auto mb-2 bg-gradient-to-br from-purple-400 to-purple-600">
+          <span class="value text-xl font-bold text-purple-600">3</span>
+        </div>
+        <div class="text-xs text-gray-500">用户类型</div>
+      </div>
+      <div class="text-center">
+        <div class="stat-ring mx-auto mb-2 bg-gradient-to-br from-teal-400 to-teal-600">
+          <span class="value text-xl font-bold text-teal-600">5</span>
+        </div>
+        <div class="text-xs text-gray-500">系统终端</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 系统架构全景 -->
+  <div class="glass-panel shadow-elevation-2 p-6">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-5">丰收云 · 五端架构</h2>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div class="glass-card shadow-elevation-1 p-4 border-t-4 border-t-blue-500 text-center">
+        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mx-auto mb-3">
+          <i class="fas fa-desktop text-blue-500 text-xl"></i>
+        </div>
+        <h3 class="font-bold text-sm text-gray-900">商贸 PC 端</h3>
+        <p class="text-xs text-gray-500 mt-1">管理后台</p>
+        <div class="mt-3 space-y-1 text-xs text-gray-600 text-left">
+          <div>• 机构/用户管理</div>
+          <div>• 角色权限配置</div>
+          <div>• 粮庄管理</div>
+        </div>
+      </div>
+      <div class="glass-card shadow-elevation-1 p-4 border-t-4 border-t-green-500 text-center">
+        <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center mx-auto mb-3">
+          <i class="fas fa-laptop-code text-green-500 text-xl"></i>
+        </div>
+        <h3 class="font-bold text-sm text-gray-900">SaaS PC 端</h3>
+        <p class="text-xs text-gray-500 mt-1">核心收粮系统</p>
+        <div class="mt-3 space-y-1 text-xs text-gray-600 text-left">
+          <div>• 过磅称重</div>
+          <div>• 议价收粮</div>
+          <div>• 库存管理</div>
+          <div>• 报表导出</div>
+        </div>
+        <div class="mt-2 px-2 py-1 bg-amber-50 rounded text-xs text-amber-700 font-medium">PRD 未覆盖</div>
+      </div>
+      <div class="glass-card shadow-elevation-2 p-4 border-t-4 border-t-postal text-center ring-2 ring-postal/20">
+        <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center mx-auto mb-3">
+          <i class="fas fa-mobile-screen text-postal text-xl"></i>
+        </div>
+        <h3 class="font-bold text-sm text-postal">微信小程序</h3>
+        <p class="text-xs text-gray-500 mt-1">收购商 + 农户</p>
+        <div class="mt-3 space-y-1 text-xs text-gray-600 text-left">
+          <div>• 开单/收款</div>
+          <div>• 市场信息</div>
+          <div>• 订单管理</div>
+          <div>• 合并付款</div>
+        </div>
+        <div class="mt-2 px-2 py-1 bg-green-50 rounded text-xs text-postal font-medium">当前原型重点</div>
+      </div>
+      <div class="glass-card shadow-elevation-1 p-4 border-t-4 border-t-purple-500 text-center">
+        <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center mx-auto mb-3">
+          <i class="fab fa-weixin text-purple-500 text-xl"></i>
+        </div>
+        <h3 class="font-bold text-sm text-gray-900">企微端</h3>
+        <p class="text-xs text-gray-500 mt-1">移动进件</p>
+        <div class="mt-3 space-y-1 text-xs text-gray-600 text-left">
+          <div>• 收购商进件</div>
+          <div>• 农户信息采集</div>
+          <div>• 审核管理</div>
+        </div>
+      </div>
+      <div class="glass-card shadow-elevation-1 p-4 border-t-4 border-t-orange-500 text-center">
+        <div class="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center mx-auto mb-3">
+          <i class="fas fa-globe text-orange-500 text-xl"></i>
+        </div>
+        <h3 class="font-bold text-sm text-gray-900">H5 收银台</h3>
+        <p class="text-xs text-gray-500 mt-1">PC端调用支付</p>
+        <div class="mt-3 space-y-1 text-xs text-gray-600 text-left">
+          <div>• 行业支付</div>
+          <div>• 订单付</div>
+          <div>• 扫码确认</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 三类用户画像 -->
+  <div class="glass-panel shadow-elevation-2 p-6">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-5">调研发现 · 三类用户画像</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <!-- 已有系统的粮站 -->
+      <div class="glass-card shadow-elevation-1 p-5">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+            <i class="fas fa-building text-blue-500 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900">已有系统的粮站</h3>
+            <p class="text-xs text-gray-500">如第三家粮站</p>
+          </div>
+        </div>
+        <div class="space-y-2 text-sm text-gray-600">
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-blue-400 mt-1.5"></i>核心关切：新系统比老系统好在哪？</div>
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-blue-400 mt-1.5"></i>强需求：折干计算、利润核算</div>
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-blue-400 mt-1.5"></i>关键阻碍：老系统数据迁移</div>
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-blue-400 mt-1.5"></i>日交易额：百万级~300万</div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-1.5">
+          <span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC SaaS</span>
+          <span class="system-tag border-green-200 bg-green-50 text-green-600">小程序</span>
+        </div>
+      </div>
+      <!-- 无系统但有需求 -->
+      <div class="glass-card shadow-elevation-1 p-5">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
+            <i class="fas fa-warehouse text-amber-500 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900">无系统的中大粮站</h3>
+            <p class="text-xs text-gray-500">如瑞粮站、红瑞粮站</p>
+          </div>
+        </div>
+        <div class="space-y-2 text-sm text-gray-600">
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-amber-400 mt-1.5"></i>核心关切：完整方案 + 快速上手</div>
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-amber-400 mt-1.5"></i>强需求：移动端全流程、多磅房并行</div>
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-amber-400 mt-1.5"></i>关键阻碍：支付流程复杂、限额低</div>
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-amber-400 mt-1.5"></i>高峰期多出纳同时操作</div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-1.5">
+          <span class="system-tag border-green-200 bg-green-50 text-green-600">小程序</span>
+          <span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC SaaS</span>
+          <span class="system-tag border-orange-200 bg-orange-50 text-orange-600">H5收银台</span>
+        </div>
+      </div>
+      <!-- 流动商贩 -->
+      <div class="glass-card shadow-elevation-1 p-5">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
+            <i class="fas fa-truck text-green-500 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900">流动收购商贩</h3>
+            <p class="text-xs text-gray-500">瓜果蔬菜类</p>
+          </div>
+        </div>
+        <div class="space-y-2 text-sm text-gray-600">
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-green-400 mt-1.5"></i>微信支付占90%，银行卡补充</div>
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-green-400 mt-1.5"></i>核心诉求：省微信提现手续费(5‰)</div>
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-green-400 mt-1.5"></i>农户年龄跨度大（60-70岁也有）</div>
+          <div class="flex items-start gap-2"><i class="fas fa-circle text-[6px] text-green-400 mt-1.5"></i>建档三要素：姓名+手机号+银行卡号</div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-1.5">
+          <span class="system-tag border-green-200 bg-green-50 text-green-600">小程序为主</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 调研对象时间线 -->
+  <div class="glass-panel shadow-elevation-2 p-6">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-5">调研时间线</h2>
+    <div class="space-y-3">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="px-3 py-1 rounded-lg bg-postal/10 text-postal font-bold text-sm">3月18日 · 内部测试</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div class="glass-card shadow-elevation-1 p-3 text-center">
+          <div class="text-xs text-gray-400 mb-1">09:04</div>
+          <div class="text-sm font-medium text-gray-800">系统培训动员会</div>
+          <div class="text-xs text-gray-500 mt-1">丰收云功能介绍</div>
+        </div>
+        <div class="glass-card shadow-elevation-1 p-3 text-center">
+          <div class="text-xs text-gray-400 mb-1">14:27</div>
+          <div class="text-sm font-medium text-gray-800">功能深度测试</div>
+          <div class="text-xs text-gray-500 mt-1">支付/进件/二维码</div>
+        </div>
+        <div class="glass-card shadow-elevation-1 p-3 text-center">
+          <div class="text-xs text-gray-400 mb-1">16:20</div>
+          <div class="text-sm font-medium text-gray-800">功能优化讨论</div>
+          <div class="text-xs text-gray-500 mt-1">合并付款/农户建档</div>
+        </div>
+        <div class="glass-card shadow-elevation-1 p-3 text-center">
+          <div class="text-xs text-gray-400 mb-1">16:49</div>
+          <div class="text-sm font-medium text-gray-800">地磅称重讨论</div>
+          <div class="text-xs text-gray-500 mt-1">现场流程/数据对接</div>
+        </div>
+        <div class="glass-card shadow-elevation-1 p-3 text-center">
+          <div class="text-xs text-gray-400 mb-1">17:16</div>
+          <div class="text-sm font-medium text-gray-800">当日总结会</div>
+          <div class="text-xs text-gray-500 mt-1">问题汇总/优化方向</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 mb-2 mt-5">
+        <span class="px-3 py-1 rounded-lg bg-red-50 text-red-600 font-bold text-sm">3月19日 · 实地走访</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <div class="glass-card shadow-elevation-1 p-3 text-center border-l-4 border-l-red-400">
+          <div class="text-xs text-gray-400 mb-1">09:03</div>
+          <div class="text-sm font-bold text-gray-800">瑞粮站</div>
+          <div class="text-xs text-gray-500 mt-1">中大型 · 无系统</div>
+        </div>
+        <div class="glass-card shadow-elevation-1 p-3 text-center border-l-4 border-l-amber-400">
+          <div class="text-xs text-gray-400 mb-1">10:40</div>
+          <div class="text-sm font-bold text-gray-800">红瑞粮站</div>
+          <div class="text-xs text-gray-500 mt-1">中大型 · 无系统</div>
+        </div>
+        <div class="glass-card shadow-elevation-1 p-3 text-center border-l-4 border-l-blue-400">
+          <div class="text-xs text-gray-400 mb-1">14:36</div>
+          <div class="text-sm font-bold text-gray-800">第三家粮站</div>
+          <div class="text-xs text-gray-500 mt-1">有同业系统经验</div>
+        </div>
+        <div class="glass-card shadow-elevation-1 p-3 text-center border-l-4 border-l-green-400">
+          <div class="text-xs text-gray-400 mb-1">17:04</div>
+          <div class="text-sm font-bold text-gray-800">收菜商（流动）</div>
+          <div class="text-xs text-gray-500 mt-1">蔬菜流动收购商</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TAB 2: 痛点热力图 ===== -->
+<section id="tab-painpoints" class="fade-in space-y-6 hidden">
+
+  <!-- 优先级图例 -->
+  <div class="flex items-center gap-4 text-sm">
+    <span class="priority-tag bg-p0-bg text-p0-text border border-p0-border">P0 · 必须解决</span>
+    <span class="priority-tag bg-p1-bg text-p1-text border border-p1-border">P1 · 重要优化</span>
+    <span class="priority-tag bg-p2-bg text-p2-text border border-p2-border">P2 · 期望改进</span>
+    <span class="priority-tag bg-p3-bg text-p3-text border border-p3-border">P3 · 远期规划</span>
+    <span class="text-xs text-gray-400 ml-2">提及场次越多 = 热度越高</span>
+  </div>
+
+  <!-- P0 -->
+  <div class="glass-panel shadow-elevation-3 p-6">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="priority-tag bg-p0-bg text-p0-text border border-p0-border text-base px-3 py-1">P0</span>
+      <h2 class="text-lg font-bold text-gray-900">必须解决 — 阻碍推广的致命问题</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-red-500">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-gray-900"><i class="fas fa-credit-card text-red-400 mr-2"></i>支付流程过于复杂</h3>
+          <span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">7/10 场提及</span>
+        </div>
+        <p class="text-sm text-gray-600 mb-3">PC端 → 二维码 → 手机扫码 → 浏览器 → 手机银行 → 输密码，多次跳转体验极差。</p>
+        <div class="space-y-1.5">
+          <div class="flex items-start gap-2 text-xs text-gray-500">
+            <i class="fas fa-quote-left text-[10px] text-red-300 mt-0.5"></i>
+            <span>「能不能全流程在PC端完成，不需要老板掏手机扫码？」—— 吉林组第5条</span>
+          </div>
+          <div class="flex items-start gap-2 text-xs text-gray-500">
+            <i class="fas fa-quote-left text-[10px] text-red-300 mt-0.5"></i>
+            <span>「相比微信直接转账仍嫌繁琐」—— 收菜商</span>
+          </div>
+        </div>
+        <div class="mt-3 flex gap-1.5">
+          <span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC SaaS</span>
+          <span class="system-tag border-green-200 bg-green-50 text-green-600">小程序</span>
+          <span class="system-tag border-orange-200 bg-orange-50 text-orange-600">H5收银台</span>
+        </div>
+      </div>
+
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-red-500">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-gray-900"><i class="fas fa-ban text-red-400 mr-2"></i>转账限额瓶颈</h3>
+          <span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">6/10 场提及</span>
+        </div>
+        <p class="text-sm text-gray-600 mb-3">吉林大型粮站高峰期日交易额超百万甚至300万，手机银行单笔/单日限额远不够用。</p>
+        <div class="space-y-1.5">
+          <div class="flex items-start gap-2 text-xs text-gray-500">
+            <i class="fas fa-quote-left text-[10px] text-red-300 mt-0.5"></i>
+            <span>「请集团背书为中大型收购商提高卡限额」—— 吉林组第8条</span>
+          </div>
+          <div class="flex items-start gap-2 text-xs text-gray-500">
+            <i class="fas fa-quote-left text-[10px] text-red-300 mt-0.5"></i>
+            <span>「新开卡限额更低，请求白名单机制瞬时提高」—— 吉林组第9条</span>
+          </div>
+        </div>
+        <div class="mt-3 flex gap-1.5">
+          <span class="system-tag border-purple-200 bg-purple-50 text-purple-600">银行系统</span>
+          <span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC SaaS</span>
+        </div>
+      </div>
+
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-red-500">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-gray-900"><i class="fas fa-layer-group text-red-400 mr-2"></i>合并付款缺失</h3>
+          <span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">6/10 场提及</span>
+        </div>
+        <p class="text-sm text-gray-600 mb-3">一上午收几十车粮，需要「先开单、后统一付款」——类似购物车模式，多笔不同收款人订单合并支付。</p>
+        <div class="space-y-1.5">
+          <div class="flex items-start gap-2 text-xs text-gray-500">
+            <i class="fas fa-quote-left text-[10px] text-red-300 mt-0.5"></i>
+            <span>「先开单后付款，合并一笔过」—— 瑞粮站/红瑞/收菜商均提及</span>
+          </div>
+        </div>
+        <div class="mt-3 flex gap-1.5">
+          <span class="system-tag border-green-200 bg-green-50 text-green-600">小程序</span>
+          <span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC SaaS</span>
+        </div>
+      </div>
+
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-red-500">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-gray-900"><i class="fas fa-file-invoice text-red-400 mr-2"></i>农户台账/监管报表</h3>
+          <span class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">5/10 场提及</span>
+        </div>
+        <p class="text-sm text-gray-600 mb-3">必须形成含身份证、卡号、结算情况的农户台账明细表，满足粮食局监管溯源要求。</p>
+        <div class="space-y-1.5">
+          <div class="flex items-start gap-2 text-xs text-gray-500">
+            <i class="fas fa-quote-left text-[10px] text-red-300 mt-0.5"></i>
+            <span>「粮食局要求必须出具收购报表」—— 瑞粮站</span>
+          </div>
+        </div>
+        <div class="mt-3 flex gap-1.5">
+          <span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC SaaS</span>
+          <span class="system-tag border-green-200 bg-green-50 text-green-600">小程序</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P1 -->
+  <div class="glass-panel shadow-elevation-2 p-6">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="priority-tag bg-p1-bg text-p1-text border border-p1-border text-base px-3 py-1">P1</span>
+      <h2 class="text-lg font-bold text-gray-900">重要优化 — 影响核心场景的体验问题</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-amber-500">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-gray-900"><i class="fas fa-car text-amber-400 mr-2"></i>车牌号录入与绑定</h3>
+          <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">4/10 场</span>
+        </div>
+        <p class="text-sm text-gray-600">订单必须增加车牌号，用于两次称重关联和客户识别。结算单也要显示车牌号。</p>
+        <div class="mt-2 text-xs text-gray-500"><i class="fas fa-link mr-1"></i>吉林组第11、12条</div>
+      </div>
+
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-amber-500">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-gray-900"><i class="fas fa-droplet text-amber-400 mr-2"></i>水分折干计算</h3>
+          <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">3/10 场</span>
+        </div>
+        <p class="text-sm text-gray-600">不同水分折算标准价，配置各类水分单价，订单体现折干后价格+烘干费。</p>
+        <div class="mt-2 text-xs text-gray-500"><i class="fas fa-link mr-1"></i>吉林组第16条(1)(2)(3) + 第三家粮站</div>
+      </div>
+
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-amber-500">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-gray-900"><i class="fas fa-database text-amber-400 mr-2"></i>老系统数据迁移</h3>
+          <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">3/10 场</span>
+        </div>
+        <p class="text-sm text-gray-600">换系统时需导出老系统农户数据（手机号、身份证号等）并批量导入新系统。</p>
+        <div class="mt-2 text-xs text-gray-500"><i class="fas fa-link mr-1"></i>吉林组第4条 + 瑞粮站</div>
+      </div>
+
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-amber-500">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-gray-900"><i class="fas fa-user-plus text-amber-400 mr-2"></i>农户建档简化</h3>
+          <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">5/10 场</span>
+        </div>
+        <p class="text-sm text-gray-600">农户对提供身份证号敏感。最简方案：姓名+手机号+银行卡号三要素即可。</p>
+        <div class="mt-2 text-xs text-gray-500"><i class="fas fa-link mr-1"></i>收菜商/红瑞/总结会均确认</div>
+      </div>
+
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-amber-500">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-gray-900"><i class="fas fa-wallet text-amber-400 mr-2"></i>多支付通道</h3>
+          <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">4/10 场</span>
+        </div>
+        <p class="text-sm text-gray-600">仅支持邮储不够。需增加他行转账（农行、信用社）、对公/对私、第三方多通道。</p>
+        <div class="mt-2 text-xs text-gray-500"><i class="fas fa-link mr-1"></i>吉林组第2条</div>
+      </div>
+
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-amber-500">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-gray-900"><i class="fas fa-shield-halved text-amber-400 mr-2"></i>税务合规顾虑</h3>
+          <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">4/10 场</span>
+        </div>
+        <p class="text-sm text-gray-600">粮站老板担心使用系统后交易数据暴露被追税。进件数据是否上传银联？</p>
+        <div class="mt-2 text-xs text-gray-500"><i class="fas fa-link mr-1"></i>吉林组第3、14条</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P2 -->
+  <div class="glass-panel shadow-elevation-2 p-6">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="priority-tag bg-p2-bg text-p2-text border border-p2-border text-base px-3 py-1">P2</span>
+      <h2 class="text-lg font-bold text-gray-900">期望改进 — 提升使用体验的功能需求</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-blue-400">
+        <h3 class="font-bold text-sm text-gray-900 mb-2"><i class="fas fa-chart-line text-blue-400 mr-2"></i>收粮+卖粮利润一体化</h3>
+        <p class="text-xs text-gray-600">在同一界面显示收购成本与预估利润。记录每车详细成本（运费/公关费/烘干费）。</p>
+        <div class="mt-2 text-xs text-gray-400">2/10 场 · 第三家粮站核心需求</div>
+      </div>
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-blue-400">
+        <h3 class="font-bold text-sm text-gray-900 mb-2"><i class="fas fa-rotate-left text-blue-400 mr-2"></i>订单作废/退款流程</h3>
+        <p class="text-xs text-gray-600">已结算订单作废时资金回流机制不清晰。信息流与资金流存在分离问题。</p>
+        <div class="mt-2 text-xs text-gray-400">3/10 场 · 红瑞/总结会</div>
+      </div>
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-blue-400">
+        <h3 class="font-bold text-sm text-gray-900 mb-2"><i class="fas fa-users-between-lines text-blue-400 mr-2"></i>多出纳/多磅房并行</h3>
+        <p class="text-xs text-gray-600">大型粮站多出纳同时操作，付款环节只能串行。需支持多账号对应多订单。</p>
+        <div class="mt-2 text-xs text-gray-400">3/10 场</div>
+      </div>
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-blue-400">
+        <h3 class="font-bold text-sm text-gray-900 mb-2"><i class="fas fa-mobile-screen-button text-blue-400 mr-2"></i>移动端全流程</h3>
+        <p class="text-xs text-gray-600">移动端应能完成全流程（登录→录入→称重确认→结算），减少与客户反复沟通。</p>
+        <div class="mt-2 text-xs text-gray-400">3/10 场 · 瑞粮站强需求</div>
+      </div>
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-blue-400">
+        <h3 class="font-bold text-sm text-gray-900 mb-2"><i class="fas fa-note-sticky text-blue-400 mr-2"></i>转账备注信息</h3>
+        <p class="text-xs text-gray-600">订单关键信息（时间/收粮情况）同步到银行转账备注，满足监管和对账需求。</p>
+        <div class="mt-2 text-xs text-gray-400">吉林组第15条 · 红瑞</div>
+      </div>
+      <div class="pain-card glass-card shadow-elevation-1 p-4 border-l-blue-400">
+        <h3 class="font-bold text-sm text-gray-900 mb-2"><i class="fas fa-coins text-blue-400 mr-2"></i>现金支付记录</h3>
+        <p class="text-xs text-gray-600">部分农户只用现金。系统应允许仅填姓名+电话就能记录现金支付的订单。</p>
+        <div class="mt-2 text-xs text-gray-400">0318 16:20会议</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P3 -->
+  <div class="glass-panel shadow-elevation-1 p-6">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="priority-tag bg-p3-bg text-p3-text border border-p3-border text-base px-3 py-1">P3</span>
+      <h2 class="text-lg font-bold text-gray-900">远期规划 — 系统完善方向</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="glass-card shadow-elevation-1 p-3 text-sm">
+        <span class="font-medium text-gray-800"><i class="fas fa-video text-gray-400 mr-2"></i>全流程环节管理</span>
+        <p class="text-xs text-gray-500 mt-1">车辆进场→检测水分→出场，摄像头自动记录车号 · 吉林组第17条</p>
+      </div>
+      <div class="glass-card shadow-elevation-1 p-3 text-sm">
+        <span class="font-medium text-gray-800"><i class="fas fa-trash-can text-gray-400 mr-2"></i>删除订单/库存能力</span>
+        <p class="text-xs text-gray-500 mt-1">应付监管部门检查（如税务）· 吉林组第10条</p>
+      </div>
+      <div class="glass-card shadow-elevation-1 p-3 text-sm">
+        <span class="font-medium text-gray-800"><i class="fas fa-handshake text-gray-400 mr-2"></i>合作社经营模式</span>
+        <p class="text-xs text-gray-500 mt-1">合作社作为中间环节的资金流转逻辑 · 吉林组第6条</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TAB 3: 需求清单 ===== -->
+<section id="tab-requirements" class="fade-in space-y-6 hidden">
+
+  <!-- 筛选器 -->
+  <div class="glass-panel shadow-elevation-1 p-4 flex flex-wrap gap-3 items-center">
+    <span class="text-sm font-medium text-gray-600">筛选：</span>
+    <button class="filter-btn active px-3 py-1.5 rounded-lg text-xs font-medium bg-postal text-white" onclick="filterReqs('all')">全部</button>
+    <button class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-500 shadow-elevation-1" onclick="filterReqs('miniapp')">
+      <i class="fas fa-mobile-screen mr-1"></i>小程序
+    </button>
+    <button class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-500 shadow-elevation-1" onclick="filterReqs('pc')">
+      <i class="fas fa-laptop-code mr-1"></i>PC SaaS
+    </button>
+    <button class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-500 shadow-elevation-1" onclick="filterReqs('payment')">
+      <i class="fas fa-credit-card mr-1"></i>支付相关
+    </button>
+    <button class="filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-500 shadow-elevation-1" onclick="filterReqs('ops')">
+      <i class="fas fa-gears mr-1"></i>运营管理
+    </button>
+  </div>
+
+  <!-- 需求表格 -->
+  <div class="glass-panel shadow-elevation-2 overflow-hidden">
+    <table class="w-full text-sm" id="req-table">
+      <thead>
+        <tr class="bg-gray-50 text-left">
+          <th class="px-4 py-3 font-medium text-gray-500 w-16">优先级</th>
+          <th class="px-4 py-3 font-medium text-gray-500">需求名称</th>
+          <th class="px-4 py-3 font-medium text-gray-500 w-28">涉及终端</th>
+          <th class="px-4 py-3 font-medium text-gray-500 w-20">提及频次</th>
+          <th class="px-4 py-3 font-medium text-gray-500">来源</th>
+          <th class="px-4 py-3 font-medium text-gray-500 w-24">PRD 状态</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <tr class="hover:bg-gray-50" data-tags="payment pc miniapp">
+          <td class="px-4 py-3"><span class="priority-tag bg-p0-bg text-p0-text">P0</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">支付流程简化（减少跳转步骤）</td>
+          <td class="px-4 py-3"><span class="system-tag border-blue-200 bg-blue-50 text-blue-600 mr-1">PC</span><span class="system-tag border-green-200 bg-green-50 text-green-600">小程序</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-red-500 h-2 rounded-full" style="width:70%"></div></div><span class="text-xs text-gray-500">7/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">吉林组#5 / 瑞粮站 / 收菜商</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-700">部分覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="payment">
+          <td class="px-4 py-3"><span class="priority-tag bg-p0-bg text-p0-text">P0</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">转账限额提升（白名单/提额机制）</td>
+          <td class="px-4 py-3"><span class="system-tag border-purple-200 bg-purple-50 text-purple-600">银行</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-red-500 h-2 rounded-full" style="width:60%"></div></div><span class="text-xs text-gray-500">6/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">吉林组#8#9 / 红瑞 / 总结会</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="payment miniapp pc">
+          <td class="px-4 py-3"><span class="priority-tag bg-p0-bg text-p0-text">P0</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">合并付款（购物车模式批量支付）</td>
+          <td class="px-4 py-3"><span class="system-tag border-green-200 bg-green-50 text-green-600 mr-1">小程序</span><span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-red-500 h-2 rounded-full" style="width:60%"></div></div><span class="text-xs text-gray-500">6/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">瑞粮站 / 红瑞 / 收菜商</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-green-50 text-green-700">已有原型</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="ops pc">
+          <td class="px-4 py-3"><span class="priority-tag bg-p0-bg text-p0-text">P0</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">农户台账明细表（监管报表）</td>
+          <td class="px-4 py-3"><span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-red-500 h-2 rounded-full" style="width:50%"></div></div><span class="text-xs text-gray-500">5/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">吉林组#1 / 瑞粮站</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="pc miniapp">
+          <td class="px-4 py-3"><span class="priority-tag bg-p1-bg text-p1-text">P1</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">车牌号录入与订单绑定</td>
+          <td class="px-4 py-3"><span class="system-tag border-blue-200 bg-blue-50 text-blue-600 mr-1">PC</span><span class="system-tag border-green-200 bg-green-50 text-green-600">小程序</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width:40%"></div></div><span class="text-xs text-gray-500">4/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">吉林组#11#12 / 第三家</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="pc">
+          <td class="px-4 py-3"><span class="priority-tag bg-p1-bg text-p1-text">P1</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">水分折干计算器 + 价格配置</td>
+          <td class="px-4 py-3"><span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width:30%"></div></div><span class="text-xs text-gray-500">3/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">吉林组#16(1)(2)(3) / 第三家</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="ops">
+          <td class="px-4 py-3"><span class="priority-tag bg-p1-bg text-p1-text">P1</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">老系统数据迁移（批量导入）</td>
+          <td class="px-4 py-3"><span class="system-tag border-blue-200 bg-blue-50 text-blue-600 mr-1">PC</span><span class="system-tag border-gray-200 bg-gray-50 text-gray-600">运维</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width:30%"></div></div><span class="text-xs text-gray-500">3/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">吉林组#4 / 瑞粮站</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="miniapp">
+          <td class="px-4 py-3"><span class="priority-tag bg-p1-bg text-p1-text">P1</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">农户建档简化（三要素注册）</td>
+          <td class="px-4 py-3"><span class="system-tag border-green-200 bg-green-50 text-green-600">小程序</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width:50%"></div></div><span class="text-xs text-gray-500">5/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">收菜商/红瑞/总结会</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-700">部分覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="payment">
+          <td class="px-4 py-3"><span class="priority-tag bg-p1-bg text-p1-text">P1</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">多支付通道（他行/对公/对私）</td>
+          <td class="px-4 py-3"><span class="system-tag border-green-200 bg-green-50 text-green-600 mr-1">小程序</span><span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width:40%"></div></div><span class="text-xs text-gray-500">4/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">吉林组#2 / 总结会</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="ops">
+          <td class="px-4 py-3"><span class="priority-tag bg-p1-bg text-p1-text">P1</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">税务合规风险解答与系统适配</td>
+          <td class="px-4 py-3"><span class="system-tag border-gray-200 bg-gray-50 text-gray-600">跨端</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width:40%"></div></div><span class="text-xs text-gray-500">4/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">吉林组#3#14 / 瑞粮站</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="pc">
+          <td class="px-4 py-3"><span class="priority-tag bg-p2-bg text-p2-text">P2</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">收粮+卖粮利润核算一体化</td>
+          <td class="px-4 py-3"><span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width:20%"></div></div><span class="text-xs text-gray-500">2/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">第三家粮站核心诉求</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="payment miniapp pc">
+          <td class="px-4 py-3"><span class="priority-tag bg-p2-bg text-p2-text">P2</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">订单作废与退款流程</td>
+          <td class="px-4 py-3"><span class="system-tag border-green-200 bg-green-50 text-green-600 mr-1">小程序</span><span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width:30%"></div></div><span class="text-xs text-gray-500">3/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">红瑞 / 总结会</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="pc">
+          <td class="px-4 py-3"><span class="priority-tag bg-p2-bg text-p2-text">P2</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">多出纳/多磅房并行操作</td>
+          <td class="px-4 py-3"><span class="system-tag border-blue-200 bg-blue-50 text-blue-600">PC</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width:30%"></div></div><span class="text-xs text-gray-500">3/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">大型粮站通用需求</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="miniapp">
+          <td class="px-4 py-3"><span class="priority-tag bg-p2-bg text-p2-text">P2</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">移动端全流程操作能力</td>
+          <td class="px-4 py-3"><span class="system-tag border-green-200 bg-green-50 text-green-600">小程序</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width:30%"></div></div><span class="text-xs text-gray-500">3/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">瑞粮站强需求</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-700">部分覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="payment">
+          <td class="px-4 py-3"><span class="priority-tag bg-p2-bg text-p2-text">P2</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">转账备注携带订单信息</td>
+          <td class="px-4 py-3"><span class="system-tag border-purple-200 bg-purple-50 text-purple-600">银行</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width:20%"></div></div><span class="text-xs text-gray-500">2/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">吉林组#15 / 红瑞</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+        <tr class="hover:bg-gray-50" data-tags="payment miniapp">
+          <td class="px-4 py-3"><span class="priority-tag bg-p2-bg text-p2-text">P2</span></td>
+          <td class="px-4 py-3 font-medium text-gray-800">现金支付订单记录支持</td>
+          <td class="px-4 py-3"><span class="system-tag border-green-200 bg-green-50 text-green-600">小程序</span></td>
+          <td class="px-4 py-3"><div class="flex items-center gap-1"><div class="w-24 bg-gray-100 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width:20%"></div></div><span class="text-xs text-gray-500">2/10</span></div></td>
+          <td class="px-4 py-3 text-xs text-gray-500">0318 16:20会议</td>
+          <td class="px-4 py-3"><span class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600">未覆盖</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== TAB 4: 业务场景 ===== -->
+<section id="tab-scenarios" class="fade-in space-y-6 hidden">
+
+  <!-- 核心收粮流程（实地调研还原） -->
+  <div class="glass-panel shadow-elevation-3 p-6">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-5">实际收粮流程（实地调研还原）</h2>
+    <p class="text-sm text-gray-500 mb-5">以下流程综合瑞粮站、红瑞、第三家粮站的实际操作还原，比 PRD 中的六步流程更详细</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="scene-num bg-postal/10 text-postal">1</div>
+          <h3 class="font-bold text-sm text-gray-900">车辆进场</h3>
+        </div>
+        <ul class="space-y-1.5 text-xs text-gray-600">
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>记录车牌号（手动输入或摄像头识别）</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>确认农户身份（姓名/手机号）</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>确认粮食品类和预估量</li>
+        </ul>
+        <div class="mt-3 px-2 py-1 bg-amber-50 rounded text-xs text-amber-700">
+          <i class="fas fa-exclamation-triangle mr-1"></i>车牌号录入 PRD 未覆盖
+        </div>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="scene-num bg-postal/10 text-postal">2</div>
+          <h3 class="font-bold text-sm text-gray-900">满载过磅</h3>
+        </div>
+        <ul class="space-y-1.5 text-xs text-gray-600">
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>地磅称重（串口/USB 自动读数）</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>现场 LED 显示重量</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>支持重复称重（首次不准）</li>
+        </ul>
+        <div class="mt-3 px-2 py-1 bg-blue-50 rounded text-xs text-blue-700">
+          <i class="fas fa-laptop-code mr-1"></i>PC SaaS 已有能力
+        </div>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="scene-num bg-postal/10 text-postal">3</div>
+          <h3 class="font-bold text-sm text-gray-900">质检扣杂</h3>
+        </div>
+        <ul class="space-y-1.5 text-xs text-gray-600">
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>水分检测（精度0.1%）</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>折干计算（不同水分→标准价）</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>杂质扣减比例确定</li>
+        </ul>
+        <div class="mt-3 px-2 py-1 bg-amber-50 rounded text-xs text-amber-700">
+          <i class="fas fa-exclamation-triangle mr-1"></i>折干计算 PRD 未覆盖
+        </div>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="scene-num bg-postal/10 text-postal">4</div>
+          <h3 class="font-bold text-sm text-gray-900">卸粮 + 空车过磅</h3>
+        </div>
+        <ul class="space-y-1.5 text-xs text-gray-600">
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>卸粮入库</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>空车再称 → 计算净重</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>两次称重关联（靠车牌号）</li>
+        </ul>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="scene-num bg-postal/10 text-postal">5</div>
+          <h3 class="font-bold text-sm text-gray-900">议价定价</h3>
+        </div>
+        <ul class="space-y-1.5 text-xs text-gray-600">
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>当日基准价 × 水分折扣</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>双方议价空间</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>确认最终单价</li>
+        </ul>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="scene-num bg-postal/10 text-postal">6</div>
+          <h3 class="font-bold text-sm text-gray-900">开单生成订单</h3>
+        </div>
+        <ul class="space-y-1.5 text-xs text-gray-600">
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>品类 + 数量 + 单价 → 总金额</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>打印结算凭证</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>可挂账（先开单后付款）</li>
+        </ul>
+        <div class="mt-3 px-2 py-1 bg-green-50 rounded text-xs text-green-700">
+          <i class="fas fa-check-circle mr-1"></i>小程序原型已覆盖
+        </div>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="scene-num bg-postal/10 text-postal">7</div>
+          <h3 class="font-bold text-sm text-gray-900">支付结算</h3>
+        </div>
+        <ul class="space-y-1.5 text-xs text-gray-600">
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>单笔付或合并付</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>行业支付/订单付/现金</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>付款成功通知农户</li>
+        </ul>
+        <div class="mt-3 px-2 py-1 bg-green-50 rounded text-xs text-green-700">
+          <i class="fas fa-check-circle mr-1"></i>小程序原型已覆盖
+        </div>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="scene-num bg-postal/10 text-postal">8</div>
+          <h3 class="font-bold text-sm text-gray-900">日终结算 + 报表</h3>
+        </div>
+        <ul class="space-y-1.5 text-xs text-gray-600">
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>日结算报表 / 交易流水</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>农户台账明细导出</li>
+          <li class="flex items-start gap-2"><i class="fas fa-check text-postal text-[10px] mt-1"></i>利润核算（收购价 vs 售价）</li>
+        </ul>
+        <div class="mt-3 px-2 py-1 bg-amber-50 rounded text-xs text-amber-700">
+          <i class="fas fa-exclamation-triangle mr-1"></i>报表/利润核算 PRD 未覆盖
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 典型业务场景卡片 -->
+  <div class="glass-panel shadow-elevation-2 p-6">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-5">典型业务场景（来自实地观察）</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div class="glass-card shadow-elevation-1 p-5">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+            <i class="fas fa-truck-fast text-red-500 text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900">高峰期抢收场景</h3>
+            <p class="text-xs text-gray-500">吉林大型粮站 · 秋收季</p>
+          </div>
+        </div>
+        <div class="text-sm text-gray-600 space-y-2">
+          <p><strong>场景：</strong>秋收高峰期，一上午来30-50车粮，多个磅房/出纳同时操作。日交易额超百万。</p>
+          <p><strong>痛点：</strong>付款只能串行（一个手机绑一张卡），严重拖慢效率。</p>
+          <p><strong>期望：</strong>多账号并行付款 + 合并付款 + 更高限额。</p>
+        </div>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-5">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+            <i class="fas fa-person-walking text-green-500 text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900">流动收菜商场景</h3>
+            <p class="text-xs text-gray-500">瓜果蔬菜 · 日常收购</p>
+          </div>
+        </div>
+        <div class="text-sm text-gray-600 space-y-2">
+          <p><strong>场景：</strong>走村串户收购蔬菜，微信支付占90%，当天运往市场批发。农户60-70岁居多。</p>
+          <p><strong>痛点：</strong>微信提现到银行卡有5‰手续费，日积月累费用可观。</p>
+          <p><strong>期望：</strong>平台直接转到农户银行卡（免手续费），三要素快速建档。</p>
+        </div>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-5">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+            <i class="fas fa-right-left text-blue-500 text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900">系统切换场景</h3>
+            <p class="text-xs text-gray-500">已有系统的粮站 · 如第三家</p>
+          </div>
+        </div>
+        <div class="text-sm text-gray-600 space-y-2">
+          <p><strong>场景：</strong>粮站已用同业系统2年，积累了大量农户数据和交易记录。</p>
+          <p><strong>痛点：</strong>换系统 = 数据迁移风险 + 学习成本。新系统必须「比老的好」才值得换。</p>
+          <p><strong>期望：</strong>折干计算、利润核算等高级功能，且支持老数据批量导入。</p>
+        </div>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-5">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+            <i class="fas fa-user-shield text-amber-500 text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900">农户信任与隐私场景</h3>
+            <p class="text-xs text-gray-500">各粮站共性问题</p>
+          </div>
+        </div>
+        <div class="text-sm text-gray-600 space-y-2">
+          <p><strong>场景：</strong>首次交易要求农户提供身份证号和银行卡号进行建档。</p>
+          <p><strong>痛点：</strong>农户对提供敏感信息非常抗拒，尤其小商贩处。拍照更引发顾虑。</p>
+          <p><strong>期望：</strong>极简三要素注册 + 隐私承诺弹窗 + 仅录入卡号不拍照。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TAB 5: GAP 分析 ===== -->
+<section id="tab-gap" class="fade-in space-y-6 hidden">
+
+  <div class="glass-panel shadow-elevation-3 p-6">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-2">PRD vs 调研发现 · 差异矩阵</h2>
+    <p class="text-sm text-gray-500 mb-5">对比 PRD-001 用户故事覆盖范围与实地调研发现的需求缺口</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- 已覆盖 -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-3 h-3 rounded-full bg-green-500"></div>
+          <h3 class="font-bold text-gray-900">PRD 已覆盖 ✓</h3>
+        </div>
+        <div class="space-y-2">
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-green-400">
+            <div class="text-sm font-medium text-gray-800">开单流程（明细/快捷）</div>
+            <div class="text-xs text-gray-500">US-07 / US-08</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-green-400">
+            <div class="text-sm font-medium text-gray-800">收银台支付</div>
+            <div class="text-xs text-gray-500">US-10 / US-11</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-green-400">
+            <div class="text-sm font-medium text-gray-800">农户收款码</div>
+            <div class="text-xs text-gray-500">US-12</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-green-400">
+            <div class="text-sm font-medium text-gray-800">订单/收款记录</div>
+            <div class="text-xs text-gray-500">US-13 / US-14</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-green-400">
+            <div class="text-sm font-medium text-gray-800">市场信息发布</div>
+            <div class="text-xs text-gray-500">US-03~06（PRD新增，原系统无）</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-green-400">
+            <div class="text-sm font-medium text-gray-800">常用农户管理</div>
+            <div class="text-xs text-gray-500">US-09</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-green-400">
+            <div class="text-sm font-medium text-gray-800">首页统计</div>
+            <div class="text-xs text-gray-500">US-16 / US-17</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-green-400">
+            <div class="text-sm font-medium text-gray-800">客户经理开户/查询</div>
+            <div class="text-xs text-gray-500">US-01/02/18/19/20</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 部分覆盖 -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+          <h3 class="font-bold text-gray-900">部分覆盖 △</h3>
+        </div>
+        <div class="space-y-2">
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-amber-400">
+            <div class="text-sm font-medium text-gray-800">合并付款</div>
+            <div class="text-xs text-gray-500">原型已有页面，PRD 中为增强</div>
+            <div class="text-xs text-amber-600 mt-1">调研确认为高频刚需</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-amber-400">
+            <div class="text-sm font-medium text-gray-800">支付流程</div>
+            <div class="text-xs text-gray-500">PRD 覆盖行业支付/订单付</div>
+            <div class="text-xs text-amber-600 mt-1">但流程过复杂，调研强烈要求简化</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-amber-400">
+            <div class="text-sm font-medium text-gray-800">农户建档</div>
+            <div class="text-xs text-gray-500">PRD 有 US-02 开户</div>
+            <div class="text-xs text-amber-600 mt-1">但未考虑三要素简化和隐私顾虑</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-amber-400">
+            <div class="text-sm font-medium text-gray-800">移动端能力</div>
+            <div class="text-xs text-gray-500">小程序覆盖开单/支付</div>
+            <div class="text-xs text-amber-600 mt-1">但缺少称重确认等全流程能力</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 未覆盖 -->
+      <div>
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-3 h-3 rounded-full bg-red-500"></div>
+          <h3 class="font-bold text-gray-900">未覆盖 ✗（调研新增）</h3>
+        </div>
+        <div class="space-y-2">
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-red-400">
+            <div class="text-sm font-medium text-gray-800">转账限额提升机制</div>
+            <div class="text-xs text-red-500">P0 · 阻碍大型粮站使用</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-red-400">
+            <div class="text-sm font-medium text-gray-800">农户台账/监管报表</div>
+            <div class="text-xs text-red-500">P0 · 粮食局合规要求</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-red-400">
+            <div class="text-sm font-medium text-gray-800">车牌号录入与绑定</div>
+            <div class="text-xs text-red-500">P1 · 两次称重关联依赖</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-red-400">
+            <div class="text-sm font-medium text-gray-800">水分折干计算</div>
+            <div class="text-xs text-red-500">P1 · 粮食定价核心逻辑</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-red-400">
+            <div class="text-sm font-medium text-gray-800">多支付通道</div>
+            <div class="text-xs text-red-500">P1 · 仅邮储无法覆盖</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-red-400">
+            <div class="text-sm font-medium text-gray-800">老系统数据迁移</div>
+            <div class="text-xs text-red-500">P1 · 影响系统切换</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-red-400">
+            <div class="text-sm font-medium text-gray-800">税务合规解答</div>
+            <div class="text-xs text-red-500">P1 · 推广最大心理障碍</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-red-400">
+            <div class="text-sm font-medium text-gray-800">利润核算一体化</div>
+            <div class="text-xs text-red-500">P2 · 有系统粮站换系统动力</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-red-400">
+            <div class="text-sm font-medium text-gray-800">多出纳并行操作</div>
+            <div class="text-xs text-red-500">P2 · 大型粮站效率瓶颈</div>
+          </div>
+          <div class="glass-card shadow-elevation-1 p-3 border-l-4 border-l-red-400">
+            <div class="text-sm font-medium text-gray-800">退款/订单作废流程</div>
+            <div class="text-xs text-red-500">P2 · 信息流与资金流分离</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 系统维度 GAP -->
+  <div class="glass-panel shadow-elevation-2 p-6">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-5">按终端维度的需求覆盖情况</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="glass-card shadow-elevation-1 p-5">
+        <h3 class="font-bold text-gray-900 mb-3"><i class="fas fa-mobile-screen text-postal mr-2"></i>小程序端</h3>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">PRD 覆盖</span>
+            <span class="text-sm font-bold text-green-600">85%</span>
+          </div>
+          <div class="w-full bg-gray-100 rounded-full h-2.5">
+            <div class="bg-green-500 h-2.5 rounded-full" style="width: 85%"></div>
+          </div>
+          <div class="text-xs text-gray-500 mt-2 space-y-1">
+            <div><span class="text-green-600">✓</span> 开单/支付/订单/收款/市场/常用人</div>
+            <div><span class="text-amber-600">△</span> 合并付款（原型有,PRD增强）</div>
+            <div><span class="text-red-500">✗</span> 现金支付记录 / 农户三要素简化</div>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card shadow-elevation-1 p-5">
+        <h3 class="font-bold text-gray-900 mb-3"><i class="fas fa-laptop-code text-blue-500 mr-2"></i>PC SaaS 端</h3>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">PRD 覆盖</span>
+            <span class="text-sm font-bold text-red-600">15%</span>
+          </div>
+          <div class="w-full bg-gray-100 rounded-full h-2.5">
+            <div class="bg-red-500 h-2.5 rounded-full" style="width: 15%"></div>
+          </div>
+          <div class="text-xs text-gray-500 mt-2 space-y-1">
+            <div><span class="text-red-500">✗</span> 过磅称重 / 地磅对接 / 质检扣杂</div>
+            <div><span class="text-red-500">✗</span> 库存管理 / 议价 / 销售</div>
+            <div><span class="text-red-500">✗</span> 报表导出 / 农户台账</div>
+            <div><span class="text-red-500">✗</span> 折干计算 / 利润核算</div>
+            <div><span class="text-red-500">✗</span> 多出纳角色 / 子账号权限</div>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card shadow-elevation-1 p-5">
+        <h3 class="font-bold text-gray-900 mb-3"><i class="fas fa-globe text-orange-500 mr-2"></i>H5 收银台 / 管理端</h3>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">PRD 覆盖</span>
+            <span class="text-sm font-bold text-green-600">90%</span>
+          </div>
+          <div class="w-full bg-gray-100 rounded-full h-2.5">
+            <div class="bg-green-500 h-2.5 rounded-full" style="width: 90%"></div>
+          </div>
+          <div class="text-xs text-gray-500 mt-2 space-y-1">
+            <div><span class="text-green-600">✓</span> H5 支付确认 / 开户管理 / 数据看板</div>
+            <div><span class="text-amber-600">△</span> 数据看板时间范围未明确</div>
+          </div>
+        </div>
+      </div>
+      <div class="glass-card shadow-elevation-1 p-5">
+        <h3 class="font-bold text-gray-900 mb-3"><i class="fas fa-credit-card text-purple-500 mr-2"></i>支付/银行系统</h3>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">PRD 覆盖</span>
+            <span class="text-sm font-bold text-amber-600">40%</span>
+          </div>
+          <div class="w-full bg-gray-100 rounded-full h-2.5">
+            <div class="bg-amber-500 h-2.5 rounded-full" style="width: 40%"></div>
+          </div>
+          <div class="text-xs text-gray-500 mt-2 space-y-1">
+            <div><span class="text-green-600">✓</span> 行业支付 / 订单付</div>
+            <div><span class="text-red-500">✗</span> 限额提升 / 多通道 / 他行转账</div>
+            <div><span class="text-red-500">✗</span> 转账备注 / 对公转账</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TAB 6: 调研来源 ===== -->
+<section id="tab-sources" class="fade-in space-y-6 hidden">
+  <div class="glass-panel shadow-elevation-2 p-6">
+    <h2 class="section-title text-lg font-bold text-gray-900 mb-5">调研数据来源索引</h2>
+
+    <div class="space-y-4">
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="px-3 py-1 rounded-lg bg-postal/10 text-postal font-bold text-sm">3月18日</span>
+          <span class="text-sm text-gray-500">内部系统测试 · 5场会议</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-file-lines text-gray-400"></i>09:04 系统培训动员会 — 丰收云功能介绍与系统培训</div>
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-file-lines text-gray-400"></i>14:27 深度功能测试 — 支付、商户进件、二维码</div>
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-file-lines text-gray-400"></i>16:20 功能优化讨论 — 合并付款、农户建档</div>
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-file-lines text-gray-400"></i>16:49 地磅称重系统 — 现场流程与数据对接</div>
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-file-lines text-gray-400"></i>17:16 当日总结会 — 问题汇总与优化方向</div>
+        </div>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="px-3 py-1 rounded-lg bg-red-50 text-red-600 font-bold text-sm">3月19日</span>
+          <span class="text-sm text-gray-500">实地走访 · 4家粮站/商户</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-building text-red-400"></i>09:03 <strong>瑞粮站</strong> — 中大型，无系统，强调移动端全流程</div>
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-building text-amber-400"></i>10:40 <strong>红瑞粮站</strong> — 中大型，无系统，关注多磅房并行</div>
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-building text-blue-400"></i>14:36 <strong>第三家粮站</strong> — 有同业系统，关注折干计算/利润核算</div>
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-truck text-green-400"></i>17:04 <strong>收菜商(流动)</strong> — 蔬菜收购，微信支付为主</div>
+        </div>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="px-3 py-1 rounded-lg bg-amber-50 text-amber-600 font-bold text-sm">吉林组</span>
+          <span class="text-sm text-gray-500">集中调研 · 18条问题清单</span>
+        </div>
+        <div class="text-sm text-gray-600">
+          <p>覆盖5个粮站 + 中粮贸易，整理为18条系统性问题（涵盖报表、支付限额、税务合规、车牌号、水分折干等）</p>
+          <p class="mt-1 text-xs text-gray-400">文件：副本【吉林组】收粮站调研问题记录.docx</p>
+        </div>
+      </div>
+
+      <div class="glass-card shadow-elevation-1 p-4">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="px-3 py-1 rounded-lg bg-blue-50 text-blue-600 font-bold text-sm">PRD 文档</span>
+          <span class="text-sm text-gray-500">产品需求文档</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-file-alt text-blue-400"></i>PRD-001-收粮平台.md — 20个用户故事/56个验收场景</div>
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-file-alt text-blue-400"></i>智慧收粮系统-总览速读.md — 五端架构总览</div>
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-file-powerpoint text-orange-400"></i>功能介绍和实操培训PPT V0.91</div>
+          <div class="flex items-center gap-2 text-gray-600"><i class="fas fa-file-word text-blue-400"></i>管理端/用户端操作手册 V0.9</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ========== 底部 ========== -->
+<footer class="max-w-7xl mx-auto px-6 py-8 text-center text-xs text-gray-400 border-t border-gray-100 mt-8">
+  <p>丰收云 · 调研洞察与需求全景 — 基于 2026.03.18-19 吉林实地调研数据生成</p>
+  <p class="mt-1">10场会议录音分析 · 18条问题清单 · 4家粮站实地走访 · PRD-001 对比分析</p>
+</footer>
+
+<script>
+// Tab 切换
+function switchTab(tab) {
+  document.querySelectorAll('[id^="tab-"]').forEach(el => el.classList.add('hidden'));
+  document.getElementById('tab-' + tab).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+    btn.classList.add('bg-white', 'text-gray-500', 'shadow-elevation-1');
+  });
+  event.target.closest('.tab-btn').classList.add('active');
+  event.target.closest('.tab-btn').classList.remove('bg-white', 'text-gray-500', 'shadow-elevation-1');
+}
+
+// 需求筛选
+function filterReqs(tag) {
+  const rows = document.querySelectorAll('#req-table tbody tr');
+  rows.forEach(row => {
+    if (tag === 'all') {
+      row.style.display = '';
+    } else {
+      const tags = row.dataset.tags || '';
+      row.style.display = tags.includes(tag) ? '' : 'none';
+    }
+  });
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.remove('bg-postal', 'text-white');
+    btn.classList.add('bg-white', 'text-gray-500', 'shadow-elevation-1');
+  });
+  event.target.closest('.filter-btn').classList.add('bg-postal', 'text-white');
+  event.target.closest('.filter-btn').classList.remove('bg-white', 'text-gray-500', 'shadow-elevation-1');
+}
+</script>
+
+</body>
+</html>

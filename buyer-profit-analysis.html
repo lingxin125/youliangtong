@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 报表分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4 space-y-4" style="padding-bottom:32px;">
+
+        <!-- 时间切换 Segment -->
+        <div class="flex items-center gap-2 mt-3">
+            <span class="filter-chip active text-[11px] px-3 py-1.5" data-period="today" onclick="switchPeriod('today')">今日</span>
+            <span class="filter-chip text-[11px] px-3 py-1.5" data-period="week" onclick="switchPeriod('week')">本周</span>
+            <span class="filter-chip text-[11px] px-3 py-1.5" data-period="month" onclick="switchPeriod('month')">本月</span>
+        </div>
+
+        <!-- 核心数据三卡片（横排） -->
+        <div id="coreCards" class="grid grid-cols-3 gap-2.5">
+            <!-- 收款卡片 -->
+            <div class="glass-card rounded-xl p-3">
+                <div class="flex items-center gap-1 mb-1.5">
+                    <div class="w-5 h-5 rounded-md bg-green-50 flex items-center justify-center">
+                        <i class="fas fa-arrow-down text-green-600 text-[9px]"></i>
+                    </div>
+                    <span class="text-[10px] text-gray-500">收款</span>
+                </div>
+                <div id="receiveAmount" class="text-sm font-bold text-gray-800" style="font-family:Poppins;">--</div>
+                <div class="text-[10px] text-gray-400 mt-0.5"><span id="receiveCount" style="font-family:Poppins;">-</span> 笔</div>
+            </div>
+            <!-- 付款卡片 -->
+            <div id="payCard" class="glass-card rounded-xl p-3">
+                <div class="flex items-center gap-1 mb-1.5">
+                    <div class="w-5 h-5 rounded-md bg-amber-50 flex items-center justify-center">
+                        <i class="fas fa-arrow-up text-amber-600 text-[9px]"></i>
+                    </div>
+                    <span class="text-[10px] text-gray-500">付款</span>
+                </div>
+                <div id="payAmount" class="text-sm font-bold text-gray-800" style="font-family:Poppins;">--</div>
+                <div class="text-[10px] text-gray-400 mt-0.5"><span id="payCount" style="font-family:Poppins;">-</span> 笔</div>
+            </div>
+            <!-- 利润卡片 -->
+            <div id="profitCard" class="glass-card rounded-xl p-3">
+                <div class="flex items-center gap-1 mb-1.5">
+                    <div class="w-5 h-5 rounded-md bg-blue-50 flex items-center justify-center">
+                        <i class="fas fa-chart-line text-blue-600 text-[9px]"></i>
+                    </div>
+                    <span class="text-[10px] text-gray-500">利润</span>
+                </div>
+                <div id="profitAmount" class="text-sm font-bold text-gray-800" style="font-family:Poppins;">--</div>
+                <div id="profitRate" class="text-[10px] text-gray-400 mt-0.5">利润率 --</div>
+            </div>
+        </div>
+
+        <!-- 趋势概览 -->
+        <div class="glass-panel rounded-2xl p-4">
+            <div class="flex items-center gap-1.5 mb-2">
+                <div class="w-[3px] h-[14px] rounded-sm bg-primary"></div>
+                <span class="text-sm font-medium text-gray-700">趋势概览</span>
+            </div>
+            <div id="trendContent" class="flex items-center gap-3">
+                <!-- 收款趋势 -->
+                <div class="flex-1 rounded-xl p-3" style="background:linear-gradient(135deg,#F0FDF4 0%,#FAFFFE 100%);">
+                    <div class="text-[10px] text-gray-500 mb-1">收款较<span id="trendLabel">昨日</span></div>
+                    <div class="flex items-center gap-1">
+                        <span id="receiveTrend" class="text-xs font-bold text-green-600" style="font-family:Poppins;">
+                            <i class="fas fa-arrow-up text-[9px]"></i> 12.5%
+                        </span>
+                    </div>
+                </div>
+                <!-- 付款趋势 -->
+                <div id="payTrendBox" class="flex-1 rounded-xl p-3" style="background:linear-gradient(135deg,#FFFBEB 0%,#FFFFF5 100%);">
+                    <div class="text-[10px] text-gray-500 mb-1">付款较<span id="trendLabel2">昨日</span></div>
+                    <div class="flex items-center gap-1">
+                        <span id="payTrend" class="text-xs font-bold text-amber-600" style="font-family:Poppins;">
+                            <i class="fas fa-arrow-down text-[9px]"></i> 8.3%
+                        </span>
+                    </div>
+                </div>
+                <!-- 利润趋势 -->
+                <div id="profitTrendBox" class="flex-1 rounded-xl p-3" style="background:linear-gradient(135deg,#EFF6FF 0%,#F8FAFF 100%);">
+                    <div class="text-[10px] text-gray-500 mb-1">利润较<span id="trendLabel3">昨日</span></div>
+                    <div class="flex items-center gap-1">
+                        <span id="profitTrend" class="text-xs font-bold text-blue-600" style="font-family:Poppins;">
+                            <i class="fas fa-arrow-up text-[9px]"></i> 18.2%
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 品类明细 -->
+        <div id="categorySummaryPanel" class="glass-panel rounded-2xl overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3" style="background:linear-gradient(135deg,#F0FDF4 0%,#FAFFFE 100%);border-bottom:1px solid #F3F4F6;">
+                <span class="text-sm font-medium text-gray-700">品类盈亏</span>
+            </div>
+            <div id="categoryList" class="divide-y divide-gray-100 px-4 pb-2">
+                <!-- JS 动态渲染 -->
+            </div>
+        </div>
+
+        <!-- 交易流水摘要 -->
+        <div class="glass-panel rounded-2xl overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3" style="background:linear-gradient(135deg,#F0FDF4 0%,#FAFFFE 100%);border-bottom:1px solid #F3F4F6;">
+                <span class="text-sm font-medium text-gray-700">最近交易</span>
+                <span class="text-[10px] text-gray-400" id="flowCount">-</span>
+            </div>
+            <div id="flowList" class="divide-y divide-gray-100 px-4">
+                <!-- JS 动态渲染 -->
+            </div>
+            <a id="viewAllLink" href="buyer-orders.html" class="flex items-center justify-center gap-1 py-3 text-xs text-primary font-medium no-underline" style="text-decoration:none;border-top:1px solid #F3F4F6;">
+                查看全部交易记录 <i class="fas fa-chevron-right text-[9px]"></i>
+            </a>
+        </div>
+
+    </div>
+</div>
+<script>
+// ==================== 页面初始化 ====================
+(function() {
+    // ---- 导航 ----
+    document.getElementById('statusBar').innerHTML = renderStatusBar();
+
+    var role = window.UserIdentityStore ? UserIdentityStore.getCurrentRole() : null;
+    var backUrl = 'buyer-home.html';
+    if (role === 'farmer') backUrl = 'farmer-home.html';
+    document.getElementById('navBar').innerHTML = renderHeader('报表分析', backUrl);
+
+    // ---- 身份判断 ----
+    var hasMulti = window.UserIdentityStore && UserIdentityStore.hasMultipleRoles();
+    var isFarmerOnly = role === 'farmer' && !hasMulti;
+
+    // 纯农户隐藏付款和利润
+    if (isFarmerOnly) {
+        document.getElementById('payCard').style.display = 'none';
+        document.getElementById('profitCard').style.display = 'none';
+        document.getElementById('payTrendBox').style.display = 'none';
+        document.getElementById('profitTrendBox').style.display = 'none';
+        document.getElementById('coreCards').className = 'grid grid-cols-1 gap-2.5';
+    }
+
+    // ==================== 数据层 ====================
+    var _icons = {
+        '水果': { icon: 'fa-apple-whole', color: 'red' },
+        '蔬菜': { icon: 'fa-carrot', color: 'green' },
+        '粮油': { icon: 'fa-wheat-awn', color: 'amber' },
+        '禽蛋': { icon: 'fa-egg', color: 'violet' },
+        '玉米': { icon: 'fa-wheat-awn', color: 'amber' },
+        '大豆': { icon: 'fa-seedling', color: 'green' },
+        '小麦': { icon: 'fa-wheat-awn', color: 'amber' },
+        '肉类': { icon: 'fa-drumstick-bite', color: 'orange' },
+    };
+
+    function getCategoryMeta(cat) {
+        return _icons[cat] || { icon: 'fa-box-open', color: 'gray' };
+    }
+
+    function formatMoney(val) {
+        return '¥' + Number(val).toLocaleString('zh-CN');
+    }
+
+    // Mock 数据：各时段
+    var MOCK_DATA = {
+        today: {
+            receive: 0, pay: 0, receiveCount: 0, payCount: 0,
+            receiveTrend: '+12.5%', receiveTrendUp: true,
+            payTrend: '-8.3%', payTrendUp: false,
+            profitTrend: '+18.2%', profitTrendUp: true,
+            trendLabel: '昨日',
+        },
+        week: {
+            receive: 0, pay: 0, receiveCount: 0, payCount: 0,
+            receiveTrend: '+6.8%', receiveTrendUp: true,
+            payTrend: '+3.2%', payTrendUp: true,
+            profitTrend: '+9.5%', profitTrendUp: true,
+            trendLabel: '上周',
+        },
+        month: {
+            receive: 0, pay: 0, receiveCount: 0, payCount: 0,
+            receiveTrend: '+15.3%', receiveTrendUp: true,
+            payTrend: '+10.1%', payTrendUp: true,
+            profitTrend: '+22.6%', profitTrendUp: true,
+            trendLabel: '上月',
+        },
+    };
+
+    // 从 store 读取真实 today 数据
+    function loadTodayFromStore() {
+        var store = window.UnifiedMockStore;
+        if (!store || typeof store.getTodaySummary !== 'function') return;
+        var s = store.getTodaySummary();
+        MOCK_DATA.today.receive = s.receiveAmount;
+        MOCK_DATA.today.pay = s.payAmount;
+        MOCK_DATA.today.receiveCount = s.receiveCount;
+        MOCK_DATA.today.payCount = s.payCount;
+
+        // 周/月用倍数模拟
+        MOCK_DATA.week.receive = s.receiveAmount * 5.2;
+        MOCK_DATA.week.pay = s.payAmount * 4.8;
+        MOCK_DATA.week.receiveCount = s.receiveCount * 5;
+        MOCK_DATA.week.payCount = s.payCount * 5;
+        MOCK_DATA.month.receive = s.receiveAmount * 22;
+        MOCK_DATA.month.pay = s.payAmount * 18;
+        MOCK_DATA.month.receiveCount = s.receiveCount * 22;
+        MOCK_DATA.month.payCount = s.payCount * 20;
+    }
+
+    // ==================== 核心卡片 ====================
+    function fillCoreCards(period) {
+        var d = MOCK_DATA[period];
+        var profit = d.receive - d.pay;
+        var rate = d.receive > 0 ? ((profit / d.receive) * 100).toFixed(1) : '0.0';
+
+        document.getElementById('receiveAmount').textContent = formatMoney(d.receive);
+        document.getElementById('receiveCount').textContent = d.receiveCount;
+
+        if (!isFarmerOnly) {
+            document.getElementById('payAmount').textContent = formatMoney(d.pay);
+            document.getElementById('payCount').textContent = d.payCount;
+
+            var profitEl = document.getElementById('profitAmount');
+            if (profit >= 0) {
+                profitEl.textContent = '+' + formatMoney(profit);
+                profitEl.className = 'text-sm font-bold text-blue-600';
+            } else {
+                profitEl.textContent = '-' + formatMoney(Math.abs(profit));
+                profitEl.className = 'text-sm font-bold text-red-500';
+            }
+            profitEl.style.fontFamily = 'Poppins';
+            document.getElementById('profitRate').textContent = '利润率 ' + rate + '%';
+        }
+    }
+
+    // ==================== 趋势 ====================
+    function fillTrend(period) {
+        var d = MOCK_DATA[period];
+        var labels = document.querySelectorAll('#trendLabel, #trendLabel2, #trendLabel3');
+        labels.forEach(function(el) { el.textContent = d.trendLabel; });
+
+        var arrowUp = '<i class="fas fa-arrow-up text-[9px]"></i> ';
+        var arrowDown = '<i class="fas fa-arrow-down text-[9px]"></i> ';
+
+        document.getElementById('receiveTrend').innerHTML =
+            (d.receiveTrendUp ? arrowUp : arrowDown) + d.receiveTrend.replace(/[+-]/, '');
+        document.getElementById('receiveTrend').className =
+            'text-xs font-bold ' + (d.receiveTrendUp ? 'text-green-600' : 'text-red-500');
+        document.getElementById('receiveTrend').style.fontFamily = 'Poppins';
+
+        if (!isFarmerOnly) {
+            document.getElementById('payTrend').innerHTML =
+                (d.payTrendUp ? arrowUp : arrowDown) + d.payTrend.replace(/[+-]/, '');
+            document.getElementById('payTrend').className =
+                'text-xs font-bold ' + (d.payTrendUp ? 'text-amber-600' : 'text-green-600');
+            document.getElementById('payTrend').style.fontFamily = 'Poppins';
+
+            document.getElementById('profitTrend').innerHTML =
+                (d.profitTrendUp ? arrowUp : arrowDown) + d.profitTrend.replace(/[+-]/, '');
+            document.getElementById('profitTrend').className =
+                'text-xs font-bold ' + (d.profitTrendUp ? 'text-blue-600' : 'text-red-500');
+            document.getElementById('profitTrend').style.fontFamily = 'Poppins';
+        }
+    }
+
+    // ==================== 品类明细 ====================
+    function buildCategoryData() {
+        var cats = {};
+        var store = window.UnifiedMockStore;
+        // 收款按品类聚合
+        if (store) {
+            var cols = store.getCollections();
+            cols.forEach(function(c) {
+                if (!cats[c.category]) cats[c.category] = { receive: 0, pay: 0, receiveCount: 0, payCount: 0 };
+                cats[c.category].receive += c.amount;
+                cats[c.category].receiveCount++;
+            });
+        }
+        // 付款按品类聚合
+        if (window.BuyerMockStore && !isFarmerOnly) {
+            var orders = BuyerMockStore.getOrders();
+            orders.forEach(function(o) {
+                if (o.status !== 'success') return;
+                var catName = (o.items && o.items[0] && o.items[0].name) || '其他';
+                if (!cats[catName]) cats[catName] = { receive: 0, pay: 0, receiveCount: 0, payCount: 0 };
+                cats[catName].pay += (o.totalAmount || 0);
+                cats[catName].payCount++;
+            });
+        }
+        return cats;
+    }
+
+    function renderCategories() {
+        var cats = buildCategoryData();
+        var container = document.getElementById('categoryList');
+        var keys = Object.keys(cats);
+
+        if (keys.length === 0) {
+            container.innerHTML = '<div class="py-6 text-center text-xs text-gray-400">暂无品类数据</div>';
+            return;
+        }
+
+        // 按收款额降序，过滤掉全零行
+        keys.sort(function(a, b) { return (cats[b].receive + cats[b].pay) - (cats[a].receive + cats[a].pay); });
+        keys = keys.filter(function(k) { return cats[k].receive > 0 || cats[k].pay > 0; });
+
+        container.innerHTML = keys.map(function(name) {
+            var c = cats[name];
+            var meta = getCategoryMeta(name);
+            var bgColor = meta.color === 'gray' ? 'bg-gray-100' : 'bg-' + meta.color + '-50';
+            var textColor = meta.color === 'gray' ? 'text-gray-400' : 'text-' + meta.color + '-500';
+            var profit = c.receive - c.pay;
+            var profitStr = profit >= 0 ? '+' + formatMoney(profit) : '-' + formatMoney(Math.abs(profit));
+            var profitColor = profit >= 0 ? 'text-green-600' : 'text-red-500';
+
+            var payCol = '';
+            var profitCol = '';
+            if (!isFarmerOnly) {
+                payCol = '<div class="text-right"><div class="text-[10px] text-gray-400">付</div><div class="text-[11px] font-medium text-gray-600" style="font-family:Poppins;">' + formatMoney(c.pay) + '</div></div>';
+                profitCol = '<div class="text-right min-w-[52px]"><div class="text-[10px] text-gray-400">利润</div><div class="text-[11px] font-bold ' + profitColor + '" style="font-family:Poppins;">' + profitStr + '</div></div>';
+            }
+
+            return '<div class="flex items-center justify-between py-2.5 rounded-lg px-1 -mx-1">' +
+                '<div class="flex items-center gap-2 min-w-[60px]">' +
+                '<div class="w-7 h-7 rounded-lg ' + bgColor + ' flex items-center justify-center"><i class="fas ' + meta.icon + ' ' + textColor + ' text-xs"></i></div>' +
+                '<span class="text-xs font-medium text-gray-700">' + name + '</span>' +
+                '</div>' +
+                '<div class="flex items-center gap-3">' +
+                '<div class="text-right"><div class="text-[10px] text-gray-400">收</div><div class="text-[11px] font-medium text-gray-800" style="font-family:Poppins;">' + formatMoney(c.receive) + '</div></div>' +
+                payCol + profitCol +
+                '</div></div>';
+        }).join('');
+    }
+
+    // ==================== 交易流水摘要 ====================
+    function renderFlowList() {
+        var store = window.UnifiedMockStore;
+        if (!store) return;
+
+        var txns = store.getTransactions();
+        var recent = txns.slice(0, 5);
+        var container = document.getElementById('flowList');
+
+        document.getElementById('flowCount').textContent = '共 ' + txns.length + ' 笔';
+
+        if (recent.length === 0) {
+            container.innerHTML = '<div class="py-6 text-center text-xs text-gray-400">暂无交易记录</div>';
+            return;
+        }
+
+        container.innerHTML = recent.map(function(t) {
+            var isReceive = t.direction === 'receive';
+            var dirIcon = isReceive
+                ? '<div class="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center"><i class="fas fa-arrow-down text-green-600 text-[10px]"></i></div>'
+                : '<div class="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center"><i class="fas fa-arrow-up text-red-500 text-[10px]"></i></div>';
+            var amountColor = isReceive ? 'text-green-600' : 'text-red-500';
+            var sign = isReceive ? '+' : '-';
+            var timeStr = t.time ? t.time.replace(/^\d{4}-\d{2}-\d{2}[T\s]?/, '').replace(/\.\d+Z$/, '').substring(0, 5) : '';
+            var meta = getCategoryMeta(t.category);
+
+            return '<div class="flex items-center justify-between py-2.5">' +
+                '<div class="flex items-center gap-2">' +
+                dirIcon +
+                '<div>' +
+                '<div class="text-xs font-medium text-gray-700">' + (t.counterpart || '--') + '</div>' +
+                '<div class="flex items-center gap-1 mt-0.5">' +
+                '<span class="text-[10px] text-gray-400">' + (t.category || '') + '</span>' +
+                '<span class="text-[10px] text-gray-300">|</span>' +
+                '<span class="text-[10px] text-gray-400">' + timeStr + '</span>' +
+                '</div></div></div>' +
+                '<span class="text-xs font-bold ' + amountColor + '" style="font-family:Poppins;">' + sign + formatMoney(t.amount) + '</span>' +
+                '</div>';
+        }).join('');
+    }
+
+    // ==================== 时间切换 ====================
+    window.switchPeriod = function(period) {
+        var chips = document.querySelectorAll('[data-period]');
+        chips.forEach(function(chip) {
+            chip.classList.toggle('active', chip.getAttribute('data-period') === period);
+        });
+        fillCoreCards(period);
+        fillTrend(period);
+    };
+
+    // ==================== 初始化 ====================
+    loadTodayFromStore();
+    fillCoreCards('today');
+    fillTrend('today');
+    renderCategories();
+    renderFlowList();
+})();
+</script>
+</body>
+</html>

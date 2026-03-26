@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 首页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js?v=20260324"></script>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4 space-y-4" style="padding-bottom:80px;">
+
+        <!-- Hero: 今日交易总额 (品牌绿渐变 + 白色文字) -->
+        <div class="rounded-2xl p-4 mt-3 relative overflow-hidden" style="background:linear-gradient(135deg,#11A64A 0%,#0a7532 100%);border:1px solid rgba(255,255,255,0.15);box-shadow:0 8px 24px rgba(17,166,74,0.20),0 4px 8px rgba(17,166,74,0.10);">
+            <!-- 农业麦穗视觉修饰 -->
+            <i class="fas fa-wheat-awn absolute -right-6 -bottom-8 text-8xl text-amber-400 opacity-20 transform -rotate-15 pointer-events-none"></i>
+            <!-- 底部细微暖黄反光 -->
+            <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-400/30 to-transparent pointer-events-none"></div>
+            <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs text-white/70 font-medium">今日交易总额</span>
+                    <i id="eyeIcon" class="fas fa-eye text-white/50 text-[10px] cursor-pointer" onclick="toggleMask()"></i>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-white bg-white/15 px-2 py-0.5 rounded-full font-medium">
+                        <i class="fas fa-arrow-up text-[8px] mr-0.5"></i><span id="heroRatio">12.5%</span> 日环比
+                    </span>
+                    <a href="unified-stats.html" class="text-[10px] text-white/80 no-underline" style="text-decoration:none;">查看明细 <i class="fas fa-chevron-right text-[8px]"></i></a>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <span id="heroAmount" class="text-3xl font-bold text-white" style="font-family:Poppins,sans-serif;">¥0</span>
+                <span id="heroCent" class="text-xs text-white/50 self-end mb-0.5">.00</span>
+                <span class="self-end mb-0.5 ml-2">
+                    <span class="text-[10px] text-white/60">交易</span>
+                    <span id="heroCountNum" class="text-[11px] font-bold text-white mx-0.5" style="font-family:Poppins;">0</span>
+                    <span class="text-[10px] text-white/60">笔</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- 通用数据摘要：收款 / 付款 -->
+        <div class="glass-card rounded-2xl px-4 py-3 flex items-center justify-center gap-1">
+            <span class="text-xs text-gray-500">收款</span>
+            <span id="summaryReceive" class="text-sm font-bold" style="font-family:Poppins;color:#11A64A;">¥0</span>
+            <span class="text-xs text-gray-300 mx-1.5">&middot;</span>
+            <span class="text-xs text-gray-500">付款</span>
+            <span id="summaryPay" class="text-sm font-bold text-gray-500" style="font-family:Poppins;">¥0</span>
+        </div>
+
+        <!-- 快捷入口（4列网格，卡片包裹） -->
+        <div class="glass-panel rounded-2xl py-4 px-2">
+            <div class="grid grid-cols-4">
+                <a href="unified-publish.html?source=home" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                    <div class="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
+                        <i class="fas fa-bullhorn text-primary text-base"></i>
+                    </div>
+                    <span class="text-[10px] text-gray-600 font-medium">发布需求</span>
+                </a>
+                <a href="unified-collection.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                    <div class="w-11 h-11 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                        <i class="fas fa-qrcode text-emerald-600 text-base"></i>
+                    </div>
+                    <span class="text-[10px] text-gray-600 font-medium">我要收款</span>
+                </a>
+                <a href="unified-orders.html?source=home" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                    <div class="w-11 h-11 rounded-full bg-blue-500/10 flex items-center justify-center">
+                        <i class="fas fa-list-alt text-blue-500 text-base"></i>
+                    </div>
+                    <span class="text-[10px] text-gray-600 font-medium">交易记录</span>
+                </a>
+                <a href="unified-contacts.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                    <div class="w-11 h-11 rounded-full bg-orange-50 flex items-center justify-center">
+                        <i class="fas fa-users text-orange-500 text-base"></i>
+                    </div>
+                    <span class="text-[10px] text-gray-600 font-medium">合作农户</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 我发布的需求 -->
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                    <div class="w-[3px] h-[14px] rounded-sm bg-primary"></div>
+                    <span class="text-sm font-medium text-gray-700">我发布的需求</span>
+                </div>
+                <a href="unified-demand-manage.html?source=home" class="text-[10px] text-primary no-underline" style="text-decoration:none;">查看更多 <i class="fas fa-chevron-right text-[8px]"></i></a>
+            </div>
+            <div id="myPublishedDemandList" class="space-y-2.5"></div>
+        </div>
+
+    </div>
+    <div id="tabBar"></div>
+</div>
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('丰收云');
+document.getElementById('tabBar').innerHTML = renderUnifiedTabBar('home');
+
+// ==================== 金额脱敏切换 ====================
+var _masked = false;
+var _heroCache = { amount: '', cent: '', count: '' };
+
+function toggleMask() {
+    _masked = !_masked;
+    var icon = document.getElementById('eyeIcon');
+    var amount = document.getElementById('heroAmount');
+    var cent = document.getElementById('heroCent');
+    var countNum = document.getElementById('heroCountNum');
+    var summaryReceive = document.getElementById('summaryReceive');
+    var summaryPay = document.getElementById('summaryPay');
+    icon.className = _masked ? 'fas fa-eye-slash text-white/50 text-[10px] cursor-pointer' : 'fas fa-eye text-white/50 text-[10px] cursor-pointer';
+    if (_masked) {
+        amount.textContent = '****';
+        cent.textContent = '';
+        countNum.textContent = '***';
+        summaryReceive.textContent = '****';
+        summaryPay.textContent = '****';
+    } else {
+        amount.textContent = _heroCache.amount;
+        cent.textContent = _heroCache.cent;
+        countNum.textContent = _heroCache.count;
+        fillSummary();
+    }
+}
+
+// ==================== 填充 Hero 和摘要数据 ====================
+function formatMoney(n) {
+    return n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',').replace(/\.00$/, '');
+}
+
+function fillHero() {
+    var s = window.UnifiedMockStore ? window.UnifiedMockStore.getTodaySummary() : { totalAmount: 0, totalCount: 0 };
+    var intPart = Math.floor(s.totalAmount);
+    var centPart = (s.totalAmount % 1).toFixed(2).substring(1); // ".xx"
+    var amountStr = '¥' + intPart.toLocaleString('en');
+    _heroCache.amount = amountStr;
+    _heroCache.cent = centPart === '.00' ? '.00' : centPart;
+    _heroCache.count = String(s.totalCount);
+    document.getElementById('heroAmount').textContent = amountStr;
+    document.getElementById('heroCent').textContent = _heroCache.cent;
+    document.getElementById('heroCountNum').textContent = _heroCache.count;
+}
+
+function fillSummary() {
+    var s = window.UnifiedMockStore ? window.UnifiedMockStore.getTodaySummary() : { receiveAmount: 0, payAmount: 0 };
+    document.getElementById('summaryReceive').textContent = '¥' + formatMoney(s.receiveAmount);
+    document.getElementById('summaryPay').textContent = '¥' + formatMoney(s.payAmount);
+}
+
+// ==================== 我发布的需求 ====================
+var homeDemandStore = window.DemandMockStore || null;
+
+function formatPublishedTime(iso) {
+    var d = new Date(iso || '');
+    if (Number.isNaN(d.getTime())) return '-';
+    var diff = Date.now() - d.getTime();
+    var minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return '刚刚';
+    if (minutes < 60) return minutes + '分钟前';
+    var hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + '小时前';
+    var days = Math.floor(hours / 24);
+    return days + '天前';
+}
+
+function formatPublishedPrice(item) {
+    if (item.price === null || item.price === undefined || item.price === '') return '面议';
+    return '¥' + Number(item.price).toFixed(2) + '/' + (item.unit || '斤');
+}
+
+function getPublishedDemandTypeLabel(item) {
+    if (homeDemandStore && typeof homeDemandStore.getDemandTypeLabel === 'function') {
+        return homeDemandStore.getDemandTypeLabel(item);
+    }
+    return item && item.role === 'farmer' ? '销售' : '收购';
+}
+
+function getPublishedDemandTypeClass(item) {
+    if (homeDemandStore && typeof homeDemandStore.getDemandTypeTagClass === 'function') {
+        return homeDemandStore.getDemandTypeTagClass(item);
+    }
+    return item && item.role === 'farmer' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600';
+}
+
+function getPublishedDemandTitle(item) {
+    if (homeDemandStore && typeof homeDemandStore.getDemandTitle === 'function') {
+        return homeDemandStore.getDemandTitle(item);
+    }
+    return (item && (item.title || item.content)) || '-';
+}
+
+function renderPublishedDemands() {
+    var container = document.getElementById('myPublishedDemandList');
+    if (!container) return;
+    var fallbackList = [
+        { id: 'U1', role: 'buyer', demandType: 'purchase', title: '收购红富士苹果 500斤', qty: 500, unit: '斤', price: 3.5, status: 'active', updatedAt: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
+        { id: 'U2', role: 'farmer', demandType: 'sale', title: '销售有机西红柿 800斤', qty: 800, unit: '斤', price: 2.8, status: 'active', updatedAt: new Date(Date.now() - 22 * 60 * 1000).toISOString() },
+        { id: 'U3', role: 'buyer', demandType: 'purchase', title: '收购东北大米 2000斤', qty: 2000, unit: '斤', price: 2.2, status: 'closed', updatedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString() }
+    ];
+    var list = homeDemandStore && typeof homeDemandStore.getDemands === 'function'
+        ? homeDemandStore.getDemands({ status: 'all' }).slice(0, 3)
+        : fallbackList;
+
+    if (!list.length) {
+        container.innerHTML = '<div class="glass-card rounded-2xl p-6 text-center"><div class="text-xs text-gray-400">暂未发布需求</div></div>';
+        return;
+    }
+
+    container.innerHTML = list.map(function(item) {
+        var href = 'unified-publish.html?mode=' + (item.status === 'active' ? 'edit' : 'view') + '&id=' + encodeURIComponent(item.id || '') + '&source=home';
+        var statusClass = item.status === 'active' ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-500';
+        var statusLabel = item.status === 'active' ? '进行中' : '已下架';
+        return '<a href="' + href + '" class="glass-card rounded-2xl p-3.5 block no-underline relative pr-10" style="text-decoration:none;">' +
+            '<div class="flex justify-between items-start mb-1.5">' +
+                '<div class="flex items-center gap-1.5">' +
+                    '<span class="text-[10px] ' + getPublishedDemandTypeClass(item) + ' px-2 py-0.5 rounded-full font-medium">' + getPublishedDemandTypeLabel(item) + '</span>' +
+                '</div>' +
+                '<span class="text-[10px] ' + statusClass + ' px-2 py-0.5 rounded-full font-medium absolute right-3 top-3.5">' + statusLabel + '</span>' +
+            '</div>' +
+            '<div class="text-sm text-gray-800 font-medium mb-1 truncate">' + getPublishedDemandTitle(item) + '</div>' +
+            '<div class="flex items-center justify-between">' +
+                '<div class="flex items-center gap-3">' +
+                    '<span class="text-xs text-primary font-bold" style="font-family:Poppins;">' + formatPublishedPrice(item) + '</span>' +
+                    '<span class="text-[11px] text-gray-500 font-medium">共 ' + String(item.qty || 0) + (item.unit || '斤') + '</span>' +
+                '</div>' +
+                '<span class="text-[10px] text-gray-400 absolute right-3 bottom-3.5">' + formatPublishedTime(item.updatedAt || item.createdAt) + '</span>' +
+            '</div>' +
+            '<i class="fas fa-chevron-right text-xs text-gray-300 absolute right-3 top-1/2 -translate-y-1/2"></i>' +
+        '</a>';
+    }).join('');
+}
+
+// ==================== 页面加载 ====================
+document.addEventListener('DOMContentLoaded', function() {
+    fillHero();
+    fillSummary();
+    renderPublishedDemands();
+});
+</script>
+</body>
+</html>

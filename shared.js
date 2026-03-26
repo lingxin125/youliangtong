@@ -2272,3 +2272,347 @@ function renderTodoList(todos) {
         </div>
     `;
 }
+
+// ==================== 统一端底部导航栏（凸起+号模式） ====================
+function renderUnifiedTabBar(active) {
+  active = active || "home";
+  var tabs = [
+    { id: "home", icon: "fa-home", label: "首页", href: "unified-home.html" },
+    { id: "market", icon: "fa-store", label: "市场", href: "unified-market.html" },
+    { id: "stats", icon: "fa-chart-pie", label: "报表", href: "unified-stats.html" },
+    { id: "mine", icon: "fa-user", label: "我的", href: "unified-my.html" },
+  ];
+
+  // 左侧2个Tab + 中间凸起 + 右侧2个Tab
+  function _tabItem(t) {
+    var on = t.id === active;
+    var c = on ? "text-primary" : "text-gray-400";
+    var dot = on
+      ? '<div class="w-1 h-1 bg-primary rounded-full"></div>'
+      : '<div class="w-1 h-1"></div>';
+    return (
+      '<a href="' + t.href + '" class="nav-link flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 transition-colors duration-300 ' + c + ' no-underline" style="text-decoration:none">' +
+      '<i class="fas ' + t.icon + " text-lg" + (on ? " -translate-y-1" : "") + '"></i>' + dot +
+      '<span class="text-[10px] font-medium">' + t.label + "</span></a>"
+    );
+  }
+
+  var leftTabs = _tabItem(tabs[0]) + _tabItem(tabs[1]);
+  var rightTabs = _tabItem(tabs[2]) + _tabItem(tabs[3]);
+
+  // 凸起+号按钮
+  var fabBtn =
+    '<div class="flex flex-col items-center justify-center" style="flex:1;position:relative;">' +
+    '<div id="unifiedFabBtn" onclick="_toggleFab()" class="flex items-center justify-center cursor-pointer" ' +
+    'style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#11A64A,#0a7532);box-shadow:0 4px 16px rgba(17,166,74,0.35);margin-top:-22px;transition:transform .3s cubic-bezier(.4,0,.2,1);">' +
+    '<i id="fabIcon" class="fas fa-plus text-white text-xl" style="transition:transform .3s cubic-bezier(.4,0,.2,1)"></i>' +
+    "</div>" +
+    '<span class="text-[10px] font-medium text-gray-400 mt-0.5"></span>' +
+    "</div>";
+
+  // 扩散出来的两个操作按钮
+  var fabActions =
+    '<div id="fabOverlay" class="fixed inset-0 bg-black/40 z-[80] hidden" onclick="_toggleFab()" style="transition:opacity .25s"></div>' +
+    '<div id="fabActions" class="fixed z-[85] hidden" style="bottom:80px;left:50%;transform:translateX(-50%);max-width:375px;">' +
+    // 开单按钮（左上方）
+    '<a href="unified-billing.html" class="no-underline" style="text-decoration:none;position:absolute;bottom:12px;left:-58px;opacity:0;transform:scale(0.3) translateY(20px);transition:all .3s cubic-bezier(.34,1.56,.64,1);" id="fabAction1">' +
+    '<div class="flex flex-col items-center gap-1.5">' +
+    '<div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,#11A64A,#0a7532);box-shadow:0 4px 16px rgba(17,166,74,0.3);">' +
+    '<i class="fas fa-file-invoice text-white text-xl"></i>' +
+    "</div>" +
+    '<span class="text-xs font-medium text-white bg-black/60 px-2 py-0.5 rounded-full whitespace-nowrap">开单</span>' +
+    "</div></a>" +
+    // 收款按钮（右上方）
+    '<a href="unified-collection.html" class="no-underline" style="text-decoration:none;position:absolute;bottom:12px;right:-58px;opacity:0;transform:scale(0.3) translateY(20px);transition:all .35s cubic-bezier(.34,1.56,.64,1);" id="fabAction2">' +
+    '<div class="flex flex-col items-center gap-1.5">' +
+    '<div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8);box-shadow:0 4px 16px rgba(59,130,246,0.3);">' +
+    '<i class="fas fa-qrcode text-white text-xl"></i>' +
+    "</div>" +
+    '<span class="text-xs font-medium text-white bg-black/60 px-2 py-0.5 rounded-full whitespace-nowrap">收款</span>' +
+    "</div></a>" +
+    "</div>";
+
+  return (
+    '<div class="h-[72px] bg-white border-t border-gray-200 flex items-start shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-[51] relative shrink-0">' +
+    leftTabs + fabBtn + rightTabs +
+    "</div>" +
+    fabActions
+  );
+}
+
+var _fabOpen = false;
+function _toggleFab() {
+  _fabOpen = !_fabOpen;
+  var overlay = document.getElementById("fabOverlay");
+  var actions = document.getElementById("fabActions");
+  var icon = document.getElementById("fabIcon");
+  var btn = document.getElementById("unifiedFabBtn");
+  var a1 = document.getElementById("fabAction1");
+  var a2 = document.getElementById("fabAction2");
+  if (!overlay || !actions) return;
+
+  if (_fabOpen) {
+    overlay.classList.remove("hidden");
+    actions.classList.remove("hidden");
+    if (icon) icon.style.transform = "rotate(45deg)";
+    if (btn) btn.style.transform = "scale(1.1)";
+    requestAnimationFrame(function () {
+      if (a1) { a1.style.opacity = "1"; a1.style.transform = "scale(1) translateY(0)"; }
+      setTimeout(function () {
+        if (a2) { a2.style.opacity = "1"; a2.style.transform = "scale(1) translateY(0)"; }
+      }, 60);
+    });
+  } else {
+    if (a1) { a1.style.opacity = "0"; a1.style.transform = "scale(0.3) translateY(20px)"; }
+    if (a2) { a2.style.opacity = "0"; a2.style.transform = "scale(0.3) translateY(20px)"; }
+    if (icon) icon.style.transform = "rotate(0deg)";
+    if (btn) btn.style.transform = "scale(1)";
+    setTimeout(function () {
+      overlay.classList.add("hidden");
+      actions.classList.add("hidden");
+    }, 300);
+  }
+}
+
+// ==================== 统一端模拟数据中心 ====================
+(function () {
+  var PROFILE_KEY = "ylt_unified_profile_v1";
+  var COLLECTION_KEY = "ylt_unified_collections_mock_v1";
+
+  function _storage() {
+    try { localStorage.setItem("_test", "1"); localStorage.removeItem("_test"); return localStorage; }
+    catch (e) { return sessionStorage; }
+  }
+
+  function _read(key) {
+    try { var raw = _storage().getItem(key); return raw ? JSON.parse(raw) : null; }
+    catch (e) { return null; }
+  }
+
+  function _write(key, data) {
+    try { _storage().setItem(key, JSON.stringify(data)); } catch (e) {}
+  }
+
+  function _todayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  // ---- 默认 Mock 数据 ----
+  var DEFAULT_PROFILE = {
+    name: "王老板",
+    mobile: "137****5555",
+    bankCard: "6221 8800 **** 5555",
+    bank: "邮储银行",
+    identityTags: ["收粮贩子"],
+    merchantId: "YLT202603001",
+    complete: true,
+  };
+
+  var DEFAULT_COLLECTIONS = [
+    { id: "col01", payerName: "张大哥", amount: 5100, category: "玉米", createdAt: _todayStr() + " 10:32", status: "success" },
+    { id: "col02", payerName: "刘老板", amount: 3200, category: "大豆", createdAt: _todayStr() + " 09:15", status: "success" },
+    { id: "col03", payerName: "赵师傅", amount: 2800, category: "小麦", createdAt: _todayStr() + " 08:40", status: "success" },
+    { id: "col04", payerName: "孙阿姨", amount: 1500, category: "蔬菜", createdAt: _todayStr() + " 14:20", status: "success" },
+    { id: "col05", payerName: "陈大姐", amount: 4200, category: "水果", createdAt: _todayStr() + " 11:05", status: "success" },
+    { id: "col06", payerName: "李大哥", amount: 6800, category: "玉米", createdAt: _todayStr() + " 15:30", status: "success" },
+  ];
+
+  // ---- 用户档案 ----
+  function getUserProfile() {
+    return _read(PROFILE_KEY) || DEFAULT_PROFILE;
+  }
+
+  function setUserProfile(data) {
+    var current = getUserProfile();
+    var merged = {};
+    for (var k in current) merged[k] = current[k];
+    for (var k2 in data) merged[k2] = data[k2];
+    merged.complete = !!(merged.name && merged.mobile && merged.bankCard);
+    _write(PROFILE_KEY, merged);
+    return merged;
+  }
+
+  function isProfileComplete() {
+    var p = getUserProfile();
+    return !!(p.name && p.mobile && p.bankCard && p.complete);
+  }
+
+  // ---- 收款记录 ----
+  function getCollections() {
+    return _read(COLLECTION_KEY) || DEFAULT_COLLECTIONS;
+  }
+
+  // ---- 统一交易列表（合并收+付） ----
+  function getTransactions(filter) {
+    filter = filter || {};
+    var list = [];
+
+    var cols = getCollections();
+    cols.forEach(function (c) {
+      list.push({
+        id: c.id, direction: "receive", counterpart: c.payerName,
+        amount: c.amount, category: c.category, time: c.createdAt, status: c.status,
+      });
+    });
+
+    if (window.BuyerMockStore) {
+      var orders = window.BuyerMockStore.getOrders();
+      orders.forEach(function (o) {
+        list.push({
+          id: o.orderNo, direction: "pay", counterpart: o.payeeName || "未知",
+          amount: o.totalAmount || 0, category: (o.items && o.items[0] && o.items[0].name) || "农产品",
+          time: o.createdAt, status: o.status,
+        });
+      });
+    }
+
+    list.sort(function (a, b) { return (b.time || "").localeCompare(a.time || ""); });
+
+    if (filter.direction) {
+      list = list.filter(function (t) { return t.direction === filter.direction; });
+    }
+    return list;
+  }
+
+  // ---- 今日统计汇总 ----
+  function getTodaySummary() {
+    var today = _todayStr();
+    var all = getTransactions();
+    var r = { totalAmount: 0, receiveAmount: 0, payAmount: 0, totalCount: 0, receiveCount: 0, payCount: 0, profit: 0 };
+
+    all.forEach(function (t) {
+      if (!t.time || t.time.indexOf(today) !== 0) return;
+      r.totalAmount += t.amount;
+      r.totalCount++;
+      if (t.direction === "receive") { r.receiveAmount += t.amount; r.receiveCount++; }
+      else { r.payAmount += t.amount; r.payCount++; }
+    });
+    r.profit = r.receiveAmount - r.payAmount;
+    return r;
+  }
+
+  function getIdentityTags() {
+    return ["农户", "收粮贩子", "收购商", "合作社"];
+  }
+
+  window.UnifiedMockStore = {
+    getUserProfile: getUserProfile,
+    setUserProfile: setUserProfile,
+    isProfileComplete: isProfileComplete,
+    getCollections: getCollections,
+    getTransactions: getTransactions,
+    getTodaySummary: getTodaySummary,
+    getIdentityTags: getIdentityTags,
+  };
+})();
+
+// ==================== 用户身份管理（登录/切换/多角色） ====================
+(function () {
+  var IDENTITY_KEY = "ylt_user_identity_v1";
+  var CURRENT_KEY = "ylt_current_user";
+
+  function _storage() {
+    try { localStorage.setItem("_t", "1"); localStorage.removeItem("_t"); return localStorage; }
+    catch (e) { return sessionStorage; }
+  }
+
+  // 预置 Mock 用户池（模拟后端数据）
+  var MOCK_USERS = {
+    "13700005555": { name: "王老板", roles: ["buyer", "farmer"], defaultRole: "farmer", merchantId: "YLT202603001" },
+    "13800008888": { name: "张老板", roles: ["buyer"], defaultRole: "buyer", merchantId: "YLT202603002" },
+    "13900006666": { name: "李大姐", roles: ["farmer"], defaultRole: "farmer", merchantId: "YLT202603003" },
+    "13600001234": { name: "赵师傅", roles: ["farmer"], defaultRole: "farmer", merchantId: "YLT202603004" },
+    "13500009876": { name: "刘哥", roles: ["buyer", "farmer"], defaultRole: "farmer", merchantId: "YLT202603005" },
+  };
+
+  // 全平台农户池（用于合作农户搜索，比当前用户的联系人更大）
+  var PLATFORM_FARMERS = [
+    { id: "pf01", name: "陈大爷", mobile: "13311112222", bank: "邮储银行", card: "6221 1111 **** 2222", registered: true },
+    { id: "pf02", name: "孙阿姨", mobile: "13722553326", bank: "农商银行", card: "6215 8533 **** 3326", registered: true },
+    { id: "pf03", name: "周大姐", mobile: "13833334444", bank: "农业银行", card: "6228 3333 **** 4444", registered: true },
+    { id: "pf04", name: "吴师傅", mobile: "13944445555", bank: "邮储银行", card: "6221 4444 **** 5555", registered: true },
+    { id: "pf05", name: "郑老汉", mobile: "13055556666", bank: "信用社", card: "6210 5555 **** 6666", registered: true },
+    { id: "pf06", name: "马大嫂", mobile: "13166667777", bank: "邮储银行", card: "6221 6666 **** 7777", registered: true },
+  ];
+
+  function getUserByMobile(mobile) {
+    if (!mobile) return null;
+    var clean = mobile.replace(/\s/g, "");
+    return MOCK_USERS[clean] || null;
+  }
+
+  function login(mobile) {
+    var user = getUserByMobile(mobile);
+    if (!user) return null;
+    var session = { mobile: mobile.replace(/\s/g, ""), name: user.name, roles: user.roles, currentRole: user.defaultRole, merchantId: user.merchantId };
+    _storage().setItem(CURRENT_KEY, JSON.stringify(session));
+    return session;
+  }
+
+  function getCurrentUser() {
+    try {
+      var raw = _storage().getItem(CURRENT_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+
+  function getCurrentRole() {
+    var u = getCurrentUser();
+    return u ? u.currentRole : null;
+  }
+
+  function setCurrentRole(role) {
+    var u = getCurrentUser();
+    if (!u) return;
+    u.currentRole = role;
+    _storage().setItem(CURRENT_KEY, JSON.stringify(u));
+  }
+
+  function hasMultipleRoles() {
+    var u = getCurrentUser();
+    return u && u.roles && u.roles.length > 1;
+  }
+
+  function getOtherRole() {
+    var u = getCurrentUser();
+    if (!u || !u.roles || u.roles.length < 2) return null;
+    return u.currentRole === "buyer" ? "farmer" : "buyer";
+  }
+
+  function getRoleLabel(role) {
+    return role === "buyer" ? "收购商" : "农户";
+  }
+
+  function getHomeUrl(role) {
+    return role === "buyer" ? "buyer-home.html" : "farmer-home.html";
+  }
+
+  function logout() {
+    _storage().removeItem(CURRENT_KEY);
+  }
+
+  function searchPlatformFarmers(keyword) {
+    if (!keyword || keyword.length < 1) return [];
+    var kw = keyword.toLowerCase();
+    return PLATFORM_FARMERS.filter(function (f) {
+      return (f.name && f.name.toLowerCase().indexOf(kw) >= 0) ||
+             (f.mobile && f.mobile.indexOf(kw) >= 0);
+    });
+  }
+
+  window.UserIdentityStore = {
+    getUserByMobile: getUserByMobile,
+    login: login,
+    getCurrentUser: getCurrentUser,
+    getCurrentRole: getCurrentRole,
+    setCurrentRole: setCurrentRole,
+    hasMultipleRoles: hasMultipleRoles,
+    getOtherRole: getOtherRole,
+    getRoleLabel: getRoleLabel,
+    getHomeUrl: getHomeUrl,
+    logout: logout,
+    searchPlatformFarmers: searchPlatformFarmers,
+    MOCK_USERS: MOCK_USERS,
+  };
+})();

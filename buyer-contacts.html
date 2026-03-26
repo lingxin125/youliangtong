@@ -45,6 +45,17 @@
     <div id="statusBar"></div>
     <div id="navBar"></div>
 
+    <!-- 引导 banner -->
+    <div id="guideBanner" class="px-4 mt-3 shrink-0" style="display:none;">
+        <div class="flex items-center gap-2.5 px-3.5 py-2.5 bg-green-50 border border-green-200 rounded-xl">
+            <i class="fas fa-circle-info text-primary text-sm shrink-0"></i>
+            <span class="flex-1 text-[13px] text-green-700 leading-snug">请先搜索农户，搜索不到再帮TA注册开户</span>
+            <button onclick="dismissBanner()" class="shrink-0 w-6 h-6 flex items-center justify-center text-green-400 hover:text-green-600 transition-colors">
+                <i class="fas fa-xmark text-xs"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- 搜索框 -->
     <div class="px-4 mt-3 shrink-0 mb-2.5">
         <div class="glass-card rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 border border-gray-100">
@@ -55,6 +66,7 @@
 
     <!-- 合作农户列表 -->
     <div id="contactList" class="flex-1 overflow-y-auto no-scrollbar px-4 space-y-2.5" style="padding-bottom:130px;"></div>
+    <!-- 空状态：无联系人 -->
     <div id="emptyState" class="px-4" style="display:none;">
         <div class="glass-card rounded-2xl p-8 text-center">
             <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
@@ -62,6 +74,20 @@
             </div>
             <div class="text-sm text-gray-500 mb-1">暂无合作农户</div>
             <div class="text-[11px] text-gray-400">可先通过扫码完成首笔支付</div>
+        </div>
+    </div>
+    <!-- 空状态：搜索无结果 + 注册引导 -->
+    <div id="searchEmptyState" class="px-4" style="display:none;">
+        <div class="glass-card rounded-2xl p-8 text-center">
+            <div class="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-user-slash text-primary/60 text-xl"></i>
+            </div>
+            <div class="text-[15px] font-medium text-gray-600 mb-1">未找到该农户</div>
+            <div class="text-[12px] text-gray-400 mb-4">平台暂无匹配，可帮TA注册开户</div>
+            <a href="buyer-farmer-add.html" class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-primary text-white text-[13px] font-medium rounded-full shadow-glow no-underline active:scale-95 transition-transform" style="text-decoration:none;">
+                帮TA注册开户
+                <i class="fas fa-arrow-right text-[11px]"></i>
+            </a>
         </div>
     </div>
 
@@ -102,6 +128,8 @@ const contactSource = forceEmpty
         : fallbackContacts).sort((a, b) => b.payCount - a.payCount);
 
 let selectedId = null;
+const addedPlatformIds = new Set();
+const BANNER_KEY = 'ylt_contacts_banner_dismissed';
 
 document.getElementById('statusBar').innerHTML = renderStatusBar();
 document.getElementById('navBar').innerHTML = renderHeader(
@@ -118,8 +146,23 @@ if (fromBilling) {
     document.getElementById('contactList').style.paddingBottom = '96px';
 }
 
+initBanner();
 renderList();
 
+/* ---------- banner ---------- */
+function initBanner() {
+    if (fromBilling) return;
+    try {
+        if (localStorage.getItem(BANNER_KEY) === '1') return;
+    } catch (e) {}
+    document.getElementById('guideBanner').style.display = '';
+}
+function dismissBanner() {
+    document.getElementById('guideBanner').style.display = 'none';
+    try { localStorage.setItem(BANNER_KEY, '1'); } catch (e) {}
+}
+
+/* ---------- helpers ---------- */
 function getBackHref() {
     if (!fromBilling) {
         return 'buyer-home.html';
@@ -139,54 +182,159 @@ function showToast(msg) {
     showToast.timer = setTimeout(() => tip.classList.remove('show'), 1800);
 }
 
-function renderList() {
-    const keyword = document.getElementById('searchInput').value.trim();
-    const list = contactSource.filter(item => {
-        if (!keyword) return true;
-        return item.name.includes(keyword) || item.mobile.includes(keyword) || item.card.includes(keyword) || item.bank.includes(keyword);
-    });
+/* ---------- 联系人卡片 HTML ---------- */
+function contactCardHTML(item, options) {
+    const { showSelect, showCoopBadge, showAddBtn } = options || {};
+    const selected = showSelect && item.id === selectedId;
+    const cardAction = showSelect ? `onclick="pickContact('${item.id}')"` : '';
+    const bankCard = `${item.bank} · ${item.card}`;
 
-    const listContainer = document.getElementById('contactList');
-    const emptyState = document.getElementById('emptyState');
-
-    if (list.length === 0) {
-        listContainer.innerHTML = '';
-        emptyState.style.display = '';
-        return;
+    let rightSlot = '';
+    if (showSelect) {
+        rightSlot = `<div class="shrink-0 flex items-center self-stretch pt-2">
+            <button class="px-3.5 py-1.5 ${selected ? 'bg-primary text-white' : 'bg-white border border-primary/25 text-primary'} text-[13px] font-medium rounded-full active:scale-95 transition-transform shrink-0" onclick="event.stopPropagation();pickContact('${item.id}')">${selected ? '已选中' : '选择'}</button>
+        </div>`;
+    } else if (showAddBtn) {
+        const added = addedPlatformIds.has(item.id);
+        rightSlot = `<div class="shrink-0 flex items-center self-stretch pt-2">
+            <button class="px-3.5 py-1.5 ${added ? 'bg-primary text-white' : 'bg-white border border-primary/25 text-primary'} text-[13px] font-medium rounded-full active:scale-95 transition-transform shrink-0" onclick="event.stopPropagation();addPlatformFarmer('${item.id}')">${added ? '<i class=\\'fas fa-check text-[11px] mr-0.5\\'></i>已添加' : '添加'}</button>
+        </div>`;
     }
-    emptyState.style.display = 'none';
 
-    listContainer.innerHTML = list.map((item) => {
-        const selected = item.id === selectedId;
-        const cardAction = fromBilling ? `onclick="pickContact('${item.id}')"` : '';
-        const rightButton = fromBilling
-            ? `<button class="px-3.5 py-1.5 ${selected ? 'bg-primary' : 'bg-white border border-primary/25 text-primary'} ${selected ? 'text-white' : ''} text-[13px] font-medium rounded-full active:scale-95 transition-transform shrink-0" onclick="event.stopPropagation();pickContact('${item.id}')">${selected ? '已选中' : '选择'}</button>`
-            : '';
-        const bankCard = `${item.bank} · ${item.card}`;
-        return `
-            <div class="contact-item glass-card rounded-2xl p-4 flex items-center gap-3.5 ${selected ? 'selected' : ''} ${fromBilling ? 'cursor-pointer' : ''}" ${cardAction}>
-                <!-- 左侧通用头像 (改为绿色系) -->
-                <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center shrink-0 border border-green-100/60 self-start mt-0.5">
-                    <i class="fas fa-user text-primary/80 text-[20px]"></i>
-                </div>
-                <!-- 中间信息区 -->
-                <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                    <div class="flex items-center flex-wrap gap-2">
-                        <span class="text-[16px] font-semibold text-gray-800 tracking-tight">${item.name}</span>
-                        <span class="inline-block text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-primary font-medium border border-green-100/60 mt-[1px]">付款${item.payCount}次</span>
-                    </div>
-                    <div class="text-[14px] font-medium text-gray-600 tracking-wide" style="font-family:Poppins,monospace;">${item.mobile}</div>
-                    <div class="flex items-center gap-1.5 text-[12px] text-gray-400/90 font-medium tracking-wide" style="font-family:Poppins,monospace;">
-                        <i class="fas fa-building-columns text-[10px] text-gray-400"></i>
-                        <span>${bankCard}</span>
-                    </div>
-                </div>
-                ${fromBilling ? `<div class="shrink-0 flex items-center self-stretch pt-2">${rightButton}</div>` : ''}
+    const coopBadge = showCoopBadge
+        ? `<span class="inline-flex items-center gap-0.5 text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-primary font-medium border border-green-100/60 mt-[1px]"><i class="fas fa-check text-[9px]"></i>已合作</span>`
+        : '';
+    const payBadge = item.payCount != null
+        ? `<span class="inline-block text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-primary font-medium border border-green-100/60 mt-[1px]">付款${item.payCount}次</span>`
+        : '';
+
+    return `
+        <div class="contact-item glass-card rounded-2xl p-4 flex items-center gap-3.5 ${selected ? 'selected' : ''} ${showSelect ? 'cursor-pointer' : ''}" ${cardAction}>
+            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center shrink-0 border border-green-100/60 self-start mt-0.5">
+                <i class="fas fa-user text-primary/80 text-[20px]"></i>
             </div>
-        `;
-    }).join('');
+            <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                <div class="flex items-center flex-wrap gap-2">
+                    <span class="text-[16px] font-semibold text-gray-800 tracking-tight">${item.name}</span>
+                    ${coopBadge}${payBadge}
+                </div>
+                <div class="text-[14px] font-medium text-gray-600 tracking-wide" style="font-family:Poppins,monospace;">${item.mobile}</div>
+                <div class="flex items-center gap-1.5 text-[12px] text-gray-400/90 font-medium tracking-wide" style="font-family:Poppins,monospace;">
+                    <i class="fas fa-building-columns text-[10px] text-gray-400"></i>
+                    <span>${bankCard}</span>
+                </div>
+            </div>
+            ${rightSlot}
+        </div>
+    `;
 }
 
+/* ---------- 分区标题 ---------- */
+function sectionHeader(title, count) {
+    return `<div class="flex items-center gap-2 pt-1 pb-0.5">
+        <span class="text-[12px] font-medium text-gray-400 tracking-wide">${title}</span>
+        <span class="text-[11px] text-gray-300">${count}人</span>
+    </div>`;
+}
+
+/* ---------- 底部"添加新农户"按钮 ---------- */
+function addFarmerBtnHTML() {
+    return `<a href="buyer-farmer-add.html" class="contact-item glass-card rounded-2xl p-4 flex items-center gap-3.5 cursor-pointer no-underline" style="text-decoration:none;">
+        <div class="w-12 h-12 rounded-full bg-green-50/70 flex items-center justify-center shrink-0 border border-dashed border-green-200">
+            <i class="fas fa-plus text-primary/60 text-lg"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+            <div class="text-[15px] font-medium text-primary">添加新农户</div>
+            <div class="text-[12px] text-gray-400 mt-0.5">帮TA注册邮粮通账户</div>
+        </div>
+        <i class="fas fa-chevron-right text-gray-300 text-xs shrink-0"></i>
+    </a>`;
+}
+
+/* ---------- 主渲染 ---------- */
+function renderList() {
+    const keyword = document.getElementById('searchInput').value.trim();
+    const listContainer = document.getElementById('contactList');
+    const emptyState = document.getElementById('emptyState');
+    const searchEmpty = document.getElementById('searchEmptyState');
+
+    /* billing 模式：保持原有行为，只搜索我的联系人 */
+    if (fromBilling) {
+        searchEmpty.style.display = 'none';
+        const list = contactSource.filter(item => {
+            if (!keyword) return true;
+            return item.name.includes(keyword) || item.mobile.includes(keyword) || item.card.includes(keyword) || item.bank.includes(keyword);
+        });
+        if (list.length === 0) {
+            listContainer.innerHTML = '';
+            emptyState.style.display = '';
+            return;
+        }
+        emptyState.style.display = 'none';
+        listContainer.innerHTML = list.map(item => contactCardHTML(item, { showSelect: true })).join('');
+        return;
+    }
+
+    /* 非 billing 模式 */
+    emptyState.style.display = 'none';
+    searchEmpty.style.display = 'none';
+
+    /* 无搜索关键词：显示完整列表 + 底部添加按钮 */
+    if (!keyword) {
+        if (contactSource.length === 0) {
+            listContainer.innerHTML = '';
+            emptyState.style.display = '';
+            return;
+        }
+        listContainer.innerHTML =
+            contactSource.map(item => contactCardHTML(item, {})).join('') +
+            addFarmerBtnHTML();
+        return;
+    }
+
+    /* 有关键词：两区搜索 */
+    const myMatches = contactSource.filter(item =>
+        item.name.includes(keyword) || item.mobile.includes(keyword) || item.card.includes(keyword) || item.bank.includes(keyword)
+    );
+    const myMobiles = new Set(contactSource.map(c => c.mobile.replace(/\s/g, '')));
+    const platformStore = window.UserIdentityStore;
+    const platformResults = (platformStore && typeof platformStore.searchPlatformFarmers === 'function')
+        ? platformStore.searchPlatformFarmers(keyword).filter(f => !myMobiles.has(f.mobile.replace(/\s/g, '')))
+        : [];
+
+    if (myMatches.length === 0 && platformResults.length === 0) {
+        listContainer.innerHTML = '';
+        searchEmpty.style.display = '';
+        return;
+    }
+
+    let html = '';
+    if (myMatches.length > 0) {
+        html += sectionHeader('我的合作农户', myMatches.length);
+        html += myMatches.map(item => contactCardHTML(item, { showCoopBadge: true })).join('');
+    }
+    if (platformResults.length > 0) {
+        if (myMatches.length > 0) {
+            html += '<div class="border-t border-gray-100 my-2"></div>';
+        }
+        html += sectionHeader('平台其他农户', platformResults.length);
+        html += platformResults.map(item => contactCardHTML(item, { showAddBtn: true })).join('');
+    }
+    listContainer.innerHTML = html;
+}
+
+/* ---------- 添加平台农户 ---------- */
+function addPlatformFarmer(id) {
+    if (addedPlatformIds.has(id)) {
+        showToast('已添加到合作农户');
+        return;
+    }
+    addedPlatformIds.add(id);
+    showToast('已添加到合作农户');
+    renderList();
+}
+
+/* ---------- billing 选择 ---------- */
 function pickContact(id) {
     if (!fromBilling) return;
     selectedId = id;
