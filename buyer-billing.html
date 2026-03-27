@@ -420,8 +420,8 @@
 
             <!-- 数量 -->
             <div class="mb-4">
-                <label class="text-xs text-gray-500 block mb-1.5">数量</label>
-                <input type="number" id="sheetProductQty" placeholder="请输入数量" step="0.01" class="custom-input" oninput="calcSheetSubtotal()">
+                <label class="text-xs text-gray-500 block mb-1.5">总重量</label>
+                <input type="number" id="sheetProductQty" placeholder="请输入重量" step="0.01" class="custom-input" oninput="calcSheetSubtotal()">
             </div>
 
             <!-- 小计 -->
@@ -473,7 +473,7 @@ const CATEGORY_CONFIG = {
         tagText: 'text-red-600',
         tagBorder: 'border-red-200'
     },
-    '蓔菜': {
+    '蔬菜': {
         color: 'green',
         icon: 'fa-carrot',
         bgClass: 'bg-green-50',
@@ -483,7 +483,7 @@ const CATEGORY_CONFIG = {
         tagText: 'text-green-600',
         tagBorder: 'border-green-200'
     },
-    '粮油': {
+    '粮食': {
         color: 'amber',
         icon: 'fa-wheat-awn',
         bgClass: 'bg-amber-50',
@@ -568,7 +568,7 @@ function inferCategoryByName(name) {
     const rules = [
         { category: '水果', keywords: ['苹果', '梨', '桃', '葡萄', '猕猴桃', '橙', '柚', '香蕉', '草莓', '西瓜'] },
         { category: '蓔菜', keywords: ['土豆', '黄瓜', '西红柿', '胡萝卜', '白菜', '洋葱', '青椒', '茄子', '萝卜', '生菜', '包菜', '芹菜'] },
-        { category: '粮油', keywords: ['大米', '小麦', '玉米', '稻谷', '花生油', '菜籽油', '粮', '油'] },
+        { category: '粮食', keywords: ['大米', '小麦', '玉米', '稻谷', '花生油', '菜籽油', '粮', '油'] },
         { category: '禽蛋', keywords: ['鸡蛋', '鸭蛋', '鹅蛋', '鹌鹑蛋', '蛋'] },
         { category: '肉类', keywords: ['猪肉', '牛肉', '羊肉', '鸡肉', '鸭肉', '肉'] }
     ];
@@ -637,7 +637,7 @@ function renderSheetSuggestions() {
 
     if (historyProducts.length === 0) {
         container.innerHTML = `
-            <div class="text-[11px] text-gray-400">历史录入商品（当前品类）暂无数据，请手动输入商品名称</div>
+            <div class="text-[11px] text-gray-400">暂无常用商品，请手动输入</div>
         `;
         return;
     }
@@ -818,7 +818,7 @@ function confirmAddProduct() {
         return;
     }
     if (!qty || qty <= 0) {
-        showToast('请输入有效数量');
+        showToast('请输入有效重量');
         return;
     }
 

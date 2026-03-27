@@ -150,7 +150,7 @@
                 <div class="grid grid-cols-4 gap-2" id="cateGrid">
                     <div class="category-tag bg-red-50" data-cate="水果" data-border="border-red-200" onclick="selectCate(this)"><i class="fas fa-apple-whole text-xs"></i>水果</div>
                     <div class="category-tag bg-green-50" data-cate="蔬菜" data-border="border-green-200" onclick="selectCate(this)"><i class="fas fa-carrot text-xs"></i>蔬菜</div>
-                    <div class="category-tag bg-amber-50" data-cate="粮油" data-border="border-amber-200" onclick="selectCate(this)"><i class="fas fa-wheat-awn text-xs"></i>粮油</div>
+                    <div class="category-tag bg-amber-50" data-cate="粮食" data-border="border-amber-200" onclick="selectCate(this)"><i class="fas fa-wheat-awn text-xs"></i>粮食</div>
                     <div class="category-tag bg-violet-50" data-cate="禽蛋" data-border="border-violet-200" onclick="selectCate(this)"><i class="fas fa-egg text-xs"></i>禽蛋</div>
                     <div class="category-tag bg-orange-50" data-cate="肉类" data-border="border-orange-200" onclick="selectCate(this)"><i class="fas fa-drumstick-bite text-xs"></i>肉类</div>
                     <div class="category-tag bg-gray-100" data-cate="其他" data-border="border-gray-200" onclick="selectCate(this)"><i class="fas fa-box-open text-xs"></i>其他</div>
@@ -224,9 +224,9 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <i class="fas fa-weight-hanging text-gray-400 text-sm"></i>
-                    <span class="text-sm font-medium text-gray-700">销售数量 <span class="text-red-400">*</span></span>
+                    <span class="text-sm font-medium text-gray-700">销售总重量 <span class="text-red-400">*</span></span>
                 </div>
-                <input type="number" id="qtyInput" class="custom-input" placeholder="请输入销售数量">
+                <input type="number" id="qtyInput" class="custom-input" placeholder="请输入销售重量">
             </div>
 
             <div class="border-t border-gray-100"></div>
@@ -572,7 +572,7 @@ function submitDemand() {
         return;
     }
     if (!qty || qty <= 0) {
-        showToast('请输入有效数量');
+        showToast('请输入有效重量');
         return;
     }
     if (!location) {
