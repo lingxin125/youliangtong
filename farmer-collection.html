@@ -48,36 +48,7 @@
 
             <!-- 二维码主体区域 -->
             <div id="qrWrap" class="w-56 h-56 bg-white rounded-3xl mx-auto flex items-center justify-center border border-gray-100/50 shadow-sm relative">
-                <!-- 模拟二维码图案 -->
-                <div class="w-44 h-44 relative">
-                    <svg viewBox="0 0 100 100" class="w-full h-full">
-                        <!-- 外边框 -->
-                        <rect x="5" y="5" width="25" height="25" fill="none" stroke="#22303c" stroke-width="2" rx="4"/>
-                        <rect x="8" y="8" width="19" height="19" fill="#22303c" rx="2"/>
-                        <rect x="12" y="12" width="11" height="11" fill="white" rx="1"/>
-
-                        <rect x="70" y="5" width="25" height="25" fill="none" stroke="#22303c" stroke-width="2" rx="4"/>
-                        <rect x="73" y="8" width="19" height="19" fill="#22303c" rx="2"/>
-                        <rect x="77" y="12" width="11" height="11" fill="white" rx="1"/>
-
-                        <rect x="5" y="70" width="25" height="25" fill="none" stroke="#22303c" stroke-width="2" rx="4"/>
-                        <rect x="8" y="73" width="19" height="19" fill="#22303c" rx="2"/>
-                        <rect x="12" y="77" width="11" height="11" fill="white" rx="1"/>
-
-                        <!-- 随机数据点 -->
-                        <path d="M35 8h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm-20 10h4v4h-4zm15 0h4v4h-4zm10 0h4v4h-4zm-20 10h4v4h-4zm15 0h4v4h-4zm-37 7h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm-20 10h4v4h-4zm12 0h4v4h-4zm-12 10h4v4h-4zm17 0h4v4h-4zm45-20h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm-15 10h4v4h-4zm10 0h4v4h-4zm-15 10h4v4h-4zm10 0h4v4h-4zm-45 15h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm-15 10h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm-25 10h4v4h-4zm15 0h4v4h-4zm15 0h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4z" fill="#22303c"/>
-
-                        <!-- 中心Logo区域 -->
-                        <circle cx="50" cy="50" r="9" fill="white"/>
-                        <circle cx="50" cy="50" r="6" fill="#11A64A"/>
-                    </svg>
-                </div>
-                <!-- 丰收云Logo水印 -->
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="w-12 h-12 bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.1)] flex items-center justify-center">
-                        <i class="fas fa-wheat-awn text-primary text-xl"></i>
-                    </div>
-                </div>
+                <img src="mock-qr.svg" alt="模拟真实二维码" class="w-44 h-44 object-contain select-none pointer-events-none" />
             </div>
         </div>
 

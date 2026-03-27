@@ -86,11 +86,6 @@
             
             <!-- 情景A：行业支付 (扫码付款) -->
             <div id="guideIndustry" class="bg-white rounded-[20px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-gray-50 hidden">
-                <div class="flex items-center justify-center gap-2 mb-6 pb-4 border-b border-gray-50/80">
-                    <i class="fas fa-university text-blue-500 text-lg"></i>
-                    <span class="text-gray-800 font-semibold text-[15px]">行业支付</span>
-                </div>
-                
                 <div class="relative w-48 h-48 mx-auto bg-[#F8FAFC] rounded-2xl border border-[#E2E8F0] flex items-center justify-center p-3 mb-6 shadow-inner">
                     <!-- 模拟二维码生成 -->
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PostalPayMock&color=111827&bgcolor=F8FAFC" alt="QR Code" class="w-full h-full rounded-xl mix-blend-multiply opacity-90">
@@ -106,6 +101,21 @@
                         请打开 <span class="text-[#13b15a]">邮储银行APP</span>
                     </div>
                     <div class="text-[12px] text-gray-500">使用“扫一扫”扫描上方二维码完成订单付款</div>
+                </div>
+
+                <div class="flex items-center gap-3 my-5">
+                    <div class="h-px flex-1 bg-gradient-to-r from-transparent via-gray-200 to-gray-100"></div>
+                    <span class="text-[11px] text-gray-400 font-medium tracking-[0.18em]">或</span>
+                    <div class="h-px flex-1 bg-gradient-to-l from-transparent via-gray-200 to-gray-100"></div>
+                </div>
+
+                <div class="rounded-[18px] border border-[#D1FAE5] bg-[#F0FDF4] px-4 py-3.5 flex items-center justify-between gap-3">
+                    <div class="min-w-0 flex-1 text-[12px] text-gray-500 leading-relaxed">
+                        复制链接到浏览器打开完成付款
+                    </div>
+                    <button id="copyPayLinkBtn" class="shrink-0 px-3.5 py-2 rounded-xl bg-[#13b15a] text-white text-[12px] font-semibold shadow-[0_6px_16px_rgba(19,177,90,0.2)] active:scale-95 transition-all" onclick="copyMobilePayLink()">
+                        复制链接
+                    </button>
                 </div>
             </div>
 
@@ -146,7 +156,7 @@
                     <div class="step-item relative flex items-start gap-4">
                         <div class="step-line w-10 h-10 rounded-full bg-orange-50 text-[#F59E0B] flex items-center justify-center shrink-0 z-10 border-4 border-white font-bold text-sm shadow-sm">3</div>
                         <div class="pt-2">
-                            <div class="text-[14px] font-semibold text-gray-800 mb-1.5">回传刷新状态</div>
+                            <div class="text-[14px] font-semibold text-gray-800 mb-1.5">刷新状态</div>
                             <div class="text-[12px] text-gray-500 leading-relaxed pr-2">网银支付成功后，返回当前小程序，点击下方“刷新支付状态”。</div>
                         </div>
                     </div>
@@ -223,6 +233,7 @@ const state = {
     bankFlowNo: params.get('bankFlowNo') || buildBankFlowNo(grainOrderNo),
     cancelSource: params.get('cancelSource') || ''
 };
+state.mobilePayUrl = params.get('mobilePayUrl') || buildIndustryPayUrl();
 
 // 【恢复】使用与其他页面一致的深色导航栏和状态栏
 // 状态栏保留黑底，但导航栏使用白色文字以适配绿色沉浸背景
@@ -280,6 +291,60 @@ function buildPaymentOrderNo(orderNo) {
 
 function buildBankFlowNo(orderNo) {
     return 'YH' + deterministicDigits('BANK-' + (orderNo || ''), 18);
+}
+
+function buildIndustryPayUrl() {
+    const payload = new URLSearchParams({
+        source: 'cashier',
+        orderNo: state.orderNo,
+        grainOrderNo: state.orderNo,
+        paymentOrderNo: state.paymentOrderNo,
+        bankFlowNo: state.bankFlowNo,
+        amount: state.amount.toFixed(2),
+        payeeName: state.payeeName,
+        payeeMobile: state.payeeMobile,
+        payeeBank: state.payeeBank,
+        payeeCard: state.payeeCard,
+        summary: state.summary,
+        createdAt: state.createdAt,
+        payMethod: 'industry'
+    });
+
+    if (window.location.origin && window.location.origin !== 'null') {
+        const url = new URL(window.location.href);
+        url.pathname = url.pathname.replace(/buyer-cashier\.html$/, 'buyer-bank-h5-pay.html');
+        url.search = payload.toString();
+        url.hash = '';
+        return url.toString();
+    }
+
+    return 'https://demo.harvest-pay.com/prototype/buyer-bank-h5-pay.html?' + payload.toString();
+}
+
+function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+    }
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', 'readonly');
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const succeeded = document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return succeeded ? Promise.resolve() : Promise.reject(new Error('copy failed'));
+}
+
+function copyMobilePayLink() {
+    copyText(state.mobilePayUrl)
+        .then(() => {
+            showToast('付款链接已复制');
+        })
+        .catch(() => {
+            showToast('复制失败，请手动复制');
+        });
 }
 
 function fillPage() {
