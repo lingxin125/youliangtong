@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>微邮付 - PC 收银台</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         :root {
             --brand: #11A64A;
@@ -2019,6 +2020,9 @@
         };
 
         const BASE_CONFIG = deepClone(Config);
+        const captureQuery = new URLSearchParams(window.location.search);
+        const captureState = captureQuery.get('captureState') || '';
+        const isFigmaCaptureMode = window.location.hash.indexOf('figmacapture=') !== -1;
 
         let countdownTimer = null;
         let isExpired = false;
@@ -2034,8 +2038,10 @@
             bindPresetState();
             bindPresetFloating();
             renderAll();
+            syncCaptureChrome();
             applyState('pending');
             startTimer();
+            applyCaptureState();
         }
 
         function parseParams() {
@@ -2637,6 +2643,30 @@
             if (popover) {
                 popover.classList.toggle('show', presetMenuOpen);
             }
+        }
+
+        function syncCaptureChrome() {
+            if (!isFigmaCaptureMode) return;
+            const presetFloat = document.getElementById('presetFloat');
+            if (presetFloat) {
+                presetFloat.style.display = 'none';
+            }
+        }
+
+        function applyCaptureState() {
+            if (!captureState) return;
+
+            const presetMap = {
+                success: 'success_done',
+                failed: 'failed_case',
+                canceled: 'canceled_case'
+            };
+            const presetKey = presetMap[captureState];
+            if (!presetKey) return;
+
+            setTimeout(function() {
+                applyDemoPreset(presetKey);
+            }, 80);
         }
 
         function updatePaidAtRow() {

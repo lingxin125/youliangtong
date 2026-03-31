@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js?v=2"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         /* ========== Tab 页签（与收购需求管理一致） ========== */
         .tab-container {
@@ -292,6 +293,7 @@
 // ==================== 初始化 ====================
 document.getElementById('statusBar').innerHTML = renderStatusBar('dark');
 const urlQs = new URLSearchParams(window.location.search);
+const captureState = urlQs.get('captureState') || '';
 const backLink = urlQs.get('source') === 'home' ? 'buyer-home.html' : 'buyer-my.html';
 document.getElementById('navBar').innerHTML = renderHeader('合并付款', backLink, false, 'bg-white text-gray-800 border-b border-gray-100');
 
@@ -1113,6 +1115,28 @@ function showToast(msg) {
 
 loadData();
 render();
+if (captureState === 'empty') {
+    state.currentTab = 'mergeable';
+    state.mergeableOrders = [];
+    render();
+}
+if (captureState === 'modal') {
+    const selected = state.mergeableOrders.slice(0, Math.min(2, state.mergeableOrders.length));
+    if (selected.length) {
+        const total = selected.reduce(function(sum, item) {
+            return sum + Number(item.amount || 0);
+        }, 0);
+        state.selectedIds = new Set(selected.map(function(item) { return item.id; }));
+        render();
+        setTimeout(function() {
+            showAppModal({
+                title: '发起合并支付',
+                message: `将合并支付 <b>${selected.length}</b> 笔订单<br>合计金额 <b style="font-family:Poppins; color:#11A64A;">¥${fmt(total)}</b>`,
+                confirmText: '确认付款'
+            });
+        }, 120);
+    }
+}
 window.addEventListener('pageshow', function() {
     loadData();
     render();

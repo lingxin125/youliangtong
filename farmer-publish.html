@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         .type-option {
             display: flex;
@@ -270,6 +271,7 @@ const MY_PAGE = 'farmer-my.html';
 const demandStore = window.DemandMockStore || null;
 const q = new URLSearchParams(window.location.search);
 const mode = q.get('mode') || '';
+const captureState = q.get('captureState') || '';
 const isEdit = mode === 'edit';
 const isView = mode === 'view';
 const editId = q.get('id');
@@ -605,6 +607,18 @@ function submitDemand() {
     const jump = new URLSearchParams({ saved: '1' });
     if (isEdit) jump.set('mode', 'edit');
     window.location.href = MANAGE_PAGE + '?' + jump.toString();
+}
+
+if (captureState === 'error' && !isView) {
+    setTimeout(function() {
+        var defaultCate = document.querySelector('.category-tag[data-cate="水果"]');
+        if (defaultCate) selectCate(defaultCate);
+        document.getElementById('qtyInput').value = '3000';
+        document.getElementById('locationInput').value = '河北省保定市莲池区';
+        document.getElementById('titleInput').value = '';
+        document.getElementById('titleCount').textContent = '0/20';
+        submitDemand();
+    }, 120);
 }
 </script>
 </body>

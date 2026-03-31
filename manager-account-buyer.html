@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         .manager-bg { background-color: #F7F8FA; }
 
@@ -393,6 +394,8 @@
 </div>
 
 <script>
+const managerAccountBuyerCaptureState = new URLSearchParams(window.location.search).get('captureState') || '';
+
 function selectAccountType(el, type) {
     document.querySelectorAll('.account-type-btn').forEach(btn => btn.classList.remove('active'));
     el.classList.add('active');
@@ -401,6 +404,23 @@ function selectAccountType(el, type) {
     document.querySelectorAll('.personal-only').forEach(section => section.classList.toggle('hidden', !isPersonal));
     document.querySelectorAll('.company-only').forEach(section => section.classList.toggle('hidden', isPersonal));
 }
+
+function applyCaptureState() {
+    if (!managerAccountBuyerCaptureState) return;
+
+    const typeButtons = document.querySelectorAll('.account-type-btn');
+    const targetBtnMap = {
+        personal: typeButtons[0],
+        enterprise: typeButtons[1],
+        sole: typeButtons[2]
+    };
+    const targetBtn = targetBtnMap[managerAccountBuyerCaptureState];
+    if (targetBtn) {
+        selectAccountType(targetBtn, managerAccountBuyerCaptureState);
+    }
+}
+
+setTimeout(applyCaptureState, 120);
 </script>
 </body>
 </html>

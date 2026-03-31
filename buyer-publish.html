@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         .type-option {
             display: flex;
@@ -269,6 +270,7 @@ const MY_PAGE = 'buyer-my.html';
 
 const demandStore = window.DemandMockStore || null;
 const q = new URLSearchParams(window.location.search);
+const captureState = q.get('captureState') || '';
 const mode = q.get('mode') || '';
 const isEdit = mode === 'edit';
 const isView = mode === 'view';
@@ -323,6 +325,7 @@ if (formDemand) {
     updatePricePlaceholder();
     toggleNegotiableState();
 }
+applyCaptureState();
 
 function lockReadonlyView() {
     var submitBar = document.getElementById('submitBar');
@@ -605,6 +608,40 @@ function submitDemand() {
     const jump = new URLSearchParams({ saved: '1' });
     if (isEdit) jump.set('mode', 'edit');
     window.location.href = MANAGE_PAGE + '?' + jump.toString();
+}
+
+function clearPublishFormForCapture() {
+    selectedCategory = '';
+    uploadedImages = [];
+    document.querySelectorAll('.category-tag').forEach(function(tag) {
+        tag.classList.remove('active');
+        tag.classList.remove('border-red-200', 'border-green-200', 'border-amber-200', 'border-violet-200', 'border-orange-200', 'border-gray-200');
+    });
+    document.getElementById('titleInput').value = '';
+    document.getElementById('titleCount').textContent = '0/20';
+    document.getElementById('descInput').value = '';
+    document.getElementById('locationInput').value = '';
+    document.getElementById('qtyInput').value = '';
+    document.getElementById('priceInput').value = '';
+    document.getElementById('unitInput').value = '斤';
+    document.getElementById('negotiableCheckbox').checked = false;
+    updatePricePlaceholder();
+    toggleNegotiableState();
+    renderImageUploader();
+}
+
+function applyCaptureState() {
+    if (!captureState || isEdit || isView) return;
+    if (captureState === 'empty') {
+        clearPublishFormForCapture();
+        return;
+    }
+    if (captureState === 'form-error') {
+        clearPublishFormForCapture();
+        setTimeout(function() {
+            showToast('请选择收购品类');
+        }, 200);
+    }
 }
 </script>
 </body>

@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         body { background-color: #F7F8FA; }
         
@@ -205,6 +206,7 @@
 
 <script>
 const params = new URLSearchParams(window.location.search);
+const captureState = params.get('captureState') || '';
 const fallbackNow = new Date();
 const mockStore = window.BuyerMockStore || null;
 const payerProfile = (mockStore && typeof mockStore.getPayer === 'function')
@@ -489,6 +491,12 @@ function togglePaymentMethod() {
 }
 
 fillPage();
+if (captureState === 'modal') {
+    const modal = document.getElementById('bankModal');
+    const content = document.getElementById('bankModalContent');
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    setTimeout(() => content.classList.remove('translate-y-full'), 10);
+}
 </script>
 </body>
 </html>

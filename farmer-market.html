@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 </head>
 <body>
 <div class="mobile-container">
@@ -164,6 +165,7 @@ document.getElementById('tabBar').innerHTML = renderFarmerTabBar('market');
 var demandStore = window.DemandMockStore || null;
 var marketPage = 'farmer-market.html';
 var fallbackDemandRole = 'buyer';
+var captureState = new URLSearchParams(window.location.search).get('captureState') || '';
 
 var state = {
     sort: 'latest',
@@ -725,7 +727,18 @@ renderFilterDot();
 
 // MVP暂不启用focus参数自动筛选
 
+if (captureState === 'empty') {
+    state.keyword = '__figma_no_match__';
+    document.getElementById('searchInput').value = '无匹配结果';
+}
+
 renderList();
+
+if (captureState === 'modal') {
+    setTimeout(function() {
+        openFilter();
+    }, 120);
+}
 </script>
 </body>
 </html>

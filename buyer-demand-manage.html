@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         /* Tab切换样式 - 下划线风格 */
         .tab-container {
@@ -102,6 +103,7 @@ document.getElementById('navBar').innerHTML = renderHeader('需求管理', _back
 
 var currentTab = 'active';
 var pendingCloseId = null;
+var captureState = new URLSearchParams(window.location.search).get('captureState') || '';
 
 // 迁移旧品类名称
 (function migrateCategories() {
@@ -201,6 +203,7 @@ function getDemandTitleText(item) {
 }
 
 function readList(status) {
+    if (captureState === 'empty') return [];
     if (demandStore && typeof demandStore.getDemands === 'function') {
         return demandStore.getDemands({ role: 'buyer', status: status });
     }
@@ -316,8 +319,20 @@ function confirmClose() {
     closeConfirm();
 }
 
+function applyCaptureState() {
+    if (captureState === 'modal') {
+        var list = readList('active');
+        if (list.length) {
+            setTimeout(function() {
+                openConfirm(list[0].id);
+            }, 120);
+        }
+    }
+}
+
 updateTabText();
 renderList();
+applyCaptureState();
 </script>
 </body>
 </html>

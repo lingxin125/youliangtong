@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Figma → 代码实战指南（基于 Figma MCP）</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' font-size='44'%3E%F0%9F%92%BB%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&amp;family=Noto+Serif+SC:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ink: { 50:'#eef4ff', 100:'#d9e7ff', 200:'#b6d0ff', 300:'#85b0ff', 400:'#578dff', 500:'#3668f4', 600:'#264fd3', 700:'#1f40ab', 800:'#213989', 900:'#1d316e' },
+        slatex: { 50:'#f5f7fb', 100:'#e9eef8', 200:'#d3ddf0', 300:'#b2c3e2', 400:'#88a0cc', 500:'#667fae', 600:'#50648d', 700:'#41506f', 800:'#37445c', 900:'#2d3748' },
+        amberx: { 50:'#fff8e9', 100:'#ffefc8', 200:'#ffde90', 300:'#ffc957', 400:'#ffb22b', 500:'#f4950b', 600:'#d67606', 700:'#b15a08', 800:'#91470e', 900:'#773c0f' },
+        mintx: { 50:'#effdf8', 100:'#d9faef', 200:'#b8f5df', 300:'#82ebc8', 400:'#46d7a8', 500:'#20b98c', 600:'#14956f', 700:'#13775b', 800:'#145f4a', 900:'#124e3f' }
+      },
+      fontFamily: {
+        serif: ['"Noto Serif SC"', 'serif'],
+        body: ['"Noto Sans SC"', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { scroll-behavior: smooth; }
+  body { font-family: 'Noto Sans SC', sans-serif; background: #f5f7fb; color: #2d3748; }
+  h1, h2, h3, h4 { font-family: 'Noto Serif SC', serif; }
+  .side-nav { position: fixed; left: 0; top: 0; width: 284px; height: 100vh; background: linear-gradient(180deg, #1d316e 0%, #132449 100%); overflow-y: auto; z-index: 50; transition: transform 0.3s; }
+  .side-nav a { display: block; padding: 10px 20px; color: rgba(255,255,255,0.74); text-decoration: none; font-size: 14px; border-left: 3px solid transparent; transition: all 0.2s; }
+  .side-nav a:hover, .side-nav a.active { color: #ffd46a; border-left-color: #ffb22b; background: rgba(255,255,255,0.06); }
+  .side-nav .nav-title { padding: 24px 20px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,212,106,0.66); font-family: 'Noto Serif SC', serif; }
+  .main-content { margin-left: 284px; }
+  .hero { position: relative; overflow: hidden; background: radial-gradient(circle at right top, rgba(255,178,43,0.20), transparent 28%), linear-gradient(135deg, #1d316e 0%, #213989 42%, #264fd3 100%); }
+  .hero::after { content: ''; position: absolute; inset: auto -100px -140px auto; width: 420px; height: 420px; border-radius: 999px; background: radial-gradient(circle, rgba(32,185,140,0.22) 0%, transparent 70%); }
+  .card { background: white; border-radius: 22px; border: 1px solid rgba(29,49,110,0.08); box-shadow: 0 18px 44px rgba(29,49,110,0.08); }
+  .frost { background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.9)); }
+  .section-index { width: 44px; height: 44px; border-radius: 14px; background: #213989; color: white; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+  .code-box { background: #101827; color: #dbe8ff; border-radius: 18px; padding: 20px; font-size: 13px; line-height: 1.75; white-space: pre-wrap; }
+  .copy-btn { border-radius: 12px; background: #213989; color: white; border: 1px solid #213989; padding: 8px 12px; font-size: 12px; font-weight: 700; }
+  .tag { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 11px; font-size: 12px; font-weight: 700; line-height: 1; }
+  .step { position: relative; padding-left: 32px; }
+  .step::before { content: ''; position: absolute; left: 8px; top: 8px; width: 12px; height: 12px; border-radius: 999px; background: #ffb22b; box-shadow: 0 0 0 4px rgba(255,178,43,0.16); }
+  .step::after { content: ''; position: absolute; left: 13px; top: 24px; bottom: -22px; width: 2px; background: linear-gradient(180deg, rgba(255,178,43,0.42), rgba(38,79,211,0.14)); }
+  .step:last-child::after { display: none; }
+  .chip { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; background: #eef4ff; border: 1px solid #d9e7ff; font-size: 12px; margin: 0 8px 8px 0; }
+  .metric { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(8px); border-radius: 20px; }
+  .note { border-radius: 18px; background: linear-gradient(90deg, rgba(255,178,43,0.12), rgba(32,185,140,0.08)); border: 1px solid rgba(255,178,43,0.22); }
+  .tool-grid { background: linear-gradient(180deg, rgba(29,49,110,0.03), rgba(29,49,110,0.01)); }
+  @media (max-width: 1024px) {
+    .side-nav { transform: translateX(-100%); }
+    .side-nav.open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .mobile-toggle { display: flex !important; }
+  }
+</style>
+</head>
+<body class="antialiased">
+<button class="mobile-toggle hidden fixed top-4 left-4 z-[60] bg-ink-700 text-white p-2 rounded-lg shadow-lg" onclick="document.querySelector('.side-nav').classList.toggle('open')">
+  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+</button>
+
+<nav class="side-nav">
+  <div class="px-5 py-6 border-b border-white/10">
+    <div class="text-amberx-300 font-serif text-lg font-bold">Figma → 代码</div>
+    <div class="text-white/40 text-xs mt-1">Figma MCP 落地指南</div>
+  </div>
+  <div class="nav-title">概览</div>
+  <a href="#overview">为什么分两段走</a>
+  <a href="#flow">标准流程</a>
+  <a href="#node">先选哪个 node</a>
+  <a href="#tools">MCP 工具分工</a>
+  <a href="#prompts">Prompt 模板</a>
+  <a href="#connect">Code Connect 回路</a>
+  <a href="#current-project">当前项目怎么落</a>
+  <a href="#checklist">交付检查</a>
+  <div class="nav-title">关联文档</div>
+  <a href="./html-to-figma-mcp-guide.html">HTML → Figma 抓取指南</a>
+  <a href="./PRD-收粮平台-可视化.html">可视化 PRD</a>
+</nav>
+
+<div class="main-content">
+  <section class="hero px-8 py-16 md:px-16 md:py-24">
+    <div class="max-w-6xl relative z-10">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 text-amberx-200 rounded-full text-sm font-semibold mb-6 border border-white/10">
+        不是“Figma 一键生代码” · 是“设计上下文 + 仓库约束 + 组件复用”的工程化流程
+      </div>
+      <div class="grid xl:grid-cols-[1.08fr_0.92fr] gap-8 items-end">
+        <div>
+          <h1 class="text-4xl md:text-5xl font-serif font-black text-white leading-tight mb-4">
+            如何把 Figma 文件继续通过<br><span class="text-amberx-300">Figma MCP 转成对应代码</span>
+          </h1>
+          <p class="text-white/78 text-lg leading-relaxed max-w-3xl mt-6">
+            最稳的做法不是直接从 `00 Raw Capture` 生代码，而是先由 UI 在 Figma 完成整理，
+            再使用 `get_design_context`、`search_design_system`、`Code Connect` 等能力，把“设计意图”回流到项目代码里。
+          </p>
+          <div class="flex flex-wrap gap-3 mt-8">
+            <a href="./html-to-figma-mcp-guide.html" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-amberx-500 text-white text-sm font-semibold hover:bg-amberx-600">
+              查看抓取指南
+            </a>
+            <a href="https://www.figma.com/design/SqkxKEVuKZmxBtVBjZGs2R?page-id=0%3A1" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white/15 border border-white/20 text-white text-sm font-semibold hover:bg-white/20">
+              本次项目 Figma 文件
+            </a>
+          </div>
+        </div>
+        <div class="card p-6 bg-white/10 border-white/10 text-white">
+          <div class="text-sm text-white/72 mb-4">推荐落地原则</div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="metric px-4 py-4">
+              <div class="text-white/60 text-xs">代码输入</div>
+              <div class="text-xl font-serif font-bold text-amberx-200 mt-1">优先 Polished</div>
+            </div>
+            <div class="metric px-4 py-4">
+              <div class="text-white/60 text-xs">实现方式</div>
+              <div class="text-xl font-serif font-bold text-amberx-200 mt-1">组件优先</div>
+            </div>
+            <div class="metric px-4 py-4">
+              <div class="text-white/60 text-xs">辅助能力</div>
+              <div class="text-sm font-bold text-amberx-200 mt-1 leading-6">Design Context + Assets</div>
+            </div>
+            <div class="metric px-4 py-4">
+              <div class="text-white/60 text-xs">长期收益</div>
+              <div class="text-sm font-bold text-amberx-200 mt-1 leading-6">Code Connect 可持续同步</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-6xl mx-auto px-6 md:px-12 py-12 space-y-16">
+    <section id="overview">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">1</div>
+        <h2 class="text-2xl font-serif font-bold text-ink-900">为什么分两段走</h2>
+      </div>
+      <div class="grid xl:grid-cols-[1.05fr_0.95fr] gap-6">
+        <div class="card frost p-6">
+          <div class="text-xl font-serif font-bold text-ink-900">先抓进 Figma，再从 Figma 回流代码</div>
+          <div class="text-sm text-slatex-700 leading-8 mt-4">
+            HTML 到 Figma 解决的是“已有页面快速进入设计空间”；Figma 到代码解决的是“把设计上下文落成项目内可维护代码”。
+            两段目标不同，所以不要混着做。
+          </div>
+          <div class="note px-4 py-4 mt-5 text-sm text-slatex-700 leading-7">
+            如果直接从 `00 Raw Capture` 回流代码，容易把原型里的临时样式、演示结构、重复块一起带进正式工程。
+            最优路径是：Raw Capture 只做底稿，真正给代码的是 `01 Candidate Components` 或 `02 Polished Screens`。
+          </div>
+        </div>
+        <div class="grid gap-4">
+          <div class="card p-5">
+            <span class="tag bg-ink-50 text-ink-700 border border-ink-100">最推荐</span>
+            <div class="text-lg font-serif font-bold text-ink-900 mt-3">Figma 整理后，再做设计到代码</div>
+          </div>
+          <div class="card p-5">
+            <span class="tag bg-amberx-50 text-amberx-800 border border-amberx-100">不要直接做</span>
+            <div class="text-lg font-serif font-bold text-ink-900 mt-3">从未经清理的 Raw Capture 直接生成生产代码</div>
+          </div>
+          <div class="card p-5">
+            <span class="tag bg-mintx-50 text-mintx-700 border border-mintx-100">最佳产物</span>
+            <div class="text-lg font-serif font-bold text-ink-900 mt-3">组件化代码 + 映射关系 + 可持续迭代链路</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">2</div>
+        <h2 class="text-2xl font-serif font-bold text-ink-900">标准流程</h2>
+      </div>
+      <div class="grid xl:grid-cols-[0.98fr_1.02fr] gap-6">
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-ink-900 mb-5">从 Figma 到代码的主线</div>
+          <div class="space-y-5">
+            <div class="step">
+              <div class="font-bold text-ink-900">1. 先把页面整理干净</div>
+              <div class="text-sm text-slatex-700 mt-2 leading-7">UI 在 Figma 中确认正式视觉、层级、文案、状态和组件拆分。尽量不要从 Raw Capture 直接起代码。</div>
+            </div>
+            <div class="step">
+              <div class="font-bold text-ink-900">2. 选中要实现的 node</div>
+              <div class="text-sm text-slatex-700 mt-2 leading-7">优先选页面级 frame 或组件级 node，拿到 node URL、fileKey、nodeId。</div>
+            </div>
+            <div class="step">
+              <div class="font-bold text-ink-900">3. 用 `get_design_context` 获取设计上下文</div>
+              <div class="text-sm text-slatex-700 mt-2 leading-7">这是主工具，会返回截图、参考代码、上下文元数据、资产下载地址，适合做真正的设计到代码。</div>
+            </div>
+            <div class="step">
+              <div class="font-bold text-ink-900">4. 先复用设计系统，再写业务代码</div>
+              <div class="text-sm text-slatex-700 mt-2 leading-7">如果项目已有按钮、表单、卡片、弹窗组件，优先复用。缺失时再新建最少量组件。</div>
+            </div>
+            <div class="step">
+              <div class="font-bold text-ink-900">5. 用 Code Connect 建立映射</div>
+              <div class="text-sm text-slatex-700 mt-2 leading-7">关键组件一旦稳定，建议把 Figma node 和代码组件绑定起来，后续改版效率会大幅提升。</div>
+            </div>
+            <div class="step">
+              <div class="font-bold text-ink-900">6. 回到仓库验证</div>
+              <div class="text-sm text-slatex-700 mt-2 leading-7">检查视觉一致性、响应式、交互态、资产引用、可访问性和已有业务逻辑是否被破坏。</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid gap-4">
+          <div class="card p-5">
+            <div class="text-sm text-slatex-500">最稳的起点</div>
+            <div class="text-lg font-serif font-bold text-ink-900 mt-2">02 Polished Screens</div>
+            <div class="text-sm text-slatex-700 leading-7 mt-3">如果页面已经完成 UI 精修，这里最适合直接让 Codex 做页面实现。</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-slatex-500">组件级起点</div>
+            <div class="text-lg font-serif font-bold text-ink-900 mt-2">01 Candidate Components</div>
+            <div class="text-sm text-slatex-700 leading-7 mt-3">如果要先搭组件库、表单控件、卡片体系，这里比整页 node 更适合。</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-slatex-500">最不建议直接用</div>
+            <div class="text-lg font-serif font-bold text-ink-900 mt-2">00 Raw Capture</div>
+            <div class="text-sm text-slatex-700 leading-7 mt-3">这里只适合作为参考底稿，不适合直接生成正式代码，除非只是快速演示或做一次性草稿。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="node">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">3</div>
+        <h2 class="text-2xl font-serif font-bold text-ink-900">先选哪个 node</h2>
+      </div>
+      <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="card p-5">
+          <div class="text-sm text-slatex-500">页面级实现</div>
+          <div class="text-lg font-serif font-bold text-ink-900 mt-2">选整个 screen frame</div>
+          <div class="text-sm text-slatex-700 leading-7 mt-3">适合生成 route、页面骨架、布局和组合结构。</div>
+        </div>
+        <div class="card p-5">
+          <div class="text-sm text-slatex-500">组件级实现</div>
+          <div class="text-lg font-serif font-bold text-ink-900 mt-2">选卡片 / 表单 / 弹窗</div>
+          <div class="text-sm text-slatex-700 leading-7 mt-3">适合先做组件再回拼整页，质量通常更高。</div>
+        </div>
+        <div class="card p-5">
+          <div class="text-sm text-slatex-500">资产提取</div>
+          <div class="text-lg font-serif font-bold text-ink-900 mt-2">选图标或插画节点</div>
+          <div class="text-sm text-slatex-700 leading-7 mt-3">便于拿到下载地址并转成项目可用资源。</div>
+        </div>
+        <div class="card p-5">
+          <div class="text-sm text-slatex-500">映射维护</div>
+          <div class="text-lg font-serif font-bold text-ink-900 mt-2">选已稳定组件节点</div>
+          <div class="text-sm text-slatex-700 leading-7 mt-3">适合后续做 Code Connect，绑定到仓库里的真实组件。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tools">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">4</div>
+        <h2 class="text-2xl font-serif font-bold text-ink-900">MCP 工具分工</h2>
+      </div>
+      <div class="grid xl:grid-cols-2 gap-5">
+        <div class="card p-6 tool-grid">
+          <div class="text-lg font-serif font-bold text-ink-900">设计到代码主工具</div>
+          <div class="grid gap-4 mt-5">
+            <div class="rounded-2xl bg-white border border-slatex-100 p-4">
+              <div class="font-bold text-ink-900">`get_design_context`</div>
+              <div class="text-sm text-slatex-700 leading-7 mt-2">主工具。返回截图、参考代码、上下文元数据、资产下载信息。做页面或组件实现时优先用它。</div>
+            </div>
+            <div class="rounded-2xl bg-white border border-slatex-100 p-4">
+              <div class="font-bold text-ink-900">`search_design_system`</div>
+              <div class="text-sm text-slatex-700 leading-7 mt-2">在设计系统库里找组件、变量和样式，先查复用机会，再决定是否新建组件。</div>
+            </div>
+            <div class="rounded-2xl bg-white border border-slatex-100 p-4">
+              <div class="font-bold text-ink-900">`get_variable_defs`</div>
+              <div class="text-sm text-slatex-700 leading-7 mt-2">补颜色、字号、间距等变量信息，帮助把设计 token 对齐到代码。</div>
+            </div>
+          </div>
+        </div>
+        <div class="card p-6 tool-grid">
+          <div class="text-lg font-serif font-bold text-ink-900">长期维护工具</div>
+          <div class="grid gap-4 mt-5">
+            <div class="rounded-2xl bg-white border border-slatex-100 p-4">
+              <div class="font-bold text-ink-900">`get_code_connect_suggestions` + `send_code_connect_mappings`</div>
+              <div class="text-sm text-slatex-700 leading-7 mt-2">给稳定组件建立 Figma 和代码的映射关系，后续 UI 与研发都能更快定位同一组件。</div>
+            </div>
+            <div class="rounded-2xl bg-white border border-slatex-100 p-4">
+              <div class="font-bold text-ink-900">`get_code_connect_map`</div>
+              <div class="text-sm text-slatex-700 leading-7 mt-2">查看某个 node 现在绑定了哪个代码组件，适合巡检和排错。</div>
+            </div>
+            <div class="rounded-2xl bg-white border border-slatex-100 p-4">
+              <div class="font-bold text-ink-900">`use_figma`</div>
+              <div class="text-sm text-slatex-700 leading-7 mt-2">用来写回 Figma，例如整理 page、批量改名、补注释、更新描述，不是生成代码主工具。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="prompts">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">5</div>
+        <h2 class="text-2xl font-serif font-bold text-ink-900">Prompt 模板</h2>
+      </div>
+      <div class="grid gap-5">
+        <div class="card p-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <div class="text-lg font-serif font-bold text-ink-900">模板 A · 从单个页面 frame 实现页面代码</div>
+              <div class="text-sm text-slatex-500 mt-1">适合 React / Vue / HTML 页面实现</div>
+            </div>
+            <button class="copy-btn" data-copy="prompt-a">复制模板</button>
+          </div>
+          <div id="prompt-a" class="code-box mt-4">请使用 Figma MCP 读取这个 Figma 页面 node，并在当前仓库中实现对应页面代码。
+
+要求：
+1. 优先使用 `get_design_context`
+2. 优先复用当前项目已有组件、样式约定和设计 token
+3. 不要机械照搬截图，要按项目现有结构落地
+4. 如需新建组件，只创建最少必要的部分
+5. 产出后告诉我：
+   - 修改了哪些文件
+   - 页面结构如何拆分
+   - 哪些地方是按设计做了工程化调整
+
+Figma 页面链接：
+【替换为具体 node URL】
+
+目标技术栈：
+【例如 React + Tailwind / Vue + CSS / 原生 HTML】</div>
+        </div>
+
+        <div class="grid xl:grid-cols-2 gap-5">
+          <div class="card p-5">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="text-lg font-serif font-bold text-ink-900">模板 B · 先做组件，再拼页面</div>
+                <div class="text-sm text-slatex-500 mt-1">适合 Figma 中已有 Candidate Components</div>
+              </div>
+              <button class="copy-btn" data-copy="prompt-b">复制模板</button>
+            </div>
+            <div id="prompt-b" class="code-box mt-4">请先读取这个 Figma 组件节点，先在仓库里实现对应组件，再把它接入页面。
+
+要求：
+1. 组件 props 要明确
+2. 复用项目中已有按钮、文本、表单或布局组件
+3. 样式尽量贴近设计，但保持可维护
+4. 页面只做最少量接入改动
+
+Figma 组件链接：
+【替换为组件 node URL】
+
+接入页面：
+【替换为页面路由或文件】</div>
+          </div>
+
+          <div class="card p-5">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="text-lg font-serif font-bold text-ink-900">模板 C · 设计变更后的增量更新</div>
+                <div class="text-sm text-slatex-500 mt-1">适合已有页面已上线，只想同步局部视觉改动</div>
+              </div>
+              <button class="copy-btn" data-copy="prompt-c">复制模板</button>
+            </div>
+            <div id="prompt-c" class="code-box mt-4">请根据最新的 Figma node 更新现有页面代码。
+
+要求：
+1. 只做与这次设计变更相关的最小改动
+2. 不要重写整个页面
+3. 优先复用已有组件
+4. 输出时说明：
+   - 哪些地方变了
+   - 哪些地方保持不动
+   - 是否存在设计与现有业务逻辑冲突
+
+Figma node：
+【替换为最新 node URL】
+
+已有代码位置：
+【替换为文件路径】</div>
+          </div>
+        </div>
+
+        <div class="grid xl:grid-cols-2 gap-5">
+          <div class="card p-5">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="text-lg font-serif font-bold text-ink-900">模板 D · 建立 Code Connect 映射</div>
+                <div class="text-sm text-slatex-500 mt-1">适合稳定组件，例如 Button / Card / Modal</div>
+              </div>
+              <button class="copy-btn" data-copy="prompt-d">复制模板</button>
+            </div>
+            <div id="prompt-d" class="code-box mt-4">请读取这个 Figma 组件 node，并为它建立 Code Connect 映射到当前仓库的真实组件。
+
+要求：
+1. 先获取建议映射
+2. 映射前确认组件名称和代码路径
+3. 如果需要，补充 template / props 说明
+4. 完成后告诉我映射到了哪个组件
+
+Figma 组件 node：
+【替换为 node URL】
+
+目标代码组件：
+【例如 src/components/Button.tsx】</div>
+          </div>
+
+          <div class="card p-5">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="text-lg font-serif font-bold text-ink-900">模板 E · 需要明确输出契约时</div>
+                <div class="text-sm text-slatex-500 mt-1">适合交给研发执行或做多人协作</div>
+              </div>
+              <button class="copy-btn" data-copy="prompt-e">复制模板</button>
+            </div>
+            <div id="prompt-e" class="code-box mt-4">请基于这个 Figma node 生成对应代码，但必须遵守以下输出契约：
+
+1. 先说明准备修改的文件
+2. 实现时优先复用现有组件和样式 token
+3. 完成后必须返回：
+   - 文件修改列表
+   - 视觉实现说明
+   - 响应式与状态说明
+   - 未覆盖风险
+
+Figma node：
+【替换为 node URL】
+
+仓库要求：
+【替换为技术栈与目录规则】</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="connect">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">6</div>
+        <h2 class="text-2xl font-serif font-bold text-ink-900">Code Connect 回路</h2>
+      </div>
+      <div class="grid xl:grid-cols-[0.96fr_1.04fr] gap-6">
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-ink-900">建议建立这条长期链路</div>
+          <div class="space-y-5 mt-5">
+            <div class="step">
+              <div class="font-bold text-ink-900">先把高频组件稳定下来</div>
+              <div class="text-sm text-slatex-700 mt-2 leading-7">按钮、输入框、卡片、筛选条、弹窗、底部操作栏这类组件优先建立映射。</div>
+            </div>
+            <div class="step">
+              <div class="font-bold text-ink-900">生成映射建议</div>
+              <div class="text-sm text-slatex-700 mt-2 leading-7">先看建议是否符合代码现状，避免把一个设计 node 映射到错误组件。</div>
+            </div>
+            <div class="step">
+              <div class="font-bold text-ink-900">保存映射</div>
+              <div class="text-sm text-slatex-700 mt-2 leading-7">确认组件路径、名称、标签后再落库，后续团队成员可以直接复用这条对应关系。</div>
+            </div>
+            <div class="step">
+              <div class="font-bold text-ink-900">设计变更时复用同链路</div>
+              <div class="text-sm text-slatex-700 mt-2 leading-7">页面改版不用从零猜组件，而是从 Figma 映射直接找到仓库组件，迭代成本最低。</div>
+            </div>
+          </div>
+        </div>
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-ink-900">什么时候值得做 Code Connect</div>
+          <div class="grid gap-4 mt-5">
+            <div class="rounded-2xl bg-ink-50 border border-ink-100 p-4 text-sm text-slatex-700 leading-7">一个组件会被 3 个以上页面复用。</div>
+            <div class="rounded-2xl bg-amberx-50 border border-amberx-100 p-4 text-sm text-slatex-700 leading-7">UI 和研发会在同一个组件上长期反复迭代。</div>
+            <div class="rounded-2xl bg-mintx-50 border border-mintx-100 p-4 text-sm text-slatex-700 leading-7">你已经明确组件代码路径，不会频繁重命名目录。</div>
+            <div class="note px-4 py-4 text-sm text-slatex-700 leading-7">如果页面还处在快速探索期，先不要急着建立映射；先做设计定稿，再建立映射更省事。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="current-project">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">7</div>
+        <h2 class="text-2xl font-serif font-bold text-ink-900">当前项目怎么落</h2>
+      </div>
+      <div class="card p-6">
+        <div class="text-lg font-serif font-bold text-ink-900">基于本次文件 `SqkxKEVuKZmxBtVBjZGs2R` 的推荐顺序</div>
+        <div class="grid xl:grid-cols-3 gap-4 mt-5">
+          <div class="rounded-2xl bg-white border border-slatex-100 p-5">
+            <div class="text-sm text-slatex-500">第 1 步</div>
+            <div class="text-lg font-serif font-bold text-ink-900 mt-2">把 Raw Capture 整理为正式页</div>
+            <div class="text-sm text-slatex-700 leading-7 mt-3">把 10 个原始 frame 中真正要交付的页面复制到 `02 Polished Screens`，补齐规范、状态和组件层级。</div>
+          </div>
+          <div class="rounded-2xl bg-white border border-slatex-100 p-5">
+            <div class="text-sm text-slatex-500">第 2 步</div>
+            <div class="text-lg font-serif font-bold text-ink-900 mt-2">先做高频组件</div>
+            <div class="text-sm text-slatex-700 leading-7 mt-3">优先把收购商首页卡片、底部导航、操作按钮、表单块等拆成代码组件，再回拼整页。</div>
+          </div>
+          <div class="rounded-2xl bg-white border border-slatex-100 p-5">
+            <div class="text-sm text-slatex-500">第 3 步</div>
+            <div class="text-lg font-serif font-bold text-ink-900 mt-2">再做页面与映射</div>
+            <div class="text-sm text-slatex-700 leading-7 mt-3">页面代码稳定后，把高频组件用 Code Connect 绑定回 Figma，后续改版就能走映射链路。</div>
+          </div>
+        </div>
+
+        <div class="grid xl:grid-cols-2 gap-5 mt-6">
+          <div class="rounded-2xl bg-ink-50 border border-ink-100 p-5">
+            <div class="text-sm text-slatex-500">建议优先实现</div>
+            <div class="flex flex-wrap mt-3">
+              <span class="chip">收购商首页</span>
+              <span class="chip">收购商市场页</span>
+              <span class="chip">收购商发布需求页</span>
+              <span class="chip">收购商开单页</span>
+              <span class="chip">收购商收银台页</span>
+            </div>
+          </div>
+          <div class="rounded-2xl bg-amberx-50 border border-amberx-100 p-5">
+            <div class="text-sm text-slatex-500">建议暂缓直接生代码</div>
+            <div class="flex flex-wrap mt-3">
+              <span class="chip">纯 Raw Capture 页面</span>
+              <span class="chip">未确认样式 token 的页面</span>
+              <span class="chip">未拆组件的复杂长列表页</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">8</div>
+        <h2 class="text-2xl font-serif font-bold text-ink-900">交付检查</h2>
+      </div>
+      <div class="card p-6">
+        <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div class="rounded-2xl bg-ink-50 border border-ink-100 p-4 text-sm text-slatex-700 leading-7">代码是否优先复用了现有组件和设计 token，而不是复制一坨静态样式。</div>
+          <div class="rounded-2xl bg-amberx-50 border border-amberx-100 p-4 text-sm text-slatex-700 leading-7">页面是否覆盖了 Figma 中的关键状态，而不是只还原默认态。</div>
+          <div class="rounded-2xl bg-mintx-50 border border-mintx-100 p-4 text-sm text-slatex-700 leading-7">图片、图标、字体、颜色变量是否已落成项目可维护资源。</div>
+          <div class="rounded-2xl bg-white border border-slatex-100 p-4 text-sm text-slatex-700 leading-7">关键组件是否值得建立 Code Connect 映射，以支持后续持续改版。</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  const sections = Array.from(document.querySelectorAll('section[id]'));
+  const links = Array.from(document.querySelectorAll('.side-nav a[href^="#"]'));
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const id = entry.target.getAttribute('id');
+      links.forEach(link => link.classList.toggle('active', link.getAttribute('href') === `#${id}`));
+    });
+  }, { rootMargin: '-35% 0px -55% 0px', threshold: 0 });
+  sections.forEach(section => observer.observe(section));
+
+  document.querySelectorAll('[data-copy]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const target = document.getElementById(button.dataset.copy);
+      if (!target) return;
+      const text = target.textContent.trim();
+      try {
+        await navigator.clipboard.writeText(text);
+        const original = button.textContent;
+        button.textContent = '已复制';
+        setTimeout(() => button.textContent = original, 1600);
+      } catch (error) {
+        const fallback = button.textContent.includes('模板') ? '复制模板' : '复制';
+        button.textContent = '复制失败';
+        setTimeout(() => button.textContent = fallback, 1600);
+      }
+    });
+  });
+</script>
+</body>
+</html>

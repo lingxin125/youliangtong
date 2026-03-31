@@ -8,26 +8,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         /* 品类标签 */
-        .category-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
-            white-space: nowrap;
+        /* 品类选择的高级质感 */
+        .category-grid-item {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .category-tag:active {
+        .category-grid-item:active {
             transform: scale(0.95);
-        }
-        .category-tag.active {
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         /* 历史录入商品标签 */
@@ -116,8 +105,8 @@
         /* 步骤卡片 */
         .step-card {
             background: #FFFFFF;
-            border: 1px solid rgba(0,0,0,.04);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            border: 1px solid rgba(243, 244, 246, 0.8);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
             border-radius: 1rem;
             overflow: hidden;
         }
@@ -272,10 +261,10 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <div class="w-1 h-4 bg-primary rounded-full"></div>
-                    <span class="text-sm font-medium text-gray-800">选择品类 <span class="text-red-400 text-xs">*</span></span>
+                    <span class="text-sm font-medium text-gray-800">选择主营品类 <span class="text-red-400 text-xs">*</span></span>
                 </div>
-                <div class="flex flex-wrap gap-2" id="categoryList">
-                    <!-- 品类标签由 JS 生成 -->
+                <div id="categoryList">
+                    <!-- JS 渲染网格视图 -->
                 </div>
             </div>
         </div>
@@ -332,24 +321,34 @@
                     <span class="text-sm font-medium text-gray-800">收款对象</span>
                 </div>
 
-                <!-- 扫码付款选项（未选择时显示） -->
-                <div id="payeeOptions">
+                <!-- 收款对象选择（未选择时显示） -->
+                <div id="payeeOptions" class="space-y-2">
                     <div onclick="pickByScan()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
-                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                            <i class="fas fa-qrcode text-green-500 text-sm"></i>
+                        <div class="w-10 h-10 rounded-[12px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] border border-[#11A64A]/10 flex items-center justify-center shrink-0">
+                            <i class="fas fa-qrcode text-[#11A64A] text-sm"></i>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="text-sm font-medium text-gray-800">扫码付款</div>
-                            <div class="text-xs text-gray-500 mt-0.5">通过扫描农户所提供的二维码进行付款</div>
+                            <div class="text-[11px] text-gray-500 mt-0.5">扫描农户二维码付款</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                    <div onclick="openFarmerSelectSheet()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
+                        <div class="w-10 h-10 rounded-[12px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] border border-[#11A64A]/10 flex items-center justify-center shrink-0">
+                            <i class="fas fa-address-book text-[#11A64A] text-sm"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium text-gray-800">选择合作农户</div>
+                            <div class="text-[11px] text-gray-500 mt-0.5">从历史合作过的农户中快捷选择</div>
                         </div>
                         <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
                     </div>
                 </div>
 
                 <!-- 已选择卡片 -->
-                <div id="payeeCard" class="payee-card hidden flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <i class="fas fa-user text-primary"></i>
+                <div id="payeeCard" class="hidden flex items-center gap-3 p-3 bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] border border-[#11A64A]/15 rounded-2xl">
+                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm border border-[#11A64A]/10">
+                        <i class="fas fa-user-check text-[#11A64A]"></i>
                     </div>
                     <div class="flex-1 min-w-0">
                         <div id="payeeName" class="text-sm font-medium text-gray-800 truncate"></div>
@@ -442,6 +441,29 @@
         </div>
     </div>
 
+    <!-- 选择合作农户弹窗 -->
+    <div class="billing-sheet-overlay" id="farmerSelectOverlay" onclick="closeFarmerSelectSheet()"></div>
+    <div class="billing-sheet" id="farmerSelectSheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-5 pb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-semibold text-gray-800">选择合作农户</h3>
+                <button onclick="closeFarmerSelectSheet()" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <!-- 搜索框 -->
+            <div class="relative mb-4">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input type="text" id="farmerSearchInput" placeholder="搜索姓名/手机号" class="w-full pl-9 pr-3 py-2.5 bg-gray-50 rounded-xl text-sm outline-none border border-transparent focus:border-[#11A64A]/30 focus:bg-white transition-colors" onkeyup="filterFarmers(this.value)">
+            </div>
+            <!-- 农户列表 -->
+            <div id="farmerSelectList" class="max-h-[50vh] overflow-y-auto hide-scrollbar space-y-2">
+                <!-- JS 渲染 -->
+            </div>
+        </div>
+    </div>
+
     <!-- 应用内弹窗 -->
     <div class="app-modal-overlay" id="appModalOverlay">
         <div class="app-modal">
@@ -457,6 +479,7 @@
 
 <script>
 // ==================== 初始化 ====================
+const captureState = new URLSearchParams(window.location.search).get('captureState') || '';
 document.getElementById('statusBar').innerHTML = renderStatusBar();
 document.getElementById('navBar').innerHTML = renderHeader('开单');
 document.getElementById('tabBar').innerHTML = renderBuyerTabBar('billing');
@@ -466,62 +489,34 @@ const CATEGORY_CONFIG = {
     '水果': {
         color: 'red',
         icon: 'fa-apple-whole',
-        bgClass: 'bg-red-50',
-        textClass: 'text-red-500',
-        borderClass: 'border-red-200',
-        tagBg: 'bg-red-50',
-        tagText: 'text-red-600',
-        tagBorder: 'border-red-200'
+        brandHex: '#F43F5E',
+        tagBg: 'bg-[#FFF0F2]',
+        tagText: 'text-[#F43F5E]',
+        tagBorder: 'border-[#F43F5E]/10'
     },
     '蔬菜': {
         color: 'green',
         icon: 'fa-carrot',
-        bgClass: 'bg-green-50',
-        textClass: 'text-green-500',
-        borderClass: 'border-green-200',
-        tagBg: 'bg-green-50',
-        tagText: 'text-green-600',
-        tagBorder: 'border-green-200'
+        brandHex: '#11A64A',
+        tagBg: 'bg-[#EBF7F0]',
+        tagText: 'text-[#11A64A]',
+        tagBorder: 'border-[#11A64A]/10'
     },
     '粮食': {
         color: 'amber',
         icon: 'fa-wheat-awn',
-        bgClass: 'bg-amber-50',
-        textClass: 'text-amber-500',
-        borderClass: 'border-amber-200',
-        tagBg: 'bg-amber-50',
-        tagText: 'text-amber-600',
-        tagBorder: 'border-amber-200'
-    },
-    '禽蛋': {
-        color: 'violet',
-        icon: 'fa-egg',
-        bgClass: 'bg-violet-50',
-        textClass: 'text-violet-500',
-        borderClass: 'border-violet-200',
-        tagBg: 'bg-violet-50',
-        tagText: 'text-violet-600',
-        tagBorder: 'border-violet-200'
-    },
-    '肉类': {
-        color: 'orange',
-        icon: 'fa-drumstick-bite',
-        bgClass: 'bg-orange-50',
-        textClass: 'text-orange-500',
-        borderClass: 'border-orange-200',
-        tagBg: 'bg-orange-50',
-        tagText: 'text-orange-600',
-        tagBorder: 'border-orange-200'
+        brandHex: '#F59E0B',
+        tagBg: 'bg-[#FFFBEB]',
+        tagText: 'text-[#F59E0B]',
+        tagBorder: 'border-[#F59E0B]/10'
     },
     '其他': {
         color: 'gray',
         icon: 'fa-box-open',
-        bgClass: 'bg-gray-100',
-        textClass: 'text-gray-500',
-        borderClass: 'border-gray-200',
-        tagBg: 'bg-gray-100',
-        tagText: 'text-gray-600',
-        tagBorder: 'border-gray-200'
+        brandHex: '#94A3B8',
+        tagBg: 'bg-[#F8FAFC]',
+        tagText: 'text-[#94A3B8]',
+        tagBorder: 'border-[#94A3B8]/10'
     }
 };
 
@@ -533,28 +528,38 @@ const state = {
     products: [],
     payee: null,
     payeePool: mockStore ? mockStore.getFrequentContacts() : [
-        { name: '李大姐', mobile: '138****2233', bank: '邮储银行烟台支行', card: '尾号 2233' },
-        { name: '王大哥', mobile: '139****5612', bank: '邮储银行保定支行', card: '尾号 5612' },
-        { name: '赵师傅', mobile: '136****9801', bank: '农业银行哈尔滨支行', card: '尾号 9801' }
+        { name: '李大姐', mobile: '138****2233', bank: '邮储银行烟台支行', card: '尾号 2233', payCount: 15 },
+        { name: '王大哥', mobile: '139****5612', bank: '邮储银行保定支行', card: '尾号 5612', payCount: 8 },
+        { name: '赵师傅', mobile: '136****9801', bank: '农业银行哈尔滨支行', card: '尾号 9801', payCount: 3 }
     ]
 };
 
 // ==================== 品类和历史商品渲染 ====================
 function renderCategories() {
     const container = document.getElementById('categoryList');
-    const categories = Object.keys(CATEGORY_CONFIG);
+    const displayCats = ['水果', '蔬菜', '粮食', '其他'];
 
-    container.innerHTML = categories.map(cat => {
+    container.innerHTML = `<div class="flex gap-2 w-full">` + displayCats.map(cat => {
         const config = CATEGORY_CONFIG[cat];
+        if(!config) return '';
         const isActive = state.currentCategory === cat;
-        return `
-            <div class="category-tag ${config.bgClass} ${config.textClass} ${isActive ? 'active ' + config.borderClass : ''}"
-                 onclick="selectCategory('${cat}')">
-                <i class="fas ${config.icon} text-xs"></i>
-                <span>${cat}</span>
+        
+        if (isActive) {
+            return `
+            <div onclick="selectCategory('${cat}')" class="flex-1 min-w-0 bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] rounded-xl py-3 flex flex-col items-center gap-1.5 cursor-pointer border border-[#11A64A]/30 shadow-[0_2px_8px_rgba(17,166,74,0.06)] transition-all">
+                <i class="fas ${config.icon} text-[20px]" style="color:${config.brandHex}"></i>
+                <span class="text-[12px] font-bold text-[#11A64A]">${cat}</span>
             </div>
-        `;
-    }).join('');
+            `;
+        } else {
+            return `
+            <div onclick="selectCategory('${cat}')" class="flex-1 min-w-0 bg-gray-50/80 rounded-xl py-3 flex flex-col items-center gap-1.5 cursor-pointer border border-transparent hover:bg-gray-100 transition-all">
+                <i class="fas ${config.icon} text-gray-300 text-[20px]"></i>
+                <span class="text-[12px] font-medium text-gray-500">${cat}</span>
+            </div>
+            `;
+        }
+    }).join('') + `</div>`;
 }
 
 function normalizeCategoryName(name) {
@@ -733,11 +738,10 @@ function renderProductList() {
         listContainer.innerHTML = state.products.map((product, index) => {
             const catConfig = product.category && CATEGORY_CONFIG[product.category] ? CATEGORY_CONFIG[product.category] : null;
             const iconClass = catConfig ? catConfig.icon : 'fa-tag';
-            const bgClass = catConfig ? catConfig.bgClass : 'bg-gray-100';
-            const textClass = catConfig ? catConfig.textClass : 'text-gray-400';
+            const textClass = catConfig ? catConfig.tagText : 'text-gray-400';
             return `
             <div class="product-item flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg ${bgClass} flex items-center justify-center shrink-0">
+                <div class="w-9 h-9 rounded-lg ${catConfig ? catConfig.tagBg : 'bg-gray-100'} flex items-center justify-center shrink-0 border border-white">
                     <i class="fas ${iconClass} ${textClass} text-xs"></i>
                 </div>
                 <div class="flex-1 min-w-0">
@@ -877,6 +881,94 @@ function pickByScan() {
     }
     setPayee(chosen);
     showToast('扫码识别成功，已选中收款对象');
+}
+
+// 农户选择弹窗逻辑
+function openFarmerSelectSheet() {
+    renderFarmerList(state.payeePool);
+    document.getElementById('farmerSelectOverlay').classList.add('show');
+    document.getElementById('farmerSelectSheet').classList.add('show');
+}
+
+function closeFarmerSelectSheet() {
+    document.getElementById('farmerSelectSheet').classList.remove('show');
+    document.getElementById('farmerSelectOverlay').classList.remove('show');
+    document.getElementById('farmerSearchInput').value = '';
+}
+
+function renderFarmerList(list) {
+    const container = document.getElementById('farmerSelectList');
+    if(list.length === 0) {
+        container.innerHTML = `<div class="py-10 text-center text-sm text-gray-400">暂无符合条件的农户</div>`;
+        return;
+    }
+    
+    function maskMobileStr(m) {
+        if(!m) return '无手机号';
+        if(m.includes('*') || m.includes('尾号') || m.includes('手')) return m;
+        if(m.length >= 11) return m.substring(0,3) + '****' + m.substring(m.length - 4);
+        return m;
+    }
+
+    function maskCardStr(c) {
+        if(!c) return '无卡号';
+        if(c.includes('*') || c.includes('尾号') || c.includes('卡')) return c;
+        if(c.length > 4) return '尾号 ' + c.substring(c.length - 4);
+        return c;
+    }
+    
+    container.innerHTML = list.map(farmer => {
+        const farmerJson = JSON.stringify(farmer).replace(/"/g, '&quot;');
+        
+        const mobileDisp = maskMobileStr(farmer.mobile);
+        const bankDisp = `${farmer.bank || '未知银行'} · ${maskCardStr(farmer.card)}`;
+        const countBadge = farmer.payCount ? `<span class="inline-block text-[10px] px-2 py-0.5 rounded-full bg-[#EBF7F0] text-[#11A64A] font-medium border border-[#11A64A]/20 mt-[1px]">付款${farmer.payCount}次</span>` : '';
+
+        return `
+        <div onclick="selectFarmer(${farmerJson})" class="bg-white rounded-2xl p-4 flex items-center gap-3.5 mb-2.5 cursor-pointer border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] active:scale-[0.98] transition-all">
+            <div class="w-12 h-12 rounded-full bg-[#EBF7F0] flex items-center justify-center shrink-0 border border-[#11A64A]/10 self-start mt-0.5">
+                <i class="fas fa-user text-[#11A64A]/80 text-[20px]"></i>
+            </div>
+            
+            <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                <div class="flex items-center flex-wrap gap-2 text-[#11A64A]">
+                    <span class="text-[16px] font-semibold text-gray-800 tracking-tight">${farmer.name}</span>
+                    ${countBadge}
+                </div>
+                <div class="text-[14px] font-medium text-gray-600 tracking-wide" style="font-family:Poppins,monospace;">${mobileDisp}</div>
+                <div class="flex items-center gap-1.5 text-[12px] text-gray-400/90 font-medium tracking-wide" style="font-family:Poppins,monospace;">
+                    <i class="fas fa-building-columns text-[10px] text-gray-400"></i>
+                    <span>${bankDisp}</span>
+                </div>
+            </div>
+            
+            <div class="shrink-0 flex items-center self-stretch pt-2">
+                <div class="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
+                    <i class="fas fa-check text-gray-300 text-[10px]"></i>
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+function filterFarmers(query) {
+    const q = (query || '').trim().toLowerCase();
+    if(!q) {
+        renderFarmerList(state.payeePool);
+        return;
+    }
+    const filtered = state.payeePool.filter(f => 
+        (f.name && f.name.toLowerCase().includes(q)) || 
+        (f.mobile && f.mobile.includes(q))
+    );
+    renderFarmerList(filtered);
+}
+
+function selectFarmer(farmer) {
+    setPayee(farmer);
+    closeFarmerSelectSheet();
+    showToast('已选中：' + farmer.name);
 }
 
 // ==================== 工具函数 ====================
@@ -1069,6 +1161,14 @@ document.getElementById('addProductOverlay').classList.remove('show');
 document.getElementById('addProductOverlay').addEventListener('click', function() {
     closeAddProductSheet();
 });
+
+if (captureState === 'modal') {
+    state.currentCategory = '粮食';
+    renderCategories();
+    setTimeout(function() {
+        openAddProductSheet();
+    }, 120);
+}
 </script>
 </body>
 </html>

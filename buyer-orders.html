@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500,700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js?v=2"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         /* ========== 基础样式 ========== */
         .amount-paid { color: #1F2937; }
@@ -743,6 +744,7 @@ const Actions = {
 };
 
 // ==================== 应用主控 ====================
+const captureState = new URLSearchParams(window.location.search).get('captureState') || '';
 const App = {
     init() {
         // 读取来源参数
@@ -766,6 +768,11 @@ const App = {
     },
 
     refresh() {
+        if (captureState === 'empty') {
+            RenderService.renderEmpty();
+            return;
+        }
+
         // 同步超时订单
         OrderService.syncTimeout();
 
@@ -810,6 +817,11 @@ const App = {
 
 // 启动应用
 App.init();
+if (captureState === 'modal') {
+    setTimeout(function() {
+        FilterPanel.open();
+    }, 120);
+}
 </script>
 </body>
 </html>

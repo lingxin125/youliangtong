@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML → Figma 实战指南（基于 Figma MCP）</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' font-size='46'%3E%F0%9F%8E%A8%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&amp;family=LXGW+WenKai:wght@300;400;700&amp;display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        forest: { 50:'#f0f7f1', 100:'#d8ecd9', 200:'#b3d9b7', 300:'#7fbf87', 400:'#4a9e56', 500:'#2d7a3a', 600:'#1a5c26', 700:'#1a472a', 800:'#163a23', 900:'#0f2a19' },
+        wheat: { 50:'#fdf9ef', 100:'#faf0d4', 200:'#f4dfa8', 300:'#ecc96f', 400:'#d4a843', 500:'#c4922a', 600:'#a87420', 700:'#88571c', 800:'#6f461e', 900:'#5c3b1d' },
+        cream: { 50:'#fefdfb', 100:'#faf6f0', 200:'#f5ede0', 300:'#ede0cc', 400:'#e0ccab' },
+        skysoft: { 50:'#f2f8ff', 100:'#dcebff', 500:'#4a7cc9', 700:'#2f5da3' }
+      },
+      fontFamily: {
+        serif: ['"Noto Serif SC"', 'serif'],
+        body: ['"LXGW WenKai"', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { scroll-behavior: smooth; }
+  body { font-family: 'LXGW WenKai', sans-serif; background: #faf6f0; color: #2f2f2f; }
+  h1,h2,h3,h4,h5 { font-family: 'Noto Serif SC', serif; }
+  .side-nav { position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: linear-gradient(180deg, #1a472a 0%, #0f2a19 100%); overflow-y: auto; z-index: 50; transition: transform 0.3s; }
+  .side-nav a { display: block; padding: 10px 20px; color: rgba(255,255,255,0.72); text-decoration: none; font-size: 14px; border-left: 3px solid transparent; transition: all 0.2s; }
+  .side-nav a:hover, .side-nav a.active { color: #f4dfa8; border-left-color: #d4a843; background: rgba(212,168,67,0.08); }
+  .side-nav .nav-title { padding: 24px 20px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: rgba(212,168,67,0.6); font-family: 'Noto Serif SC', serif; }
+  .main-content { margin-left: 280px; }
+  .hero { background: linear-gradient(135deg, #163a23 0%, #1a472a 44%, #2d7a3a 100%); position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -120px; right: -120px; width: 420px; height: 420px; background: radial-gradient(circle, rgba(212,168,67,0.16) 0%, transparent 70%); }
+  .hero::after { content: '✦'; position: absolute; right: 60px; bottom: 30px; font-size: 110px; color: rgba(255,255,255,0.08); }
+  .card { background: white; border-radius: 18px; border: 1px solid rgba(0,0,0,0.04); box-shadow: 0 10px 28px rgba(15,42,25,0.06); }
+  .soft-card { background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.90)); }
+  .section-index { width: 42px; height: 42px; border-radius: 14px; background: #1a472a; color: white; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
+  .phase-card { position: relative; overflow: hidden; }
+  .phase-card::after { content: ''; position: absolute; inset: auto 0 0 0; height: 4px; background: linear-gradient(90deg, #1a5c26, #d4a843); }
+  .prompt-box { background: #12171f; color: #e4ebf8; border-radius: 16px; padding: 20px; font-size: 13px; line-height: 1.7; white-space: pre-wrap; }
+  .tag { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 700; line-height: 1; }
+  .step-line { position: relative; padding-left: 32px; }
+  .step-line::before { content: ''; position: absolute; left: 8px; top: 8px; width: 12px; height: 12px; border-radius: 999px; background: #d4a843; box-shadow: 0 0 0 4px rgba(212,168,67,0.16); }
+  .step-line::after { content: ''; position: absolute; left: 13px; top: 24px; bottom: -22px; width: 2px; background: linear-gradient(180deg, rgba(212,168,67,0.32), rgba(26,92,38,0.16)); }
+  .step-line:last-child::after { display: none; }
+  .copy-btn { border-radius: 12px; background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.14); padding: 8px 12px; font-size: 12px; font-weight: 700; }
+  .copy-btn.light { background: #1a472a; color: white; border-color: #1a472a; }
+  .grid-chip { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; background: #f5f7fa; border: 1px solid #e7edf3; font-size: 12px; margin: 0 8px 8px 0; }
+  .stat-card { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(8px); border-radius: 18px; }
+  .notice { border-radius: 16px; background: linear-gradient(90deg, rgba(212,168,67,0.14), rgba(74,124,201,0.08)); border: 1px solid rgba(212,168,67,0.18); }
+  .metric-pill { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 14px; background: #fff; border: 1px solid rgba(26,71,42,0.08); font-size: 12px; font-weight: 700; color: #1a472a; box-shadow: 0 6px 16px rgba(15,42,25,0.05); }
+  .mini-list { display: grid; gap: 10px; }
+  .mini-list li { list-style: none; position: relative; padding-left: 18px; color: #4b5563; line-height: 1.8; font-size: 14px; }
+  .mini-list li::before { content: ''; position: absolute; left: 0; top: 10px; width: 7px; height: 7px; border-radius: 999px; background: #c4922a; }
+  .process-shell { background: linear-gradient(180deg, rgba(22,58,35,0.04), rgba(22,58,35,0.01)); border: 1px solid rgba(22,58,35,0.08); border-radius: 22px; }
+  .timeline-chip { display: inline-flex; align-items: center; justify-content: center; min-width: 72px; padding: 8px 12px; border-radius: 999px; background: #163a23; color: #fff; font-size: 12px; font-weight: 700; }
+  .link-card { display: block; text-decoration: none; color: inherit; }
+  @media (max-width: 1024px) {
+    .side-nav { transform: translateX(-100%); }
+    .side-nav.open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .mobile-toggle { display: flex !important; }
+  }
+</style>
+</head>
+<body class="antialiased">
+<button class="mobile-toggle hidden fixed top-4 left-4 z-[60] bg-forest-700 text-white p-2 rounded-lg shadow-lg" onclick="document.querySelector('.side-nav').classList.toggle('open')">
+  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+</button>
+
+<nav class="side-nav">
+  <div class="px-5 py-6 border-b border-white/10">
+    <div class="text-wheat-400 font-serif text-lg font-bold">🎨 HTML → Figma</div>
+    <div class="text-white/40 text-xs mt-1">通用工作流 · Figma MCP 指南</div>
+  </div>
+  <div class="nav-title">概览</div>
+  <a href="#overview">为什么这样做</a>
+  <a href="#official">官方能力</a>
+  <a href="#runbook">本次实操记录</a>
+  <a href="#workflow">标准流程</a>
+  <a href="#prompts">Prompt 模板</a>
+  <a href="#future">后续页面 SOP</a>
+  <a href="#structure">Figma 文件结构</a>
+  <a href="#install">Codex 接入方式</a>
+  <a href="#checklist">质量检查</a>
+  <a href="#limits">已知边界</a>
+  <a href="#project">当前项目首批页面</a>
+  <div class="nav-title">关联文档</div>
+  <a href="../docs/guides/html-to-figma-mcp-workflow.md">Markdown SOP</a>
+  <a href="./PRD-收粮平台-可视化.html">可视化 PRD</a>
+  <a href="./figma-to-code-mcp-guide.html">Figma → 代码指南</a>
+</nav>
+
+<div class="main-content">
+  <section class="hero px-8 py-16 md:px-16 md:py-24">
+    <div class="max-w-6xl relative z-10">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-wheat-400/20 text-wheat-300 rounded-full text-sm font-semibold mb-6 border border-wheat-400/20">
+        官方路径 · 本次实战已验证 · 可重复复用
+      </div>
+      <div class="grid xl:grid-cols-[1.1fr_0.9fr] gap-8 items-end">
+        <div>
+          <h1 class="text-4xl md:text-5xl font-serif font-black text-white leading-tight mb-4">
+            HTML 页面如何稳定转进<br><span class="text-wheat-400">Figma 并继续交给 UI 优化</span>
+          </h1>
+          <p class="text-white/75 text-lg leading-relaxed max-w-3xl mt-6">
+            推荐使用 <strong class="text-white">Figma MCP 的 code to canvas</strong>，
+            通过浏览器里渲染好的 live UI 直接生成可编辑 Figma frame。
+            这份页面不只是原理说明，也沉淀了本次“收粮农产品”项目的真实执行流程、已验证 Prompt 和后续增量抓取 SOP。
+          </p>
+          <div class="flex flex-wrap gap-3 mt-8">
+            <a href="https://developers.figma.com/docs/figma-mcp-server/" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-wheat-500 text-white text-sm font-semibold hover:bg-wheat-600">
+              官方 MCP 文档
+            </a>
+            <a href="https://developers.figma.com/docs/figma-mcp-server/code-to-canvas/" target="_blank" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white/15 border border-white/25 text-white text-sm font-semibold hover:bg-white/20">
+              查看 Code to Canvas
+            </a>
+            <a href="./figma-to-code-mcp-guide.html" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-forest-900/50 border border-white/10 text-white text-sm font-semibold hover:bg-forest-900/70">
+              查看 Figma → 代码指南
+            </a>
+          </div>
+        </div>
+        <div class="card p-6 bg-white/10 border-white/10 text-white">
+          <div class="text-sm text-white/70 mb-4">这次已完成的首批抓取结果</div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="stat-card px-4 py-4">
+              <div class="text-white/60 text-xs">成功页面</div>
+              <div class="text-2xl font-serif font-bold text-wheat-300 mt-1">10 / 10</div>
+            </div>
+            <div class="stat-card px-4 py-4">
+              <div class="text-white/60 text-xs">H5 宽度</div>
+              <div class="text-2xl font-serif font-bold text-wheat-300 mt-1">375</div>
+            </div>
+            <div class="stat-card px-4 py-4">
+              <div class="text-white/60 text-xs">落点 page</div>
+              <div class="text-sm font-bold text-wheat-300 mt-1 leading-6">00 Raw Capture</div>
+            </div>
+            <div class="stat-card px-4 py-4">
+              <div class="text-white/60 text-xs">目标文件</div>
+              <div class="text-sm font-bold text-wheat-300 mt-1 leading-6">新建 Figma 文件统一承接</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-6xl mx-auto px-6 md:px-12 py-12 space-y-16">
+    <section id="overview">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">1</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">为什么这样做</h2>
+      </div>
+      <div class="grid xl:grid-cols-[1.05fr_0.95fr] gap-6">
+        <div class="card soft-card p-6">
+          <div class="text-xl font-serif font-bold text-forest-900">最现实的目标</div>
+          <div class="text-sm text-gray-600 leading-8 mt-4">
+            不追求“HTML 一键变成完美设计系统”，而是把已经完成的页面先快速送进 Figma，
+            形成一份可以继续调布局、抽组件、补状态、做交付的可编辑稿。
+          </div>
+          <div class="notice px-4 py-4 mt-5 text-sm text-gray-700 leading-7">
+            如果你的项目经常是“原型先做 HTML，再回到设计稿统一视觉”，那这套流程最值得沉淀成团队 SOP。
+          </div>
+        </div>
+        <div class="grid gap-4">
+          <div class="card p-5">
+            <span class="tag bg-forest-50 text-forest-700 border border-forest-100">适合</span>
+            <div class="text-lg font-serif font-bold text-forest-900 mt-3">静态原型、GitHub Pages、开发前端页面</div>
+          </div>
+          <div class="card p-5">
+            <span class="tag bg-wheat-50 text-wheat-800 border border-wheat-100">不适合</span>
+            <div class="text-lg font-serif font-bold text-forest-900 mt-3">指望直接得到 100% 干净组件库</div>
+          </div>
+          <div class="card p-5">
+            <span class="tag bg-skysoft-50 text-skysoft-700 border border-skysoft-100">最佳定位</span>
+            <div class="text-lg font-serif font-bold text-forest-900 mt-3">代码稿 → Figma 中间稿 → UI 精修 → 交付开发</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="official">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">2</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">官方能力</h2>
+      </div>
+      <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="card p-5 phase-card">
+          <div class="text-sm text-gray-500">MCP 名称</div>
+          <div class="text-xl font-serif font-bold text-forest-900 mt-2">Figma MCP server</div>
+        </div>
+        <div class="card p-5 phase-card">
+          <div class="text-sm text-gray-500">Remote 地址</div>
+          <div class="text-sm font-bold text-forest-900 mt-2 break-all">https://mcp.figma.com/mcp</div>
+        </div>
+        <div class="card p-5 phase-card">
+          <div class="text-sm text-gray-500">关键能力</div>
+          <div class="text-xl font-serif font-bold text-forest-900 mt-2">Code to Canvas</div>
+        </div>
+        <div class="card p-5 phase-card">
+          <div class="text-sm text-gray-500">核心动作</div>
+          <div class="text-sm font-bold text-forest-900 mt-2 leading-7">将浏览器里的 live UI 抓成可编辑 Figma frame</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="runbook">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">3</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">本次实操记录</h2>
+      </div>
+      <div class="grid xl:grid-cols-[0.98fr_1.02fr] gap-6">
+        <div class="card p-6 process-shell">
+          <div class="text-lg font-serif font-bold text-forest-900">本次实际执行流程</div>
+          <div class="space-y-5 mt-5">
+            <div class="step-line">
+              <div class="font-bold text-forest-900">1. 确认本地服务可访问</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">使用 `http://127.0.0.1:8877/*.html` 作为抓取来源，先确认目标页面都能返回正确标题。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">2. 读取页面语义并准备命名</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">通过页面标题提炼语义名称，而不是直接使用文件名，避免 Figma 内部可读性差。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">3. 新建 Figma 文件与 page</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">创建新文件后，把默认 page 重命名为 `00 Raw Capture`，作为所有原始抓取结果的唯一入口。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">4. 只抓 `.mobile-container`</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">H5 页本身固定为 `375px`，抓取时指定 `.mobile-container`，避免把桌面浏览器空白区域一起带进 Figma。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">5. 逐页串行回收 capture</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">并发首次尝试容易造成前一个页面还没提交就被后一个页面切走，因此本次最终采用串行提交，更稳定。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">6. 清理、重命名、排版</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">删除误抓的大宽度 frame，仅保留 10 个 `375 x 812` 的有效 frame，并统一改成语义名称。</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid gap-4">
+          <div class="card p-5">
+            <div class="flex flex-wrap gap-2">
+              <span class="metric-pill">Figma 文件 Key: <span class="text-wheat-700">SqkxKEVuKZmxBtVBjZGs2R</span></span>
+              <span class="metric-pill">Page: 00 Raw Capture</span>
+            </div>
+            <div class="mini-list mt-5">
+              <li>团队落点：`丰收云小程序团队`</li>
+              <li>页面数：10 个首批母版页</li>
+              <li>最终结果：10 个可编辑 frame，均为移动端宽度</li>
+              <li>异常处理：`buyer-market.html` 首次转换异常，单独重抓后成功</li>
+            </div>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">本次最终 frame 名称</div>
+            <div class="flex flex-wrap mt-4">
+              <span class="grid-chip">登录页</span>
+              <span class="grid-chip">收购商首页</span>
+              <span class="grid-chip">收购商市场页</span>
+              <span class="grid-chip">收购商发布需求页</span>
+              <span class="grid-chip">收购商开单页</span>
+              <span class="grid-chip">收购商收银台页</span>
+              <span class="grid-chip">农户首页</span>
+              <span class="grid-chip">农户发布需求页</span>
+              <span class="grid-chip">农户账户码页</span>
+              <span class="grid-chip">农户我的页</span>
+            </div>
+          </div>
+          <a class="card p-5 link-card hover:shadow-lg transition-shadow" href="https://www.figma.com/design/SqkxKEVuKZmxBtVBjZGs2R?page-id=0%3A1" target="_blank">
+            <div class="text-sm text-gray-500">实际产物链接</div>
+            <div class="text-lg font-serif font-bold text-forest-900 mt-2">打开本次 Raw Capture 文件</div>
+            <div class="text-sm text-gray-600 mt-3 leading-7 break-all">https://www.figma.com/design/SqkxKEVuKZmxBtVBjZGs2R?page-id=0%3A1</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">4</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">标准流程</h2>
+      </div>
+      <div class="grid xl:grid-cols-[0.95fr_1.05fr] gap-6">
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-forest-900 mb-5">流程主线</div>
+          <div class="space-y-5">
+            <div class="step-line">
+              <div class="font-bold text-forest-900">准备可抓取页面</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">固定 URL、字体、图片、mock 数据和 viewport，确保页面能稳定访问。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">启动本地或线上访问地址</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">支持本地服务、GitHub Pages 或已开发的线上预览环境。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">用 MCP 抓取到 Figma</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">按“业务流”而不是整站一次性抓，优先抓 8~10 个母版页；H5 页面优先指定 `.mobile-container`。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">UI 在 Figma 中做精修</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">优化排版、抽组件、补状态，不需要从头重画整页。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">回流开发</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">正式稿进入交付页，后续再结合 MCP / Code Connect 回写代码。</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid gap-4">
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">页面输入</div>
+            <div class="text-lg font-serif font-bold text-forest-900 mt-2">本地 HTML / GitHub Pages / 线上预览</div>
+            <div class="text-sm text-gray-600 leading-7 mt-3">推荐每个页面都有独立 URL，避免依赖复杂点击链路。</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">抓取粒度</div>
+            <div class="text-lg font-serif font-bold text-forest-900 mt-2">优先业务流，其次状态页</div>
+            <div class="flex flex-wrap gap-2 mt-3">
+              <span class="grid-chip">登录</span>
+              <span class="grid-chip">首页</span>
+              <span class="grid-chip">市场</span>
+              <span class="grid-chip">发布</span>
+              <span class="grid-chip">收银台</span>
+              <span class="grid-chip">我的</span>
+              <span class="grid-chip">空态</span>
+              <span class="grid-chip">错误态</span>
+            </div>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">建议 viewport</div>
+            <div class="text-lg font-serif font-bold text-forest-900 mt-2">H5：375 / 393 · PC：1440</div>
+            <div class="text-sm text-gray-600 leading-7 mt-3">统一 viewport 是为了避免 UI 在 Figma 中拿到不同宽度的混乱稿。H5 若已有手机容器，优先只抓容器本身。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="prompts">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">5</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">Prompt 模板</h2>
+      </div>
+      <div class="grid gap-5">
+        <div class="card p-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <div class="text-lg font-serif font-bold text-forest-900">模板 A · 本次首批 10 页实战 Prompt</div>
+              <div class="text-sm text-gray-500 mt-1">这是本次项目可直接复用的完整批量抓取模板</div>
+            </div>
+            <button class="copy-btn light" data-copy="prompt-a">复制模板</button>
+          </div>
+          <div id="prompt-a" class="prompt-box mt-4">请使用 Figma MCP，把我当前原型项目的首批页面抓到一个新的 Figma 文件中，生成可编辑的 frame，供 UI 后续继续优化。
+
+要求：
+1. 使用本地原型服务中的页面
+2. 所有 H5 页面按移动端宽度 375 抓取
+3. 每个页面单独一个 frame
+4. 新建一个 Figma 文件
+5. 在文件中创建一个 page，命名为 00 Raw Capture
+6. 所有抓取结果统一放到 00 Raw Capture
+7. frame 名称使用页面语义命名，不要只用文件名
+8. 抓取完成后告诉我：
+   - 新 Figma 文件链接
+   - 实际抓取成功的页面列表
+   - 哪些页面失败了，失败原因是什么
+
+请抓取以下页面：
+- http://127.0.0.1:8877/login.html
+- http://127.0.0.1:8877/buyer-home.html
+- http://127.0.0.1:8877/buyer-market.html
+- http://127.0.0.1:8877/buyer-publish.html
+- http://127.0.0.1:8877/buyer-billing.html
+- http://127.0.0.1:8877/buyer-cashier.html
+- http://127.0.0.1:8877/farmer-home.html
+- http://127.0.0.1:8877/farmer-publish.html
+- http://127.0.0.1:8877/farmer-collection.html
+- http://127.0.0.1:8877/farmer-my.html</div>
+        </div>
+        <div class="card p-5">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <div class="text-lg font-serif font-bold text-forest-900">模板 B · 后续新增页面批量追加</div>
+              <div class="text-sm text-gray-500 mt-1">适合已存在 Figma 文件时继续向 `00 Raw Capture` 里增量补页</div>
+            </div>
+            <button class="copy-btn light" data-copy="prompt-b">复制模板</button>
+          </div>
+          <div id="prompt-b" class="prompt-box mt-4">请继续使用已有的 Figma 文件，把以下页面增量抓取到同一个文件中。
+
+要求：
+1. 不要新建文件，继续使用现有文件
+2. 所有结果仍然放在 00 Raw Capture
+3. H5 页面统一按 375 宽抓取
+4. 每个页面一个独立 frame
+5. frame 名称使用页面语义名
+6. 如果某页首次抓取失败，请自动重试一次，并汇总失败原因
+
+已有 Figma 文件：【替换成文件链接】
+待抓取页面：
+- 【替换成 URL 1】
+- 【替换成 URL 2】
+- 【替换成 URL 3】</div>
+        </div>
+        <div class="grid xl:grid-cols-2 gap-5">
+          <div class="card p-5">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="text-lg font-serif font-bold text-forest-900">模板 C · 首次失败页重抓</div>
+                <div class="text-sm text-gray-500 mt-1">适合个别页面长时间 processing 或 unexpected error 时</div>
+              </div>
+              <button class="copy-btn light" data-copy="prompt-c">复制模板</button>
+            </div>
+            <div id="prompt-c" class="prompt-box mt-4">请只重抓这一页，不要影响同文件中的其他 frame。
+
+要求：
+1. 使用已有 Figma 文件
+2. 只重抓这个失败页面
+3. 保持放在 00 Raw Capture
+4. 如果页面是 H5，请按 375 宽抓取
+5. 如果页面有 `.mobile-container`，优先只抓这个容器
+6. 成功后请删除误抓或重复的旧 frame，并保留语义名称
+
+失败页面：
+- 【替换成失败页 URL】
+
+已有 Figma 文件：
+- 【替换成文件链接】</div>
+          </div>
+          <div class="card p-5">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="text-lg font-serif font-bold text-forest-900">模板 D · 补状态页 / 弹窗态</div>
+                <div class="text-sm text-gray-500 mt-1">空态、错误态、校验态、弹窗态建议分批独立补</div>
+              </div>
+              <button class="copy-btn light" data-copy="prompt-d">复制模板</button>
+            </div>
+            <div id="prompt-d" class="prompt-box mt-4">请继续使用已有 Figma 文件，为以下状态页补抓独立 frame。
+
+要求：
+1. 继续放在 00 Raw Capture
+2. 每个状态单独一个 frame
+3. 命名采用 “页面语义 + 状态” 方式
+4. H5 页面统一抓 375 宽
+
+建议状态：
+- 空态
+- 表单校验错误态
+- 成功态
+- 弹窗打开态
+- 加载态</div>
+          </div>
+        </div>
+        <div class="grid xl:grid-cols-2 gap-5">
+          <div class="card p-5">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="text-lg font-serif font-bold text-forest-900">模板 E · 指定选择器抓 H5 容器</div>
+                <div class="text-sm text-gray-500 mt-1">适合页面外部有桌面留白或预览壳时</div>
+              </div>
+              <button class="copy-btn light" data-copy="prompt-e">复制模板</button>
+            </div>
+            <div id="prompt-e" class="prompt-box mt-4">抓取时请优先只抓 H5 主容器，不要把浏览器桌面背景或额外预览外壳一起抓进 Figma。
+
+要求：
+1. 如果页面内存在 `.mobile-container`，只抓 `.mobile-container`
+2. 最终 frame 保持 375 宽
+3. 如有误抓的大宽度 frame，请自动删除并保留正确版本</div>
+          </div>
+          <div class="card p-5">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="text-lg font-serif font-bold text-forest-900">模板 F · 抓 PC 页面</div>
+                <div class="text-sm text-gray-500 mt-1">后续管理后台、看板、PC 收银台可直接用</div>
+              </div>
+              <button class="copy-btn light" data-copy="prompt-f">复制模板</button>
+            </div>
+            <div id="prompt-f" class="prompt-box mt-4">请把以下 PC 页面抓到同一个 Figma 文件中，生成可编辑 frame。
+
+要求：
+1. PC 页面统一按 1440 宽抓取
+2. 每个页面一个独立 frame
+3. 放到 00 Raw Capture
+4. 名称使用业务语义，不要只用文件名
+5. 抓取完成后返回成功列表和失败原因
+
+页面：
+- 【替换成 PC URL 1】
+- 【替换成 PC URL 2】</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="future">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">6</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">后续页面 SOP</h2>
+      </div>
+      <div class="grid xl:grid-cols-[0.98fr_1.02fr] gap-6">
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-forest-900">后续每一批页面建议这样抓</div>
+          <div class="space-y-5 mt-5">
+            <div class="step-line">
+              <div class="font-bold text-forest-900">先按业务流分批</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">不要一次抓全站。每批保持 4 到 8 页，按一个闭环业务流组织，后续更容易清理和验收。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">仍然先放 00 Raw Capture</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">原始抓取页统一留在 `00 Raw Capture`，不要直接在这里做正式视觉稿，后续再拆去 `01 Candidate Components` 和 `02 Polished Screens`。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">命名必须带语义与状态</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">例如：`收购商订单列表页`、`收购商订单详情页`、`收购商支付成功态`、`农户收款记录空态`。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">失败页单独重抓</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">某一页异常时，不要整批推翻；直接使用“失败页重抓模板”，并在成功后清理重复 frame。</div>
+            </div>
+            <div class="step-line">
+              <div class="font-bold text-forest-900">每批都要回报三件事</div>
+              <div class="text-sm text-gray-600 mt-2 leading-7">新/已有 Figma 文件链接、实际成功页面列表、失败页面及原因。这三项是后续团队协作最低交付标准。</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid gap-4">
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">推荐批次 2：收购商交易链路</div>
+            <div class="prompt-box mt-3" id="future-batch-1">请把以下页面继续抓到已有 Figma 文件中，放到 00 Raw Capture，H5 宽度统一 375：
+- http://127.0.0.1:8877/buyer-orders.html
+- http://127.0.0.1:8877/buyer-order-detail.html
+- http://127.0.0.1:8877/buyer-demand-manage.html
+- http://127.0.0.1:8877/buyer-demand-detail.html
+- http://127.0.0.1:8877/buyer-contacts.html</div>
+            <button class="copy-btn light mt-3" data-copy="future-batch-1">复制批次 Prompt</button>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">推荐批次 3：支付链路</div>
+            <div class="prompt-box mt-3" id="future-batch-2">请把以下支付链路页面继续抓到已有 Figma 文件中，放到 00 Raw Capture，命名使用语义名称：
+- http://127.0.0.1:8877/buyer-merge-pay.html
+- http://127.0.0.1:8877/buyer-bank-merge-h5.html
+- http://127.0.0.1:8877/buyer-bank-h5-pay.html
+- http://127.0.0.1:8877/buyer-cashier.html</div>
+            <button class="copy-btn light mt-3" data-copy="future-batch-2">复制批次 Prompt</button>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">推荐批次 4：农户链路</div>
+            <div class="prompt-box mt-3" id="future-batch-3">请把以下农户业务页面抓到已有 Figma 文件中，统一放在 00 Raw Capture：
+- http://127.0.0.1:8877/farmer-market.html
+- http://127.0.0.1:8877/farmer-demand-manage.html
+- http://127.0.0.1:8877/farmer-demand-detail.html
+- http://127.0.0.1:8877/farmer-collection-records.html
+- http://127.0.0.1:8877/farmer-collection-detail.html</div>
+            <button class="copy-btn light mt-3" data-copy="future-batch-3">复制批次 Prompt</button>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">推荐批次 5：个人中心与设置</div>
+            <div class="prompt-box mt-3" id="future-batch-4">请继续抓取以下个人中心和设置页面，H5 统一按 375 宽，frame 名称使用语义名：
+- http://127.0.0.1:8877/buyer-my.html
+- http://127.0.0.1:8877/buyer-profile.html
+- http://127.0.0.1:8877/farmer-profile.html
+- http://127.0.0.1:8877/change-password.html
+- http://127.0.0.1:8877/account-security.html
+- http://127.0.0.1:8877/forgot-password.html</div>
+            <button class="copy-btn light mt-3" data-copy="future-batch-4">复制批次 Prompt</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="structure">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">7</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">Figma 文件结构</h2>
+      </div>
+      <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="card p-5 phase-card">
+          <div class="tag bg-forest-50 text-forest-700 border border-forest-100">00</div>
+          <div class="text-lg font-serif font-bold text-forest-900 mt-3">Raw Capture</div>
+          <div class="text-sm text-gray-600 leading-7 mt-3">MCP 抓回来的原始页面，不直接在这里做正式交付。建议保持“一个页面一个 frame + 语义名称”。</div>
+        </div>
+        <div class="card p-5 phase-card">
+          <div class="tag bg-wheat-50 text-wheat-800 border border-wheat-100">01</div>
+          <div class="text-lg font-serif font-bold text-forest-900 mt-3">Candidate Components</div>
+          <div class="text-sm text-gray-600 leading-7 mt-3">从页面里拆出的卡片、按钮、表单、标签、弹窗等候选组件。</div>
+        </div>
+        <div class="card p-5 phase-card">
+          <div class="tag bg-skysoft-50 text-skysoft-700 border border-skysoft-100">02</div>
+          <div class="text-lg font-serif font-bold text-forest-900 mt-3">Polished Screens</div>
+          <div class="text-sm text-gray-600 leading-7 mt-3">UI 精修后的正式页面，适合评审、对齐和后续交付。</div>
+        </div>
+        <div class="card p-5 phase-card">
+          <div class="tag bg-rose-50 text-rose-700 border border-rose-100">03</div>
+          <div class="text-lg font-serif font-bold text-forest-900 mt-3">Handoff</div>
+          <div class="text-sm text-gray-600 leading-7 mt-3">开发交付页、状态说明、关键备注和补充交互说明。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">8</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">Codex 接入方式</h2>
+      </div>
+      <div class="grid xl:grid-cols-[1fr_1fr] gap-6">
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-forest-900">三步接入</div>
+          <div class="space-y-4 mt-5">
+            <div class="rounded-2xl bg-forest-50 border border-forest-100 px-4 py-4">
+              <div class="font-bold text-forest-800">1. 添加 Figma MCP</div>
+              <div class="prompt-box mt-3" id="cmd-add">codex mcp add figma --url https://mcp.figma.com/mcp</div>
+              <button class="copy-btn light mt-3" data-copy="cmd-add">复制命令</button>
+            </div>
+            <div class="rounded-2xl bg-wheat-50 border border-wheat-100 px-4 py-4">
+              <div class="font-bold text-wheat-900">2. 浏览器授权登录</div>
+              <div class="prompt-box mt-3" id="cmd-login">codex mcp login figma</div>
+              <button class="copy-btn light mt-3" data-copy="cmd-login">复制命令</button>
+            </div>
+            <div class="rounded-2xl bg-skysoft-50 border border-skysoft-100 px-4 py-4">
+              <div class="font-bold text-skysoft-700">3. 查看当前状态</div>
+              <div class="prompt-box mt-3" id="cmd-check">codex mcp get figma
+codex mcp list</div>
+              <button class="copy-btn light mt-3" data-copy="cmd-check">复制命令</button>
+            </div>
+          </div>
+        </div>
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-forest-900">判断标准</div>
+          <div class="grid gap-4 mt-5">
+            <div class="rounded-2xl bg-white border border-gray-100 px-4 py-4">
+              <div class="text-sm text-gray-500">已接入未登录</div>
+              <div class="text-base font-bold text-forest-900 mt-2">`Status: enabled` + `Auth: Not logged in`</div>
+            </div>
+            <div class="rounded-2xl bg-white border border-gray-100 px-4 py-4">
+              <div class="text-sm text-gray-500">已完成可用</div>
+              <div class="text-base font-bold text-forest-900 mt-2">`Status: enabled` + `Auth: OAuth`</div>
+            </div>
+            <div class="notice px-4 py-4 text-sm text-gray-700 leading-7">
+              如果你已经把 MCP 装进 Codex，但当前这个会话里还没直接出现新的 figma 工具句柄，通常重新开一个 Codex 会话就能加载到最新配置。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">9</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">质量检查</h2>
+      </div>
+      <div class="card p-6">
+        <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div class="rounded-2xl bg-forest-50 border border-forest-100 p-4 text-sm text-gray-700 leading-7">页面宽度是否正确，移动端和 PC 是否混宽。</div>
+          <div class="rounded-2xl bg-wheat-50 border border-wheat-100 p-4 text-sm text-gray-700 leading-7">文本是否仍为可编辑文本，是否被错误转成图层。</div>
+          <div class="rounded-2xl bg-skysoft-50 border border-skysoft-100 p-4 text-sm text-gray-700 leading-7">图片、图标、按钮、卡片是否还能被进一步拆组件。</div>
+          <div class="rounded-2xl bg-rose-50 border border-rose-100 p-4 text-sm text-gray-700 leading-7">空态、错误态、弹窗态是否已经单独成 frame；失败重抓后是否清理了重复 frame。</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="limits">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">10</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">已知边界</h2>
+      </div>
+      <div class="grid xl:grid-cols-2 gap-6">
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-forest-900">它能做的</div>
+          <ul class="text-sm text-gray-700 leading-8 mt-4 list-disc pl-5">
+            <li>快速把 live UI 送进 Figma</li>
+            <li>节省重画成本</li>
+            <li>让 UI 在此基础上继续精修</li>
+            <li>适合沉淀组件和正式交付页</li>
+          </ul>
+        </div>
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-forest-900">它做不到的</div>
+          <ul class="text-sm text-gray-700 leading-8 mt-4 list-disc pl-5">
+            <li>不能保证 100% 自动得到最优组件体系</li>
+            <li>复杂动画、伪元素和特殊定位可能仍需人工修</li>
+            <li>需要你提前准备好可访问、可复现的页面状态</li>
+            <li>后续若追求生产级代码，仍建议补上组件化整理和 Code Connect</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="project">
+      <div class="flex items-center gap-3 mb-7">
+        <div class="section-index">11</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">当前项目首批页面</h2>
+      </div>
+      <div class="card p-6">
+        <div class="text-lg font-serif font-bold text-forest-900">本次已完成抓取的 10 个页面</div>
+        <div class="flex flex-wrap mt-5">
+          <span class="grid-chip">login.html</span>
+          <span class="grid-chip">buyer-home.html</span>
+          <span class="grid-chip">buyer-market.html</span>
+          <span class="grid-chip">buyer-publish.html</span>
+          <span class="grid-chip">buyer-billing.html</span>
+          <span class="grid-chip">buyer-cashier.html</span>
+          <span class="grid-chip">farmer-home.html</span>
+          <span class="grid-chip">farmer-publish.html</span>
+          <span class="grid-chip">farmer-collection.html</span>
+          <span class="grid-chip">farmer-my.html</span>
+        </div>
+        <div class="notice px-4 py-4 mt-5 text-sm text-gray-700 leading-7">
+          这批“母版页”已经实抓成功，可作为后续 UI 精修和组件抽象的起点。
+          下一步建议优先补订单链路、支付链路、个人中心链路，以及空态 / 错误态 / 弹窗态。
+        </div>
+        <div class="grid md:grid-cols-2 gap-4 mt-5">
+          <div class="rounded-2xl bg-forest-50 border border-forest-100 p-4">
+            <div class="text-sm text-gray-500">本次成功策略</div>
+            <div class="text-sm text-gray-700 leading-7 mt-2">新建文件、统一 page、H5 只抓 `.mobile-container`、失败页单独重抓、最后统一语义命名。</div>
+          </div>
+          <div class="rounded-2xl bg-wheat-50 border border-wheat-100 p-4">
+            <div class="text-sm text-gray-500">下一步建议</div>
+            <div class="text-sm text-gray-700 leading-7 mt-2">把 `00 Raw Capture` 中需要复用的模块拆去 `01 Candidate Components`，然后在 `02 Polished Screens` 产出正式设计稿。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  const sections = Array.from(document.querySelectorAll('section[id]'));
+  const links = Array.from(document.querySelectorAll('.side-nav a[href^="#"]'));
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const id = entry.target.getAttribute('id');
+      links.forEach(link => link.classList.toggle('active', link.getAttribute('href') === `#${id}`));
+    });
+  }, { rootMargin: '-35% 0px -55% 0px', threshold: 0 });
+  sections.forEach(section => observer.observe(section));
+
+  document.querySelectorAll('[data-copy]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const target = document.getElementById(button.dataset.copy);
+      if (!target) return;
+      const text = target.textContent.trim();
+      try {
+        await navigator.clipboard.writeText(text);
+        const original = button.textContent;
+        button.textContent = '已复制';
+        setTimeout(() => button.textContent = original, 1600);
+      } catch (error) {
+        button.textContent = '复制失败';
+        setTimeout(() => button.textContent = '复制模板', 1600);
+      }
+    });
+  });
+</script>
+</body>
+</html>

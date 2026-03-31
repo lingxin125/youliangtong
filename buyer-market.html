@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 </head>
 <body>
 <div class="mobile-container">
@@ -164,6 +165,7 @@ document.getElementById('tabBar').innerHTML = renderBuyerTabBar('market');
 var demandStore = window.DemandMockStore || null;
 var marketPage = 'buyer-market.html';
 var fallbackDemandRole = 'farmer';
+var captureState = new URLSearchParams(window.location.search).get('captureState') || '';
 
 var state = {
     sort: 'latest',
@@ -733,6 +735,31 @@ function closeContact() {
     document.getElementById('contactSheet').classList.add('hidden');
 }
 
+function applyCaptureState() {
+    if (!captureState) return;
+    if (captureState === 'empty') {
+        state.keyword = '__capture_empty__';
+        document.getElementById('searchInput').value = '__capture_empty__';
+        renderList();
+        return;
+    }
+    if (captureState === 'filter') {
+        setTimeout(openFilter, 120);
+        return;
+    }
+    if (captureState === 'contact') {
+        var first = readList()[0];
+        if (first) {
+            setTimeout(function() {
+                openContact(
+                    encodeURIComponent(first.ownerName || '发布者'),
+                    encodeURIComponent(first.ownerMobile || '-')
+                );
+            }, 120);
+        }
+    }
+}
+
 // 初始化：根据当前状态设置正确的 activeTab
 if (state.sort === 'nearest') {
     state.activeTab = 'nearest';
@@ -765,6 +792,7 @@ renderFilterDot();
 // MVP暂不启用focus参数自动筛选
 
 renderList();
+applyCaptureState();
 </script>
 </body>
 </html>

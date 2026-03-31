@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 </head>
 <body>
 <div class="mobile-container">
@@ -110,6 +111,7 @@ document.getElementById('statusBar').innerHTML = renderStatusBar();
 
 var demandStore = window.DemandMockStore || null;
 var q = new URLSearchParams(window.location.search);
+var captureState = q.get('captureState') || '';
 var sourcePage = q.get('source') || '';
 var backLink = q.get('back') || 'farmer-market.html';
 if (!q.get('back')) {
@@ -339,6 +341,12 @@ function closeImageViewer(e) {
 
 document.getElementById('contactBtn').addEventListener('click', openContactModal);
 renderDemandDetail();
+
+if (captureState === 'modal') {
+    setTimeout(function() {
+        openContactModal();
+    }, 120);
+}
 </script>
 </body>
 </html>

@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         /* 输入框样式 */
         .login-input {
@@ -276,6 +277,8 @@
 </div>
 
 <script>
+var loginCaptureState = new URLSearchParams(window.location.search).get('captureState') || '';
+
 // 渲染状态栏
 document.getElementById('statusBar').innerHTML = renderStatusBar();
 
@@ -353,6 +356,13 @@ function doWechatLogin() {
         }
         _navigateTo('farmer-home.html');
     }, 1200);
+}
+
+if (loginCaptureState === 'error') {
+    setTimeout(function() {
+        document.getElementById('agreeTermsCheckbox').checked = false;
+        showToast('请先勾选并同意用户协议与隐私政策');
+    }, 120);
 }
 </script>
 </body>

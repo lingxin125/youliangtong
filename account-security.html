@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 </head>
 <body class="bg-[#F7F8FA]">
 <div class="mobile-container relative bg-[#F7F8FA]">
@@ -105,6 +106,7 @@
 
 <script>
     var q = new URLSearchParams(window.location.search);
+    var captureState = q.get('captureState') || '';
     var sourcePage = q.get('source') || 'buyer-my.html';
     var isFarmerPage = sourcePage.indexOf('farmer') >= 0;
     var pageConfig = isFarmerPage
@@ -146,6 +148,10 @@
     var pendingDeleteId = null;
     var pendingDefaultId = null;
     var accounts = loadAccounts();
+    if (captureState === 'empty') {
+        var defaultSeed = (pageConfig.seedAccounts.find(function(item) { return item.isDefault; }) || pageConfig.seedAccounts[0]);
+        accounts = defaultSeed ? [{ ...defaultSeed, isDefault: true }] : [];
+    }
 
     document.getElementById('statusBar').innerHTML = renderStatusBar();
     document.getElementById('navBar').innerHTML = renderHeader(pageConfig.title, sourcePage);
@@ -156,6 +162,11 @@
     document.getElementById('accountModalTitle').textContent = pageConfig.addText;
 
     renderAccounts();
+    if (captureState === 'modal') {
+        setTimeout(function() {
+            openAccountForm();
+        }, 120);
+    }
 
     function loadAccounts() {
         try {
@@ -206,6 +217,15 @@
             return renderAccountCard(item, false);
         }).join('');
         emptyWrap.style.display = otherAccounts.length ? 'none' : 'block';
+    }
+
+    if (captureState === 'default-confirm') {
+        setTimeout(function() {
+            var candidate = accounts.find(function(item) { return !item.isDefault; });
+            if (candidate) {
+                promptSetDefaultAccount(candidate.id);
+            }
+        }, 120);
     }
 
     function renderAccountCard(account, isDefault) {

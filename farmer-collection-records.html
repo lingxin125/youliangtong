@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js?v=2"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         /* ========== 基础样式 ========== */
         .amount-received { color: #11A64A; }
@@ -699,8 +700,22 @@ const App = {
     }
 };
 
+const captureState = new URLSearchParams(window.location.search).get('captureState') || '';
+
 // 启动应用
 App.init();
+
+if (captureState === 'empty') {
+    FilterService.setTimeRange('custom');
+    FilterService.setCustomDates('2035-01-01', '2035-01-02');
+    App.refresh();
+}
+
+if (captureState === 'modal') {
+    setTimeout(() => {
+        FilterPanel.open();
+    }, 120);
+}
 </script>
 </body>
 </html>

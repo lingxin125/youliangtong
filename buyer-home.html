@@ -10,6 +10,7 @@
     <!-- MVP 暂停：首页数据洞察图表库（后续启用时取消注释） -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script> -->
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 </head>
 <body>
 <div class="mobile-container">
@@ -47,7 +48,7 @@
         </div>
 
         <!-- 品类明细：时间切换 + 可点击列表 -->
-        <div id="categorySummaryPanel" class="glass-panel rounded-2xl overflow-hidden">
+        <div id="categorySummaryPanel" class="bg-white rounded-2xl overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100/80">
             <div class="flex items-center justify-between px-4 py-3" style="background:linear-gradient(135deg,#F0FDF4 0%,#FAFFFE 100%);border-bottom:1px solid #F3F4F6;">
                 <span class="text-sm font-medium text-gray-700">品类明细</span>
                 <div class="flex items-center gap-1">
@@ -61,99 +62,98 @@
                 <!-- 水果 -->
                 <div class="flex items-center justify-between py-2.5 rounded-lg px-1 -mx-1">
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center"><i class="fas fa-apple-whole text-red-500 text-xs"></i></div>
-                        <span class="text-xs font-medium text-gray-700">水果</span>
+                        <div class="w-8 h-8 rounded-[10px] bg-[#FFF0F2] flex items-center justify-center border border-[#F43F5E]/10"><i class="fas fa-apple-whole text-[#F43F5E] text-[13px]"></i></div>
+                        <span class="text-[13px] font-medium text-gray-700 tracking-wide">水果</span>
                     </div>
                     <div class="flex items-center gap-1">
                         <span class="text-sm font-bold text-gray-800" style="font-family:Poppins;">¥12,400</span>
-                        <span class="text-[10px] text-gray-400 ml-0.5">8笔</span>
-                        <!-- <i class="fas fa-chevron-right text-[8px] text-gray-300 ml-1"></i> -->
+                        <span class="text-[10px] text-gray-400 ml-0.5 mt-0.5">8笔</span>
                     </div>
                 </div>
                 <!-- 蔬菜 -->
                 <div class="flex items-center justify-between py-2.5 rounded-lg px-1 -mx-1">
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center"><i class="fas fa-carrot text-green-500 text-xs"></i></div>
-                        <span class="text-xs font-medium text-gray-700">蔬菜</span>
+                        <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10"><i class="fas fa-carrot text-[#11A64A] text-[13px]"></i></div>
+                        <span class="text-[13px] font-medium text-gray-700 tracking-wide">蔬菜</span>
                     </div>
                     <div class="flex items-center gap-1">
                         <span class="text-sm font-bold text-gray-800" style="font-family:Poppins;">¥9,800</span>
-                        <span class="text-[10px] text-gray-400 ml-0.5">6笔</span>
+                        <span class="text-[10px] text-gray-400 ml-0.5 mt-0.5">6笔</span>
                     </div>
                 </div>
                 <!-- 粮油 -->
                 <div class="flex items-center justify-between py-2.5 rounded-lg px-1 -mx-1">
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center"><i class="fas fa-wheat-awn text-amber-500 text-xs"></i></div>
-                        <span class="text-xs font-medium text-gray-700">粮油</span>
+                        <div class="w-8 h-8 rounded-[10px] bg-[#FFFBEB] flex items-center justify-center border border-[#F59E0B]/10"><i class="fas fa-wheat-awn text-[#F59E0B] text-[13px]"></i></div>
+                        <span class="text-[13px] font-medium text-gray-700 tracking-wide">粮油</span>
                     </div>
                     <div class="flex items-center gap-1">
                         <span class="text-sm font-bold text-gray-800" style="font-family:Poppins;">¥11,250</span>
-                        <span class="text-[10px] text-gray-400 ml-0.5">7笔</span>
+                        <span class="text-[10px] text-gray-400 ml-0.5 mt-0.5">7笔</span>
                     </div>
                 </div>
                 <!-- 禽蛋 -->
                 <div class="flex items-center justify-between py-2.5 rounded-lg px-1 -mx-1">
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-violet-50 flex items-center justify-center"><i class="fas fa-egg text-violet-500 text-xs"></i></div>
-                        <span class="text-xs font-medium text-gray-700">禽蛋</span>
+                        <div class="w-8 h-8 rounded-[10px] bg-[#FFF7ED] flex items-center justify-center border border-[#FB923C]/10"><i class="fas fa-egg text-[#FB923C] text-[13px]"></i></div>
+                        <span class="text-[13px] font-medium text-gray-700 tracking-wide">禽蛋</span>
                     </div>
                     <div class="flex items-center gap-1">
                         <span class="text-sm font-bold text-gray-800" style="font-family:Poppins;">¥5,200</span>
-                        <span class="text-[10px] text-gray-400 ml-0.5">3笔</span>
+                        <span class="text-[10px] text-gray-400 ml-0.5 mt-0.5">3笔</span>
                     </div>
                 </div>
                 <!-- 肉类 -->
                 <div class="flex items-center justify-between py-2.5 rounded-lg px-1 -mx-1">
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center"><i class="fas fa-drumstick-bite text-orange-500 text-xs"></i></div>
-                        <span class="text-xs font-medium text-gray-700">肉类</span>
+                        <div class="w-8 h-8 rounded-[10px] bg-[#FEF2F2] flex items-center justify-center border border-[#EF4444]/10"><i class="fas fa-drumstick-bite text-[#EF4444] text-[13px]"></i></div>
+                        <span class="text-[13px] font-medium text-gray-700 tracking-wide">肉类</span>
                     </div>
                     <div class="flex items-center gap-1">
                         <span class="text-sm font-bold text-gray-800" style="font-family:Poppins;">¥3,200</span>
-                        <span class="text-[10px] text-gray-400 ml-0.5">2笔</span>
+                        <span class="text-[10px] text-gray-400 ml-0.5 mt-0.5">2笔</span>
                     </div>
                 </div>
                 <!-- 其他 -->
                 <div class="flex items-center justify-between py-2.5 rounded-lg px-1 -mx-1">
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center"><i class="fas fa-box-open text-gray-400 text-xs"></i></div>
-                        <span class="text-xs font-medium text-gray-700">其他</span>
+                        <div class="w-8 h-8 rounded-[10px] bg-[#F8FAFC] flex items-center justify-center border border-[#94A3B8]/10"><i class="fas fa-box-open text-[#94A3B8] text-[13px]"></i></div>
+                        <span class="text-[13px] font-medium text-gray-700 tracking-wide">其他</span>
                     </div>
                     <div class="flex items-center gap-1">
                         <span class="text-sm font-bold text-gray-800" style="font-family:Poppins;">¥1,800</span>
-                        <span class="text-[10px] text-gray-400 ml-0.5">1笔</span>
+                        <span class="text-[10px] text-gray-400 ml-0.5 mt-0.5">1笔</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- 快捷入口（4列网格，卡片包裹） -->
-        <div class="glass-panel rounded-2xl py-4 px-2">
+        <div class="bg-white rounded-2xl py-4 px-2 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100/80">
             <div class="grid grid-cols-4">
                 <a href="buyer-publish.html?source=home" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
-                    <div class="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
-                        <i class="fas fa-bullhorn text-primary text-base"></i>
+                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
+                        <i class="fas fa-bullhorn text-[#11A64A] text-[20px]"></i>
                     </div>
-                    <span class="text-[10px] text-gray-600 font-medium">发布需求</span>
+                    <span class="text-[11px] text-gray-600 font-medium">发布需求</span>
                 </a>
                 <a href="buyer-contacts.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
-                    <div class="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
-                        <i class="fas fa-users text-primary text-base"></i>
+                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
+                        <i class="fas fa-users text-[#11A64A] text-[18px]"></i>
                     </div>
-                    <span class="text-[10px] text-gray-600 font-medium">合作农户</span>
+                    <span class="text-[11px] text-gray-600 font-medium">合作农户</span>
                 </a>
                 <a href="buyer-orders.html?source=home" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
-                    <div class="w-11 h-11 rounded-full bg-orange-500/10 flex items-center justify-center">
-                        <i class="fas fa-search text-orange-500 text-base"></i>
+                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
+                        <i class="fas fa-list-check text-[#11A64A] text-[18px]"></i>
                     </div>
-                    <span class="text-[10px] text-gray-600 font-medium">付款记录</span>
+                    <span class="text-[11px] text-gray-600 font-medium">付款记录</span>
                 </a>
                 <a href="buyer-merge-pay.html" class="flex flex-col items-center gap-1.5 no-underline relative" style="text-decoration:none;">
-                    <div class="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center">
-                        <i class="fas fa-layer-group text-blue-500 text-base"></i>
+                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
+                        <i class="fas fa-layer-group text-[#11A64A] text-[18px]"></i>
                     </div>
-                    <span class="text-[10px] text-gray-600 font-medium">合并付款</span>
+                    <span class="text-[11px] text-gray-600 font-medium">合并付款</span>
                 </a>
             </div>
         </div>
@@ -373,27 +373,35 @@ var categoryData = {
 
 var _icons = { '水果': 'fa-apple-whole', '蔬菜': 'fa-carrot', '粮油': 'fa-wheat-awn', '禽蛋': 'fa-egg', '肉类': 'fa-drumstick-bite', '其他': 'fa-box-open' };
 
-function switchPeriod(period) {
-    var chips = document.querySelectorAll('#categorySummaryPanel .filter-chip');
-    chips.forEach(function(chip, i) {
-        chip.classList.toggle('active', ['today', 'month', 'year'][i] === period);
-    });
-    var container = document.getElementById('categoryList');
-    var data = categoryData[period];
-    // 渲染品类明细行，与静态 HTML 结构保持一致
-    container.innerHTML = data.map(function(item) {
-        var bgColor = item.color === 'gray' ? 'bg-gray-100' : 'bg-' + item.color + '-50';
-        var textColor = item.color === 'gray' ? 'text-gray-400' : 'text-' + item.color + '-500';
-        return '<div class="flex items-center justify-between py-2.5 rounded-lg px-1 -mx-1">' +
-            '<div class="flex items-center gap-2">' +
-            '<div class="w-7 h-7 rounded-lg ' + bgColor + ' flex items-center justify-center"><i class="fas ' + _icons[item.name] + ' ' + textColor + ' text-xs"></i></div>' +
-            '<span class="text-xs font-medium text-gray-700">' + item.name + '</span></div>' +
-            '<div class="flex items-center gap-1">' +
-            '<span class="text-sm font-bold text-gray-800" style="font-family:Poppins;">' + item.amount + '</span>' +
-            '<span class="text-[10px] text-gray-400 ml-0.5">' + item.count + '</span>' +
-            '</div></div>';
-    }).join('');
-}
+    var _catColors = {
+        '水果': { bg: 'bg-[#FFF0F2]', text: 'text-[#F43F5E]', border: 'border-[#F43F5E]/10' },
+        '蔬菜': { bg: 'bg-[#EBF7F0]', text: 'text-[#11A64A]', border: 'border-[#11A64A]/10' },
+        '粮油': { bg: 'bg-[#FFFBEB]', text: 'text-[#F59E0B]', border: 'border-[#F59E0B]/10' },
+        '禽蛋': { bg: 'bg-[#FFF7ED]', text: 'text-[#FB923C]', border: 'border-[#FB923C]/10' },
+        '肉类': { bg: 'bg-[#FEF2F2]', text: 'text-[#EF4444]', border: 'border-[#EF4444]/10' },
+        '其他': { bg: 'bg-[#F8FAFC]', text: 'text-[#94A3B8]', border: 'border-[#94A3B8]/10' }
+    };
+
+    function switchPeriod(period) {
+        var chips = document.querySelectorAll('#categorySummaryPanel .filter-chip');
+        chips.forEach(function(chip, i) {
+            chip.classList.toggle('active', ['today', 'month', 'year'][i] === period);
+        });
+        var container = document.getElementById('categoryList');
+        var data = categoryData[period];
+        // 渲染品类明细行
+        container.innerHTML = data.map(function(item) {
+            var c = _catColors[item.name] || _catColors['其他'];
+            return '<div class="flex items-center justify-between py-2.5 rounded-lg px-1 -mx-1">' +
+                '<div class="flex items-center gap-2">' +
+                '<div class="w-8 h-8 rounded-[10px] ' + c.bg + ' ' + c.border + ' flex items-center justify-center border"><i class="fas ' + _icons[item.name] + ' ' + c.text + ' text-[13px]"></i></div>' +
+                '<span class="text-[13px] font-medium text-gray-700 tracking-wide">' + item.name + '</span></div>' +
+                '<div class="flex items-center gap-1">' +
+                '<span class="text-sm font-bold text-gray-800" style="font-family:Poppins;">' + item.amount + '</span>' +
+                '<span class="text-[10px] text-gray-400 ml-0.5 mt-0.5">' + item.count + '</span>' +
+                '</div></div>';
+        }).join('');
+    }
 
 // ==================== 我关注的销售需求模块（MVP：关键词能力暂时隐藏） ====================
 

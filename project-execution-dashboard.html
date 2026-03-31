@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>收粮平台 · 项目执行驾驶舱</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' font-size='46'%3E%F0%9F%8C%BE%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=LXGW+WenKai:wght@300;400;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        forest: { 50:'#f0f7f1', 100:'#d8ecd9', 200:'#b3d9b7', 300:'#7fbf87', 400:'#4a9e56', 500:'#2d7a3a', 600:'#1a5c26', 700:'#1a472a', 800:'#163a23', 900:'#0f2a19' },
+        wheat: { 50:'#fdf9ef', 100:'#faf0d4', 200:'#f4dfa8', 300:'#ecc96f', 400:'#d4a843', 500:'#c4922a', 600:'#a87420', 700:'#88571c', 800:'#6f461e', 900:'#5c3b1d' },
+        cream: { 50:'#fefdfb', 100:'#faf6f0', 200:'#f5ede0', 300:'#ede0cc', 400:'#e0ccab' },
+        ink: { 500:'#27313f', 600:'#1d2530' }
+      },
+      fontFamily: {
+        serif: ['"Noto Serif SC"', 'serif'],
+        body: ['"LXGW WenKai"', 'sans-serif']
+      },
+      boxShadow: {
+        soft: '0 10px 32px rgba(15, 42, 25, 0.08)',
+        glow: '0 12px 40px rgba(26, 92, 38, 0.12)'
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { scroll-behavior: smooth; }
+  body {
+    font-family: 'LXGW WenKai', sans-serif;
+    background:
+      radial-gradient(circle at top right, rgba(212,168,67,0.10), transparent 26%),
+      linear-gradient(180deg, #faf6f0 0%, #f6f1e8 100%);
+    color: #2b2b2b;
+  }
+  h1, h2, h3, h4, h5 { font-family: 'Noto Serif SC', serif; }
+
+  .side-nav {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    background: linear-gradient(180deg, #1a472a 0%, #0f2a19 100%);
+    overflow-y: auto;
+    z-index: 50;
+    transition: transform 0.3s ease;
+  }
+  .side-nav::-webkit-scrollbar { width: 4px; }
+  .side-nav::-webkit-scrollbar-thumb { background: rgba(212,168,67,0.36); border-radius: 999px; }
+  .side-nav a {
+    display: block;
+    padding: 10px 20px;
+    color: rgba(255,255,255,0.72);
+    text-decoration: none;
+    font-size: 14px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+  }
+  .side-nav a:hover,
+  .side-nav a.active {
+    color: #f4dfa8;
+    border-left-color: #d4a843;
+    background: rgba(212,168,67,0.08);
+  }
+  .side-nav .nav-title {
+    padding: 22px 20px 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: rgba(212,168,67,0.58);
+    font-family: 'Noto Serif SC', serif;
+  }
+  .main-content { margin-left: 280px; }
+
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at right top, rgba(212,168,67,0.18), transparent 28%),
+      linear-gradient(135deg, #163a23 0%, #1a472a 30%, #2d7a3a 65%, #1a5c26 100%);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(120deg, transparent 0, transparent 40%, rgba(255,255,255,0.06) 40%, rgba(255,255,255,0.02) 58%, transparent 58%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '🌾';
+    position: absolute;
+    right: 48px;
+    bottom: 32px;
+    font-size: 120px;
+    opacity: 0.10;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.92);
+    border-radius: 18px;
+    border: 1px solid rgba(20, 38, 30, 0.06);
+    box-shadow: 0 12px 32px rgba(15, 42, 25, 0.06);
+    backdrop-filter: blur(10px);
+  }
+  .card-soft {
+    background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.90));
+  }
+  .role-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .role-card::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 90px;
+    height: 90px;
+    border-radius: 999px;
+    opacity: 0.12;
+  }
+  .role-product::after { background: #d4a843; }
+  .role-pm::after { background: #3f6cb1; }
+  .role-fe::after { background: #2d7a3a; }
+  .role-be::after { background: #8a5f26; }
+  .role-qa::after { background: #8b5cf6; }
+
+  .metric-card {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    border-radius: 18px;
+  }
+
+  .status-pill,
+  .filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .filter-btn {
+    padding: 9px 14px;
+    border: 1px solid rgba(0,0,0,0.06);
+    background: #fff;
+    color: #495163;
+    transition: all 0.2s ease;
+  }
+  .filter-btn:hover { border-color: rgba(26,92,38,0.22); color: #1a472a; }
+  .filter-btn.active {
+    background: #1a472a;
+    color: #fff;
+    border-color: #1a472a;
+    box-shadow: 0 8px 20px rgba(26, 71, 42, 0.16);
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    flex: 0 0 auto;
+  }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .page-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #f6f8fa;
+    border: 1px solid #ebeff3;
+    font-size: 12px;
+    color: #485160;
+    line-height: 1;
+    margin: 0 8px 8px 0;
+  }
+  .module-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .module-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+  }
+  .module-card.buyer::before { background: linear-gradient(90deg, #1a5c26, #2d7a3a); }
+  .module-card.farmer::before { background: linear-gradient(90deg, #d4a843, #ecc96f); }
+  .module-card.shared::before { background: linear-gradient(90deg, #3f6cb1, #7aa1d7); }
+
+  .timeline-item {
+    position: relative;
+    padding-left: 28px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 10px;
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: #d4a843;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px rgba(212,168,67,0.24);
+  }
+  .timeline-item::after {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 24px;
+    bottom: -20px;
+    width: 2px;
+    background: linear-gradient(180deg, rgba(212,168,67,0.35), rgba(26,92,38,0.14));
+  }
+  .timeline-item:last-child::after { display: none; }
+
+  .matrix-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 1040px;
+  }
+  .matrix-table th {
+    background: #163a23;
+    color: white;
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+  }
+  .matrix-table td {
+    padding: 16px;
+    vertical-align: top;
+    border-bottom: 1px solid #efe8dd;
+    font-size: 14px;
+    color: #343a40;
+    background: rgba(255,255,255,0.88);
+  }
+  .matrix-table tr:hover td { background: #fdf9ef; }
+  .matrix-table tr:last-child td { border-bottom: none; }
+
+  .status-select {
+    width: 132px;
+    border-radius: 12px;
+    border: 1px solid #d8e0d6;
+    padding: 9px 12px;
+    font-size: 13px;
+    background: white;
+    color: #1f2937;
+    outline: none;
+  }
+  .status-select:focus {
+    border-color: #2d7a3a;
+    box-shadow: 0 0 0 3px rgba(45, 122, 58, 0.12);
+  }
+
+  .section-anchor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-index {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: #1a472a;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+
+  .note-strip {
+    border-radius: 16px;
+    background: linear-gradient(90deg, rgba(212,168,67,0.14), rgba(45,122,58,0.08));
+    border: 1px solid rgba(212,168,67,0.18);
+  }
+
+  .empty-state {
+    padding: 28px 18px;
+    text-align: center;
+    color: #667085;
+  }
+
+  @media (max-width: 1024px) {
+    .side-nav { transform: translateX(-100%); }
+    .side-nav.open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .mobile-toggle { display: flex !important; }
+  }
+
+  @media print {
+    .side-nav, .mobile-toggle, .interactive-only { display: none !important; }
+    .main-content { margin-left: 0 !important; }
+    body { background: white !important; }
+    .card, .metric-card { box-shadow: none !important; }
+  }
+</style>
+</head>
+<body class="antialiased">
+<button class="mobile-toggle hidden fixed top-4 left-4 z-[60] bg-forest-700 text-white p-2 rounded-xl shadow-lg" onclick="document.querySelector('.side-nav').classList.toggle('open')">
+  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+</button>
+
+<nav class="side-nav">
+  <div class="px-5 py-6 border-b border-white/10">
+    <div class="text-wheat-400 font-serif text-lg font-bold">🌾 收粮平台</div>
+    <div class="text-white/40 text-xs mt-1">项目执行驾驶舱 · 研发协同视图</div>
+  </div>
+  <div class="nav-title">总览</div>
+  <a href="#overview">项目概览</a>
+  <a href="#team">团队责任人</a>
+  <a href="#map">模块地图</a>
+  <a href="#matrix">责任矩阵</a>
+  <a href="#milestones">里程碑</a>
+  <a href="#cadence">执行节奏</a>
+  <a href="#risks">风险与阻塞</a>
+  <a href="#usage">使用说明</a>
+  <div class="nav-title">关联文档</div>
+  <a href="./PRD-收粮平台-可视化.html">可视化 PRD</a>
+  <a href="./PRD-收粮平台-功能模块版.html">功能模块版 PRD</a>
+</nav>
+
+<div class="main-content">
+  <section class="hero px-8 py-16 md:px-16 md:py-20">
+    <div class="max-w-6xl relative z-10">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-wheat-400/20 text-wheat-300 rounded-full text-sm font-semibold mb-6 border border-wheat-400/20">
+        项目推进可视化 · 默认状态可会中实时更新
+      </div>
+      <div class="grid xl:grid-cols-[1.15fr_0.85fr] gap-8 items-end">
+        <div>
+          <h1 class="text-4xl md:text-5xl font-serif font-black text-white leading-tight">
+            收粮平台<br><span class="text-wheat-400">项目计划与里程碑驾驶舱</span>
+          </h1>
+          <p class="text-white/75 text-lg leading-relaxed max-w-3xl mt-6">
+            面向产品、项目经理、前后端和测试的统一执行面板。当前基于双端原型与支撑页整理，
+            默认全部标记为“待同步”，方便你在周会里逐项更新并追踪推进。
+          </p>
+          <div class="flex flex-wrap gap-3 mt-8">
+            <a href="./PRD-收粮平台-可视化.html" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-wheat-500 text-white text-sm font-semibold hover:bg-wheat-600">
+              查看可视化 PRD
+            </a>
+            <a href="./PRD-收粮平台-功能模块版.html" class="inline-flex items-center px-4 py-2.5 rounded-xl bg-white/15 border border-white/25 text-white text-sm font-semibold hover:bg-white/20">
+              查看功能模块版
+            </a>
+            <button id="resetStatuses" class="interactive-only inline-flex items-center px-4 py-2.5 rounded-xl bg-white text-forest-800 text-sm font-semibold hover:bg-cream-100">
+              重置所有状态
+            </button>
+          </div>
+        </div>
+        <div class="card p-6 bg-white/10 border-white/10 text-white">
+          <div class="text-sm text-white/70 mb-3">当前计划窗口</div>
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="metric-card px-4 py-4">
+              <div class="text-white/60 text-xs tracking-[0.2em] uppercase">当前阶段</div>
+              <div id="currentMilestoneName" class="text-xl font-serif font-bold mt-2">待识别</div>
+              <div id="currentMilestoneDate" class="text-sm text-white/70 mt-1">-</div>
+            </div>
+            <div class="metric-card px-4 py-4">
+              <div class="text-white/60 text-xs tracking-[0.2em] uppercase">下一个里程碑</div>
+              <div id="nextMilestoneName" class="text-xl font-serif font-bold mt-2">待识别</div>
+              <div id="nextMilestoneDate" class="text-sm text-white/70 mt-1">-</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+            <div class="metric-card px-4 py-3">
+              <div class="text-white/60 text-xs">模块数</div>
+              <div id="statTotalModules" class="text-2xl font-serif font-bold text-wheat-300 mt-1">0</div>
+            </div>
+            <div class="metric-card px-4 py-3">
+              <div class="text-white/60 text-xs">推进中</div>
+              <div id="statInProgress" class="text-2xl font-serif font-bold text-wheat-300 mt-1">0</div>
+            </div>
+            <div class="metric-card px-4 py-3">
+              <div class="text-white/60 text-xs">已完成</div>
+              <div id="statDone" class="text-2xl font-serif font-bold text-wheat-300 mt-1">0</div>
+            </div>
+            <div class="metric-card px-4 py-3">
+              <div class="text-white/60 text-xs">风险项</div>
+              <div id="statRisk" class="text-2xl font-serif font-bold text-wheat-300 mt-1">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-7xl mx-auto px-6 md:px-12 py-12 space-y-16">
+    <section id="overview">
+      <div class="section-anchor">
+        <div class="section-index">1</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">项目概览</h2>
+      </div>
+      <div class="grid xl:grid-cols-[1.1fr_0.9fr] gap-6">
+        <div class="card card-soft p-6">
+          <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <div class="text-sm text-forest-700 font-bold">当前口径</div>
+              <div class="text-2xl font-serif font-bold text-forest-900 mt-1">双端原型 + 支撑链路统一推进</div>
+            </div>
+            <span class="tag bg-wheat-100 text-wheat-800 border border-wheat-200">建议分工 / 待确认</span>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4 mt-6">
+            <div class="rounded-2xl bg-forest-50 p-4 border border-forest-100">
+              <div class="text-sm text-forest-800 font-bold mb-2">执行目标</div>
+              <div class="text-sm text-gray-700 leading-7">
+                用一个页面看清楚模块边界、责任人、当前状态、计划节奏和里程碑，避免开发推进与产品原型不同步。
+              </div>
+            </div>
+            <div class="rounded-2xl bg-wheat-50 p-4 border border-wheat-100">
+              <div class="text-sm text-wheat-900 font-bold mb-2">当前假设</div>
+              <div class="text-sm text-gray-700 leading-7">
+                真实开发进度尚未同步，因此所有模块默认标记为“待同步”；会中修改后将自动保存在浏览器本地。
+              </div>
+            </div>
+          </div>
+          <div class="note-strip px-4 py-4 mt-5 text-sm text-gray-700 leading-7">
+            推荐你把这个页面作为周会底板：先按模块确认负责人，再更新状态，最后对照里程碑推进，能比较快地识别出卡点和风险。
+          </div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">产品负责人</div>
+            <div class="text-2xl font-serif font-bold text-forest-900 mt-2">潘恒</div>
+            <div class="text-sm text-gray-700 mt-3 leading-7">统一需求口径、验收标准、优先级与变更确认。</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">项目经理</div>
+            <div class="text-2xl font-serif font-bold text-forest-900 mt-2">林总</div>
+            <div class="text-sm text-gray-700 mt-3 leading-7">把控排期推进、同步节奏、依赖协调与风险升级。</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">前端</div>
+            <div class="text-2xl font-serif font-bold text-forest-900 mt-2">营超</div>
+            <div class="text-sm text-gray-700 mt-3 leading-7">收购商端、农户端、PC 收银台与 H5 支付链路前端实现。</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">测试</div>
+            <div class="text-2xl font-serif font-bold text-forest-900 mt-2">胜男 / 马烁</div>
+            <div class="text-sm text-gray-700 mt-3 leading-7">按主链路与支撑链路分工执行联调回归与上线验收。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="team">
+      <div class="section-anchor">
+        <div class="section-index">2</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">团队责任人</h2>
+      </div>
+      <div id="teamGrid" class="grid md:grid-cols-2 xl:grid-cols-4 gap-4"></div>
+    </section>
+
+    <section id="map">
+      <div class="section-anchor">
+        <div class="section-index">3</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">模块地图</h2>
+      </div>
+      <div class="grid xl:grid-cols-3 gap-5" id="moduleBoard"></div>
+    </section>
+
+    <section id="matrix">
+      <div class="section-anchor">
+        <div class="section-index">4</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">责任矩阵</h2>
+      </div>
+      <div class="card p-5 md:p-6">
+        <div class="flex flex-wrap gap-3 items-center justify-between">
+          <div>
+            <div class="text-lg font-serif font-bold text-forest-900">模块责任与状态跟踪</div>
+            <div class="text-sm text-gray-500 mt-1">支持按状态筛选；状态切换会自动保存到本地浏览器。</div>
+          </div>
+          <div class="flex flex-wrap gap-2 interactive-only" id="statusFilters"></div>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+          <div class="rounded-2xl bg-slate-50 border border-slate-200 px-4 py-4">
+            <div class="text-sm text-gray-500">待同步</div>
+            <div id="statPending" class="text-2xl font-serif font-bold text-gray-800 mt-1">0</div>
+          </div>
+          <div class="rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-4">
+            <div class="text-sm text-emerald-700">开发 / 联调 / 测试中</div>
+            <div id="statFlowing" class="text-2xl font-serif font-bold text-emerald-800 mt-1">0</div>
+          </div>
+          <div class="rounded-2xl bg-amber-50 border border-amber-100 px-4 py-4">
+            <div class="text-sm text-amber-700">已完成</div>
+            <div id="statComplete" class="text-2xl font-serif font-bold text-amber-800 mt-1">0</div>
+          </div>
+          <div class="rounded-2xl bg-rose-50 border border-rose-100 px-4 py-4">
+            <div class="text-sm text-rose-700">风险</div>
+            <div id="statAlert" class="text-2xl font-serif font-bold text-rose-800 mt-1">0</div>
+          </div>
+        </div>
+        <div class="mt-6 overflow-x-auto">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>模块</th>
+                <th>原型页面</th>
+                <th>责任人</th>
+                <th>本阶段目标</th>
+                <th>当前状态</th>
+              </tr>
+            </thead>
+            <tbody id="matrixBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="milestones">
+      <div class="section-anchor">
+        <div class="section-index">5</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">里程碑</h2>
+      </div>
+      <div class="grid xl:grid-cols-[0.95fr_1.05fr] gap-6">
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-forest-900 mb-1">阶段时间轴</div>
+          <div class="text-sm text-gray-500 mb-6">以下排期为建议基线，可在项目启动会后再细化为日程表。</div>
+          <div id="timelineList" class="space-y-6"></div>
+        </div>
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-forest-900 mb-1">阶段产出物</div>
+          <div class="text-sm text-gray-500 mb-6">让每个里程碑都有明确的“交付定义”和“退出标准”。</div>
+          <div id="milestoneCards" class="grid gap-4"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cadence">
+      <div class="section-anchor">
+        <div class="section-index">6</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">执行节奏</h2>
+      </div>
+      <div class="grid xl:grid-cols-[1.05fr_0.95fr] gap-6">
+        <div class="card p-6">
+          <div class="text-lg font-serif font-bold text-forest-900 mb-5">推荐推进顺序</div>
+          <div class="space-y-4">
+            <div class="timeline-item">
+              <div class="font-bold text-forest-900">先统一范围与状态口径</div>
+              <div class="text-sm text-gray-600 mt-1 leading-7">由潘恒与林总先确认 MVP 范围、原型冻结页和版本变更规则，避免开发过程中反复返工。</div>
+            </div>
+            <div class="timeline-item">
+              <div class="font-bold text-forest-900">再拉齐公共模型与接口清单</div>
+              <div class="text-sm text-gray-600 mt-1 leading-7">营超、宏博、晓侠、月晴先对齐用户、需求、订单、支付、账户等公共实体与接口返回口径。</div>
+            </div>
+            <div class="timeline-item">
+              <div class="font-bold text-forest-900">按主链路分波次推进</div>
+              <div class="text-sm text-gray-600 mt-1 leading-7">先收购商端，再农户端，随后集中做订单/支付/网银引导链路联调，测试同步插入回归。</div>
+            </div>
+            <div class="timeline-item">
+              <div class="font-bold text-forest-900">用里程碑替代零散催进度</div>
+              <div class="text-sm text-gray-600 mt-1 leading-7">每个阶段只看：页面是否齐、接口是否通、主流程是否跑通、风险是否已抬升。</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid gap-4">
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">每日站会</div>
+            <div class="text-xl font-serif font-bold text-forest-900 mt-1">15 分钟站会</div>
+            <div class="text-sm text-gray-600 mt-3 leading-7">同步昨天完成 / 今天计划 / 当前阻塞，由林总收口并推动跨角色问题闭环。</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">每周两次联调走查</div>
+            <div class="text-xl font-serif font-bold text-forest-900 mt-1">页面 + 接口一起过</div>
+            <div class="text-sm text-gray-600 mt-3 leading-7">建议周二、周四固定走查收银台、合并付款、订单状态、建档 OCR 等高风险链路。</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">每周五验收</div>
+            <div class="text-xl font-serif font-bold text-forest-900 mt-1">按模块确认完成定义</div>
+            <div class="text-sm text-gray-600 mt-3 leading-7">产品确认效果，测试给出回归结果，PM 更新里程碑偏差和下周重点。</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-sm text-gray-500">需求变更规则</div>
+            <div class="text-xl font-serif font-bold text-forest-900 mt-1">先确认影响，再进开发</div>
+            <div class="text-sm text-gray-600 mt-3 leading-7">涉及页面结构、字段口径、状态机变化的需求，建议先由潘恒与林总确认影响，再同步到前后端和测试。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="risks">
+      <div class="section-anchor">
+        <div class="section-index">7</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">风险与阻塞</h2>
+      </div>
+      <div id="riskGrid" class="grid md:grid-cols-2 xl:grid-cols-4 gap-4"></div>
+    </section>
+
+    <section id="usage">
+      <div class="section-anchor">
+        <div class="section-index">8</div>
+        <h2 class="text-2xl font-serif font-bold text-forest-800">使用说明</h2>
+      </div>
+      <div class="card p-6">
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="rounded-2xl bg-forest-50 border border-forest-100 p-4">
+            <div class="font-bold text-forest-900">1. 会前准备</div>
+            <div class="text-sm text-gray-600 mt-3 leading-7">按模块确认是否还在原型范围内；不做的模块可先标记为“已完成”或单独标注二期。</div>
+          </div>
+          <div class="rounded-2xl bg-wheat-50 border border-wheat-100 p-4">
+            <div class="font-bold text-wheat-900">2. 会中更新</div>
+            <div class="text-sm text-gray-600 mt-3 leading-7">直接在责任矩阵里切换状态，顶部统计数字会实时变化，便于快速识别真正推进中的模块。</div>
+          </div>
+          <div class="rounded-2xl bg-sky-50 border border-sky-100 p-4">
+            <div class="font-bold text-sky-900">3. 会后追踪</div>
+            <div class="text-sm text-gray-600 mt-3 leading-7">状态会自动保存在本地；如需新一轮同步，可点“重置所有状态”回到初始基线。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'projectExecutionDashboardStatusV1';
+const STATUS_ORDER = ['全部', '待同步', '开发中', '联调中', '测试中', '已完成', '风险'];
+const STATUS_META = {
+  '待同步': { dot: 'bg-slate-400', chip: 'bg-slate-100 text-slate-700 border-slate-200' },
+  '开发中': { dot: 'bg-emerald-500', chip: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
+  '联调中': { dot: 'bg-sky-500', chip: 'bg-sky-50 text-sky-700 border-sky-100' },
+  '测试中': { dot: 'bg-violet-500', chip: 'bg-violet-50 text-violet-700 border-violet-100' },
+  '已完成': { dot: 'bg-amber-500', chip: 'bg-amber-50 text-amber-700 border-amber-100' },
+  '风险': { dot: 'bg-rose-500', chip: 'bg-rose-50 text-rose-700 border-rose-100' }
+};
+
+const teamMembers = [
+  { name: '潘恒', role: '产品', type: 'role-product', summary: '需求口径、验收标准、优先级与范围冻结', detail: '负责确认需求边界、验收标准、变更优先级。' },
+  { name: '林总', role: '项目经理', type: 'role-pm', summary: '排期推进、周会同步、风险协调', detail: '负责节奏管理、跨角色协同与风险升级。' },
+  { name: '营超', role: '前端', type: 'role-fe', summary: '双端页面、PC 收银台、H5 支付引导', detail: '负责收购商端、农户端、PC/H5 支付前端实现。' },
+  { name: '宏博', role: '后端', type: 'role-be', summary: '用户、身份、账户、合作关系、建档资料', detail: '承接用户体系、账户、建档与合作关系等基础能力。' },
+  { name: '晓侠', role: '后端', type: 'role-be', summary: '开单、订单、支付、合并付款、银行链路', detail: '承接订单与支付主链路及银行相关能力。' },
+  { name: '月晴', role: '后端', type: 'role-be', summary: '需求、市场、搜索、通知、状态流转', detail: '承接市场、需求发布、搜索和通知等支撑能力。' },
+  { name: '胜男', role: '测试', type: 'role-qa', summary: '主业务链路、订单支付链路', detail: '重点覆盖开单、收银台、订单状态与支付联调。' },
+  { name: '马烁', role: '测试', type: 'role-qa', summary: '建档、账户、市场、回归测试', detail: '重点覆盖建档、账户、市场和全量回归。' }
+];
+
+const modules = [
+  {
+    id: 'buyer-demand',
+    terminal: '收购商端',
+    style: 'buyer',
+    name: '首页与收购需求',
+    pages: ['buyer-home.html', 'buyer-publish.html', 'buyer-demand-manage.html', 'buyer-demand-detail.html'],
+    fe: '营超',
+    be: '月晴',
+    qa: '马烁',
+    product: '潘恒',
+    pm: '林总',
+    goal: '打通首页、发布、管理、详情回流，确认字段口径与状态切换。'
+  },
+  {
+    id: 'buyer-market',
+    terminal: '收购商端',
+    style: 'buyer',
+    name: '市场与搜索',
+    pages: ['buyer-market.html', 'buyer-keywords.html'],
+    fe: '营超',
+    be: '月晴',
+    qa: '马烁',
+    product: '潘恒',
+    pm: '林总',
+    goal: '完成需求分类筛选、混合展示、搜索兜底与详情跳转。'
+  },
+  {
+    id: 'buyer-contacts',
+    terminal: '收购商端',
+    style: 'buyer',
+    name: '合作农户与农户建档',
+    pages: ['buyer-contacts.html', 'buyer-farmer-add.html'],
+    fe: '营超',
+    be: '宏博',
+    qa: '马烁',
+    product: '潘恒',
+    pm: '林总',
+    goal: '先搜后建档，跑通农户快速建档与合作列表展示逻辑。'
+  },
+  {
+    id: 'buyer-billing',
+    terminal: '收购商端',
+    style: 'buyer',
+    name: '开单与收银台',
+    pages: ['buyer-billing.html', 'buyer-cashier.html', 'pc-cashier.html'],
+    fe: '营超',
+    be: '晓侠',
+    qa: '胜男',
+    product: '潘恒',
+    pm: '林总',
+    goal: '开单提交、PC 收银台、行业支付与订单付入口链路跑通。'
+  },
+  {
+    id: 'buyer-orders',
+    terminal: '收购商端',
+    style: 'buyer',
+    name: '订单与合并付款',
+    pages: ['buyer-orders.html', 'buyer-order-detail.html', 'buyer-merge-pay.html', 'buyer-bank-merge-h5.html', 'buyer-bank-h5-pay.html'],
+    fe: '营超',
+    be: '晓侠',
+    qa: '胜男',
+    product: '潘恒',
+    pm: '林总',
+    goal: '完成支付中 / 已完成分层展示、失败重付和状态回写。'
+  },
+  {
+    id: 'buyer-account',
+    terminal: '收购商端',
+    style: 'buyer',
+    name: '我的、账户与通知',
+    pages: ['buyer-my.html', 'buyer-profile.html', 'account-security.html', 'buyer-notifications.html'],
+    fe: '营超',
+    be: '宏博',
+    qa: '马烁',
+    product: '潘恒',
+    pm: '林总',
+    goal: '完成身份切换、账户管理、默认账户设置与通知展示。'
+  },
+  {
+    id: 'farmer-demand',
+    terminal: '农户端',
+    style: 'farmer',
+    name: '首页与销售需求',
+    pages: ['farmer-home.html', 'farmer-publish.html', 'farmer-demand-manage.html', 'farmer-demand-detail.html'],
+    fe: '营超',
+    be: '月晴',
+    qa: '马烁',
+    product: '潘恒',
+    pm: '林总',
+    goal: '完成首页卡片、销售需求发布管理与角色限制逻辑。'
+  },
+  {
+    id: 'farmer-market',
+    terminal: '农户端',
+    style: 'farmer',
+    name: '市场与需求浏览',
+    pages: ['farmer-market.html'],
+    fe: '营超',
+    be: '月晴',
+    qa: '马烁',
+    product: '潘恒',
+    pm: '林总',
+    goal: '与收购商端保持统一市场口径，支持查看收购与销售两类需求。'
+  },
+  {
+    id: 'farmer-collection',
+    terminal: '农户端',
+    style: 'farmer',
+    name: '收款码与收款记录',
+    pages: ['farmer-collection.html', 'farmer-collection-records.html', 'farmer-collection-detail.html'],
+    fe: '营超',
+    be: '晓侠',
+    qa: '胜男',
+    product: '潘恒',
+    pm: '林总',
+    goal: '完成二维码收款入口、收款记录详情和支付状态回流。'
+  },
+  {
+    id: 'farmer-account',
+    terminal: '农户端',
+    style: 'farmer',
+    name: '我的、账户与通知',
+    pages: ['farmer-my.html', 'farmer-profile.html', 'account-security.html', 'farmer-notifications.html'],
+    fe: '营超',
+    be: '宏博',
+    qa: '马烁',
+    product: '潘恒',
+    pm: '林总',
+    goal: '完成个人信息、账户管理、身份切换与通知模块一致性。'
+  },
+  {
+    id: 'manager-onboarding',
+    terminal: '支撑与管理',
+    style: 'shared',
+    name: '客户经理进件与农户建档',
+    pages: ['manager-home.html', 'manager-account.html', 'manager-account-buyer.html', 'manager-account-farmer.html'],
+    fe: '营超',
+    be: '宏博',
+    qa: '马烁',
+    product: '潘恒',
+    pm: '林总',
+    goal: '收购商进件保持完整，农户建档简化为三字段快速录入链路。'
+  },
+  {
+    id: 'auth-shared',
+    terminal: '支撑与管理',
+    style: 'shared',
+    name: '登录与身份体系',
+    pages: ['login.html', 'change-password.html'],
+    fe: '营超',
+    be: '宏博',
+    qa: '马烁',
+    product: '潘恒',
+    pm: '林总',
+    goal: '统一手机号 + 验证码登录路径与账户安全口径。'
+  },
+  {
+    id: 'payment-shared',
+    terminal: '支撑与管理',
+    style: 'shared',
+    name: '支付链路与状态机',
+    pages: ['pc-cashier.html', 'buyer-bank-h5-pay.html', 'buyer-bank-merge-h5.html', 'buyer-cashier.html'],
+    fe: '营超',
+    be: '晓侠',
+    qa: '胜男',
+    product: '潘恒',
+    pm: '林总',
+    goal: '统一行业支付 / 订单付 / 网银引导页面的状态机和回跳逻辑。'
+  },
+  {
+    id: 'search-notify-shared',
+    terminal: '支撑与管理',
+    style: 'shared',
+    name: '搜索、通知与通用状态支撑',
+    pages: ['shared.js', 'buyer-notifications.html', 'farmer-notifications.html'],
+    fe: '营超',
+    be: '月晴',
+    qa: '马烁',
+    product: '潘恒',
+    pm: '林总',
+    goal: '统一搜索、通知和需求/订单状态变化的触发与展示口径。'
+  }
+];
+
+const milestones = [
+  {
+    id: 'M0',
+    name: '需求冻结与模块拆分',
+    start: '2026-03-30',
+    end: '2026-04-01',
+    focus: '冻结范围、确认页面清单、建立接口清单',
+    output: '原型范围确认、责任矩阵定版、接口清单 v1',
+    exit: '需求边界稳定，所有模块都有明确 owner'
+  },
+  {
+    id: 'M1',
+    name: '双端基础能力与公共服务',
+    start: '2026-04-02',
+    end: '2026-04-08',
+    focus: '登录、身份、账户、建档、搜索、通知等基础设施',
+    output: '公共模型与接口联调、基础页面骨架可跑通',
+    exit: '通用能力稳定，双端可进入业务模块开发'
+  },
+  {
+    id: 'M2',
+    name: '收购商端核心模块',
+    start: '2026-04-09',
+    end: '2026-04-17',
+    focus: '首页、市场、合作农户、开单、订单、合并付款',
+    output: '收购商主链路页面提测、关键接口联调',
+    exit: '收购商端主链路可闭环跑通'
+  },
+  {
+    id: 'M3',
+    name: '农户端核心模块',
+    start: '2026-04-18',
+    end: '2026-04-24',
+    focus: '首页、销售需求、市场、收款码、收款记录、我的',
+    output: '农户端核心页面提测、状态流转联调',
+    exit: '农户端主链路可闭环跑通'
+  },
+  {
+    id: 'M4',
+    name: '订单 / 支付 / 联调',
+    start: '2026-04-25',
+    end: '2026-05-06',
+    focus: 'PC 收银台、H5 引导、行业支付、订单付、回跳状态',
+    output: '订单支付全链路联调完成，异常场景覆盖',
+    exit: '支付与订单状态一致，失败重试链路可用'
+  },
+  {
+    id: 'M5',
+    name: '回归测试 / 验收上线',
+    start: '2026-05-07',
+    end: '2026-05-15',
+    focus: '全量回归、验收、问题收口、上线准备',
+    output: '测试报告、验收结论、上线清单',
+    exit: '高优缺陷关闭，满足上线条件'
+  }
+];
+
+const risks = [
+  {
+    level: '高',
+    title: '需求口径仍在变化',
+    owner: '潘恒 / 林总',
+    detail: '发布需求、支付引导、合并付款等模块近期有多次口径调整，若没有冻结机制，容易反复返工。'
+  },
+  {
+    level: '高',
+    title: '支付链路依赖多角色联调',
+    owner: '营超 / 晓侠 / 胜男',
+    detail: 'PC 收银台、H5 引导页、银行跳转和订单状态回写相互依赖，联调顺序不清会直接拖慢验收。'
+  },
+  {
+    level: '中',
+    title: '建档与 OCR 规则易反复',
+    owner: '宏博 / 马烁',
+    detail: '农户建档、客户经理进件字段变化较多，需要尽快固定字段与是否 OCR 必填的规则。'
+  },
+  {
+    level: '中',
+    title: '测试回归面大',
+    owner: '胜男 / 马烁',
+    detail: '双端 + PC + H5 支付链路跨度大，建议提前按里程碑切分回归范围，不要堆到最后一周。'
+  }
+];
+
+let currentFilter = '全部';
+let statusStore = loadStatusStore();
+
+function loadStatusStore() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  } catch (error) {
+    return {};
+  }
+}
+
+function saveStatusStore() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(statusStore));
+}
+
+function getModuleStatus(id) {
+  return statusStore[id] || '待同步';
+}
+
+function setModuleStatus(id, status) {
+  statusStore[id] = status;
+  saveStatusStore();
+  renderMatrix();
+  updateStats();
+}
+
+function resetAllStatuses() {
+  statusStore = {};
+  localStorage.removeItem(STORAGE_KEY);
+  currentFilter = '全部';
+  createFilterButtons();
+  renderMatrix();
+  updateStats();
+}
+
+function getStatusMeta(status) {
+  return STATUS_META[status] || STATUS_META['待同步'];
+}
+
+function uniquePageCount() {
+  const allPages = modules.flatMap(item => item.pages);
+  return new Set(allPages).size;
+}
+
+function groupModules() {
+  return {
+    '收购商端': modules.filter(item => item.terminal === '收购商端'),
+    '农户端': modules.filter(item => item.terminal === '农户端'),
+    '支撑与管理': modules.filter(item => item.terminal === '支撑与管理')
+  };
+}
+
+function formatDateRange(start, end) {
+  return `${start} ~ ${end}`;
+}
+
+function parseDate(dateStr) {
+  return new Date(`${dateStr}T00:00:00`);
+}
+
+function getMilestoneState(item, today) {
+  const start = parseDate(item.start);
+  const end = parseDate(item.end);
+  if (today < start) return 'upcoming';
+  if (today > end) return 'done';
+  return 'current';
+}
+
+function renderTeam() {
+  const container = document.getElementById('teamGrid');
+  container.innerHTML = teamMembers.map(member => `
+    <div class="card role-card ${member.type} p-5">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="text-sm text-gray-500">${member.role}</div>
+          <div class="text-2xl font-serif font-bold text-forest-900 mt-1">${member.name}</div>
+        </div>
+        <span class="tag bg-white/70 text-gray-700 border border-gray-100">${member.role}</span>
+      </div>
+      <div class="text-sm font-bold text-forest-800 mt-4">${member.summary}</div>
+      <div class="text-sm text-gray-600 mt-3 leading-7">${member.detail}</div>
+    </div>
+  `).join('');
+}
+
+function renderModuleBoard() {
+  const board = document.getElementById('moduleBoard');
+  const grouped = groupModules();
+  const boardMeta = {
+    '收购商端': { tone: 'buyer', title: '收购商端', intro: '偏交易发起、合作管理、开单与付款。' },
+    '农户端': { tone: 'farmer', title: '农户端', intro: '偏需求发布、收款、记录与个人管理。' },
+    '支撑与管理': { tone: 'shared', title: '支撑与管理', intro: '承接登录、客户经理建档、支付链路与通知支撑。' }
+  };
+
+  board.innerHTML = Object.keys(grouped).map(groupName => {
+    const meta = boardMeta[groupName];
+    const items = grouped[groupName];
+    return `
+      <div class="card p-5">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <div class="text-xl font-serif font-bold text-forest-900">${meta.title}</div>
+            <div class="text-sm text-gray-500 mt-1">${meta.intro}</div>
+          </div>
+          <span class="tag ${groupName === '收购商端' ? 'bg-forest-50 text-forest-700 border border-forest-100' : groupName === '农户端' ? 'bg-wheat-50 text-wheat-800 border border-wheat-100' : 'bg-sky-50 text-sky-700 border border-sky-100'}">${items.length} 个模块</span>
+        </div>
+        <div class="grid gap-3 mt-5">
+          ${items.map(item => `
+            <div class="module-card ${item.style} rounded-2xl border border-gray-100 bg-white px-4 py-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="font-bold text-gray-900">${item.name}</div>
+                  <div class="text-sm text-gray-500 mt-1">${item.pages.length} 个原型页面</div>
+                </div>
+                <span class="tag ${getStatusMeta(getModuleStatus(item.id)).chip}">
+                  <span class="status-dot ${getStatusMeta(getModuleStatus(item.id)).dot}"></span>
+                  ${getModuleStatus(item.id)}
+                </span>
+              </div>
+              <div class="text-sm text-gray-600 mt-3 leading-7">${item.goal}</div>
+              <div class="flex flex-wrap gap-2 mt-3 text-xs text-gray-500">
+                <span>前端：${item.fe}</span>
+                <span>后端：${item.be}</span>
+                <span>测试：${item.qa}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function createFilterButtons() {
+  const wrap = document.getElementById('statusFilters');
+  wrap.innerHTML = STATUS_ORDER.map(status => `
+    <button class="filter-btn ${status === currentFilter ? 'active' : ''}" data-filter="${status}">
+      ${status}
+    </button>
+  `).join('');
+
+  wrap.querySelectorAll('[data-filter]').forEach(button => {
+    button.addEventListener('click', () => {
+      currentFilter = button.dataset.filter;
+      createFilterButtons();
+      renderMatrix();
+    });
+  });
+}
+
+function renderMatrix() {
+  const body = document.getElementById('matrixBody');
+  const visibleModules = modules.filter(item => currentFilter === '全部' || getModuleStatus(item.id) === currentFilter);
+
+  if (!visibleModules.length) {
+    body.innerHTML = `<tr><td colspan="5"><div class="empty-state">当前筛选下暂无模块。</div></td></tr>`;
+    renderModuleBoard();
+    return;
+  }
+
+  body.innerHTML = visibleModules.map(item => {
+    const status = getModuleStatus(item.id);
+    const meta = getStatusMeta(status);
+    return `
+      <tr>
+        <td>
+          <div class="flex items-center gap-3 flex-wrap">
+            <span class="tag ${item.terminal === '收购商端' ? 'bg-forest-50 text-forest-700 border border-forest-100' : item.terminal === '农户端' ? 'bg-wheat-50 text-wheat-800 border border-wheat-100' : 'bg-sky-50 text-sky-700 border border-sky-100'}">${item.terminal}</span>
+            <span class="tag ${meta.chip}">
+              <span class="status-dot ${meta.dot}"></span>
+              ${status}
+            </span>
+          </div>
+          <div class="font-bold text-gray-900 mt-3">${item.name}</div>
+        </td>
+        <td>${item.pages.map(page => `<span class="page-chip">${page}</span>`).join('')}</td>
+        <td>
+          <div class="space-y-1 text-sm text-gray-700 leading-6">
+            <div><span class="font-bold text-forest-800">前端：</span>${item.fe}</div>
+            <div><span class="font-bold text-forest-800">后端：</span>${item.be}</div>
+            <div><span class="font-bold text-forest-800">测试：</span>${item.qa}</div>
+            <div><span class="font-bold text-forest-800">产品：</span>${item.product}</div>
+            <div><span class="font-bold text-forest-800">PM：</span>${item.pm}</div>
+          </div>
+        </td>
+        <td class="text-sm text-gray-700 leading-7">${item.goal}</td>
+        <td>
+          <select class="status-select interactive-only" aria-label="${item.name}状态" onchange="window.updateModuleStatus('${item.id}', this.value)">
+            ${STATUS_ORDER.filter(value => value !== '全部').map(option => `
+              <option value="${option}" ${option === status ? 'selected' : ''}>${option}</option>
+            `).join('')}
+          </select>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  renderModuleBoard();
+}
+
+function renderMilestones() {
+  const timelineList = document.getElementById('timelineList');
+  const milestoneCards = document.getElementById('milestoneCards');
+  const today = new Date();
+
+  timelineList.innerHTML = milestones.map(item => {
+    const state = getMilestoneState(item, today);
+    const tone = state === 'current'
+      ? 'bg-forest-50 text-forest-800 border border-forest-100'
+      : state === 'done'
+        ? 'bg-wheat-50 text-wheat-800 border border-wheat-100'
+        : 'bg-slate-50 text-slate-700 border border-slate-200';
+    const stateText = state === 'current' ? '当前阶段' : state === 'done' ? '已过计划期' : '待开始';
+    return `
+      <div class="timeline-item">
+        <div class="flex items-center gap-3 flex-wrap">
+          <span class="tag ${tone}">${item.id}</span>
+          <span class="text-sm text-gray-500">${formatDateRange(item.start, item.end)}</span>
+          <span class="tag bg-white text-gray-600 border border-gray-200">${stateText}</span>
+        </div>
+        <div class="font-bold text-forest-900 mt-3">${item.name}</div>
+        <div class="text-sm text-gray-600 leading-7 mt-2">${item.focus}</div>
+      </div>
+    `;
+  }).join('');
+
+  milestoneCards.innerHTML = milestones.map(item => `
+    <div class="rounded-2xl border border-gray-100 bg-white p-5">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <div class="text-lg font-serif font-bold text-forest-900">${item.id} · ${item.name}</div>
+          <div class="text-sm text-gray-500 mt-1">${formatDateRange(item.start, item.end)}</div>
+        </div>
+        <span class="tag bg-forest-50 text-forest-700 border border-forest-100">${item.focus}</span>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div class="rounded-2xl bg-cream-100/70 border border-cream-300 px-4 py-4">
+          <div class="text-sm text-gray-500">阶段输出</div>
+          <div class="text-sm text-gray-700 leading-7 mt-2">${item.output}</div>
+        </div>
+        <div class="rounded-2xl bg-forest-50 border border-forest-100 px-4 py-4">
+          <div class="text-sm text-forest-700">退出标准</div>
+          <div class="text-sm text-gray-700 leading-7 mt-2">${item.exit}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderRisks() {
+  const container = document.getElementById('riskGrid');
+  container.innerHTML = risks.map(item => `
+    <div class="card p-5">
+      <div class="flex items-center justify-between gap-3">
+        <span class="tag ${item.level === '高' ? 'bg-rose-50 text-rose-700 border border-rose-100' : 'bg-amber-50 text-amber-700 border border-amber-100'}">${item.level}风险</span>
+        <span class="text-xs text-gray-500">责任人：${item.owner}</span>
+      </div>
+      <div class="text-lg font-serif font-bold text-forest-900 mt-4">${item.title}</div>
+      <div class="text-sm text-gray-600 leading-7 mt-3">${item.detail}</div>
+    </div>
+  `).join('');
+}
+
+function updateStats() {
+  const statuses = modules.map(item => getModuleStatus(item.id));
+  const pending = statuses.filter(status => status === '待同步').length;
+  const progressing = statuses.filter(status => ['开发中', '联调中', '测试中'].includes(status)).length;
+  const done = statuses.filter(status => status === '已完成').length;
+  const risk = statuses.filter(status => status === '风险').length;
+
+  document.getElementById('statTotalModules').textContent = modules.length;
+  document.getElementById('statInProgress').textContent = progressing;
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statRisk').textContent = risk;
+
+  document.getElementById('statPending').textContent = pending;
+  document.getElementById('statFlowing').textContent = progressing;
+  document.getElementById('statComplete').textContent = done;
+  document.getElementById('statAlert').textContent = risk;
+}
+
+function updateMilestoneSummary() {
+  const today = new Date();
+  const current = milestones.find(item => getMilestoneState(item, today) === 'current');
+  const next = milestones.find(item => parseDate(item.start) > today);
+  const currentName = document.getElementById('currentMilestoneName');
+  const currentDate = document.getElementById('currentMilestoneDate');
+  const nextName = document.getElementById('nextMilestoneName');
+  const nextDate = document.getElementById('nextMilestoneDate');
+
+  if (current) {
+    currentName.textContent = `${current.id} · ${current.name}`;
+    currentDate.textContent = formatDateRange(current.start, current.end);
+  } else if (next) {
+    currentName.textContent = '尚未进入执行期';
+    currentDate.textContent = `计划起始：${next.start}`;
+  } else {
+    const last = milestones[milestones.length - 1];
+    currentName.textContent = `${last.id} · 计划已过`;
+    currentDate.textContent = formatDateRange(last.start, last.end);
+  }
+
+  if (next) {
+    nextName.textContent = `${next.id} · ${next.name}`;
+    nextDate.textContent = formatDateRange(next.start, next.end);
+  } else {
+    nextName.textContent = '当前已到最后阶段';
+    nextDate.textContent = '可准备复盘与下期规划';
+  }
+}
+
+function initNavHighlight() {
+  const sections = Array.from(document.querySelectorAll('section[id]'));
+  const links = Array.from(document.querySelectorAll('.side-nav a[href^="#"]'));
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const id = entry.target.getAttribute('id');
+      links.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+      });
+    });
+  }, { rootMargin: '-30% 0px -55% 0px', threshold: 0 });
+
+  sections.forEach(section => observer.observe(section));
+}
+
+window.updateModuleStatus = function(id, value) {
+  setModuleStatus(id, value);
+};
+
+document.getElementById('resetStatuses').addEventListener('click', resetAllStatuses);
+
+renderTeam();
+createFilterButtons();
+renderMatrix();
+renderMilestones();
+renderRisks();
+updateStats();
+updateMilestoneSummary();
+initNavHighlight();
+
+document.title = `收粮平台 · 项目执行驾驶舱（${modules.length}模块 / ${uniquePageCount()}页）`;
+</script>
+</body>
+</html>

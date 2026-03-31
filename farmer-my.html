@@ -7,8 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script>
+        window.__FIGMA_CAPTURE_MODE__ = window.location.hash.indexOf('figmacapture=') !== -1;
+        if (!window.__FIGMA_CAPTURE_MODE__) {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"><' + '/script>');
+        }
+    </script>
     <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
         .role-switch-chip {
             display: inline-flex;
@@ -108,7 +114,7 @@
             <a href="farmer-profile.html?source=my" class="block no-underline active:scale-[0.98] transition-transform relative z-0" style="text-decoration:none;">
                 <div class="flex items-center gap-4 px-2">
                     <div class="w-[60px] h-[60px] rounded-full bg-gray-200 flex items-center justify-center border border-black/5 shadow-sm overflow-hidden shrink-0">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face" alt="头像" class="w-full h-full object-cover">
+                        <img id="farmerAvatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face" alt="头像" class="w-full h-full object-cover">
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
@@ -132,68 +138,68 @@
             <!-- 消息通知 -->
             <a href="farmer-notifications.html?source=my" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
-                        <i class="fas fa-bell text-orange-500 text-sm"></i>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-bell text-[#11A64A] text-[15px]"></i>
                     </div>
-                    <span class="text-sm text-gray-700">消息通知（待定）</span>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">消息通知（待定）</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <div class="w-2 h-2 rounded-full bg-red-500"></div>
                     <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
                 </div>
             </a>
-            <div class="h-px bg-gray-100 mx-4"></div>
+            <div class="h-px bg-gray-50 mx-4"></div>
             <!-- 需求管理 -->
             <a href="farmer-demand-manage.html?source=my" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
-                        <i class="fas fa-list-check text-green-600 text-sm"></i>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-list-check text-[#11A64A] text-[15px]"></i>
                     </div>
-                    <span class="text-sm text-gray-700">需求管理</span>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">需求管理</span>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
-            <div class="h-px bg-gray-100 mx-4"></div>
+            <div class="h-px bg-gray-50 mx-4"></div>
             <!-- 收款记录 -->
             <a href="farmer-collection-records.html?source=my" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                        <i class="fas fa-receipt text-blue-500 text-sm"></i>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-receipt text-[#11A64A] text-[15px]"></i>
                     </div>
-                    <span class="text-sm text-gray-700">收款记录</span>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">收款记录</span>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
-            <div class="h-px bg-gray-100 mx-4"></div>
+            <div class="h-px bg-gray-50 mx-4"></div>
             <!-- 帮助与反馈 -->
             <a href="#" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <i class="fas fa-question-circle text-primary text-sm"></i>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-circle-question text-[#11A64A] text-[15px]"></i>
                     </div>
-                    <span class="text-sm text-gray-700">帮助与反馈（占位）</span>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">帮助与反馈（占位）</span>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
-            <div class="h-px bg-gray-100 mx-4"></div>
+            <div class="h-px bg-gray-50 mx-4"></div>
             <!-- 账户管理 -->
             <a href="account-security.html?source=farmer-my.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
-                        <i class="fas fa-building-columns text-emerald-600 text-sm"></i>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-shield-halved text-[#11A64A] text-[15px]"></i>
                     </div>
-                    <span class="text-sm text-gray-700">账户管理</span>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">账户管理</span>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
-            <div class="h-px bg-gray-100 mx-4"></div>
+            <div class="h-px bg-gray-50 mx-4"></div>
             <!-- 报表分析 -->
             <a href="buyer-profit-analysis.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                        <i class="fas fa-chart-pie text-blue-500 text-sm"></i>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-chart-pie text-[#11A64A] text-[15px]"></i>
                     </div>
-                    <span class="text-sm text-gray-700">报表分析</span>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">报表分析</span>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
@@ -219,11 +225,11 @@
         <div class="bg-white rounded-2xl p-4 border border-black/[0.04] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
-                        <i class="fab fa-weixin text-green-500 text-sm"></i>
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fab fa-weixin text-[#07C160] text-[16px]"></i>
                     </div>
                     <div>
-                        <div class="text-sm text-gray-700">微信服务通知（待定）</div>
+                        <div class="text-[15px] font-medium text-gray-700 tracking-wide">微信服务通知（待定）</div>
                         <div class="text-[11px] text-gray-400">开启后接收订单、收款等通知</div>
                     </div>
                 </div>
@@ -248,6 +254,9 @@
     <!-- 退出登录确认弹窗 -->
     <div id="logoutModal" class="logout-modal-overlay" onclick="closeLogoutModal()">
         <div class="logout-modal-sheet" onclick="event.stopPropagation()">
+            <!-- 拖拽指示条 -->
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            
             <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">退出当前账号</div>
             <div class="text-[12px] text-gray-500 text-center mb-4">退出后需要重新登录才能继续使用</div>
             <div class="flex gap-2.5">
@@ -260,6 +269,9 @@
     <!-- 身份切换确认弹窗 -->
     <div id="switchRoleModal" class="switch-role-modal-overlay" onclick="closeSwitchRoleModal()">
         <div class="switch-role-modal-sheet" onclick="event.stopPropagation()">
+            <!-- 拖拽指示条 -->
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            
             <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">切换身份</div>
             <div id="switchRoleModalDesc" class="text-[12px] text-gray-500 text-center mb-4">确认切换到买方身份？切换后将进入买方首页</div>
             <div class="flex gap-2.5">
@@ -277,6 +289,14 @@
 document.getElementById('statusBar').innerHTML = renderStatusBar();
 document.getElementById('navBar').innerHTML = renderHeader('我的');
 document.getElementById('tabBar').innerHTML = renderFarmerTabBar('mine');
+var captureState = new URLSearchParams(window.location.search).get('captureState') || '';
+
+if (window.__FIGMA_CAPTURE_MODE__) {
+    var farmerAvatar = document.getElementById('farmerAvatar');
+    if (farmerAvatar) {
+        farmerAvatar.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23DDEFE4'/%3E%3Ccircle cx='60' cy='46' r='22' fill='%2311A64A' fill-opacity='0.22'/%3E%3Cpath d='M24 100c8-18 21-27 36-27s28 9 36 27' fill='%2311A64A' fill-opacity='0.22'/%3E%3C/svg%3E";
+    }
+}
 
 // 微信服务通知开关
 function toggleWechatNotify() {
@@ -440,6 +460,12 @@ function confirmSwitchRole() {
         return;
     }
     window.location.href = _switchTargetRole === 'buyer' ? 'buyer-home.html' : 'farmer-home.html';
+}
+
+if (captureState === 'modal') {
+    setTimeout(function() {
+        openLogoutModal();
+    }, 120);
 }
 </script>
 </body>
