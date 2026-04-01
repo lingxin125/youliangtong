@@ -186,7 +186,7 @@
                     <tr>
                         <th>商品名称</th>
                         <th>单价</th>
-                        <th>数量</th>
+                        <th>总重量</th>
                         <th>小计</th>
                     </tr>
                 </thead>
@@ -466,7 +466,10 @@ function renderItems() {
         const subtotal = Number(item.subtotal || qty * price);
         return `
             <tr>
-                <td class="font-medium">${item.name || '-'}</td>
+                <td class="font-medium">
+                    ${item.name || '-'}
+                    ${item.remark ? `<div class="text-[10px] text-gray-400 font-normal mt-0.5 leading-tight">备注: ${item.remark}</div>` : ''}
+                </td>
                 <td style="font-family:Poppins;">${formatUnitPrice(price, unit)}</td>
                 <td>${formatQtyOnly(qty)}</td>
                 <td class="font-medium" style="font-family:Poppins;">¥${subtotal.toFixed(2)}</td>

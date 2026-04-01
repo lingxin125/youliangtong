@@ -261,7 +261,7 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <div class="w-1 h-4 bg-primary rounded-full"></div>
-                    <span class="text-sm font-medium text-gray-800">选择主营品类 <span class="text-red-400 text-xs">*</span></span>
+                    <span class="text-sm font-medium text-gray-800">开单品类 <span class="text-red-400 text-xs">*</span></span>
                 </div>
                 <div id="categoryList">
                     <!-- JS 渲染网格视图 -->
@@ -402,14 +402,20 @@
                 </div>
             </div>
 
-            <!-- 单价和单位 -->
+            <!-- 单价 -->
+            <div class="mb-3">
+                <label class="text-xs text-gray-500 block mb-1.5">单价</label>
+                <div class="relative">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">¥</span>
+                    <input type="number" id="sheetProductPrice" placeholder="0.00" step="0.01" class="custom-input pl-7" oninput="calcSheetSubtotal()">
+                </div>
+            </div>
+
+            <!-- 总重量和单位 -->
             <div class="flex gap-3 mb-3">
                 <div class="flex-1">
-                    <label class="text-xs text-gray-500 block mb-1.5">单价</label>
-                    <div class="relative">
-                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">¥</span>
-                        <input type="number" id="sheetProductPrice" placeholder="0.00" step="0.01" class="custom-input pl-7" oninput="calcSheetSubtotal()">
-                    </div>
+                    <label class="text-xs text-gray-500 block mb-1.5">总重量</label>
+                    <input type="number" id="sheetProductQty" placeholder="请输入重量" step="0.01" class="custom-input" oninput="calcSheetSubtotal()">
                 </div>
                 <div class="w-20">
                     <label class="text-xs text-gray-500 block mb-1.5">单位</label>
@@ -417,10 +423,10 @@
                 </div>
             </div>
 
-            <!-- 数量 -->
+            <!-- 备注字段 -->
             <div class="mb-4">
-                <label class="text-xs text-gray-500 block mb-1.5">总重量</label>
-                <input type="number" id="sheetProductQty" placeholder="请输入重量" step="0.01" class="custom-input" oninput="calcSheetSubtotal()">
+                <label class="text-xs text-gray-500 block mb-1.5">备注信息</label>
+                <input type="text" id="sheetProductRemark" placeholder="如：甜度12、品种、水分等（选填）" class="custom-input">
             </div>
 
             <!-- 小计 -->
@@ -490,9 +496,9 @@ const CATEGORY_CONFIG = {
         color: 'red',
         icon: 'fa-apple-whole',
         brandHex: '#F43F5E',
-        tagBg: 'bg-[#FFF0F2]',
+        tagBg: 'bg-[#EBF7F0]',
         tagText: 'text-[#F43F5E]',
-        tagBorder: 'border-[#F43F5E]/10'
+        tagBorder: 'border-[#11A64A]/10'
     },
     '蔬菜': {
         color: 'green',
@@ -506,17 +512,17 @@ const CATEGORY_CONFIG = {
         color: 'amber',
         icon: 'fa-wheat-awn',
         brandHex: '#F59E0B',
-        tagBg: 'bg-[#FFFBEB]',
+        tagBg: 'bg-[#EBF7F0]',
         tagText: 'text-[#F59E0B]',
-        tagBorder: 'border-[#F59E0B]/10'
+        tagBorder: 'border-[#11A64A]/10'
     },
     '其他': {
         color: 'gray',
         icon: 'fa-box-open',
         brandHex: '#94A3B8',
-        tagBg: 'bg-[#F8FAFC]',
+        tagBg: 'bg-[#EBF7F0]',
         tagText: 'text-[#94A3B8]',
-        tagBorder: 'border-[#94A3B8]/10'
+        tagBorder: 'border-[#11A64A]/10'
     }
 };
 
@@ -741,8 +747,8 @@ function renderProductList() {
             const textClass = catConfig ? catConfig.tagText : 'text-gray-400';
             return `
             <div class="product-item flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg ${catConfig ? catConfig.tagBg : 'bg-gray-100'} flex items-center justify-center shrink-0 border border-white">
-                    <i class="fas ${iconClass} ${textClass} text-xs"></i>
+                <div class="w-9 h-9 rounded-[10px] ${catConfig ? catConfig.tagBg : 'bg-gray-50'} flex items-center justify-center shrink-0 border ${catConfig ? catConfig.tagBorder : 'border-gray-100'} shadow-sm bg-white">
+                    <i class="fas ${iconClass} ${textClass} text-[13px]"></i>
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="text-sm font-medium text-gray-800 truncate">${product.name}</div>
@@ -787,6 +793,7 @@ function openAddProductSheet() {
     document.getElementById('sheetProductPrice').value = '';
     document.getElementById('sheetProductUnit').value = '';
     document.getElementById('sheetProductQty').value = '';
+    document.getElementById('sheetProductRemark').value = '';
     document.getElementById('sheetSubtotal').textContent = '0.00';
     // 渲染历史录入商品建议标签
     renderSheetSuggestions();
@@ -811,6 +818,7 @@ function confirmAddProduct() {
     const name = document.getElementById('sheetProductName').value.trim();
     const price = parseFloat(document.getElementById('sheetProductPrice').value);
     const qty = parseFloat(document.getElementById('sheetProductQty').value);
+    const remark = document.getElementById('sheetProductRemark').value.trim();
     const unit = document.getElementById('sheetProductUnit').value.trim() || '斤';
 
     if (!name) {
@@ -831,6 +839,7 @@ function confirmAddProduct() {
         price,
         qty,
         unit,
+        remark,
         subtotal: price * qty,
         category: state.currentCategory
     };
@@ -1015,7 +1024,8 @@ function saveDraft() {
         qty: p.qty,
         unit: p.unit,
         price: Number(p.price.toFixed(2)),
-        subtotal: Number(p.subtotal.toFixed(2))
+        subtotal: Number(p.subtotal.toFixed(2)),
+        remark: p.remark || ''
     }));
     const amount = items.reduce((sum, item) => sum + item.subtotal, 0);
     const summary = items.length === 1
@@ -1082,7 +1092,8 @@ function goCashier() {
         qty: p.qty,
         unit: p.unit,
         price: Number(p.price.toFixed(2)),
-        subtotal: Number(p.subtotal.toFixed(2))
+        subtotal: Number(p.subtotal.toFixed(2)),
+        remark: p.remark || ''
     }));
     const amount = items.reduce((sum, item) => sum + item.subtotal, 0);
     const summary = items.length === 1
