@@ -3,295 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>丰收云 - 农户建档</title>
+    <title>丰收云 - 添加合作农户</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
     <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
-        .input-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(243, 244, 246, 0.8);
-            gap: 12px;
-        }
-        .input-row:last-child {
-            border-bottom: none;
-            padding-bottom: 4px;
-        }
-        .input-label {
-            font-size: 14px;
-            color: #4B5563;
-            font-weight: 500;
-            width: 100px;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .input-value {
-            flex: 1;
-            min-width: 0;
-            width: 10%;
-            text-align: right;
-            font-size: 14px;
-            color: #1F2937;
-            font-weight: 500;
-            outline: none;
-            background: transparent;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-        .input-value::placeholder {
-            color: #9CA3AF;
-            font-weight: 400;
-        }
-        .input-readonly {
-            color: #6B7280;
-        }
-        .upload-box {
-            border: 1.5px dashed #D1D5DB;
-            background: #F9FAFB;
-            border-radius: 12px;
-            height: 90px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #6B7280;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        .upload-box:active {
-            background: #F3F4F6;
-            transform: scale(0.98);
-        }
-        .upload-box.uploaded {
-            border-style: solid;
-            border-color: rgba(17, 166, 74, 0.4);
-            background: rgba(240, 253, 244, 0.5);
-            color: #11A64A;
-        }
         .toast-tip {
             position: absolute;
             left: 16px;
             right: 16px;
             bottom: 98px;
-            padding: 14px;
+            padding: 11px 14px;
             background: rgba(17, 24, 39, 0.9);
-            border-radius: 14px;
+            border-radius: 11px;
             color: #fff;
-            font-size: 14px;
-            font-weight: 500;
-            text-align: center;
+            font-size: 12px;
+            line-height: 1.45;
             z-index: 70;
             opacity: 0;
             pointer-events: none;
-            transform: translateY(10px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(8px);
+            transition: all 0.2s ease;
         }
         .toast-tip.show {
             opacity: 1;
             transform: translateY(0);
         }
-        
-        .loading-overlay {
+
+        /* 底部邀请码弹窗样式 */
+        .invite-modal-overlay {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(4px);
-            z-index: 100;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 90;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            align-items: flex-end;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.22s ease;
         }
-        .loading-overlay.show {
+        .invite-modal-overlay.show {
             opacity: 1;
             pointer-events: auto;
         }
+        .invite-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .invite-modal-overlay.show .invite-modal-sheet {
+            transform: translateY(0);
+        }
+        .invite-qr-box {
+            width: 230px;
+            height: 230px;
+            border-radius: 16px;
+            border: 1px solid rgba(17, 166, 74, 0.18);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 4px 14px rgba(17, 166, 74, 0.12);
+        }
+        .invite-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #11A64A;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(17, 166, 74, 0.06);
+            border: 1px solid rgba(17, 166, 74, 0.12);
+        }
+        .invite-link:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
-<body>
-<div class="mobile-container relative bg-[#F4F6F8]">
-    <!-- 原生黑色状态栏 -->
-    <div id="statusBar" class="relative z-20"></div>
+<body class="bg-gray-50">
+<div class="mobile-container relative h-full flex flex-col bg-[#F3F4F6]">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
 
-    <!-- 顶部导航栏 -->
-    <div id="navBar" class="relative z-20"></div>
-
-    <!-- 核心滚动内容区 -->
-    <div class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-4 pt-4 pb-10">
-        
-        <div class="glass-card rounded-2xl p-4 mb-4">
-            <div class="flex items-center gap-2 mb-3 pb-2">
-                <div class="w-1 h-3.5 bg-primary rounded-full"></div>
-                <span class="text-[15px] font-bold text-gray-800">建档信息</span>
+    <div class="px-4 mt-3 shrink-0">
+        <div class="bg-white rounded-2xl py-2 px-3 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100/80 flex items-center gap-3 relative focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/10 transition-all">
+            <i class="fas fa-search text-gray-400 text-[15px] ml-1"></i>
+            <input id="searchInput" type="tel" maxlength="11" placeholder="输入农户手机号" class="flex-1 bg-transparent text-[15px] text-gray-800 outline-none placeholder-gray-400 font-medium" style="font-family:Poppins, monospace;">
+            <div id="clearBtn" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 active:bg-gray-200 transition-colors hidden" onclick="clearSearch()">
+                <i class="fas fa-times text-[10px]"></i>
             </div>
-
-            <div class="text-[11px] text-gray-400 flex items-center gap-1.5 mb-3">
-                <i class="fas fa-wand-magic-sparkles text-primary/70 text-[10px]"></i>
-                <span>上传身份证与银行卡照片，可自动识别并回填信息</span>
-            </div>
-
-            <div class="flex gap-3 mb-2">
-                <div class="flex-1 upload-box" id="uploadIdFront" onclick="simulateUpload('idFront')">
-                    <i class="fas fa-id-card text-2xl mb-1.5 text-blue-400"></i>
-                    <span class="text-[11px] font-medium">身份证人像面</span>
-                </div>
-                <div class="flex-1 upload-box" id="uploadIdBack" onclick="simulateUpload('idBack')">
-                    <i class="far fa-id-card text-2xl mb-1.5 text-gray-400"></i>
-                    <span class="text-[11px] font-medium">身份证国徽面</span>
-                </div>
-            </div>
-
-            <div class="input-row">
-                <span class="input-label">姓名</span>
-                <input type="text" id="farmerName" placeholder="请输入农户姓名" class="input-value">
-            </div>
-            <div class="input-row">
-                <span class="input-label">手机号</span>
-                <input type="tel" id="farmerMobile" placeholder="请输入手机号" maxlength="11" class="input-value" style="font-family:Poppins,sans-serif;">
-            </div>
-            <div class="input-row">
-                <span class="input-label">身份证号</span>
-                <input type="text" id="farmerIdNo" placeholder="请输入身份证号" class="input-value font-mono">
-            </div>
-
-            <div class="mt-4 pt-4 border-t border-gray-100/80">
-                <div class="upload-box h-24 w-full flex flex-col items-center justify-center gap-2 mb-3" id="uploadBankCard" onclick="simulateUpload('bankCard')">
-                    <i class="fas fa-credit-card text-3xl text-primary"></i>
-                    <span class="text-[14px] font-medium">上传银行卡照片</span>
-                </div>
-                <div class="input-row !pb-0">
-                    <span class="input-label">银行卡号</span>
-                    <input type="text" id="bankCardNo" placeholder="请输入银行卡号" class="input-value font-mono">
-                </div>
-            </div>
-
+            <!-- 可以直接自动搜索或点按搜索 -->
+            <button class="bg-primary text-white text-[13px] font-medium px-4 py-2 rounded-xl active:scale-95 transition-transform" onclick="performSearch()">搜索</button>
         </div>
+    </div>
 
-        <div class="px-1 pt-1">
-            <button id="submitBtn" class="w-full h-10 bg-primary active:bg-primary-dark text-white font-semibold text-[15px] rounded-2xl shadow-[0_6px_16px_rgba(17,166,74,0.22)] transition-transform active:scale-95 flex items-center justify-center gap-2" onclick="submitApplication()">
-                提交建档
-            </button>
-        </div>
+    <!-- 结果展示区 -->
+    <div id="resultContainer" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-5 pb-[100px] flex flex-col items-center">
+        <!-- 初始空闲区隐形 -->
+    </div>
 
+    <!-- 底部固定浮向按钮组 (如果匹配到数据才展示) -->
+    <div id="actionBottomBar" class="absolute bottom-0 left-0 right-0 px-4 py-4 bg-gradient-to-t from-[#F3F4F6] via-[#F3F4F6] to-transparent" style="display:none;">
+        <button id="addFarmerBtn" class="w-full h-11 bg-[#11A64A] text-white rounded-[12px] text-[15px] font-semibold tracking-wide shadow-lg shadow-[#11A64A]/20 active:scale-[0.98] transition-all" onclick="confirmAdd()">
+            确认添加
+        </button>
+    </div>
+
+    <div id="inviteBottomBar" class="absolute bottom-0 left-0 right-0 px-4 py-4 bg-gradient-to-t from-[#F3F4F6] via-[#F3F4F6] to-transparent" style="display:none;">
+        <button class="w-full h-11 bg-[#11A64A] text-white rounded-[12px] text-[15px] font-semibold tracking-wide shadow-lg shadow-[#11A64A]/20 active:scale-[0.98] transition-all" onclick="openInviteModal()">
+            邀请农户
+        </button>
     </div>
 
     <div id="toastTip" class="toast-tip"></div>
-    
-    <!-- 全屏提交状态层 -->
-    <div id="submitOverlay" class="loading-overlay">
-        <!-- 加载动画 -->
-        <div id="loadingState" class="flex flex-col items-center">
-            <div class="w-16 h-16 mb-4 relative">
-                <svg class="animate-spin w-full h-full text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
-                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+
+    <!-- 邀请农户弹窗 -->
+    <div id="inviteModal" class="invite-modal-overlay" onclick="closeInviteModal()">
+        <div class="invite-modal-sheet" onclick="event.stopPropagation()">
+            <!-- 拖拽指示条 -->
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            
+            <div class="mb-3">
+                <div class="text-[16px] font-semibold text-gray-800">邀请农户建档</div>
             </div>
-            <div class="text-[16px] font-bold text-gray-800 mb-1">正在处理建档请求...</div>
-            <div class="text-[13px] text-gray-500">请勿离开此页面</div>
-        </div>
-        
-        <!-- 成功状态 (默认隐藏) -->
-        <div id="successState" class="flex flex-col items-center hidden">
-            <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-5 scale-in relative">
-                <i class="fas fa-check text-[36px] text-primary"></i>
-                <!-- 装饰光圈 -->
-                <div class="absolute inset-0 border-2 border-primary rounded-full animate-ping opacity-20"></div>
+            <div class="text-[12px] text-gray-500 leading-relaxed mb-3">
+                保存或出示二维码给农户，农户扫码后引导完成建档。
             </div>
-            <div class="text-[20px] font-bold text-gray-800 mb-2">建档成功</div>
-            <div class="text-[13px] text-gray-500 mb-8 max-w-[80%] text-center leading-relaxed">该农户已加入您的合作列表，可返回继续处理后续业务。</div>
-            <button id="successBackBtn" onclick="routerBack()" class="h-11 px-8 bg-white border border-gray-200 text-gray-700 font-medium text-[15px] rounded-full shadow-sm active:bg-gray-50 transition-colors">
-                返回合作农户
-            </button>
+            <div class="invite-qr-box">
+                <canvas id="inviteQrCanvas" width="210" height="210"></canvas>
+            </div>
+            <div class="text-[11px] text-gray-400 text-center mt-2">演示二维码图例（用于原型跳转）</div>
+
+            <button class="w-full h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-transform mt-4" onclick="saveInviteQr()">保存二维码</button>
+
+            <a id="inviteQuickLink" href="buyer-farmer-add.html?source=invite" class="invite-link mt-3" style="display:flex;">
+                <i class="fas fa-arrow-up-right-from-square text-[11px]"></i>
+                <span>快捷跳转：前往农户建档页</span>
+            </a>
+
+            <button class="w-full h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform mt-3" onclick="closeInviteModal()">关闭</button>
         </div>
     </div>
 </div>
 
 <script>
-document.getElementById('statusBar').innerHTML = renderStatusBar('dark');
-const addQuery = new URLSearchParams(window.location.search);
-const captureState = addQuery.get('captureState') || '';
-const backTarget = (addQuery.get('back') === 'mine' || addQuery.get('source') === 'invite')
-    ? 'buyer-my.html'
-    : 'buyer-contacts.html';
-document.getElementById('navBar').innerHTML = renderHeader('农户建档', backTarget, false, 'bg-transparent text-gray-800');
-const successBackBtn = document.getElementById('successBackBtn');
-if (successBackBtn && backTarget === 'buyer-my.html') {
-    successBackBtn.textContent = '返回我的';
-}
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('添加合作农户', 'buyer-contacts.html');
 
-let uploadStatus = {
-    idFront: false,
-    idBack: false,
-    bankCard: false
-};
+var searchInput = document.getElementById('searchInput');
+var clearBtn = document.getElementById('clearBtn');
+var resultContainer = document.getElementById('resultContainer');
+var actionBottomBar = document.getElementById('actionBottomBar');
+var inviteBottomBar = document.getElementById('inviteBottomBar');
+var currentFoundFarmer = null;
 
-function simulateUpload(type) {
-    showToast('正在调起相机进行OCR识别...');
-    const btn = document.getElementById('upload' + capitalize(type));
-    
-    setTimeout(() => {
-        uploadStatus[type] = true;
-        btn.classList.add('uploaded');
-        if (type === 'idFront') {
-            btn.innerHTML = `<i class="fas fa-check-circle text-xl mb-1.5"></i><span class="text-[11px] font-medium">人像面已识别</span>`;
-        } else if (type === 'idBack') {
-            btn.innerHTML = `<i class="fas fa-check-circle text-xl mb-1.5"></i><span class="text-[11px] font-medium">国徽面已识别</span>`;
-        } else if (type === 'bankCard') {
-            btn.innerHTML = `<i class="fas fa-check-circle text-xl"></i><span class="text-[13px] font-medium">卡片已识别</span>`;
-        }
-        
-        if (uploadStatus.idFront && uploadStatus.idBack) {
-            if (!document.getElementById('farmerName').value.trim()) {
-                document.getElementById('farmerName').value = '张建国';
-            }
-            document.getElementById('farmerIdNo').value = '510122198001018888';
-        }
-        if (uploadStatus.bankCard) {
-            document.getElementById('bankCardNo').value = '6228 4800 1234 5678';
-        }
-        
-        showToast('识别成功');
-    }, 1500);
-}
-
-function submitApplication() {
-    const name = document.getElementById('farmerName').value.trim();
-    const phone = document.getElementById('farmerMobile').value.trim();
-    const idNo = document.getElementById('farmerIdNo').value.trim();
-    const cardNo = document.getElementById('bankCardNo').value.trim();
-    
-    if (!name || !phone) {
-        showToast('请填写姓名和手机号');
-        return;
+// 监听输入
+searchInput.addEventListener('input', function() {
+    clearBtn.style.display = this.value.length > 0 ? 'flex' : 'none';
+    if(this.value.length === 11) {
+        performSearch();
     }
-    if (!idNo || !cardNo) {
-        showToast('请完善身份证号和银行卡号');
-        return;
+});
+searchInput.addEventListener('keypress', function(e) {
+    if(e.key === 'Enter') {
+        performSearch();
+        this.blur();
     }
+});
 
-    const overlay = document.getElementById('submitOverlay');
-    overlay.classList.add('show');
-    
-    // Simulate API call
-    setTimeout(() => {
-        // Hide loading, show success
-        document.getElementById('loadingState').classList.add('hidden');
-        document.getElementById('successState').classList.remove('hidden');
-    }, 2000);
-}
-
-function routerBack() {
-    window.location.href = backTarget;
+function clearSearch() {
+    searchInput.value = '';
+    clearBtn.style.display = 'none';
+    searchInput.focus();
+    renderInitialState();
 }
 
 function showToast(msg) {
@@ -299,25 +193,299 @@ function showToast(msg) {
     tip.textContent = msg;
     tip.classList.add('show');
     clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(() => tip.classList.remove('show'), 2000);
+    showToast.timer = setTimeout(() => tip.classList.remove('show'), 1800);
 }
 
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+// 模拟脱敏函数
+function maskMobile(mobile) {
+    return mobile;
 }
 
-if (captureState === 'error') {
+function maskIdCard(id) {
+    if(!id) return '未认证';
+    return id.substring(0, 3) + '***********' + id.substring(id.length - 4);
+}
+
+function maskBankCard(card) {
+    if(!card) return '未绑卡';
+    var c = card.replace(/\s/g, '');
+    if(c.length < 8) return card;
+    return c.substring(0, 4) + ' **** **** ' + c.slice(-4);
+}
+
+function renderInitialState() {
+    resultContainer.innerHTML = `
+        <div class="mt-[20%] text-center text-gray-400">
+            <i class="fas fa-search text-[40px] opacity-20 mb-4"></i>
+            <div class="text-[14px]">请输入手机号检索农户是否已建档</div>
+        </div>
+    `;
+    actionBottomBar.style.display = 'none';
+    inviteBottomBar.style.display = 'none';
+    currentFoundFarmer = null;
+}
+
+function renderNotFoundState(phone) {
+    resultContainer.innerHTML = `
+        <div class="mt-[15%] w-full flex flex-col items-center animate-[fadeIn_0.3s_ease]">
+            <div class="w-[80px] h-[80px] rounded-full bg-white shadow-sm flex items-center justify-center mb-6">
+                <i class="fas fa-search text-[36px] text-gray-300"></i>
+            </div>
+            <div class="text-[16px] font-semibold text-gray-700 mb-2">未检索到农户建档信息</div>
+            <div class="text-[13px] text-gray-500 text-center px-6 leading-relaxed">请确认手机号是否正确，或可点击邀请农户建档</div>
+        </div>
+    `;
+    actionBottomBar.style.display = 'none';
+    inviteBottomBar.style.display = 'block';
+    currentFoundFarmer = null;
+}
+
+function renderFoundState(farmer) {
+    var mockIdCard = '370202197805121234'; 
+    var maskedId = maskIdCard(mockIdCard);
+    var fullMobile = farmer.mobile;
+    var maskedCard = maskBankCard(farmer.card || '6221 4858 0000 5678');
+    
+    resultContainer.innerHTML = `
+        <div class="w-full bg-white rounded-[20px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-6 animate-[fadeInUp_0.4s_ease] border border-gray-100">
+            <div class="space-y-5">
+                <!-- 行 -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5 text-gray-500">
+                        <i class="far fa-user text-[14px] w-4 text-center"></i>
+                        <span class="text-[14px]">姓名</span>
+                    </div>
+                    <span class="text-[15px] font-semibold text-gray-800">${farmer.name}</span>
+                </div>
+                <!-- 行 -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5 text-gray-500">
+                        <i class="fas fa-mobile-screen-button text-[14px] w-4 text-center"></i>
+                        <span class="text-[14px]">手机号</span>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-800 tracking-wider" style="font-family:Poppins;">${fullMobile}</span>
+                </div>
+                <!-- 行 -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5 text-gray-500">
+                        <i class="far fa-id-card text-[14px] w-4 text-center"></i>
+                        <span class="text-[14px]">身份证号</span>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-800 tracking-wider" style="font-family:Poppins;">${maskedId}</span>
+                </div>
+                <!-- 行 -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5 text-gray-500">
+                        <i class="far fa-building text-[14px] w-4 text-center"></i>
+                        <span class="text-[14px]">开户行</span>
+                    </div>
+                    <span class="text-[14px] font-medium text-gray-800">${farmer.bank}</span>
+                </div>
+                <!-- 行 -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5 text-gray-500">
+                        <i class="far fa-credit-card text-[14px] w-4 text-center"></i>
+                        <span class="text-[14px]">银行卡号</span>
+                    </div>
+                    <span class="text-[14px] font-medium text-gray-800" style="font-family:Poppins;">${maskedCard}</span>
+                </div>
+            </div>
+        </div>
+    `;
+    actionBottomBar.style.display = 'block';
+    inviteBottomBar.style.display = 'none';
+    currentFoundFarmer = farmer;
+}
+
+function performSearch() {
+    var keyword = searchInput.value.replace(/\s/g, '');
+    if(keyword.length === 0) {
+        renderInitialState();
+        return;
+    }
+    
+    // 显示加载中
+    resultContainer.innerHTML = '<div class="mt-[20%] text-center text-primary"><i class="fas fa-spinner fa-spin text-2xl"></i></div>';
+    
     setTimeout(function() {
-        showToast('请填写姓名和手机号');
-    }, 120);
+        var platformStore = window.UserIdentityStore;
+        var platformResults = (platformStore && typeof platformStore.searchPlatformFarmers === 'function')
+            ? platformStore.searchPlatformFarmers(keyword)
+            : [];
+            
+        // Mock fallback for prototype demonstration
+        if (platformResults.length === 0 && keyword === '13812345678') {
+            platformResults = [{
+                id: 'mock_1',
+                name: '张大山',
+                mobile: '13812345678',
+                bank: '邮政银行',
+                card: '6221 4858 0000 5678'
+            }];
+        }
+        
+        if (platformResults.length > 0) {
+            renderFoundState(platformResults[0]);
+        } else {
+            renderNotFoundState(keyword);
+        }
+    }, 400); // 虚假延迟增加真实感
 }
 
-if (captureState === 'success') {
-    const overlay = document.getElementById('submitOverlay');
-    overlay.classList.add('show');
-    document.getElementById('loadingState').classList.add('hidden');
-    document.getElementById('successState').classList.remove('hidden');
+function confirmAdd() {
+    if(!currentFoundFarmer) return;
+    
+    // 视觉反馈
+    var btn = document.getElementById('addFarmerBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>添加中...';
+    btn.classList.add('opacity-80');
+    
+    setTimeout(function() {
+        // 在正式应用中，这里应该调用接口将 currentFoundFarmer 添加到 contactSource
+        showToast('添加成功');
+        setTimeout(function() {
+            window.location.href = 'buyer-contacts.html';
+        }, 1000);
+    }, 800);
+}
+
+// 首次加载渲染空状态
+renderInitialState();
+
+/* ---------- 邀请二维码逻辑 ---------- */
+function getInviteUrl() {
+    var merchantNo = '';
+    if (typeof UserIdentityStore !== 'undefined') {
+        var user = UserIdentityStore.getCurrentUser();
+        if (user) merchantNo = user.merchantNo || '';
+    }
+    // 扫码跳转的注册页/建档H5 (Mock使用本页演示)
+    var inviteUrl = new URL(window.location.href);
+    inviteUrl.searchParams.set('source', 'scan_invite');
+    if (merchantNo) inviteUrl.searchParams.set('inviter', merchantNo);
+    return inviteUrl.toString();
+}
+
+function openInviteModal() {
+    var modal = document.getElementById('inviteModal');
+    if (!modal) return;
+    modal.classList.add('show');
+    renderInviteQr();
+}
+
+function closeInviteModal() {
+    var modal = document.getElementById('inviteModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function renderInviteQr() {
+    var canvas = document.getElementById('inviteQrCanvas');
+    if (!canvas) return;
+    var inviteUrl = getInviteUrl();
+    drawMockQr(canvas, inviteUrl);
+}
+
+function drawMockQr(canvas, content) {
+    var ctx = canvas.getContext('2d');
+    var size = canvas.width;
+    var modules = 29;
+    var cell = Math.floor(size / modules);
+    var offset = Math.floor((size - cell * modules) / 2);
+    var reserved = [];
+    var x, y;
+
+    for (y = 0; y < modules; y += 1) {
+        reserved[y] = [];
+        for (x = 0; x < modules; x += 1) {
+            reserved[y][x] = false;
+        }
+    }
+
+    function markFinder(startX, startY) {
+        var ix, iy;
+        for (iy = -1; iy <= 7; iy += 1) {
+            for (ix = -1; ix <= 7; ix += 1) {
+                var rx = startX + ix;
+                var ry = startY + iy;
+                if (rx >= 0 && rx < modules && ry >= 0 && ry < modules) {
+                    reserved[ry][rx] = true;
+                }
+            }
+        }
+        for (iy = 0; iy < 7; iy += 1) {
+            for (ix = 0; ix < 7; ix += 1) {
+                var px = startX + ix;
+                var py = startY + iy;
+                var isOuter = ix === 0 || ix === 6 || iy === 0 || iy === 6;
+                var isInner = ix >= 2 && ix <= 4 && iy >= 2 && iy <= 4;
+                var black = isOuter || isInner;
+                ctx.fillStyle = black ? '#111827' : '#FFFFFF';
+                ctx.fillRect(offset + px * cell, offset + py * cell, cell, cell);
+            }
+        }
+    }
+
+    function hashSeed(text) {
+        var seed = 0;
+        for (var i = 0; i < text.length; i += 1) {
+            seed = (seed * 131 + text.charCodeAt(i)) % 2147483647;
+        }
+        return seed || 97;
+    }
+
+    var seed = hashSeed(content);
+    function random() {
+        seed = (seed * 48271) % 2147483647;
+        return seed / 2147483647;
+    }
+
+    ctx.clearRect(0, 0, size, size);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, size, size);
+
+    markFinder(0, 0);
+    markFinder(modules - 7, 0);
+    markFinder(0, modules - 7);
+
+    for (x = 8; x < modules - 8; x += 1) {
+        reserved[6][x] = true;
+        reserved[x][6] = true;
+        ctx.fillStyle = x % 2 === 0 ? '#111827' : '#FFFFFF';
+        ctx.fillRect(offset + x * cell, offset + 6 * cell, cell, cell);
+        ctx.fillRect(offset + 6 * cell, offset + x * cell, cell, cell);
+    }
+
+    for (y = 0; y < modules; y += 1) {
+        for (x = 0; x < modules; x += 1) {
+            if (reserved[y][x]) continue;
+            if (random() > 0.5) {
+                ctx.fillStyle = '#111827';
+                ctx.fillRect(offset + x * cell, offset + y * cell, cell, cell);
+            }
+        }
+    }
+}
+
+function saveInviteQr() {
+    showToast('保存成功');
 }
 </script>
+<style>
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
 </body>
 </html>

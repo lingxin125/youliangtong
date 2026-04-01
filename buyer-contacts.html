@@ -39,61 +39,6 @@
             opacity: 1;
             transform: translateY(0);
         }
-        .invite-modal-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.45);
-            z-index: 90;
-            display: flex;
-            align-items: flex-end;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.22s ease;
-        }
-        .invite-modal-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .invite-modal-sheet {
-            width: 100%;
-            background: #fff;
-            border-radius: 22px 22px 0 0;
-            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
-            transform: translateY(18px);
-            transition: transform 0.22s ease;
-            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
-        }
-        .invite-modal-overlay.show .invite-modal-sheet {
-            transform: translateY(0);
-        }
-        .invite-qr-box {
-            width: 230px;
-            height: 230px;
-            border-radius: 16px;
-            border: 1px solid rgba(17, 166, 74, 0.18);
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            box-shadow: 0 4px 14px rgba(17, 166, 74, 0.12);
-        }
-        .invite-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-size: 12px;
-            color: #11A64A;
-            text-decoration: none;
-            padding: 8px 10px;
-            border-radius: 10px;
-            background: rgba(17, 166, 74, 0.06);
-            border: 1px solid rgba(17, 166, 74, 0.12);
-        }
-        .invite-link:active {
-            transform: scale(0.98);
-        }
     </style>
 </head>
 <body>
@@ -108,13 +53,13 @@
                 <i class="fas fa-search text-gray-400 text-sm"></i>
                 <input id="searchInput" type="text" placeholder="搜索农户手机号" class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
             </div>
-            <a href="#" onclick="return openInviteModal(event)" class="w-11 h-11 rounded-full bg-white border border-gray-200 text-gray-900 flex items-center justify-center shadow-sm active:scale-95 transition-transform no-underline" style="text-decoration:none;" aria-label="邀请农户">
+            <a href="buyer-farmer-add.html" class="w-11 h-11 rounded-full bg-white border border-gray-200 text-gray-900 flex items-center justify-center shadow-sm active:scale-95 transition-transform no-underline" style="text-decoration:none;" aria-label="邀请农户">
                 <i class="fas fa-user-plus text-[15px]"></i>
             </a>
         </div>
         <div class="flex items-center gap-1.5 text-[12px] text-gray-400 mt-2.5 px-1">
             <i class="fas fa-lightbulb text-primary/75 text-[12px] shrink-0"></i>
-            <span>优先搜索全平台农户，搜索不到右上角可邀请农户</span>
+            <span>如需添加新的合作农户，请点击右上角新增</span>
         </div>
     </div>
 
@@ -146,33 +91,6 @@
 
     <div id="toastTip" class="toast-tip"></div>
 
-    <!-- 邀请农户弹窗 -->
-    <div id="inviteModal" class="invite-modal-overlay" onclick="closeInviteModal()">
-        <div class="invite-modal-sheet" onclick="event.stopPropagation()">
-            <!-- 拖拽指示条（Drag Handle） -->
-            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
-            
-            <div class="mb-3">
-                <div class="text-[16px] font-semibold text-gray-800">邀请农户建档</div>
-            </div>
-            <div class="text-[12px] text-gray-500 leading-relaxed mb-3">
-                保存或出示二维码给农户，农户扫码后引导完成建档。
-            </div>
-            <div class="invite-qr-box">
-                <canvas id="inviteQrCanvas" width="210" height="210"></canvas>
-            </div>
-            <div class="text-[11px] text-gray-400 text-center mt-2">演示二维码图例（用于原型跳转）</div>
-
-            <button class="w-full h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-transform mt-4" onclick="saveInviteQr()">保存二维码</button>
-
-            <a id="inviteQuickLink" href="buyer-farmer-add.html?source=invite" class="invite-link mt-3" style="display:flex;">
-                <i class="fas fa-arrow-up-right-from-square text-[11px]"></i>
-                <span>快捷跳转：前往农户建档页</span>
-            </a>
-
-            <button class="w-full h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform mt-3" onclick="closeInviteModal()">关闭</button>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -216,11 +134,6 @@ if (fromBilling) {
 }
 
 renderList();
-if (captureState === 'modal') {
-    setTimeout(function() {
-        openInviteModal();
-    }, 120);
-}
 
 /* ---------- helpers ---------- */
 function getBackHref() {
@@ -264,9 +177,7 @@ function contactCardHTML(item, options) {
         </div>`;
     }
 
-    const coopBadge = showCoopBadge
-        ? `<span class="inline-flex items-center gap-0.5 text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-primary font-medium border border-green-100/60 mt-[1px]"><i class="fas fa-check text-[9px]"></i>已合作</span>`
-        : '';
+    const coopBadge = '';
     const payBadge = item.payCount != null
         ? `<span class="inline-block text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-primary font-medium border border-green-100/60 mt-[1px]">付款${item.payCount}次</span>`
         : '';
@@ -333,47 +244,18 @@ function renderList() {
         return;
     }
 
-    /* 非 billing 模式 */
-    emptyState.style.display = 'none';
+    const myMatches = contactSource.filter(item => {
+        if (!keyword) return true;
+        return item.name.includes(keyword) || item.mobile.includes(keyword) || item.card.includes(keyword) || item.bank.includes(keyword);
+    });
 
-    /* 无搜索关键词：显示完整列表 + 底部添加按钮 */
-    if (!keyword) {
-        if (contactSource.length === 0) {
-            listContainer.innerHTML = '';
-            emptyState.style.display = '';
-            return;
-        }
-        listContainer.innerHTML = contactSource.map(item => contactCardHTML(item, {})).join('');
-        return;
-    }
-
-    /* 有关键词：两区搜索 */
-    const myMatches = contactSource.filter(item =>
-        item.name.includes(keyword) || item.mobile.includes(keyword) || item.card.includes(keyword) || item.bank.includes(keyword)
-    );
-    const myMobiles = new Set(contactSource.map(c => c.mobile.replace(/\s/g, '')));
-    const platformStore = window.UserIdentityStore;
-    const platformResults = (platformStore && typeof platformStore.searchPlatformFarmers === 'function')
-        ? platformStore.searchPlatformFarmers(keyword).filter(f => !myMobiles.has(f.mobile.replace(/\s/g, '')))
-        : [];
-
-    if (myMatches.length === 0 && platformResults.length === 0) {
+    if (myMatches.length === 0) {
         listContainer.innerHTML = searchEmptyHTML();
         return;
     }
 
     let html = '';
-    if (myMatches.length > 0) {
-        html += sectionHeader('我的合作农户', myMatches.length);
-        html += myMatches.map(item => contactCardHTML(item, { showCoopBadge: true })).join('');
-    }
-    if (platformResults.length > 0) {
-        if (myMatches.length > 0) {
-            html += '<div class="border-t border-gray-100 my-2"></div>';
-        }
-        html += sectionHeader('全平台搜索结果', platformResults.length);
-        html += platformResults.map(item => contactCardHTML(item, { showAddBtn: true })).join('');
-    }
+    html += myMatches.map(item => contactCardHTML(item, {})).join('');
     listContainer.innerHTML = html;
 }
 
@@ -417,139 +299,6 @@ function confirmPick() {
     window.location.href = 'buyer-billing.html?' + params.toString();
 }
 
-/* ---------- 邀请农户相关逻辑 ---------- */
-function getInviteUrl() {
-    var merchantNo = '';
-    if (typeof UserIdentityStore !== 'undefined') {
-        var user = UserIdentityStore.getCurrentUser();
-        if (user) merchantNo = user.merchantNo || '';
-    }
-    var inviteUrl = new URL('buyer-farmer-add.html', window.location.href);
-    inviteUrl.searchParams.set('source', 'invite');
-    inviteUrl.searchParams.set('back', 'contacts');
-    if (merchantNo) {
-        inviteUrl.searchParams.set('inviter', merchantNo);
-    }
-    return inviteUrl.toString();
-}
-
-function openInviteModal(event) {
-    if (event) {
-        if (typeof event.preventDefault === 'function') event.preventDefault();
-        if (typeof event.stopPropagation === 'function') event.stopPropagation();
-    }
-    var modal = document.getElementById('inviteModal');
-    if (!modal) return false;
-    modal.classList.add('show');
-    renderInviteQr();
-    return false;
-}
-
-function closeInviteModal() {
-    var modal = document.getElementById('inviteModal');
-    if (!modal) return;
-    modal.classList.remove('show');
-}
-
-function renderInviteQr() {
-    var canvas = document.getElementById('inviteQrCanvas');
-    var quickLink = document.getElementById('inviteQuickLink');
-    if (!canvas) return;
-
-    var inviteUrl = getInviteUrl();
-    if (quickLink) {
-        quickLink.href = inviteUrl;
-    }
-    drawMockQr(canvas, inviteUrl);
-}
-
-function drawMockQr(canvas, content) {
-    var ctx = canvas.getContext('2d');
-    var size = canvas.width;
-    var modules = 29;
-    var cell = Math.floor(size / modules);
-    var offset = Math.floor((size - cell * modules) / 2);
-    var reserved = [];
-    var x;
-    var y;
-
-    for (y = 0; y < modules; y += 1) {
-        reserved[y] = [];
-        for (x = 0; x < modules; x += 1) {
-            reserved[y][x] = false;
-        }
-    }
-
-    function markFinder(startX, startY) {
-        var ix;
-        var iy;
-        for (iy = -1; iy <= 7; iy += 1) {
-            for (ix = -1; ix <= 7; ix += 1) {
-                var rx = startX + ix;
-                var ry = startY + iy;
-                if (rx >= 0 && rx < modules && ry >= 0 && ry < modules) {
-                    reserved[ry][rx] = true;
-                }
-            }
-        }
-        for (iy = 0; iy < 7; iy += 1) {
-            for (ix = 0; ix < 7; ix += 1) {
-                var px = startX + ix;
-                var py = startY + iy;
-                var isOuter = ix === 0 || ix === 6 || iy === 0 || iy === 6;
-                var isInner = ix >= 2 && ix <= 4 && iy >= 2 && iy <= 4;
-                var black = isOuter || isInner;
-                ctx.fillStyle = black ? '#111827' : '#FFFFFF';
-                ctx.fillRect(offset + px * cell, offset + py * cell, cell, cell);
-            }
-        }
-    }
-
-    function hashSeed(text) {
-        var seed = 0;
-        for (var i = 0; i < text.length; i += 1) {
-            seed = (seed * 131 + text.charCodeAt(i)) % 2147483647;
-        }
-        return seed || 97;
-    }
-
-    var seed = hashSeed(content);
-    function random() {
-        seed = (seed * 48271) % 2147483647;
-        return seed / 2147483647;
-    }
-
-    ctx.clearRect(0, 0, size, size);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, size, size);
-
-    markFinder(0, 0);
-    markFinder(modules - 7, 0);
-    markFinder(0, modules - 7);
-
-    for (x = 8; x < modules - 8; x += 1) {
-        reserved[6][x] = true;
-        reserved[x][6] = true;
-        ctx.fillStyle = x % 2 === 0 ? '#111827' : '#FFFFFF';
-        ctx.fillRect(offset + x * cell, offset + 6 * cell, cell, cell);
-        ctx.fillRect(offset + 6 * cell, offset + x * cell, cell, cell);
-    }
-
-    for (y = 0; y < modules; y += 1) {
-        for (x = 0; x < modules; x += 1) {
-            if (reserved[y][x]) continue;
-            if (random() > 0.5) {
-                ctx.fillStyle = '#111827';
-                ctx.fillRect(offset + x * cell, offset + y * cell, cell, cell);
-            }
-        }
-    }
-}
-
-function saveInviteQr() {
-    // 原型演示：不触发真实下载
-    showToast('保存成功');
-}
 </script>
 </body>
 </html>
