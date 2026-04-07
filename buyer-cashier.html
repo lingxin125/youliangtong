@@ -82,17 +82,6 @@
             <div id="mainAmount" class="text-[38px] font-bold text-[#111827] font-medium leading-none" style="font-family:Poppins;">¥ 0.00</div>
         </div>
 
-        <!-- 订单详情卡片 -->
-        <div id="orderItemsCard" class="bg-white rounded-[20px] p-5 mt-4 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-gray-50 hidden">
-            <div class="flex items-center gap-2 mb-4">
-                <div class="w-1 h-3.5 bg-primary rounded-full"></div>
-                <span class="text-[14px] font-semibold text-gray-800">商品详情</span>
-            </div>
-            <div id="orderItemsList" class="space-y-4">
-                <!-- 动态渲染 -->
-            </div>
-        </div>
-
         <!-- 动态引导区域容器 -->
         <div id="guideContainer" class="mt-4">
             
@@ -379,29 +368,6 @@ function fillPage() {
         document.getElementById('displayOrderNo').textContent = state.orderNo;
     }
 
-    renderItems();
-}
-
-function renderItems() {
-    const list = document.getElementById('orderItemsList');
-    const card = document.getElementById('orderItemsCard');
-    
-    if (!state.items || state.items.length === 0) {
-        card.classList.add('hidden');
-        return;
-    }
-    
-    card.classList.remove('hidden');
-    list.innerHTML = state.items.map(item => `
-        <div class="flex justify-between items-start">
-            <div class="flex-1 pr-4">
-                <div class="text-[14px] font-medium text-gray-800">${item.name}</div>
-                <div class="text-[11px] text-gray-400 mt-0.5">${item.price.toFixed(2)}元/${item.unit} × ${item.qty}${item.unit}</div>
-                ${item.remark ? `<div class="text-[10px] text-primary/70 font-normal mt-1 leading-tight">备注: ${item.remark}</div>` : ''}
-            </div>
-            <div class="text-[14px] font-semibold text-gray-700" style="font-family:Poppins;">¥${item.subtotal.toFixed(2)}</div>
-        </div>
-    `).join('<div class="h-px bg-gray-50 my-3"></div>');
 }
 
 function ensureOrderInStore() {
