@@ -261,10 +261,11 @@
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <div class="w-1 h-4 bg-primary rounded-full"></div>
-                    <span class="text-sm font-medium text-gray-800">开单品类 <span class="text-red-400 text-xs">*</span></span>
+                    <span class="text-sm font-medium text-gray-800">开单品类 <span class="text-gray-400 text-xs font-normal ml-1">请选择开单品类</span></span>
                 </div>
-                <div id="categoryList">
-                    <!-- JS 渲染网格视图 -->
+                <div id="categoryContainer" class="relative">
+                    <div id="primaryCategoryList" class="flex gap-2 w-full mb-3"></div>
+                    <div id="secondaryCategoryList" class="flex overflow-x-auto gap-2 pb-1 hide-scrollbar w-full"></div>
                 </div>
             </div>
         </div>
@@ -529,8 +530,16 @@ const CATEGORY_CONFIG = {
 const mockStore = window.BuyerMockStore || null;
 
 // ==================== 状态管理 ====================
+const SECONDARY_CATEGORIES = {
+    '粮食': ['玉米', '水稻', '小麦', '大豆', '马铃薯（土豆）', '花生', '红薯', '高粱', '谷子', '油菜籽', '杂豆（绿豆、红小豆、芸豆等）', '芝麻', '其他粮食'],
+    '水果': ['柑橘类（橘、橙、柚、沃柑、耙耙柑）', '苹果', '西瓜', '葡萄', '香蕉', '梨', '桃', '猕猴桃', '大枣', '草莓', '柿子', '樱桃', '李子、杏', '石榴', '火龙果', '芒果', '菠萝', '荔枝', '其他水果'],
+    '蔬菜': ['大白菜', '番茄（西红柿）', '黄瓜', '辣椒', '马铃薯（土豆）', '萝卜', '甘蓝（圆白菜、包菜）', '茄子', '大葱', '大蒜', '生姜', '芹菜', '花椰菜（菜花、西兰花）', '豆角、芸豆、四季豆', '叶菜类（菠菜、生菜、油麦菜等）', '瓜类（冬瓜、南瓜、西葫芦）', '韭菜、香菜', '其他蔬菜'],
+    '其他': ['食用菌（香菇、木耳、平菇等）', '中药材', '坚果', '饲料、牧草', '其他农产品']
+};
+
 const state = {
-    currentCategory: null,
+    currentCategory: '粮食',
+    currentSubCategory: null,
     products: [],
     payee: null,
     payeePool: mockStore ? mockStore.getFrequentContacts() : [
@@ -541,32 +550,52 @@ const state = {
 };
 
 // ==================== 品类和历史商品渲染 ====================
-function renderCategories() {
-    const container = document.getElementById('categoryList');
-    const displayCats = ['水果', '蔬菜', '粮食', '其他'];
+function renderPrimaryCategories() {
+    const container = document.getElementById('primaryCategoryList');
+    const displayCats = ['粮食', '水果', '蔬菜', '其他'];
 
-    container.innerHTML = `<div class="flex gap-2 w-full">` + displayCats.map(cat => {
+    container.innerHTML = displayCats.map(cat => {
         const config = CATEGORY_CONFIG[cat];
         if(!config) return '';
         const isActive = state.currentCategory === cat;
         
         if (isActive) {
             return `
-            <div onclick="selectCategory('${cat}')" class="flex-1 min-w-0 bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] rounded-xl py-3 flex flex-col items-center gap-1.5 cursor-pointer border border-[#11A64A]/30 shadow-[0_2px_8px_rgba(17,166,74,0.06)] transition-all">
+            <div onclick="selectCategory('${cat}')" class="flex-1 min-w-0 bg-[#EBF7F0] rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-[#11A64A]/30 transition-all">
                 <i class="fas ${config.icon} text-[20px]" style="color:${config.brandHex}"></i>
-                <span class="text-[12px] font-bold text-[#11A64A]">${cat}</span>
+                <span class="text-[12px] font-bold text-[#11A64A]">${cat === '其他' ? '更多' : cat}</span>
             </div>
             `;
         } else {
             return `
-            <div onclick="selectCategory('${cat}')" class="flex-1 min-w-0 bg-gray-50/80 rounded-xl py-3 flex flex-col items-center gap-1.5 cursor-pointer border border-transparent hover:bg-gray-100 transition-all">
-                <i class="fas ${config.icon} text-gray-300 text-[20px]"></i>
-                <span class="text-[12px] font-medium text-gray-500">${cat}</span>
+            <div onclick="selectCategory('${cat}')" class="flex-1 min-w-0 bg-gray-50 rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-transparent hover:bg-gray-100 transition-all">
+                <i class="fas ${config.icon} text-gray-400 text-[20px]"></i>
+                <span class="text-[12px] font-medium text-gray-500">${cat === '其他' ? '更多' : cat}</span>
             </div>
             `;
         }
-    }).join('') + `</div>`;
+    }).join('');
 }
+
+function renderSecondaryCategories() {
+    const wrapper = document.getElementById('secondaryCategoryList');
+    if (!state.currentCategory) {
+        wrapper.innerHTML = '';
+        return;
+    }
+    const subcats = SECONDARY_CATEGORIES[state.currentCategory] || [];
+    // 直接平铺所有分类在一行原生横向滚动内。
+    // 就像淡宝、京东首页的分类一样，手指自然左右滑动即可看到所有选项
+    wrapper.innerHTML = subcats.map(sub => {
+        const isActive = state.currentSubCategory === sub;
+        if (isActive) {
+            return `<button onclick="selectSubCategory('${sub.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')" class="shrink-0 max-w-[150px] truncate px-3 py-1.5 rounded-full border border-[#11A64A] bg-[#EBF7F0] text-[#11A64A] text-[12px] font-semibold transition-all">${sub}</button>`;
+        } else {
+            return `<button onclick="selectSubCategory('${sub.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')" class="shrink-0 max-w-[150px] truncate px-3 py-1.5 rounded-full border border-gray-100 bg-gray-50 text-gray-600 text-[12px] hover:bg-gray-100 transition-all">${sub}</button>`;
+        }
+    }).join('');
+}
+
 
 function normalizeCategoryName(name) {
     if (name === '蔬菜') return '蓔菜';
@@ -678,9 +707,37 @@ function fillProductName(name) {
     document.getElementById('sheetProductName').value = name;
 }
 
-function selectCategory(category) {
-    state.currentCategory = category;
-    renderCategories();
+function selectCategory(cat) {
+    if (state.products.length > 0 && state.currentCategory && state.currentCategory !== cat) {
+        showAppModal({
+            title: '更换品类',
+            message: '更换开单品类将清空目前已添加的商品明细，是否继续？',
+            confirmText: '继续更换',
+            cancelText: '取消',
+            confirmClass: 'app-modal-btn-danger',
+            onConfirm: () => {
+                state.products = [];
+                state.currentCategory = cat;
+                state.currentSubCategory = null;
+                state.isSecondaryExpanded = false;
+                renderPrimaryCategories();
+                renderSecondaryCategories();
+                renderProductList();
+                updateTotalAmount();
+            }
+        });
+        return;
+    }
+    state.currentCategory = cat;
+    state.currentSubCategory = null;
+    state.isSecondaryExpanded = false;
+    renderPrimaryCategories();
+    renderSecondaryCategories();
+}
+
+function selectSubCategory(sub) {
+    state.currentSubCategory = sub;
+    renderSecondaryCategories();
 }
 
 // ==================== 应用内弹窗 ====================
@@ -789,7 +846,7 @@ function openAddProductSheet() {
         return;
     }
     // 重置表单
-    document.getElementById('sheetProductName').value = '';
+    document.getElementById('sheetProductName').value = state.currentSubCategory || '';
     document.getElementById('sheetProductPrice').value = '';
     document.getElementById('sheetProductUnit').value = '';
     document.getElementById('sheetProductQty').value = '';
@@ -1160,7 +1217,8 @@ function hydrateFromQuery() {
 }
 
 // ==================== 启动 ====================
-renderCategories();
+renderPrimaryCategories();
+renderSecondaryCategories();
 renderProductList();
 hydrateFromQuery();
 
@@ -1175,7 +1233,8 @@ document.getElementById('addProductOverlay').addEventListener('click', function(
 
 if (captureState === 'modal') {
     state.currentCategory = '粮食';
-    renderCategories();
+    renderPrimaryCategories();
+    renderSecondaryCategories();
     setTimeout(function() {
         openAddProductSheet();
     }, 120);
