@@ -332,7 +332,7 @@
                             <div class="text-sm font-medium text-gray-800">扫码付款</div>
                             <div class="text-[11px] text-gray-500 mt-0.5">扫描农户二维码付款</div>
                         </div>
-                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                        <i class="fas fa-expand text-[#11A64A] text-sm"></i>
                     </div>
                     <div onclick="openFarmerSelectSheet()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
                         <div class="w-10 h-10 rounded-[12px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] border border-[#11A64A]/10 flex items-center justify-center shrink-0">
@@ -395,11 +395,53 @@
 
             <!-- 商品名称 -->
             <div class="mb-3">
-                <label class="text-xs text-gray-500 block mb-1.5">商品名称</label>
-                <input type="text" id="sheetProductName" placeholder="请输入或选择商品名称" class="custom-input">
-                <!-- 历史录入商品推荐 -->
-                <div class="mt-2 space-y-1.5" id="sheetProductSuggestions">
-                    <!-- 由 JS 生成 -->
+                <label class="text-xs text-gray-500 block mb-1.5">商品名称 <span class="text-red-500">*</span></label>
+                <input type="text" id="sheetProductName" placeholder="请输入商品名称" class="custom-input">
+            </div>
+
+            <!-- 毛重 (带单位选择) -->
+            <div class="mb-3">
+                <label class="text-xs text-gray-500 block mb-1.5">毛重 <span class="text-red-500">*</span></label>
+                <div class="relative flex items-center border border-gray-200 rounded-xl bg-white focus-within:border-[#11A64A] focus-within:ring-1 focus-within:ring-[#11A64A] overflow-hidden transition-all">
+                    <input type="number" id="sheetGrossWeight" placeholder="请输入毛重" step="0.01" class="flex-1 px-3 py-2.5 text-sm outline-none border-none bg-transparent m-0" oninput="calcSheetSubtotal()">
+                    <div class="h-full border-l border-gray-200 bg-gray-50 shrink-0 relative flex items-center">
+                        <select id="sheetProductUnit" class="h-full px-4 py-2.5 bg-transparent appearance-none outline-none text-[13px] font-medium text-gray-700 pr-7 z-10 cursor-pointer" onchange="syncUnit()">
+                            <option value="斤" selected>斤</option>
+                            <option value="公斤">公斤</option>
+                        </select>
+                        <i class="fas fa-caret-down absolute right-2.5 text-gray-400 text-[10px] pointer-events-none z-0"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 皮重 -->
+            <div class="mb-3">
+                <label class="text-xs text-gray-500 block mb-1.5">皮重</label>
+                <div class="relative">
+                    <input type="number" id="sheetTareWeight" placeholder="请输入皮重" step="0.01" class="custom-input pr-10" oninput="calcSheetSubtotal()">
+                    <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[13px] font-medium unit-display">斤</span>
+                </div>
+            </div>
+
+            <!-- 扣减比例 -->
+            <div class="mb-3">
+                <label class="text-xs text-gray-500 block mb-1.5">扣减比例</label>
+                <div class="relative">
+                    <input type="number" id="sheetDeductRatio" placeholder="请输入扣减比例自动计算扣杂重量" step="0.1" class="custom-input pr-8" oninput="calcSheetSubtotal()">
+                    <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[13px]">%</span>
+                </div>
+            </div>
+
+            <!-- 公式展示区 -->
+            <div class="mb-3 py-3 px-2 bg-gradient-to-r from-transparent via-[#EBF7F0]/60 to-transparent border-y border-[#11A64A]/10 text-center">
+                <div class="text-[13px] text-gray-500 tracking-wide flex items-center justify-center gap-1.5 flex-wrap">
+                    <span>毛重</span>
+                    <span class="text-gray-300 px-0.5">-</span>
+                    <span>皮重</span>
+                    <span class="text-gray-300 px-0.5">-</span>
+                    <span>扣杂</span>
+                    <span class="text-gray-300 px-0.5">=</span>
+                    <span class="text-[#11A64A] text-[16px] font-bold tracking-normal ml-1">净重: <span id="formulaNet" style="font-family:Poppins;">0.00</span> <span class="unit-display text-[13px]">斤</span></span>
                 </div>
             </div>
 
@@ -407,33 +449,22 @@
             <div class="mb-3">
                 <label class="text-xs text-gray-500 block mb-1.5">单价</label>
                 <div class="relative">
-                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">¥</span>
-                    <input type="number" id="sheetProductPrice" placeholder="0.00" step="0.01" class="custom-input pl-7" oninput="calcSheetSubtotal()">
-                </div>
-            </div>
-
-            <!-- 总重量和单位 -->
-            <div class="flex gap-3 mb-3">
-                <div class="flex-1">
-                    <label class="text-xs text-gray-500 block mb-1.5">总重量</label>
-                    <input type="number" id="sheetProductQty" placeholder="请输入重量" step="0.01" class="custom-input" oninput="calcSheetSubtotal()">
-                </div>
-                <div class="w-20">
-                    <label class="text-xs text-gray-500 block mb-1.5">单位</label>
-                    <input type="text" id="sheetProductUnit" placeholder="斤" class="custom-input text-sm" maxlength="4">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[13px]">¥</span>
+                    <input type="number" id="sheetProductPrice" placeholder="请输入单价" step="0.01" class="custom-input pl-7 pr-16" oninput="calcSheetSubtotal()">
+                    <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[11px]">元/<span class="unit-display">斤</span></span>
                 </div>
             </div>
 
             <!-- 备注字段 -->
             <div class="mb-4">
-                <label class="text-xs text-gray-500 block mb-1.5">备注信息</label>
-                <input type="text" id="sheetProductRemark" placeholder="如：甜度12、品种、水分等（选填）" class="custom-input">
+                <label class="text-xs text-gray-500 block mb-1.5">备注</label>
+                <input type="text" id="sheetProductRemark" placeholder="请输入备注 (选填)" class="custom-input">
             </div>
 
             <!-- 小计 -->
             <div class="flex items-center justify-between py-3 border-t border-gray-100 mb-4">
-                <span class="text-sm text-gray-600">小计</span>
-                <span class="text-lg font-bold text-primary" style="font-family:Poppins;">¥<span id="sheetSubtotal">0.00</span></span>
+                <span class="text-sm text-gray-600">金额小计</span>
+                <span class="text-lg font-bold text-[#FF4D4F]" style="font-family:Poppins;">¥<span id="sheetSubtotal">0.00</span></span>
             </div>
 
             <!-- 按钮 -->
@@ -563,14 +594,14 @@ function renderPrimaryCategories() {
             return `
             <div onclick="selectCategory('${cat}')" class="flex-1 min-w-0 bg-[#EBF7F0] rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-[#11A64A]/30 transition-all">
                 <i class="fas ${config.icon} text-[20px]" style="color:${config.brandHex}"></i>
-                <span class="text-[12px] font-bold text-[#11A64A]">${cat === '其他' ? '更多' : cat}</span>
+                <span class="text-[12px] font-bold text-[#11A64A]">${cat}</span>
             </div>
             `;
         } else {
             return `
             <div onclick="selectCategory('${cat}')" class="flex-1 min-w-0 bg-gray-50 rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-transparent hover:bg-gray-100 transition-all">
                 <i class="fas ${config.icon} text-gray-400 text-[20px]"></i>
-                <span class="text-[12px] font-medium text-gray-500">${cat === '其他' ? '更多' : cat}</span>
+                <span class="text-[12px] font-medium text-gray-500">${cat}</span>
             </div>
             `;
         }
@@ -847,13 +878,16 @@ function openAddProductSheet() {
     }
     // 重置表单
     document.getElementById('sheetProductName').value = state.currentSubCategory || '';
+    document.getElementById('sheetGrossWeight').value = '';
+    document.getElementById('sheetTareWeight').value = '';
+    document.getElementById('sheetProductUnit').value = '斤';
+    document.getElementById('sheetDeductRatio').value = '';
     document.getElementById('sheetProductPrice').value = '';
-    document.getElementById('sheetProductUnit').value = '';
-    document.getElementById('sheetProductQty').value = '';
     document.getElementById('sheetProductRemark').value = '';
-    document.getElementById('sheetSubtotal').textContent = '0.00';
-    // 渲染历史录入商品建议标签
-    renderSheetSuggestions();
+    
+    syncUnit();
+    calcSheetSubtotal();
+    
     // 打开弹窗
     document.getElementById('addProductOverlay').classList.add('show');
     document.getElementById('addProductSheet').classList.add('show');
@@ -864,17 +898,42 @@ function closeAddProductSheet() {
     document.getElementById('addProductOverlay').classList.remove('show');
 }
 
+function syncUnit() {
+    const unit = document.getElementById('sheetProductUnit').value;
+    document.querySelectorAll('.unit-display').forEach(el => {
+        el.textContent = unit;
+    });
+}
+
 function calcSheetSubtotal() {
+    const gross = parseFloat(document.getElementById('sheetGrossWeight').value) || 0;
+    const tare = parseFloat(document.getElementById('sheetTareWeight').value) || 0;
+    
+    // 初步净重计算，毛重不足时为0
+    const netWeightWithoutDeduct = Math.max(0, gross - tare);
+    
+    // 扣杂计算
+    const deductRatio = parseFloat(document.getElementById('sheetDeductRatio').value) || 0;
+    const deductWeight = netWeightWithoutDeduct * (deductRatio / 100);
+    
+    // 最终净重
+    const finalNet = Math.max(0, netWeightWithoutDeduct - deductWeight);
+    
+    // 更新公式UI
+    document.getElementById('formulaNet').textContent = finalNet.toFixed(2);
+    
+    // 小计金额
     const price = parseFloat(document.getElementById('sheetProductPrice').value) || 0;
-    const qty = parseFloat(document.getElementById('sheetProductQty').value) || 0;
-    const subtotal = price * qty;
+    const subtotal = finalNet * price;
     document.getElementById('sheetSubtotal').textContent = subtotal.toFixed(2);
 }
 
 function confirmAddProduct() {
     const name = document.getElementById('sheetProductName').value.trim();
-    const price = parseFloat(document.getElementById('sheetProductPrice').value);
-    const qty = parseFloat(document.getElementById('sheetProductQty').value);
+    const gross = parseFloat(document.getElementById('sheetGrossWeight').value) || 0;
+    const tare = parseFloat(document.getElementById('sheetTareWeight').value) || 0;
+    const deductRatio = parseFloat(document.getElementById('sheetDeductRatio').value) || 0;
+    const price = parseFloat(document.getElementById('sheetProductPrice').value) || 0;
     const remark = document.getElementById('sheetProductRemark').value.trim();
     const unit = document.getElementById('sheetProductUnit').value.trim() || '斤';
 
@@ -882,22 +941,35 @@ function confirmAddProduct() {
         showToast('请输入商品名称');
         return;
     }
-    if (!price || price <= 0) {
-        showToast('请输入有效单价');
+    if (gross <= 0) {
+        showToast('请录入有效的毛重数字');
         return;
     }
-    if (!qty || qty <= 0) {
-        showToast('请输入有效重量');
+    if (tare < 0) {
+        showToast('皮重不可为负数');
+        return;
+    }
+    if (gross < tare) {
+        showToast('毛重不能小于皮重');
         return;
     }
 
+    const netWeightWithoutDeduct = gross - tare;
+    const deductWeight = netWeightWithoutDeduct * (deductRatio / 100);
+    const finalNet = netWeightWithoutDeduct - deductWeight;
+    const subtotal = finalNet * price;
+
     const product = {
         name,
+        gross,
+        tare,
+        net: finalNet, // 真正的最终净重
+        deductRatio,
+        qty: finalNet, // 系统向下兼容，qty 即为最终运算用的净重量
         price,
-        qty,
         unit,
         remark,
-        subtotal: price * qty,
+        subtotal,
         category: state.currentCategory
     };
 
