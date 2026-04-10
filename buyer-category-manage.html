@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>丰收云 - 品类管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .page-bg {
+            background-color: #F7F8FA;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* 左侧导航激活样式 */
+        .sidebar-item-active {
+            background: #fff;
+            color: #11A64A;
+            font-weight: 700;
+            position: relative;
+        }
+        .sidebar-item-active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 18px;
+            width: 3.5px;
+            background-color: #11A64A;
+            border-radius: 0 4px 4px 0;
+        }
+        /* 顶部常用圆环图标 */
+        .fav-icon-wrapper {
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .fav-icon-wrapper:active {
+            transform: scale(0.92);
+        }
+        /* 常用列卡片化样式 */
+        .fav-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            margin: 12px 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+        .fav-list-container {
+            max-height: 38px; /* 一行的高度 */
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .fav-list-container.expanded {
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container page-bg">
+    <!-- 状态栏 -->
+    <div id="statusBar"></div>
+
+    <!-- 顶栏 -->
+    <div id="navBar"></div>
+
+    <!-- 主体区域：采用 flex-col -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- 核心区块一：我的常用 (折叠式标签布局) -->
+        <div class="fav-card bg-white z-10 shrink-0">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-1.5">
+                    <div class="w-1 h-4 bg-primary rounded-full"></div>
+                    <span class="text-[14px] font-bold text-gray-800 tracking-wide">我的常用</span>
+                    <span id="favCount" class="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full ml-1 font-bold">0</span>
+                </div>
+                <!-- 展开/收起按钮 -->
+                <button id="toggleExpand" onclick="toggleExpandFavs()" class="flex items-center gap-1 text-[11px] text-gray-400 active:text-primary transition-colors">
+                    <span id="toggleText">展开</span>
+                    <i id="toggleIcon" class="fas fa-chevron-down transition-transform"></i>
+                </button>
+            </div>
+            
+            <!-- 常用列表容器 -->
+            <div id="favListContainer" class="fav-list-container">
+                <div id="favList" class="flex flex-wrap gap-x-2 gap-y-3">
+                    <!-- 动态渲染标签 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 标题：全部品类 (移至区域上方) -->
+        <div class="px-5 mt-5 mb-2 shrink-0">
+            <div class="flex items-center gap-1.5">
+                <div class="w-1 h-4 bg-primary rounded-full"></div>
+                <span class="text-[14px] font-bold text-gray-800 tracking-wide">全部品类</span>
+            </div>
+        </div>
+
+        <!-- 核心区块二：选择面板 (左右双栏) -->
+        <div class="flex-1 flex overflow-hidden bg-white">
+            <!-- 左侧：一级分类 -->
+            <div class="w-[88px] bg-[#F7F8FA] overflow-y-auto hide-scrollbar" id="sidebar">
+                <!-- 通过 JS 渲染四大类 -->
+            </div>
+
+            <!-- 右侧：二级明细列表 -->
+            <div class="flex-1 overflow-y-auto px-4 py-4 hide-scrollbar" id="contentArea">
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <h3 id="rightTitle" class="text-[12px] font-bold text-gray-800">粮食类明细</h3>
+                    <span class="text-[10px] text-gray-400">点击加号可添加品类</span>
+                </div>
+                
+                <!-- 二级品类网格 -->
+                <div class="grid grid-cols-2 gap-x-2.5 gap-y-3 pb-20" id="itemList">
+                    <!-- 动态渲染明细 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 初始化 UI 组件
+    document.getElementById('statusBar').innerHTML = renderStatusBar();
+    document.getElementById('navBar').innerHTML = renderHeader('品类管理', 'buyer-billing.html');
+
+    const CATEGORY_DATA = {
+        '粮食': { 
+            icon: 'fa-wheat-awn', color: '#F59E0B', bg: '#FEF3C7',
+            items: ['玉米', '水稻', '小麦', '大豆', '马铃薯（土豆）', '花生', '红薯', '高粱', '谷子', '油菜籽', '杂豆（绿豆、红小豆、芸豆等）', '芝麻', '其他粮食']
+        },
+        '水果': { 
+            icon: 'fa-apple-whole', color: '#EF4444', bg: '#FEE2E2',
+            items: ['柑橘类（橘、橙、柚、沃柑、耙耙柑）', '苹果', '西瓜', '葡萄', '香蕉', '梨', '桃', '猕猴桃', '大枣', '草莓', '柿子', '樱桃', '李子、杏', '石榴', '火龙果', '芒果', '菠萝', '荔枝', '其他水果']
+        },
+        '蔬菜': { 
+            icon: 'fa-carrot', color: '#11A64A', bg: '#DCFCE7',
+            items: ['大白菜', '番茄（西红柿）', '黄瓜', '辣椒', '马铃薯（土豆）', '萝卜', '甘蓝（圆白菜、包菜）', '茄子', '大葱', '大蒜', '生姜', '芹菜', '花椰菜（菜花、西兰花）', '豆角、芸豆、四季豆', '叶菜类（菠菜、生菜、油麦菜等）', '瓜类（冬瓜、南瓜、西葫芦）', '韭菜、香菜', '其他蔬菜']
+        },
+        '其他': { 
+            icon: 'fa-box-open', color: '#64748B', bg: '#F1F5F9',
+            items: ['食用菌（香菇、木耳、平菇等）', '中药材', '坚果', '饲料、牧草', '其他农产品']
+        }
+    };
+
+    let favorites = [];
+    let currentTab = '粮食';
+
+    function init() {
+        try {
+            const stored = localStorage.getItem('ylt_favorite_categories');
+            if (stored) {
+                favorites = JSON.parse(stored);
+            } else {
+                // 首次默认值
+                favorites = ['玉米', '小麦', '苹果', '大白菜'];
+            }
+        } catch(e) {
+            favorites = ['玉米', '小麦', '苹果', '大白菜'];
+        }
+        renderSidebar();
+        renderFavs();
+        renderList(currentTab);
+    }
+
+    function saveFavs() {
+        localStorage.setItem('ylt_favorite_categories', JSON.stringify(favorites));
+    }
+
+    function renderSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const tabs = ['粮食', '水果', '蔬菜', '其他'];
+        sidebar.innerHTML = tabs.map(tab => {
+            const isActive = tab === currentTab;
+            return `
+                <div onclick="switchTab('${tab}', this)" class="py-5 text-center text-[13px] text-gray-500 cursor-pointer transition-all ${isActive ? 'sidebar-item-active' : ''}">
+                    ${tab}${tab === '其他' ? '' : '类'}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function switchTab(tab, el) {
+        currentTab = tab;
+        renderSidebar();
+        document.getElementById('rightTitle').textContent = tab + (tab === '其他' ? '' : '类') + '明细';
+        renderList(tab);
+    }
+
+    let isExpanded = false;
+    function toggleExpandFavs() {
+        isExpanded = !isExpanded;
+        const container = document.getElementById('favListContainer');
+        const text = document.getElementById('toggleText');
+        const icon = document.getElementById('toggleIcon');
+        
+        if (isExpanded) {
+            container.classList.add('expanded');
+            text.textContent = '收起';
+            icon.classList.add('rotate-180');
+        } else {
+            container.classList.remove('expanded');
+            text.textContent = '展开';
+            icon.classList.remove('rotate-180');
+        }
+    }
+
+    function renderFavs() {
+        const container = document.getElementById('favList');
+        const countBadge = document.getElementById('favCount');
+        countBadge.textContent = favorites.length;
+
+        if (favorites.length === 0) {
+            container.innerHTML = `<span class="text-[12px] text-gray-300 w-full text-center py-2">暂未添加常用品类</span>`;
+            document.getElementById('toggleExpand').style.display = 'none';
+            return;
+        } else {
+            document.getElementById('toggleExpand').style.display = 'flex';
+        }
+
+        container.innerHTML = favorites.map(name => {
+            return `
+                <div onclick="removeFav('${name}')" class="shrink-0 flex items-center h-[32px] pl-3 pr-1.5 rounded-full border border-primary bg-primary/5 text-primary active:scale-[0.95] transition-all cursor-pointer">
+                    <span class="text-[12px] font-medium mr-2 max-w-[100px] truncate">${name}</span>
+                    <div class="w-5 h-5 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                        <i class="fas fa-xmark text-red-500 text-[10px]"></i>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderList(tab) {
+        const config = CATEGORY_DATA[tab];
+        const container = document.getElementById('itemList');
+        
+        container.innerHTML = config.items.map(item => {
+            const isFav = favorites.includes(item);
+            
+            // 恢复实心色背景，并保持防止按钮被文字挤压
+            if (isFav) {
+                return `
+                <div onclick="removeFav('${item}')" class="shrink-0 flex items-center justify-between px-2.5 py-2.5 rounded-xl border border-primary bg-[#F0FDF4] text-primary active:scale-[0.98] transition-all cursor-pointer overflow-hidden">
+                    <span class="text-[12px] font-bold truncate mr-2 flex-1">${item}</span>
+                    <div class="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center shadow-sm flex-shrink-0">
+                        <i class="fas fa-minus text-white text-[9px]"></i>
+                    </div>
+                </div>
+                `;
+            } else {
+                return `
+                <div onclick="addFav('${item}')" class="shrink-0 flex items-center justify-between px-2.5 py-2.5 rounded-xl border border-gray-100 bg-gray-50 text-gray-700 active:scale-[0.98] transition-all cursor-pointer overflow-hidden">
+                    <span class="text-[12px] font-medium truncate mr-2 flex-1">${item}</span>
+                    <div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-sm flex-shrink-0">
+                        <i class="fas fa-plus text-white text-[9px]"></i>
+                    </div>
+                </div>
+                `;
+            }
+        }).join('');
+    }
+
+    function addFav(item) {
+        if (favorites.includes(item)) return;
+        favorites.push(item);
+        saveFavs();
+        renderFavs();
+        renderList(currentTab);
+        
+        // 自动滚动到常用列表末尾
+        const scroller = document.getElementById('favList');
+        setTimeout(() => {
+            scroller.scrollTo({ left: scroller.scrollWidth, behavior: 'smooth' });
+        }, 100);
+    }
+
+    function removeFav(item) {
+        favorites = favorites.filter(x => x !== item);
+        saveFavs();
+        renderFavs();
+        renderList(currentTab);
+    }
+
+    // 初始化页面
+    init();
+
+</script>
+</body>
+</html>

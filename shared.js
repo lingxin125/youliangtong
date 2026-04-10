@@ -84,8 +84,11 @@ if (typeof tailwind !== "undefined") {
 })();
 
 // ==================== 状态栏 ====================
-function renderStatusBar() {
-  return '<div class="h-12 w-full flex justify-between items-end px-5 pb-2 z-[51] relative select-none text-white font-medium text-sm bg-black"><span>9:41</span><div class="flex gap-2 items-center"><i class="fas fa-signal text-xs"></i><i class="fas fa-wifi text-xs"></i><i class="fas fa-battery-full text-xs"></i></div></div>';
+function renderStatusBar(theme) {
+  var isLight = theme === 'light';
+  var bgClass = isLight ? 'bg-transparent' : 'bg-black';
+  var textClass = isLight ? 'text-gray-900' : 'text-white';
+  return '<div class="h-12 w-full flex justify-between items-end px-5 pb-2 z-[51] relative select-none ' + textClass + ' font-medium text-sm ' + bgClass + '"><span>9:41</span><div class="flex gap-2 items-center"><i class="fas fa-signal text-xs"></i><i class="fas fa-wifi text-xs"></i><i class="fas fa-battery-full text-xs"></i></div></div>';
 }
 
 // ==================== 导航栏 ====================

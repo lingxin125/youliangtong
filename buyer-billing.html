@@ -259,12 +259,19 @@
         <!-- ❶ 品类选择 -->
         <div class="step-card mb-3">
             <div class="p-4">
-                <div class="flex items-center gap-2 mb-3">
-                    <div class="w-1 h-4 bg-primary rounded-full"></div>
-                    <span class="text-sm font-medium text-gray-800">开单品类 <span class="text-gray-400 text-xs font-normal ml-1">请选择开单品类</span></span>
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1 h-4 bg-primary rounded-full"></div>
+                        <span class="text-sm font-medium text-gray-800">开单品类 <span class="text-gray-400 text-xs font-normal ml-1">请选择开单品类</span></span>
+                    </div>
+                    <a href="buyer-category-manage.html" class="text-gray-400 p-1 flex items-center gap-1 active:bg-gray-100 rounded-md cursor-pointer transition-colors no-underline">
+                        <i class="fas fa-sliders-h text-xs"></i>
+                        <span class="text-[12px]">设置</span>
+                    </a>
                 </div>
                 <div id="categoryContainer" class="relative">
-                    <div id="primaryCategoryList" class="flex gap-2 w-full mb-3"></div>
+                    <!-- 改用 overflow-x-auto 支持横向滑动以容纳 5 个主分类 -->
+                    <div id="primaryCategoryList" class="flex overflow-x-auto hide-scrollbar gap-2 w-full mb-3 pb-1"></div>
                     <div id="secondaryCategoryList" class="flex overflow-x-auto gap-2 pb-1 hide-scrollbar w-full"></div>
                 </div>
             </div>
@@ -527,33 +534,33 @@ const CATEGORY_CONFIG = {
     '水果': {
         color: 'red',
         icon: 'fa-apple-whole',
-        brandHex: '#F43F5E',
-        tagBg: 'bg-[#EBF7F0]',
-        tagText: 'text-[#F43F5E]',
+        brandHex: '#11A64A',
+        tagBg: 'bg-[#F0FDF4]',
+        tagText: 'text-[#11A64A]',
         tagBorder: 'border-[#11A64A]/10'
     },
     '蔬菜': {
         color: 'green',
         icon: 'fa-carrot',
         brandHex: '#11A64A',
-        tagBg: 'bg-[#EBF7F0]',
+        tagBg: 'bg-[#F0FDF4]',
         tagText: 'text-[#11A64A]',
         tagBorder: 'border-[#11A64A]/10'
     },
     '粮食': {
         color: 'amber',
         icon: 'fa-wheat-awn',
-        brandHex: '#F59E0B',
-        tagBg: 'bg-[#EBF7F0]',
-        tagText: 'text-[#F59E0B]',
+        brandHex: '#11A64A',
+        tagBg: 'bg-[#F0FDF4]',
+        tagText: 'text-[#11A64A]',
         tagBorder: 'border-[#11A64A]/10'
     },
     '其他': {
         color: 'gray',
         icon: 'fa-box-open',
-        brandHex: '#94A3B8',
-        tagBg: 'bg-[#EBF7F0]',
-        tagText: 'text-[#94A3B8]',
+        brandHex: '#11A64A',
+        tagBg: 'bg-[#F0FDF4]',
+        tagText: 'text-[#11A64A]',
         tagBorder: 'border-[#11A64A]/10'
     }
 };
@@ -569,7 +576,7 @@ const SECONDARY_CATEGORIES = {
 };
 
 const state = {
-    currentCategory: '粮食',
+    currentCategory: null, // 初始由渲染逻辑决定显示哪大类
     currentSubCategory: null,
     products: [],
     payee: null,
@@ -583,7 +590,31 @@ const state = {
 // ==================== 品类和历史商品渲染 ====================
 function renderPrimaryCategories() {
     const container = document.getElementById('primaryCategoryList');
-    const displayCats = ['粮食', '水果', '蔬菜', '其他'];
+    const allPrimary = ['粮食', '水果', '蔬菜', '其他'];
+    
+    // 获取用户喜欢的二级品类
+    let favSubcats = [];
+    try {
+        favSubcats = JSON.parse(localStorage.getItem('ylt_favorite_categories')) || ['玉米', '小麦', '苹果', '大白菜'];
+    } catch(e) {
+        favSubcats = ['玉米', '小麦', '苹果', '大白菜'];
+    }
+
+    // 过滤：只有包含常用品种的一级大类才会展示
+    const displayCats = allPrimary.filter(cat => {
+        const subs = SECONDARY_CATEGORIES[cat] || [];
+        return subs.some(s => favSubcats.includes(s));
+    });
+
+    if (displayCats.length === 0) {
+        container.innerHTML = '<div class="text-[12px] text-gray-400 py-2">暂无选中品类，请点击“设置”按钮配置</div>';
+        return;
+    }
+
+    // 如果当前选中的分类不在过滤后的列表里，默认选第一个
+    if (!state.currentCategory || !displayCats.includes(state.currentCategory)) {
+        state.currentCategory = displayCats[0];
+    }
 
     container.innerHTML = displayCats.map(cat => {
         const config = CATEGORY_CONFIG[cat];
@@ -592,16 +623,16 @@ function renderPrimaryCategories() {
         
         if (isActive) {
             return `
-            <div onclick="selectCategory('${cat}')" class="flex-1 min-w-0 bg-[#EBF7F0] rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-[#11A64A]/30 transition-all">
-                <i class="fas ${config.icon} text-[20px]" style="color:${config.brandHex}"></i>
-                <span class="text-[12px] font-bold text-[#11A64A]">${cat}</span>
+            <div onclick="selectCategory('${cat}')" class="shrink-0 w-[72px] ${config.tagBg} rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-[#11A64A]/30 transition-all">
+                <i class="fas ${config.icon} text-[18px]" style="color:${config.brandHex}"></i>
+                <span class="text-[11px] font-bold" style="color:${config.brandHex}">${cat}</span>
             </div>
             `;
         } else {
             return `
-            <div onclick="selectCategory('${cat}')" class="flex-1 min-w-0 bg-gray-50 rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-transparent hover:bg-gray-100 transition-all">
-                <i class="fas ${config.icon} text-gray-400 text-[20px]"></i>
-                <span class="text-[12px] font-medium text-gray-500">${cat}</span>
+            <div onclick="selectCategory('${cat}')" class="shrink-0 w-[72px] bg-gray-50 rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-transparent hover:bg-gray-100 transition-all">
+                <i class="fas ${config.icon} text-gray-400 text-[18px]"></i>
+                <span class="text-[11px] font-medium text-gray-500">${cat}</span>
             </div>
             `;
         }
@@ -614,7 +645,17 @@ function renderSecondaryCategories() {
         wrapper.innerHTML = '';
         return;
     }
-    const subcats = SECONDARY_CATEGORIES[state.currentCategory] || [];
+    
+    // 获取用户喜欢的二级品类
+    let favSubcats = [];
+    try {
+        favSubcats = JSON.parse(localStorage.getItem('ylt_favorite_categories')) || ['玉米', '小麦', '苹果', '大白菜'];
+    } catch(e) {}
+
+    // 只展示该大类下且被标记为常用的品种
+    const allInCat = SECONDARY_CATEGORIES[state.currentCategory] || [];
+    const subcats = allInCat.filter(s => favSubcats.includes(s));
+    
     // 直接平铺所有分类在一行原生横向滚动内。
     // 就像淡宝、京东首页的分类一样，手指自然左右滑动即可看到所有选项
     wrapper.innerHTML = subcats.map(sub => {
@@ -638,7 +679,7 @@ function inferCategoryByName(name) {
     if (!safeName) return '其他';
     const rules = [
         { category: '水果', keywords: ['苹果', '梨', '桃', '葡萄', '猕猴桃', '橙', '柚', '香蕉', '草莓', '西瓜'] },
-        { category: '蓔菜', keywords: ['土豆', '黄瓜', '西红柿', '胡萝卜', '白菜', '洋葱', '青椒', '茄子', '萝卜', '生菜', '包菜', '芹菜'] },
+        { category: '蔬菜', keywords: ['土豆', '黄瓜', '西红柿', '胡萝卜', '白菜', '洋葱', '青椒', '茄子', '萝卜', '生菜', '包菜', '芹菜'] },
         { category: '粮食', keywords: ['大米', '小麦', '玉米', '稻谷', '花生油', '菜籽油', '粮', '油'] },
         { category: '禽蛋', keywords: ['鸡蛋', '鸭蛋', '鹅蛋', '鹌鹑蛋', '蛋'] },
         { category: '肉类', keywords: ['猪肉', '牛肉', '羊肉', '鸡肉', '鸭肉', '肉'] }
