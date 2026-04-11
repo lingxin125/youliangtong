@@ -1711,7 +1711,7 @@
                 <section class="panel">
                     <h2 class="panel-title">付款方信息</h2>
                     <div class="info-list">
-                        <div class="info-item"><span class="info-label">商户名称</span><span id="payerCompany" class="info-value">-</span></div>
+                        <!-- <div class="info-item"><span class="info-label">商户名称</span><span id="payerCompany" class="info-value">-</span></div> -->
                         <div class="info-item"><span class="info-label">付款人</span><span id="payerName" class="info-value">-</span></div>
                         <div class="info-item"><span class="info-label">付款银行</span><span id="payerBank" class="info-value">-</span></div>
                         <div class="info-item"><span class="info-label">付款卡号</span><span id="payerCard" class="info-value">-</span></div>
@@ -1765,7 +1765,7 @@
                         <div class="pay-side" id="bankPaySide">
                             <div class="channel-meta">
                                 <h4>收款方信息</h4>
-                                <div class="meta-row"><span class="k">商户名称</span><span id="bankSellerCompany" class="v">-</span></div>
+                                <!-- <div class="meta-row"><span class="k">商户名称</span><span id="bankSellerCompany" class="v">-</span></div> -->
                                 <div class="meta-row"><span class="k">收款人</span><span id="bankSellerName" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款银行</span><span id="bankSellerBank" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款卡号</span><span class="v" id="bankSellerCard">-</span></div>
@@ -1810,7 +1810,7 @@
                         <div class="pay-side" id="orderPaySide">
                             <div class="channel-meta">
                                 <h4>收款方信息</h4>
-                                <div class="meta-row"><span class="k">商户名称</span><span id="orderPaySellerCompany" class="v">-</span></div>
+                                <!-- <div class="meta-row"><span class="k">商户名称</span><span id="orderPaySellerCompany" class="v">-</span></div> -->
                                 <div class="meta-row"><span class="k">收款人</span><span id="orderPaySellerName" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款银行</span><span id="orderPaySellerBank" class="v">-</span></div>
                                 <div class="meta-row"><span class="k">收款人卡号</span><span id="orderPaySellerCard" class="v">-</span></div>
@@ -2464,7 +2464,7 @@
         function buildSinglePayeeCardHTML(seller) {
             return '<div class="channel-meta">'
                 + '<h4>收款方信息</h4>'
-                + '<div class="meta-row"><span class="k">商户名称</span><span class="v">' + escapeHtml(seller.company || '--') + '</span></div>'
+                // + '<div class="meta-row"><span class="k">商户名称</span><span class="v">' + escapeHtml(seller.company || '--') + '</span></div>'
                 + '<div class="meta-row"><span class="k">收款人</span><span class="v">' + escapeHtml(seller.name || '--') + '</span></div>'
                 + '<div class="meta-row"><span class="k">收款银行</span><span class="v">' + escapeHtml(seller.bank || '--') + '</span></div>'
                 + '<div class="meta-row"><span class="k">收款卡号</span><span class="v">' + escapeHtml(seller.card || '--') + '</span></div>'
@@ -2517,7 +2517,7 @@
                     + '<div class="merge-order-card-index">订单' + (index + 1) + '</div>'
                 + '</div>'
                 + '<div class="merge-detail-grid">'
-                    + '<div class="merge-detail-row"><span class="merge-detail-label">商户名称</span><span class="merge-detail-value">' + escapeHtml(sub.payeeCompany || sub.payeeName || '--') + '</span></div>'
+                    // + '<div class="merge-detail-row"><span class="merge-detail-label">商户名称</span><span class="merge-detail-value">' + escapeHtml(sub.payeeCompany || sub.payeeName || '--') + '</span></div>'
                     + '<div class="merge-detail-row"><span class="merge-detail-label">收粮订单号</span><span class="merge-detail-value">' + escapeHtml(sub.grainOrderNo || '--') + '</span></div>'
                     // + '<div class="merge-detail-row"><span class="merge-detail-label">支付订单号</span><span class="merge-detail-value">' + escapeHtml(sub.paymentOrderNo || '--') + '</span></div>'
                     + '<div class="merge-detail-row"><span class="merge-detail-label">应付金额</span><span class="merge-detail-value merge-detail-card-amount">' + formatMoney(sub.amount || 0) + '</span></div>'
@@ -2533,7 +2533,7 @@
                     + '<div class="merge-order-card-index">收款人' + (index + 1) + '</div>'
                 + '</div>'
                 + '<div class="merge-detail-grid">'
-                    + '<div class="merge-detail-row"><span class="merge-detail-label">商户名称</span><span class="merge-detail-value">' + escapeHtml(group.payeeCompany || '--') + '</span></div>'
+                    // + '<div class="merge-detail-row"><span class="merge-detail-label">商户名称</span><span class="merge-detail-value">' + escapeHtml(group.payeeCompany || '--') + '</span></div>'
                     + '<div class="merge-detail-row"><span class="merge-detail-label">收款人</span><span class="merge-detail-value">' + escapeHtml(group.payeeName || '--') + '</span></div>'
                     + '<div class="merge-detail-row"><span class="merge-detail-label">收款银行</span><span class="merge-detail-value">' + escapeHtml(group.payeeBank || '--') + '</span></div>'
                     + '<div class="merge-detail-row"><span class="merge-detail-label">收款卡号</span><span class="merge-detail-value">' + escapeHtml(group.payeeCard || '--') + '</span></div>'
