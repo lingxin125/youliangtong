@@ -146,7 +146,7 @@
 
             <button class="w-full h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-transform mt-4" onclick="saveInviteQr()">保存二维码</button>
 
-            <a id="inviteQuickLink" href="buyer-farmer-add.html?source=invite" class="invite-link mt-3" style="display:flex;">
+            <a id="inviteQuickLink" href="buyer-farmer-add%20-jiandang.html?source=invite&back=buyer-farmer-add.html" class="invite-link mt-3" style="display:flex;">
                 <i class="fas fa-arrow-up-right-from-square text-[11px]"></i>
                 <span>快捷跳转：前往农户建档页</span>
             </a>
@@ -359,9 +359,9 @@ function getInviteUrl() {
         var user = UserIdentityStore.getCurrentUser();
         if (user) merchantNo = user.merchantNo || '';
     }
-    // 扫码跳转的注册页/建档H5 (Mock使用本页演示)
-    var inviteUrl = new URL(window.location.href);
+    var inviteUrl = new URL('buyer-farmer-add -jiandang.html', window.location.href);
     inviteUrl.searchParams.set('source', 'scan_invite');
+    inviteUrl.searchParams.set('back', 'buyer-farmer-add.html');
     if (merchantNo) inviteUrl.searchParams.set('inviter', merchantNo);
     return inviteUrl.toString();
 }
@@ -381,8 +381,12 @@ function closeInviteModal() {
 
 function renderInviteQr() {
     var canvas = document.getElementById('inviteQrCanvas');
+    var quickLink = document.getElementById('inviteQuickLink');
     if (!canvas) return;
     var inviteUrl = getInviteUrl();
+    if (quickLink) {
+        quickLink.href = inviteUrl;
+    }
     drawMockQr(canvas, inviteUrl);
 }
 

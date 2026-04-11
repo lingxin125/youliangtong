@@ -639,6 +639,80 @@
             line-height: 1;
         }
 
+        .guide-title {
+            margin: 0 0 6px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .guide-desc {
+            margin: 0 0 14px;
+            font-size: 12px;
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        .guide-desc a {
+            color: var(--brand-strong);
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(17, 122, 55, 0.3);
+        }
+
+        .guide-desc a:hover {
+            color: var(--brand);
+            border-bottom-color: rgba(17, 166, 74, 0.45);
+        }
+
+        .guide-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .guide-step {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid #edf1ea;
+        }
+
+        .guide-step-no {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(17, 122, 55, 0.1);
+            color: var(--brand-strong);
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .guide-step-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .guide-step-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+
+        .guide-step-text {
+            font-size: 11px;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
         /* --- 合并付款样式 (Merge Payment Redesign) --- */
         .sub-orders-title {
             font-size: 14px;
@@ -1605,7 +1679,7 @@
             <div class="brand">
                 <div class="brand-mark"><img src="./丰收云logo.png" alt="丰收云 Logo"></div>
                 <div>
-                    <h1 class="brand-title">微邮付收银台</h1>
+                    <h1 class="brand-title">丰收云收银台</h1>
                     <div class="brand-sub">农产品交易结算中心</div>
                 </div>
             </div>
@@ -1668,7 +1742,7 @@
             <section class="panel">
                 <div class="payment-head" id="paymentHeaderBox">
                     <h2 class="payment-title">支付方式</h2>
-                    <p class="payment-sub">当前支付方式：<span id="currentPayMethod">行业支付（仅演示用）</span></p>
+                    <p class="payment-sub">当前支付方式：<span id="currentPayMethod">行业支付</span></p>
                 </div>
 
                 <!--
@@ -1702,12 +1776,35 @@
 
                 <div id="panel-orderpay" class="pay-panel">
                     <div class="pay-grid">
-                        <div class="qr-area">
-                            <div class="qr-box"><img src="./mock-qr.svg" alt="订单付二维码" class="qr-image"></div>
-                            <div class="qr-amount">¥ <span class="pay-amount">0.00</span></div>
-                            <div class="qr-tip">请使用邮储银行APP扫描上方二维码完成付款</div>
-                            <div class="action-row qr-action-row">
-                                <button class="btn btn-primary" data-pay-action onclick="openScanResult('orderpay')">查询订单状态</button>
+                        <div class="guide-area">
+                            <!-- <div class="guide-kicker">订单付</div> -->
+                            <h3 class="guide-title">企业网银付款指引</h3>
+                            <p class="guide-desc">请前往<a href="https://corpebankq.psbc.com" target="_blank" rel="noopener">邮储企业网银</a>处理当前订单。</p>
+                            <div class="guide-steps">
+                                <div class="guide-step">
+                                    <div class="guide-step-no">1</div>
+                                    <div class="guide-step-main">
+                                        <div class="guide-step-title">登录邮储企业网银</div>
+                                        <div class="guide-step-text">请登陆进入邮储企业网银后台。</div>
+                                    </div>
+                                </div>
+                                <div class="guide-step">
+                                    <div class="guide-step-no">2</div>
+                                    <div class="guide-step-main">
+                                        <div class="guide-step-title">核实订单完成付款</div>
+                                        <div class="guide-step-text">核对当前订单金额与收款方后，完成审核支付。</div>
+                                    </div>
+                                </div>
+                                <div class="guide-step">
+                                    <div class="guide-step-no">3</div>
+                                    <div class="guide-step-main">
+                                        <div class="guide-step-title">返回本页刷新状态</div>
+                                        <div class="guide-step-text">付款完成后返回当前收银台查看结果。</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="action-row guide-action-row" style="justify-content: center;">
+                                <button class="btn btn-primary" data-pay-action onclick="openScanResult('orderpay')">刷新支付状态</button>
                             </div>
                         </div>
                         <div class="pay-side" id="orderPaySide">
@@ -1726,7 +1823,7 @@
             </section>
         </main>
 
-        <div class="footer">© 2026 微邮付</div>
+        <div class="footer">© 2026 丰收云</div>
     </div>
 
     <div class="preset-float" id="presetFloat">
@@ -2954,8 +3051,8 @@
 
         function channelLabel(channel) {
             const map = {
-                bank: '行业支付（仅演示用）',
-                orderpay: '订单付（仅演示用）',
+                bank: '行业支付',
+                orderpay: '订单付',
             };
             return map[channel] || '支付';
         }

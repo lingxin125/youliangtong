@@ -336,7 +336,7 @@
 
             <button class="w-full h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-transform mt-4" onclick="saveInviteQr()">保存二维码</button>
 
-            <a id="inviteQuickLink" href="buyer-farmer-add.html?source=invite" class="invite-link mt-3" style="display:flex;">
+            <a id="inviteQuickLink" href="buyer-farmer-add%20-jiandang.html?source=invite&back=mine" class="invite-link mt-3" style="display:flex;">
                 <i class="fas fa-arrow-up-right-from-square text-[11px]"></i>
                 <span>快捷跳转：前往农户建档页</span>
             </a>
@@ -469,7 +469,7 @@ function copyTopMerchantNo(event, id) {
 
 function getInviteUrl() {
     var merchantNo = ((document.getElementById('buyerTopMerchantNo') || {}).textContent || '').trim();
-    var inviteUrl = new URL('buyer-farmer-add.html', window.location.href);
+    var inviteUrl = new URL('buyer-farmer-add -jiandang.html', window.location.href);
     inviteUrl.searchParams.set('source', 'invite');
     inviteUrl.searchParams.set('back', 'mine');
     if (merchantNo) {
