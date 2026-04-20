@@ -46,30 +46,65 @@
     </div>
 
     <div id="accountModal" class="absolute inset-0 bg-black/40 z-[75] flex items-end opacity-0 pointer-events-none transition-opacity duration-300">
-        <div id="accountModalContent" class="bg-white rounded-t-[24px] p-5 w-full transform translate-y-full transition-transform duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+        <div id="accountModalContent" class="bg-white rounded-t-[24px] p-5 w-full max-h-[88vh] overflow-y-auto no-scrollbar transform translate-y-full transition-transform duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
             <div class="flex items-center justify-between mb-4">
                 <div id="accountModalTitle" class="text-[16px] font-semibold text-gray-800">新增账户</div>
                 <button onclick="closeAccountForm()" class="w-8 h-8 flex items-center justify-center text-gray-400">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+
+            <div class="grid grid-cols-3 gap-1 rounded-2xl bg-gray-100 p-1 mb-4">
+                <button id="accountTypeSelf" type="button" onclick="setAccountType('self_private')" class="h-9 rounded-xl text-[12px] font-medium transition-colors">本人银行卡</button>
+                <button id="accountTypeOther" type="button" onclick="setAccountType('other_private')" class="h-9 rounded-xl text-[12px] font-medium transition-colors">非本人银行卡</button>
+                <button id="accountTypePublic" type="button" onclick="setAccountType('public')" class="h-9 rounded-xl text-[12px] font-medium transition-colors">对公账户</button>
+            </div>
+
+            <div id="uploadSection" class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-[13px] font-semibold text-gray-700">证件与银行卡识别</div>
+                </div>
+                <div id="idUploadGrid" class="grid grid-cols-2 gap-2 mb-2">
+                    <button id="uploadIdFrontBox" type="button" onclick="simulateUpload('idFront')" class="h-[74px] rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center text-gray-400 active:scale-[0.98] transition-transform">
+                        <i class="fas fa-id-card text-lg mb-1.5"></i>
+                        <span class="text-[12px]">身份证人像面</span>
+                    </button>
+                    <button id="uploadIdBackBox" type="button" onclick="simulateUpload('idBack')" class="h-[74px] rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center text-gray-400 active:scale-[0.98] transition-transform">
+                        <i class="fas fa-id-card-clip text-lg mb-1.5"></i>
+                        <span class="text-[12px]">身份证国徽面</span>
+                    </button>
+                </div>
+                <button id="uploadBankCardBox" type="button" onclick="simulateUpload('bankCard')" class="w-full h-[74px] rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center text-gray-400 active:scale-[0.98] transition-transform">
+                    <i class="fas fa-credit-card text-lg mb-1.5"></i>
+                    <span class="text-[12px]">银行卡正面</span>
+                </button>
+            </div>
+
             <div class="space-y-3">
-                <div>
-                    <label class="block text-[12px] text-gray-500 mb-1.5">银行名称</label>
-                    <input id="bankNameInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="请输入银行名称">
+                <div id="holderNameField">
+                    <label id="holderNameLabel" class="block text-[12px] text-gray-500 mb-1.5">开户人姓名</label>
+                    <input id="holderNameInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="请输入开户人姓名">
+                </div>
+                <div id="ownerIdNoField">
+                    <label id="ownerIdNoLabel" class="block text-[12px] text-gray-500 mb-1.5">身份证号</label>
+                    <input id="ownerIdNoInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="请输入身份证号" inputmode="text">
                 </div>
                 <div>
-                    <label class="block text-[12px] text-gray-500 mb-1.5">开户行</label>
-                    <input id="branchNameInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="请输入开户行">
+                    <label id="cardNoLabel" class="block text-[12px] text-gray-500 mb-1.5">银行卡号</label>
+                    <input id="cardNoInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="可上传银行卡自动识别，也可手动填写" inputmode="numeric">
                 </div>
                 <div>
-                    <label class="block text-[12px] text-gray-500 mb-1.5">银行卡号</label>
-                    <input id="cardNoInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="请输入银行卡号" inputmode="numeric">
+                    <label class="block text-[12px] text-gray-500 mb-1.5">开户银行</label>
+                    <select id="bankNameInput" onchange="syncBranchOptions()" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white"></select>
                 </div>
                 <div>
-                    <label class="block text-[12px] text-gray-500 mb-1.5">户名</label>
-                    <input id="holderNameInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="请输入户名">
+                    <label class="block text-[12px] text-gray-500 mb-1.5">开户支行</label>
+                    <select id="branchNameInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white"></select>
                 </div>
+                <label id="authConfirmWrap" class="hidden items-start gap-2 rounded-2xl bg-gray-50 px-3 py-2.5 border border-gray-100">
+                    <input id="authConfirmInput" type="checkbox" class="mt-0.5 accent-[#11A64A]">
+                    <span class="text-[12px] leading-5 text-gray-500">确认使用非本人银行卡进行结算</span>
+                </label>
             </div>
             <div class="mt-5 flex gap-3">
                 <button onclick="closeAccountForm()" class="flex-1 h-11 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 active:scale-[0.98] transition-transform">取消</button>
@@ -118,13 +153,13 @@
             listTitle: '其他收款账户',
             emptyText: '可新增一张新的收款账户卡作为备用账户。',
             addText: '新增收款账户',
-            deleteText: '该收款账户删除后将不再用于账户码展示与收款场景。',
+            deleteText: '删除后该收款账户将无法用于收款。',
             defaultConfirmText: '确认将该收款账户设为默认账户吗？',
             badge: '默认收款',
             storageKey: 'ylt_farmer_receipt_accounts',
             seedAccounts: [
-                { id: 'farmer-1', bank: '中国邮政储蓄银行', branch: '烟台市福山区支行', cardNo: '6228888888888888', holder: '李大姐', isDefault: true },
-                { id: 'farmer-2', bank: '烟台农商银行', branch: '福山清洋支行', cardNo: '6215853322334455', holder: '李大姐', isDefault: false }
+                { id: 'farmer-1', type: 'self_private', bank: '中国邮政储蓄银行', branch: '烟台市福山区支行', cardNo: '6228888888888888', holder: '李大姐', idNo: '370611197802146628', isDefault: true },
+                { id: 'farmer-2', type: 'self_private', bank: '烟台农商银行', branch: '福山清洋支行', cardNo: '6215853322334455', holder: '李大姐', idNo: '370611197802146628', isDefault: false }
             ]
         }
         : {
@@ -135,18 +170,31 @@
             listTitle: '其他付款账户',
             emptyText: '可新增一张新的付款账户卡作为备用账户。',
             addText: '新增付款账户',
-            deleteText: '该付款账户删除后将不再用于付款场景，请确认后继续。',
+            deleteText: '删除后该付款账户将无法用于付款。',
             defaultConfirmText: '确认将该付款账户设为默认账户吗？',
             badge: '默认付款',
             storageKey: 'ylt_buyer_payment_accounts',
             seedAccounts: [
-                { id: 'buyer-1', bank: '中国邮政储蓄银行', branch: '烟台市芝罘区支行', cardNo: '6221888800002233', holder: '张三的粮站', isDefault: true },
-                { id: 'buyer-2', bank: '中国农业银行', branch: '烟台市开发区支行', cardNo: '6228480100098012', holder: '张三的粮站', isDefault: false }
+                { id: 'buyer-1', type: 'public', bank: '中国邮政储蓄银行', branch: '烟台市芝罘区支行', cardNo: '6221888800002233', holder: '张三的粮站', accountName: '张三的粮站', isDefault: true },
+                { id: 'buyer-2', type: 'self_private', bank: '中国农业银行', branch: '烟台市开发区支行', cardNo: '6228480100098012', holder: '张三', idNo: '370602198608126219', isDefault: false }
             ]
         };
 
     var pendingDeleteId = null;
     var pendingDefaultId = null;
+    var currentAccountType = 'self_private';
+    var uploadState = { idFront: false, idBack: false, bankCard: false };
+    var currentProfile = isFarmerPage
+        ? { name: '李大姐', idNo: '370611197802146628' }
+        : { name: '张三', idNo: '370602198608126219' };
+    var bankBranchMap = {
+        '中国邮政储蓄银行': isFarmerPage
+            ? ['烟台市福山区支行', '烟台市牟平区支行', '烟台市莱山区支行']
+            : ['烟台市芝罘区支行', '烟台市开发区支行', '烟台市莱山区支行'],
+        '中国农业银行': ['烟台市开发区支行', '烟台市莱山区支行', '烟台市福山区支行'],
+        '烟台农商银行': ['福山清洋支行', '芝罘幸福支行', '牟平宁海支行'],
+        '中国建设银行': ['烟台芝罘支行', '烟台开发区支行', '烟台福山支行']
+    };
     var accounts = loadAccounts();
     if (captureState === 'empty') {
         var defaultSeed = (pageConfig.seedAccounts.find(function(item) { return item.isDefault; }) || pageConfig.seedAccounts[0]);
@@ -160,6 +208,7 @@
     document.getElementById('emptyStateDesc').textContent = pageConfig.emptyText;
     document.getElementById('addAccountBtn').textContent = pageConfig.addText;
     document.getElementById('accountModalTitle').textContent = pageConfig.addText;
+    initializeAccountForm();
 
     renderAccounts();
     if (captureState === 'modal') {
@@ -182,10 +231,98 @@
         } catch (e) {}
     }
 
+    function initializeAccountForm() {
+        renderBankOptions();
+        setAccountType('self_private');
+    }
+
+    function renderBankOptions(selectedBank) {
+        var bankInput = document.getElementById('bankNameInput');
+        var banks = Object.keys(bankBranchMap);
+        bankInput.innerHTML = banks.map(function(bank) {
+            return '<option value="' + bank + '">' + bank + '</option>';
+        }).join('');
+        bankInput.value = selectedBank || banks[0];
+        syncBranchOptions();
+    }
+
+    function syncBranchOptions(selectedBranch) {
+        var bank = document.getElementById('bankNameInput').value || Object.keys(bankBranchMap)[0];
+        var branchInput = document.getElementById('branchNameInput');
+        var branches = bankBranchMap[bank] || [];
+        branchInput.innerHTML = branches.map(function(branch) {
+            return '<option value="' + branch + '">' + branch + '</option>';
+        }).join('');
+        branchInput.value = selectedBranch && branches.indexOf(selectedBranch) >= 0 ? selectedBranch : (branches[0] || '');
+    }
+
     function maskCardNo(cardNo) {
         var clean = (cardNo || '').replace(/\s+/g, '');
         if (clean.length <= 4) return clean;
         return clean.slice(0, 4) + ' **** **** ' + clean.slice(-4);
+    }
+
+    function maskIdNo(idNo) {
+        var clean = (idNo || '').replace(/\s+/g, '');
+        if (clean.length < 10) return clean || '-';
+        return clean.slice(0, 6) + '********' + clean.slice(-4);
+    }
+
+    function getAccountTypeMeta(type) {
+        var map = {
+            self_private: { text: '本人银行卡', chip: '本人', cls: 'bg-emerald-50 text-emerald-600', icon: 'fa-user-check' },
+            other_private: { text: '非本人银行卡', chip: '非本人', cls: 'bg-amber-50 text-amber-600', icon: 'fa-user-shield' },
+            public: { text: '对公账户', chip: '对公', cls: 'bg-blue-50 text-blue-600', icon: 'fa-building' }
+        };
+        return map[type] || map.self_private;
+    }
+
+    function setAccountType(type) {
+        currentAccountType = type;
+        var buttons = [
+            ['accountTypeSelf', 'self_private'],
+            ['accountTypeOther', 'other_private'],
+            ['accountTypePublic', 'public']
+        ];
+        buttons.forEach(function(item) {
+            var el = document.getElementById(item[0]);
+            var active = item[1] === type;
+            el.className = 'h-9 rounded-xl text-[12px] font-medium transition-colors ' +
+                (active ? 'bg-white text-[#11A64A] shadow-sm' : 'text-gray-500');
+        });
+
+        document.getElementById('uploadSection').style.display = type === 'public' ? 'none' : 'block';
+        document.getElementById('idUploadGrid').style.display = type === 'other_private' ? 'grid' : 'none';
+        document.getElementById('uploadBankCardBox').style.display = type === 'public' ? 'none' : 'flex';
+        document.getElementById('ownerIdNoField').style.display = type === 'public' ? 'none' : 'block';
+        document.getElementById('authConfirmWrap').style.display = type === 'other_private' ? 'flex' : 'none';
+
+        document.getElementById('holderNameLabel').textContent = type === 'public' ? '对公账户名称' : (type === 'other_private' ? '持卡人姓名' : '开户人姓名');
+        document.getElementById('holderNameInput').placeholder = type === 'public' ? '请输入对公账户名称' : '请输入开户人姓名';
+        document.getElementById('ownerIdNoLabel').textContent = type === 'other_private' ? '持卡人身份证号' : '身份证号';
+        document.getElementById('cardNoLabel').textContent = type === 'public' ? '银行账号' : '银行卡号';
+        document.getElementById('cardNoInput').placeholder = type === 'public' ? '请输入对公银行账号' : '可上传银行卡自动识别，也可手动填写';
+
+        if (type === 'self_private') {
+            document.getElementById('holderNameInput').value = currentProfile.name;
+            document.getElementById('ownerIdNoInput').value = currentProfile.idNo;
+            document.getElementById('holderNameInput').readOnly = true;
+            document.getElementById('ownerIdNoInput').readOnly = true;
+            document.getElementById('holderNameInput').classList.add('text-gray-500');
+            document.getElementById('ownerIdNoInput').classList.add('text-gray-500');
+        } else {
+            document.getElementById('holderNameInput').readOnly = false;
+            document.getElementById('ownerIdNoInput').readOnly = false;
+            document.getElementById('holderNameInput').classList.remove('text-gray-500');
+            document.getElementById('ownerIdNoInput').classList.remove('text-gray-500');
+            if (type === 'public' && document.getElementById('holderNameInput').value === currentProfile.name) {
+                document.getElementById('holderNameInput').value = '';
+            }
+            if (type === 'other_private' && document.getElementById('holderNameInput').value === currentProfile.name) {
+                document.getElementById('holderNameInput').value = '';
+                document.getElementById('ownerIdNoInput').value = '';
+            }
+        }
     }
 
     function getDefaultAccount() {
@@ -229,6 +366,15 @@
     }
 
     function renderAccountCard(account, isDefault) {
+        var type = account.type || 'self_private';
+        var meta = getAccountTypeMeta(type);
+        var cardLabel = type === 'public' ? '银行账号' : '银行卡号';
+        var holderLabel = type === 'public' ? '账户名称' : '开户人';
+        var identityHtml = type === 'public' ? '' :
+            '<div class="flex items-center justify-between gap-3">' +
+                '<span class="text-xs text-gray-400">身份证号</span>' +
+                '<span class="text-sm font-medium text-gray-800 text-right">' + maskIdNo(account.idNo) + '</span>' +
+            '</div>';
         var actionHtml = isDefault
             ? ''
             : '<div class="flex gap-2.5 mt-4 pt-1">' +
@@ -241,10 +387,13 @@
                 '<div class="flex items-center justify-between gap-3 mb-4">' +
                     '<div class="flex items-center gap-3 min-w-0 flex-1">' +
                         '<div class="w-10 h-10 rounded-full bg-[#11A64A]/10 flex items-center justify-center shrink-0">' +
-                            '<i class="fas fa-building-columns text-[#11A64A] text-lg"></i>' +
+                            '<i class="fas ' + meta.icon + ' text-[#11A64A] text-lg"></i>' +
                         '</div>' +
                         '<div class="min-w-0 flex-1">' +
-                            '<div class="text-sm font-semibold text-gray-800 truncate">' + account.bank + '</div>' +
+                            '<div class="flex items-center gap-2 min-w-0">' +
+                                '<div class="text-sm font-semibold text-gray-800 truncate">' + account.bank + '</div>' +
+                                '<span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ' + meta.cls + '">' + meta.chip + '</span>' +
+                            '</div>' +
                             '<div class="text-xs text-gray-400 mt-0.5 truncate">开户行：' + account.branch + '</div>' +
                         '</div>' +
                     '</div>' +
@@ -253,19 +402,21 @@
                 '<div class="h-px bg-gray-100 mb-3"></div>' +
                 '<div class="space-y-2">' +
                     '<div class="flex items-center justify-between gap-3">' +
-                        '<span class="text-xs text-gray-400">银行卡号</span>' +
+                        '<span class="text-xs text-gray-400">' + cardLabel + '</span>' +
                         '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskCardNo(account.cardNo) + '</span>' +
                     '</div>' +
                     '<div class="flex items-center justify-between gap-3">' +
-                        '<span class="text-xs text-gray-400">开户人</span>' +
+                        '<span class="text-xs text-gray-400">' + holderLabel + '</span>' +
                         '<span class="text-sm font-medium text-gray-800 text-right">' + account.holder + '</span>' +
                     '</div>' +
+                    identityHtml +
                 '</div>' +
                 actionHtml +
             '</div>';
     }
 
     function openAccountForm() {
+        initializeAccountForm();
         var modal = document.getElementById('accountModal');
         var content = document.getElementById('accountModalContent');
         modal.classList.remove('pointer-events-none', 'opacity-0');
@@ -281,29 +432,103 @@
     }
 
     function clearAccountForm() {
-        document.getElementById('bankNameInput').value = '';
-        document.getElementById('branchNameInput').value = '';
+        uploadState = { idFront: false, idBack: false, bankCard: false };
         document.getElementById('cardNoInput').value = '';
         document.getElementById('holderNameInput').value = '';
+        document.getElementById('ownerIdNoInput').value = '';
+        document.getElementById('authConfirmInput').checked = false;
+        markUploadBox('idFront', false);
+        markUploadBox('idBack', false);
+        markUploadBox('bankCard', false);
+        setAccountType('self_private');
+        renderBankOptions();
+    }
+
+    function markUploadBox(type, uploaded) {
+        var idMap = {
+            idFront: 'uploadIdFrontBox',
+            idBack: 'uploadIdBackBox',
+            bankCard: 'uploadBankCardBox'
+        };
+        var textMap = {
+            idFront: '身份证人像面',
+            idBack: '身份证国徽面',
+            bankCard: '银行卡正面'
+        };
+        var iconMap = {
+            idFront: 'fa-id-card',
+            idBack: 'fa-id-card-clip',
+            bankCard: 'fa-credit-card'
+        };
+        var el = document.getElementById(idMap[type]);
+        if (!el) return;
+        el.className = (type === 'bankCard' ? 'w-full ' : '') +
+            'h-[74px] rounded-2xl border border-dashed flex flex-col items-center justify-center active:scale-[0.98] transition-transform ' +
+            (uploaded ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : 'border-gray-200 bg-gray-50 text-gray-400');
+        el.innerHTML = '<i class="fas ' + (uploaded ? 'fa-circle-check' : iconMap[type]) + ' text-lg mb-1.5"></i>' +
+            '<span class="text-[12px]">' + (uploaded ? textMap[type] + '已识别' : textMap[type]) + '</span>';
+    }
+
+    function simulateUpload(type) {
+        uploadState[type] = true;
+        markUploadBox(type, true);
+        if (type === 'bankCard') {
+            var bank = isFarmerPage ? '烟台农商银行' : '中国邮政储蓄银行';
+            var branch = isFarmerPage ? '福山清洋支行' : '烟台市芝罘区支行';
+            document.getElementById('cardNoInput').value = isFarmerPage ? '6215 8533 2233 4455' : '6221 8888 0000 2233';
+            renderBankOptions(bank);
+            syncBranchOptions(branch);
+            showToast('银行卡信息已识别');
+            return;
+        }
+        if (type === 'idFront') {
+            document.getElementById('holderNameInput').value = '王大哥';
+            document.getElementById('ownerIdNoInput').value = '370602198203116512';
+            showToast('身份证信息已识别');
+            return;
+        }
+        showToast('证件照片已上传');
     }
 
     function submitAccountForm() {
-        var bank = document.getElementById('bankNameInput').value.trim();
-        var branch = document.getElementById('branchNameInput').value.trim();
+        var bank = document.getElementById('bankNameInput').value;
+        var branch = document.getElementById('branchNameInput').value;
         var cardNo = document.getElementById('cardNoInput').value.trim().replace(/\s+/g, '');
         var holder = document.getElementById('holderNameInput').value.trim();
+        var idNo = document.getElementById('ownerIdNoInput').value.trim().replace(/\s+/g, '');
 
         if (!bank || !branch || !cardNo || !holder) {
             showToast('请完整填写账户信息');
             return;
         }
+        if (currentAccountType !== 'public' && !idNo) {
+            showToast('请填写身份证号');
+            return;
+        }
+        if (currentAccountType === 'self_private' && !uploadState.bankCard) {
+            showToast('请上传银行卡正面识别卡号');
+            return;
+        }
+        if (currentAccountType === 'other_private') {
+            if (!uploadState.idFront || !uploadState.idBack || !uploadState.bankCard) {
+                showToast('请上传持卡人身份证和银行卡照片');
+                return;
+            }
+            if (!document.getElementById('authConfirmInput').checked) {
+                showToast('请确认已获得持卡人授权');
+                return;
+            }
+        }
 
         accounts.push({
             id: 'acc-' + Date.now(),
+            type: currentAccountType,
             bank: bank,
             branch: branch,
             cardNo: cardNo,
             holder: holder,
+            accountName: currentAccountType === 'public' ? holder : '',
+            idNo: currentAccountType === 'public' ? '' : idNo,
             isDefault: false
         });
         saveAccounts();

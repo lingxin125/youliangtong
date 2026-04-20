@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 我的客户</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .contact-item { transition: all 0.2s ease; }
+        .toast-tip {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 98px;
+            padding: 11px 14px;
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 11px;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.45;
+            z-index: 70;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(8px);
+            transition: all 0.2s ease;
+        }
+        .toast-tip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .swipe-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+        }
+        .swipe-delete {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 72px;
+            background: #EF4444;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 500;
+            transform: translateX(100%);
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0 16px 16px 0;
+        }
+        .swipe-wrapper.swiped .swipe-delete { transform: translateX(0); }
+        .swipe-content {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .swipe-wrapper.swiped .swipe-content { transform: translateX(-72px); }
+        .app-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.48);
+            z-index: 220;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: flex-end;
+        }
+        .app-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .app-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 14px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.25s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.18);
+        }
+        .app-modal-overlay.show .app-modal-sheet {
+            transform: translateY(0);
+        }
+        .app-modal-handle {
+            width: 38px;
+            height: 4px;
+            background: #E5E7EB;
+            border-radius: 999px;
+            margin: 2px auto 16px;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container relative">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="px-4 mt-3 shrink-0">
+        <div class="flex items-center gap-2.5">
+            <div class="glass-card rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 border border-gray-100 flex-1">
+                <i class="fas fa-search text-gray-400 text-sm"></i>
+                <input id="searchInput" type="text" placeholder="搜索客户姓名或手机号" class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
+            </div>
+            <a href="buyer-client-add.html?back=buyer-clients.html" class="w-11 h-11 rounded-full bg-white border border-gray-200 text-gray-900 flex items-center justify-center shadow-sm active:scale-95 transition-transform no-underline" style="text-decoration:none;" aria-label="新增客户">
+                <i class="fas fa-user-plus text-[15px]"></i>
+            </a>
+        </div>
+        <div class="flex items-center gap-1.5 text-[12px] text-gray-400 mt-2.5 px-1">
+            <i class="fas fa-lightbulb text-primary/75 text-[12px] shrink-0"></i>
+            <span>如需添加新客户，请点击右上角新增</span>
+        </div>
+    </div>
+
+    <div class="mb-2.5"></div>
+
+    <div id="clientList" class="flex-1 overflow-y-auto no-scrollbar px-4 space-y-2.5" style="padding-bottom:96px;"></div>
+
+    <div id="emptyState" class="px-4" style="display:none;">
+        <div class="glass-card rounded-2xl p-8 text-center">
+            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
+                <i class="fas fa-user-group text-gray-200 text-xl"></i>
+            </div>
+            <div class="text-sm text-gray-500 mb-1">暂无客户</div>
+            <div class="text-[11px] text-gray-400 mb-3">添加平台收购商为客户，开单后可选择客户付款</div>
+            <a href="buyer-client-add.html?back=buyer-clients.html" class="inline-flex px-4 py-2 bg-primary text-white text-[13px] font-medium rounded-full active:scale-95 transition-transform no-underline" style="text-decoration:none;">添加客户</a>
+        </div>
+    </div>
+
+    <div id="toastTip" class="toast-tip"></div>
+
+    <div id="confirmOverlay" class="app-modal-overlay" onclick="closeConfirmModal()">
+        <div class="app-modal-sheet" onclick="event.stopPropagation()">
+            <div class="app-modal-handle"></div>
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">解除合作关系</div>
+            <div id="confirmMessage" class="text-[13px] text-gray-500 text-center leading-6 mb-5 px-2"></div>
+            <div class="flex gap-2.5">
+                <button class="flex-1 h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform" onclick="closeConfirmModal()">取消</button>
+                <button class="flex-1 h-11 rounded-xl bg-red-500 text-white text-sm font-medium active:scale-[0.98] transition-transform" onclick="confirmDelete()">确认解除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var store = window.ClientMockStore;
+var pendingDeleteId = null;
+var pendingDeleteName = '';
+var startX = 0;
+var currentX = 0;
+var swipedId = null;
+var SWIPE_THRESHOLD = -50;
+
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('我的客户', 'buyer-my.html');
+document.getElementById('searchInput').addEventListener('input', renderList);
+renderList();
+
+function showToast(msg) {
+    var tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() {
+        tip.classList.remove('show');
+    }, 1800);
+}
+
+function copyText(text, successMsg) {
+    var done = function() {
+        showToast(successMsg || '复制成功');
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text || '').then(done).catch(done);
+        return;
+    }
+    done();
+}
+
+function searchEmptyHTML() {
+    return '<div class="pt-12 pb-6 flex justify-center">'
+        + '<div class="glass-card rounded-2xl p-8 text-center w-full max-w-[320px]">'
+        + '<div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">'
+        + '<i class="fas fa-magnifying-glass text-gray-300 text-lg"></i></div>'
+        + '<div class="text-[15px] font-medium text-gray-600">未检索到客户信息</div>'
+        + '</div></div>';
+}
+
+function clientCardHTML(item) {
+    return '<div class="swipe-wrapper mb-2.5" id="client-' + item.id + '">'
+        + '<div class="swipe-delete" onclick="openConfirmModal(\'' + item.id + '\', \'' + escapeJs(item.name) + '\')">'
+        + '<i class="fas fa-trash-can mb-1"></i>解除'
+        + '</div>'
+        + '<div class="swipe-content">'
+        + '<div class="contact-item glass-card rounded-2xl p-4 flex items-center gap-3.5 border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] active:bg-gray-50 transition-colors"'
+        + ' ontouchstart="handleTouchStart(event, \'' + item.id + '\')"'
+        + ' ontouchmove="handleTouchMove(event, \'' + item.id + '\')"'
+        + ' ontouchend="handleTouchEnd(event, \'' + item.id + '\')">'
+        + '<div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center shrink-0 border border-green-100/60 self-start mt-0.5">'
+        + '<i class="fas fa-user text-primary/80 text-[20px]"></i></div>'
+        + '<div class="flex-1 min-w-0 flex flex-col justify-center gap-1">'
+        + '<span class="text-[16px] font-semibold text-gray-800 tracking-tight">' + item.name + '</span>'
+        + '<div class="text-[14px] font-medium text-gray-600 tracking-wide" style="font-family:Poppins,monospace;">' + (item.mobile || '--') + '</div>'
+        + '<div class="flex items-center gap-1.5 text-[12px] text-gray-400/90 font-medium tracking-wide" style="font-family:Poppins,monospace;">'
+        + '<i class="fas fa-id-card text-[10px] text-gray-400"></i>'
+        + '<span>' + (item.merchantNo || '--') + '</span>'
+        + '<button class="w-5 h-5 rounded-md flex items-center justify-center text-gray-400 active:bg-gray-100 active:scale-95 transition-all" onclick="copyMerchantNo(event, \'' + escapeJs(item.merchantNo || '') + '\')" aria-label="复制商户号">'
+        + '<i class="far fa-copy text-[10px]"></i></button>'
+        + '</div>'
+        + '</div></div></div></div>';
+}
+
+function renderList() {
+    var keyword = document.getElementById('searchInput').value.trim();
+    var listEl = document.getElementById('clientList');
+    var emptyEl = document.getElementById('emptyState');
+    var clients = store.getClients();
+
+    if (clients.length === 0 && !keyword) {
+        listEl.innerHTML = '';
+        emptyEl.style.display = '';
+        return;
+    }
+    emptyEl.style.display = 'none';
+
+    var filtered = clients.filter(function(client) {
+        if (!keyword) return true;
+        return client.name.indexOf(keyword) !== -1 || client.mobile.indexOf(keyword) !== -1;
+    });
+
+    if (filtered.length === 0) {
+        listEl.innerHTML = searchEmptyHTML();
+        return;
+    }
+
+    listEl.innerHTML = filtered.map(clientCardHTML).join('');
+}
+
+function handleTouchStart(e, id) {
+    startX = e.touches[0].clientX;
+    currentX = startX;
+    if (swipedId && swipedId !== id) {
+        var opened = document.getElementById('client-' + swipedId);
+        if (opened) opened.classList.remove('swiped');
+        swipedId = null;
+    }
+}
+
+function handleTouchMove(e, id) {
+    if (!startX) return;
+    currentX = e.touches[0].clientX;
+    var diff = currentX - startX;
+    var wrapper = document.getElementById('client-' + id);
+    if (!wrapper) return;
+    if (diff < 0 && diff > -100) {
+        var content = wrapper.querySelector('.swipe-content');
+        if (content) content.style.transform = 'translateX(' + diff + 'px)';
+        e.preventDefault();
+    }
+}
+
+function handleTouchEnd(e, id) {
+    if (!startX) return;
+    var diff = currentX - startX;
+    var wrapper = document.getElementById('client-' + id);
+    if (!wrapper) return;
+    var content = wrapper.querySelector('.swipe-content');
+    if (content) content.style.transform = '';
+
+    if (diff < SWIPE_THRESHOLD) {
+        wrapper.classList.add('swiped');
+        swipedId = id;
+    } else {
+        wrapper.classList.remove('swiped');
+        if (swipedId === id) swipedId = null;
+    }
+    startX = 0;
+}
+
+document.addEventListener('touchstart', function(e) {
+    if (swipedId && !e.target.closest('#client-' + swipedId)) {
+        var opened = document.getElementById('client-' + swipedId);
+        if (opened) opened.classList.remove('swiped');
+        swipedId = null;
+    }
+});
+
+function openConfirmModal(id, name) {
+    pendingDeleteId = id;
+    pendingDeleteName = name;
+    document.getElementById('confirmMessage').innerHTML = '确定要解除与客户 ' + name + ' 的合作关系吗？<br><span class="text-xs text-gray-400">解除后对方将无法再收到您的转账订单</span>';
+    document.getElementById('confirmOverlay').classList.add('show');
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmOverlay').classList.remove('show');
+    pendingDeleteId = null;
+    pendingDeleteName = '';
+}
+
+function confirmDelete() {
+    if (!pendingDeleteId) return;
+    store.removeClient(pendingDeleteId);
+    closeConfirmModal();
+    swipedId = null;
+    renderList();
+    showToast('已解除合作');
+}
+
+function copyMerchantNo(event, merchantNo) {
+    if (event) {
+        event.stopPropagation();
+    }
+    if (!merchantNo) {
+        showToast('暂无商户号');
+        return;
+    }
+    copyText(merchantNo, '商户号复制成功');
+}
+
+function escapeJs(str) {
+    return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+</script>
+</body>
+</html>

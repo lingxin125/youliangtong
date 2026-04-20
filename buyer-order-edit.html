@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 订单详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .status-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 999px;
+            font-size: 12px; font-weight: 600;
+        }
+        .top-summary {
+            text-align: center;
+            padding: 8px 0 12px;
+        }
+        .summary-amount { font-family:Poppins,sans-serif; font-size:28px; font-weight:700; color:#11A64A; }
+        .summary-label { font-size:11px; color:#6B7280; }
+        .info-card {
+            background:#fff; border:1px solid rgba(0,0,0,0.04); border-radius:16px;
+            box-shadow:0 1px 2px rgba(0,0,0,0.03);
+            padding:16px; margin-bottom:12px;
+        }
+        .section-title {
+            display:flex; align-items:center; gap:8px;
+            font-size:13px; font-weight:600; color:#374151;
+            margin-bottom:10px;
+        }
+        .section-dot { width:4px; height:14px; background:#11A64A; border-radius:2px; }
+        .info-row {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.04);
+            gap:12px;
+        }
+        .info-row:last-child { border-bottom:none; }
+        .info-label { font-size:12px; color:#9CA3AF; flex-shrink:0; }
+        .info-value { font-size:13px; color:#1F2937; font-weight:600; text-align:right; }
+
+        .edit-input-wrap {
+            display:flex; align-items:center; justify-content:flex-end;
+            border:1.5px solid #E5E7EB; border-radius:12px;
+            padding:8px 12px; background:#F9FAFB; transition:all 0.2s;
+            min-width: 150px;
+        }
+        .edit-input-wrap:focus-within {
+            border-color:#11A64A; background:#fff; box-shadow:0 0 0 3px rgba(17,166,74,0.1);
+        }
+        .edit-input-wrap input {
+            flex:1; min-width:0; border:none; outline:none; background:transparent;
+            font-size:15px; font-weight:700; color:#1F2937; text-align:right; font-family:'Poppins',sans-serif;
+        }
+        .edit-input-wrap .suffix { font-size:12px; color:#9CA3AF; margin-left:6px; font-weight:500; white-space:nowrap; }
+
+        .summary-box {
+            background:linear-gradient(135deg,#F0FDF4 0%,#DCFCE7 100%);
+            border-radius:12px; padding:12px 14px; margin-top:8px; border:1px solid rgba(17,166,74,0.12);
+        }
+        .summary-amount { font-family:Poppins,sans-serif; font-size:28px; font-weight:700; color:#11A64A; }
+        .summary-label { font-size:11px; color:#6B7280; }
+
+        .payee-card {
+            display:flex; align-items:center; gap:12px; padding:12px;
+            background:linear-gradient(to bottom right,#EBF7F0,#F4FBF6);
+            border:1px solid rgba(17,166,74,0.15); border-radius:16px;
+        }
+        .photo-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+        .photo-grid img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); cursor:pointer; }
+
+        .lightbox-overlay {
+            position:fixed; inset:0; z-index:999; background:rgba(0,0,0,0.88);
+            display:flex; align-items:center; justify-content:center;
+            opacity:0; pointer-events:none; transition:opacity 0.25s;
+        }
+        .lightbox-overlay.show { opacity:1; pointer-events:auto; }
+        .lightbox-overlay img { max-width:95%; max-height:85vh; border-radius:12px; }
+
+        .billing-sheet-overlay {
+            position:absolute; inset:0; background:rgba(15,23,42,0.45); z-index:90;
+            opacity:0; visibility:hidden; transition:all 0.22s ease;
+        }
+        .billing-sheet-overlay.show { opacity:1; visibility:visible; }
+        .billing-sheet {
+            position:absolute; left:0; right:0; bottom:0; z-index:100; background:#fff;
+            border-radius:24px 24px 0 0; transform:translateY(100%); transition:transform 0.26s ease;
+            max-height:78%; overflow-y:auto; box-shadow:0 -12px 30px rgba(15,23,42,0.18);
+        }
+        .billing-sheet.show { transform:translateY(0); }
+        .billing-sheet-handle { width:40px; height:4px; background:#d1d5db; border-radius:999px; margin:12px auto; }
+        .client-item { transition:all 0.2s; border:1.5px solid transparent; }
+        .client-item.selected { border-color:#11A64A; background:#EBF7F0; }
+
+        .toast-tip {
+            position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+            background:rgba(0,0,0,0.82); color:white; padding:12px 22px;
+            border-radius:16px; font-size:14px; pointer-events:none; opacity:0;
+            transition:opacity 0.25s; z-index:1000; white-space:nowrap;
+        }
+        .toast-tip.show { opacity:1; }
+    </style>
+</head>
+<body class="bg-[#F7F8FA]">
+<div class="mobile-container bg-[#F7F8FA]">
+    <div id="statusBar"></div>
+
+    <div id="navBarPlaceholder" class="relative z-[60] px-4 pt-3 pb-2 flex items-center justify-between bg-transparent">
+        <button onclick="window.location.href = backHref" class="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-100 active:scale-90 transition-transform text-gray-600">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="text-[16px] font-bold text-gray-800" id="pageTitleText">订单详情</div>
+        <div class="w-[87px] h-[32px] bg-white rounded-full border border-gray-200/50 flex items-center justify-between px-3 shadow-sm">
+            <div class="flex-1 flex items-center justify-center"><i class="fas fa-ellipsis-h text-gray-800 text-xs"></i></div>
+            <div class="w-[1px] h-[18px] bg-gray-300"></div>
+            <div class="flex-1 flex items-center justify-center"><i class="far fa-dot-circle text-gray-800 text-sm"></i></div>
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar p-4" style="padding-bottom:96px; background:#F7F8FA;">
+        <div class="info-card text-center">
+            <div id="statusChip" class="status-chip status-draft mx-auto w-fit">
+                <i id="statusIcon" class="fas fa-file-pen"></i>
+                <span id="statusTitle">挂单中</span>
+            </div>
+            <div id="statusDesc" class="text-[11px] text-gray-400 mt-2">请补充订单信息</div>
+            <div class="summary-box mt-4">
+                <div class="summary-label">当前金额</div>
+                <div id="amountText" class="summary-amount">¥ 0.00</div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="section-title"><div class="section-dot"></div><span>商品信息</span></div>
+            <div class="info-row">
+                <span class="info-label">品类</span>
+                <span id="categoryText" class="info-value">--</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">商品名称</span>
+                <span id="productNameText" class="info-value">--</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">毛重</span>
+                <span id="grossWeightText" class="info-value">--</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">皮重</span>
+                <div id="tareWeightWrap"></div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">扣减比例</span>
+                <div id="deductionWrap"></div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">净重</span>
+                <span id="netWeightText" class="info-value text-primary" style="font-family:Poppins; font-size:16px;">--</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">单价</span>
+                <div id="unitPriceWrap"></div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">备注</span>
+                <span id="remarkText" class="info-value text-gray-500">-</span>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="section-title"><div class="section-dot"></div><span>照片留存</span><span id="photoCount" class="ml-auto text-[11px] text-gray-400"></span></div>
+            <div id="photoGrid" class="photo-grid"></div>
+            <div id="photoEmpty" class="text-center py-6 text-[12px] text-gray-400" style="display:none;">暂无照片</div>
+        </div>
+
+        <div class="info-card">
+            <div class="section-title"><div class="section-dot"></div><span>收款人信息</span></div>
+            <div class="payee-card">
+                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm border border-[#11A64A]/10">
+                    <i class="fas fa-user-check text-[#11A64A]"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div id="payeeNameText" class="text-sm font-semibold text-gray-800 truncate">--</div>
+                    <div id="payeeMetaText" class="text-[11px] text-gray-500 mt-0.5 truncate">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="absolute left-0 right-0 bottom-0 px-4 py-4 bg-gradient-to-t from-white via-white to-transparent z-50">
+        <div id="bottomActions" class="flex gap-3"></div>
+    </div>
+
+    <div class="billing-sheet-overlay" id="clientSheetOverlay" onclick="closeClientSheet()"></div>
+    <div class="billing-sheet" id="clientSheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-4 pb-2 flex items-center justify-between">
+            <span class="text-[16px] font-bold text-gray-800">选择客户</span>
+            <button class="w-8 h-8 flex items-center justify-center text-gray-400" onclick="closeClientSheet()"><i class="fas fa-xmark text-lg"></i></button>
+        </div>
+        <div class="px-4 pb-3">
+            <div class="glass-card rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 border border-gray-100">
+                <i class="fas fa-search text-gray-400 text-sm"></i>
+                <input id="clientSearchInput" type="text" placeholder="搜索客户" class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400" oninput="renderClientList()">
+            </div>
+        </div>
+        <div id="clientListContainer" class="px-4 space-y-2.5 overflow-y-auto" style="max-height:340px;padding-bottom:90px;"></div>
+        <div id="noClientTip" class="px-4 py-8 text-center" style="display:none;">
+            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
+                <i class="fas fa-user-slash text-gray-300 text-lg"></i>
+            </div>
+            <div class="text-sm text-gray-500 mb-1">请先添加客户</div>
+            <a href="buyer-clients.html" class="text-[12px] text-primary font-medium no-underline" style="text-decoration:none;">前往添加 <i class="fas fa-arrow-right text-[10px]"></i></a>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 px-4 py-4 bg-gradient-to-t from-white via-white to-transparent">
+            <button id="confirmClientBtn" class="w-full py-3 bg-primary text-white rounded-2xl text-sm font-medium active:scale-95 transition-transform" onclick="confirmClient()">确认选择</button>
+        </div>
+    </div>
+
+    <div id="lightboxOverlay" class="lightbox-overlay" onclick="closeLightbox()">
+        <img id="lightboxImage" src="" alt="图片预览">
+    </div>
+
+    <div id="toastTip" class="toast-tip"></div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const orderNo = params.get('orderNo');
+const backHref = params.get('back') || 'buyer-order-manage.html?tab=draft';
+const mockStore = window.BuyerMockStore || null;
+const clientStore = window.ClientMockStore || null;
+
+let order = null;
+let state = {
+    status: '',
+    selectedClientId: null,
+    tareWeight: 0,
+    deduction: 0,
+    unitPrice: 0,
+};
+
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+
+if (orderNo && mockStore && typeof mockStore.findOrderById === 'function') {
+    order = mockStore.findOrderById(orderNo);
+}
+
+if (!order) {
+    document.getElementById('navBar').innerHTML = renderHeader('订单不存在', 'buyer-order-manage.html');
+    document.querySelector('.flex-1').innerHTML = '<div class="info-card text-center mt-8"><div class="text-[15px] font-semibold text-gray-700 mb-1">订单未找到</div><a href="buyer-order-manage.html" class="inline-block mt-3 px-6 py-2.5 bg-primary text-white text-sm font-medium rounded-xl no-underline">返回订单管理</a></div>';
+} else {
+    initState();
+    renderPage();
+}
+
+function initState() {
+    state.status = order.status || 'draft';
+    state.tareWeight = Number(order.tareWeight || 0);
+    state.deduction = Number(order.deduction || 0);
+    state.unitPrice = Number(order.unitPrice || 0);
+}
+
+function getPageTitle() {
+    if (state.status === 'draft') return '编辑挂单';
+    if (state.status === 'pending_price') return '补充单价';
+    return '订单详情';
+}
+function canEditTare() { return state.status === 'draft'; }
+function canEditDeduction() { return state.status === 'draft'; }
+function canEditPrice() { return state.status === 'draft' || state.status === 'pending_price'; }
+
+function calcNetWeight() {
+    const gross = Number(order.grossWeight || 0);
+    const tare = Number(state.tareWeight || 0);
+    const deduction = Number(state.deduction || 0);
+    return Math.max(gross - tare - deduction, 0);
+}
+function calcAmount() {
+    return Math.round(calcNetWeight() * Number(state.unitPrice || 0) * 100) / 100;
+}
+function fmtMoney(amount) {
+    return '¥ ' + Number(amount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtQty(v, unit) {
+    return Number(v || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (unit || '斤');
+}
+function fmtUnitPrice(v, unit) {
+    if (!Number(v || 0)) return '--';
+    return '¥' + Number(v || 0).toFixed(2) + '/' + (unit || '斤');
+}
+function renderEditableInput(value, suffix, onInput) {
+    return `<div class="edit-input-wrap"><input type="number" value="${value || ''}" step="0.01" oninput="${onInput}(this.value)"><span class="suffix">${suffix}</span></div>`;
+}
+
+function renderPage() {
+    var pt = document.getElementById('pageTitleText');
+    if (pt) pt.textContent = getPageTitle();
+    renderStatus();
+    renderBasicInfo();
+    renderWeights();
+    renderPrice();
+    renderPayee();
+    renderPhotos();
+    renderBottomActions();
+}
+
+function renderStatus() {
+    const chip = document.getElementById('statusChip');
+    const title = document.getElementById('statusTitle');
+    const desc = document.getElementById('statusDesc');
+    const icon = document.getElementById('statusIcon');
+    document.getElementById('amountText').textContent = fmtMoney(calcAmount());
+
+    if (state.status === 'draft') {
+        chip.className = 'status-chip status-draft';
+        icon.className = 'fas fa-file-pen';
+        title.textContent = '挂单中';
+        desc.textContent = '请补充皮重等信息';
+    } else if (state.status === 'pending_price') {
+        chip.className = 'status-chip status-pending-price';
+        icon.className = 'fas fa-tag';
+        title.textContent = '待开价';
+        desc.textContent = '请补充单价';
+    } else if (state.status === 'pending_client') {
+        chip.className = 'status-chip status-pending-client';
+        icon.className = 'fas fa-user-clock';
+        title.textContent = '待客户付款';
+        desc.textContent = order.clientName ? ('已转交 ' + order.clientName) : '等待客户付款';
+    } else {
+        chip.className = 'status-chip status-unpaid';
+        icon.className = 'fas fa-file-invoice';
+        title.textContent = '待结算';
+        desc.textContent = '订单信息已完整';
+    }
+}
+
+function renderBasicInfo() {
+    document.getElementById('categoryText').textContent = [order.categoryPrimary, order.categorySecondary].filter(Boolean).join(' > ') || '--';
+    document.getElementById('productNameText').textContent = order.productName || '--';
+    document.getElementById('grossWeightText').textContent = fmtQty(order.grossWeight, order.unit);
+    document.getElementById('remarkText').textContent = order.remark || '-';
+}
+
+function renderWeights() {
+    document.getElementById('tareWeightWrap').innerHTML = canEditTare()
+        ? renderEditableInput(state.tareWeight, order.unit || '斤', 'onTareChange')
+        : `<span class="info-value">${state.tareWeight > 0 ? fmtQty(state.tareWeight, order.unit) : '--'}</span>`;
+    document.getElementById('deductionWrap').innerHTML = canEditDeduction()
+        ? renderEditableInput(state.deduction, order.unit || '斤', 'onDeductionChange')
+        : `<span class="info-value">${state.deduction > 0 ? fmtQty(state.deduction, order.unit) : '--'}</span>`;
+    document.getElementById('netWeightText').textContent = fmtQty(calcNetWeight(), order.unit);
+}
+
+function renderPrice() {
+    document.getElementById('unitPriceWrap').innerHTML = canEditPrice()
+        ? renderEditableInput(state.unitPrice, '元/' + (order.unit || '斤'), 'onPriceChange')
+        : `<span class="info-value">${fmtUnitPrice(state.unitPrice, order.unit)}</span>`;
+}
+
+function renderPayee() {
+    document.getElementById('payeeNameText').textContent = order.payeeName || '--';
+    document.getElementById('payeeMetaText').textContent = [order.payeeBank, order.payeeCard].filter(Boolean).join(' · ') || '--';
+}
+
+function normalizePhotos(list) {
+    if (!Array.isArray(list)) return [];
+    return list.map(function(p) { return (p && typeof p === 'object') ? (p.url || '') : String(p || ''); }).filter(Boolean);
+}
+function renderPhotos() {
+    const photos = normalizePhotos(order.photos);
+    document.getElementById('photoCount').textContent = `(${photos.length}/9)`;
+    const grid = document.getElementById('photoGrid');
+    const empty = document.getElementById('photoEmpty');
+    if (!photos.length) {
+        grid.innerHTML = '';
+        empty.style.display = '';
+        return;
+    }
+    empty.style.display = 'none';
+    grid.innerHTML = photos.map(function(url) { return `<img src="${url}" alt="照片" onclick="openLightbox('${url}')">`; }).join('');
+}
+
+function renderBottomActions() {
+    const el = document.getElementById('bottomActions');
+    if (state.status === 'draft' || state.status === 'pending_price') {
+        el.innerHTML = `
+            <button onclick="saveEdit()" class="flex-1 h-[48px] bg-white border border-gray-200 text-gray-600 rounded-[20px] text-sm font-semibold active:scale-95 transition-all">暂存</button>
+            <button onclick="confirmOpen()" class="flex-1 h-[48px] bg-primary text-white rounded-[20px] text-sm font-semibold active:scale-95 transition-all shadow-[0_8px_20px_-6px_rgba(17,166,74,0.4)]">确认开单</button>`;
+        return;
+    }
+    if (state.status === 'pending_client') {
+        el.innerHTML = `
+            <button onclick="withdrawOrder()" class="flex-1 h-[48px] bg-white border border-red-100 text-red-500 rounded-[20px] text-sm font-semibold active:scale-95 transition-all">撤回</button>
+            <button onclick="goPayNow()" class="flex-1 h-[48px] bg-primary text-white rounded-[20px] text-sm font-semibold active:scale-95 transition-all shadow-[0_8px_20px_-6px_rgba(17,166,74,0.4)]">立即付款</button>`;
+        return;
+    }
+    el.innerHTML = `
+        <button onclick="openClientSheet()" class="flex-1 h-[48px] bg-white border border-primary text-primary rounded-[20px] text-sm font-semibold active:scale-95 transition-all">转给客户</button>
+        <button onclick="goPayNow()" class="flex-1 h-[48px] bg-primary text-white rounded-[20px] text-sm font-semibold active:scale-95 transition-all shadow-[0_8px_20px_-6px_rgba(17,166,74,0.4)]">立即付款</button>`;
+}
+
+function onTareChange(v) { state.tareWeight = Number(v || 0); renderPage(); }
+function onDeductionChange(v) { state.deduction = Number(v || 0); renderPage(); }
+function onPriceChange(v) { state.unitPrice = Number(v || 0); renderPage(); }
+
+function buildPatchByCurrentState() {
+    const netWeight = calcNetWeight();
+    const amount = calcAmount();
+    let nextStatus = 'draft';
+    if (Number(state.tareWeight || 0) > 0 && Number(state.unitPrice || 0) <= 0) nextStatus = 'pending_price';
+    if (Number(state.tareWeight || 0) > 0 && Number(state.unitPrice || 0) > 0) nextStatus = 'unpaid';
+    return {
+        tareWeight: Number(state.tareWeight || 0),
+        deduction: Number(state.deduction || 0),
+        netWeight: netWeight,
+        unitPrice: Number(state.unitPrice || 0),
+        amount: amount,
+        status: nextStatus,
+        summary: (order.productName || '商品') + ' x ' + netWeight + (order.unit || '斤'),
+        items: [{ name: order.productName || '商品', qty: netWeight, unit: order.unit || '斤', price: Number(state.unitPrice || 0), subtotal: amount }],
+    };
+}
+
+function saveEdit() {
+    const patch = buildPatchByCurrentState();
+    if (mockStore && typeof mockStore.updateOrder === 'function') mockStore.updateOrder(orderNo, patch);
+    showToast(patch.status === 'draft' ? '已挂单' : (patch.status === 'pending_price' ? '已保存为待开价' : '已保存为待结算'));
+    setTimeout(function() { window.location.href = backHref; }, 500);
+}
+function confirmOpen() {
+    if (Number(state.tareWeight || 0) <= 0) { showToast('请填写皮重'); return; }
+    if (Number(state.unitPrice || 0) <= 0) { showToast('请填写单价'); return; }
+    const patch = buildPatchByCurrentState();
+    patch.status = 'unpaid';
+    if (mockStore && typeof mockStore.updateOrder === 'function') mockStore.updateOrder(orderNo, patch);
+    window.location.href = 'buyer-billing-done.html?orderNo=' + encodeURIComponent(orderNo);
+}
+function goPayNow() {
+    const patch = buildPatchByCurrentState();
+    patch.status = 'unpaid';
+    if (mockStore && typeof mockStore.updateOrder === 'function') mockStore.updateOrder(orderNo, patch);
+    window.location.href = 'buyer-billing-done.html?orderNo=' + encodeURIComponent(orderNo);
+}
+function withdrawOrder() {
+    if (!(mockStore && typeof mockStore.withdrawFromClient === 'function')) return;
+    mockStore.withdrawFromClient(orderNo);
+    showToast('已撤回');
+    setTimeout(function() { window.location.href = backHref; }, 500);
+}
+
+function openLightbox(url) {
+    document.getElementById('lightboxImage').src = url;
+    document.getElementById('lightboxOverlay').classList.add('show');
+}
+function closeLightbox() { document.getElementById('lightboxOverlay').classList.remove('show'); }
+
+function openClientSheet() {
+    state.selectedClientId = null;
+    document.getElementById('clientSearchInput').value = '';
+    document.getElementById('clientSheetOverlay').classList.add('show');
+    document.getElementById('clientSheet').classList.add('show');
+    renderClientList();
+}
+function closeClientSheet() {
+    document.getElementById('clientSheetOverlay').classList.remove('show');
+    document.getElementById('clientSheet').classList.remove('show');
+}
+function renderClientList() {
+    const list = clientStore && typeof clientStore.getClients === 'function' ? clientStore.getClients() : [];
+    const keyword = (document.getElementById('clientSearchInput').value || '').trim().toLowerCase();
+    const filtered = list.filter(function(c) {
+        if (!keyword) return true;
+        return (c.name || '').toLowerCase().includes(keyword) || (c.mobile || '').toLowerCase().includes(keyword);
+    });
+    document.getElementById('confirmClientBtn').disabled = !state.selectedClientId;
+    document.getElementById('noClientTip').style.display = filtered.length ? 'none' : '';
+    document.getElementById('clientListContainer').innerHTML = filtered.map(function(c) {
+        const selected = state.selectedClientId === c.id;
+        return `
+            <div class="client-item glass-card rounded-2xl p-3.5 flex items-center gap-3 ${selected?'selected':''}" onclick="selectClient('${c.id}')">
+                <div class="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center shrink-0 border border-blue-100">
+                    <i class="fas fa-user-tie text-blue-500 text-[14px]"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[14px] font-semibold text-gray-800 truncate">${c.name}</span>
+                        ${selected ? '<i class="fas fa-check-circle text-primary text-sm"></i>' : ''}
+                    </div>
+                    <div class="text-[12px] text-gray-400 mt-0.5">${c.mobile}</div>
+                </div>
+            </div>`;
+    }).join('');
+}
+function selectClient(id) { state.selectedClientId = id; renderClientList(); }
+function confirmClient() {
+    if (!state.selectedClientId) { showToast('请选择一个客户'); return; }
+    const client = clientStore && clientStore.findClientById ? clientStore.findClientById(state.selectedClientId) : null;
+    if (!client) { showToast('客户信息异常'); return; }
+    if (mockStore && typeof mockStore.transferToClient === 'function') mockStore.transferToClient(orderNo, client.id, client.name, client.mobile);
+    showToast('已发送给 ' + client.name);
+    setTimeout(function() { window.location.href = backHref; }, 500);
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toastTip');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function(){ t.classList.remove('show'); }, 1800);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 回收站</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .order-card {
+            background: white; border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            overflow: hidden; transition: all 0.15s;
+        }
+        .order-card:active { background: #FAFAFA; }
+
+        .status-badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; white-space: nowrap; }
+
+        .toast-tip {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75); color: white; padding: 10px 22px;
+            border-radius: 16px; font-size: 13px; pointer-events: none;
+            opacity: 0; transition: opacity 0.3s; z-index: 600; white-space: nowrap;
+        }
+        .toast-tip.show { opacity: 1; }
+
+        .app-modal-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.45); z-index: 400;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.25s ease;
+        }
+        .app-modal-overlay.show { opacity: 1; visibility: visible; }
+        .app-modal {
+            background: #fff; border-radius: 16px; width: 300px;
+            padding: 24px 20px 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            transform: scale(0.9); transition: transform 0.25s ease;
+        }
+        .app-modal-overlay.show .app-modal { transform: scale(1); }
+
+        .info-bar {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 16px; font-size: 12px; color: #6B7280;
+            background: rgba(249,250,251,0.8);
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container" style="position:relative; overflow:hidden; display:flex; flex-direction:column;">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 顶部信息栏 -->
+    <div class="info-bar shrink-0" id="infoBar">
+        <i class="fas fa-circle-info text-gray-400 text-[11px]"></i>
+        <span id="infoText">共 0 条 · 30天后自动清除</span>
+    </div>
+
+    <!-- 列表区域 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pt-2 pb-6" id="listWrap">
+        <!-- 动态渲染 -->
+    </div>
+
+    <!-- 空状态 -->
+    <div class="flex-1 flex-col items-center justify-center px-8 hidden" id="emptyState" style="display:none;">
+        <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-trash-can text-gray-300 text-3xl"></i>
+        </div>
+        <div class="text-[15px] font-semibold text-gray-400 text-center mb-2">回收站为空</div>
+        <div class="text-[12px] text-gray-300 text-center leading-relaxed">删除的订单会在这里保留30天</div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toastTip" class="toast-tip"></div>
+
+    <!-- 确认弹窗 -->
+    <div class="app-modal-overlay" id="confirmModalOverlay" onclick="if(event.target===this)closeConfirmModal()">
+        <div class="app-modal">
+            <div class="text-[15px] font-semibold text-gray-800 text-center mb-2" id="confirmTitle"></div>
+            <div class="text-[13px] text-gray-500 text-center mb-5 leading-relaxed" id="confirmMsg"></div>
+            <div class="flex gap-3">
+                <button class="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 text-[14px] font-medium" onclick="closeConfirmModal()">取消</button>
+                <button class="flex-1 py-2.5 rounded-xl text-white text-[14px] font-medium active:scale-[0.97] transition-transform" id="confirmOkBtn" style="background:#EF4444;">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const mockStore = window.BuyerMockStore;
+
+// ==================== 初始化 ====================
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('回收站', 'buyer-order-manage.html');
+
+const STATUS_MAP = {
+    draft:         { label: '挂单',   bg: '#F3F4F6', color: '#6B7280' },
+    pending_price: { label: '待开价', bg: '#FEF3C7', color: '#D97706' },
+    unpaid:        { label: '待结算', bg: '#DCFCE7', color: '#16A34A' },
+};
+
+function statusBadge(originalStatus) {
+    const s = STATUS_MAP[originalStatus] || STATUS_MAP.draft;
+    return `<span class="status-badge" style="background:${s.bg};color:${s.color};">${s.label}</span>`;
+}
+
+function timeAgo(isoStr) {
+    if (!isoStr) return '';
+    const diff = Date.now() - new Date(isoStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return '刚刚删除';
+    if (mins < 60) return mins + '分钟前删除';
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return hours + '小时前删除';
+    const days = Math.floor(hours / 24);
+    return days + '天前删除';
+}
+
+function formatAmount(v) {
+    const n = parseFloat(v);
+    if (!n && n !== 0) return '—';
+    return '¥' + n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// ==================== 渲染 ====================
+function renderList() {
+    const orders = mockStore ? mockStore.getDeletedOrders() : [];
+    const listWrap = document.getElementById('listWrap');
+    const emptyState = document.getElementById('emptyState');
+    const infoBar = document.getElementById('infoBar');
+
+    document.getElementById('infoText').textContent = '共 ' + orders.length + ' 条 · 30天后自动清除';
+
+    if (!orders.length) {
+        listWrap.style.display = 'none';
+        infoBar.style.display = 'none';
+        emptyState.style.display = 'flex';
+        return;
+    }
+    listWrap.style.display = '';
+    infoBar.style.display = '';
+    emptyState.style.display = 'none';
+
+    listWrap.innerHTML = orders.map(function(o) {
+        const name = (o.items && o.items[0] && o.items[0].name) || o.productName || '未命名商品';
+        const payee = (o.contact && o.contact.name) || o.payeeName || '—';
+        const amount = formatAmount(o.totalAmount || (o.items && o.items[0] && o.items[0].amount));
+        const badge = statusBadge(o._originalStatus);
+        const ago = timeAgo(o._deletedAt);
+
+        return '<div class="order-card mb-2.5">' +
+            '<div class="p-3">' +
+                '<div class="flex items-center justify-between gap-2 mb-1.5">' +
+                    '<div class="text-[15px] font-bold text-gray-800 truncate">' + name + '</div>' +
+                    '<div class="text-[17px] font-bold text-gray-400 whitespace-nowrap" style="font-family:Poppins;">' + amount + '</div>' +
+                '</div>' +
+                '<div class="flex items-center gap-2 mb-2">' +
+                    '<span class="text-[12px] text-gray-400">原状态：</span>' + badge +
+                '</div>' +
+                '<div class="flex items-center justify-between pt-2 border-t border-gray-100">' +
+                    '<div class="flex items-center gap-1.5 text-[12px] text-gray-400 min-w-0">' +
+                        '<i class="fas fa-user text-[10px] text-gray-300"></i>' +
+                        '<span class="text-gray-500 font-medium truncate">' + payee + '</span>' +
+                        '<span class="text-gray-300">·</span>' +
+                        '<span class="shrink-0">' + ago + '</span>' +
+                    '</div>' +
+                    '<div class="flex items-center gap-2 shrink-0">' +
+                        '<button onclick="doRestore(\'' + o.id + '\')" class="h-8 px-3 rounded-lg text-[12px] font-medium border border-primary text-primary bg-white active:scale-[0.97] transition-transform">恢复</button>' +
+                        '<button onclick="doPermDelete(\'' + o.id + '\')" class="h-8 px-3 rounded-lg text-[12px] font-medium border border-red-200 text-red-500 bg-white active:scale-[0.97] transition-transform">永久删除</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+// ==================== 操作 ====================
+function doRestore(id) {
+    if (!mockStore) return;
+    mockStore.restoreOrder(id);
+    showToast('已恢复');
+    renderList();
+}
+
+function doPermDelete(id) {
+    document.getElementById('confirmTitle').textContent = '永久删除';
+    document.getElementById('confirmMsg').textContent = '删除后将无法恢复，确定永久删除吗？';
+    document.getElementById('confirmOkBtn').onclick = function() {
+        if (mockStore) mockStore.permanentDeleteOrder(id);
+        closeConfirmModal();
+        showToast('已永久删除');
+        renderList();
+    };
+    document.getElementById('confirmModalOverlay').classList.add('show');
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModalOverlay').classList.remove('show');
+}
+
+// ==================== Toast ====================
+function showToast(msg) {
+    var t = document.getElementById('toastTip');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function() { t.classList.remove('show'); }, 1800);
+}
+
+// ==================== 启动 ====================
+renderList();
+</script>
+</body>
+</html>

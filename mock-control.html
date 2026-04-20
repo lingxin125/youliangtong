@@ -406,6 +406,7 @@ function showToast(text) {
 
 function resetData() {
     localStorage.removeItem(STORAGE_KEY);
+    if (window.ClientMockStore) window.ClientMockStore.clearClients();
     render();
     showToast('已重置。打开业务页后会自动生成默认样例');
 }

@@ -306,8 +306,22 @@ if (typeof window !== "undefined") {
 // ==================== 收购商模拟数据中心（跨页面共享） ====================
 (function () {
   var ORDER_STORAGE_KEY = "ylt_buyer_orders_mock_v1";
-  var ORDER_DATA_VERSION = "v3"; // 数据版本，修改订单结构时递增以触发重置
+  var ORDER_DATA_VERSION = "v5"; // Phase 3 v5: 挂单收款人兼容修复、订单管理排序交互优化
   var ORDER_VERSION_KEY = "ylt_buyer_orders_version";
+
+  // Phase 3: 订单状态常量表（label / color class / icon）
+  var ORDER_STATUS = {
+    draft:          { label: "挂单",       color: "text-gray-500",  bg: "bg-gray-100",  icon: "fa-file-pen" },
+    pending_price:  { label: "待开价",     color: "text-amber-600", bg: "bg-amber-50",  icon: "fa-tag" },
+    unpaid:         { label: "待结算",     color: "text-amber-600", bg: "bg-amber-50",  icon: "fa-clock" },
+    pending_client: { label: "待客户付款", color: "text-blue-600",  bg: "bg-blue-50",   icon: "fa-user-clock" },
+    pending:        { label: "待支付",     color: "text-amber-600", bg: "bg-amber-50",  icon: "fa-hourglass-half" },
+    paying:         { label: "支付中",     color: "text-blue-600",  bg: "bg-blue-50",   icon: "fa-spinner" },
+    processing:     { label: "支付中",     color: "text-blue-600",  bg: "bg-blue-50",   icon: "fa-spinner" },
+    success:        { label: "已完成",     color: "text-green-600", bg: "bg-green-50",  icon: "fa-circle-check" },
+    failed:         { label: "支付失败",   color: "text-red-600",   bg: "bg-red-50",    icon: "fa-circle-xmark" },
+    canceled:       { label: "已取消",     color: "text-gray-500",  bg: "bg-gray-100",  icon: "fa-ban" },
+  };
   var CONTACTS = [
     {
       id: "c01",
@@ -421,6 +435,70 @@ if (typeof window !== "undefined") {
 
   function isoMinusMinutes(minutesAgo) {
     return new Date(Date.now() - minutesAgo * 60 * 1000).toISOString();
+  }
+
+  // Phase 3: 为旧订单补齐新字段（向后兼容）
+  var ORDER_FIELD_DEFAULTS = {
+    orderType: "normal",
+    teamId: "",
+    operatorId: "",
+    operatorName: "",
+    clientId: "",
+    clientName: "",
+    clientMobile: "",
+    transferredAt: null,
+    photos: [],
+    grossWeight: 0,
+    tareWeight: 0,
+    deduction: 0,
+    netWeight: 0,
+    unitPrice: 0,
+    unit: "斤",
+    productName: "",
+    categoryPrimary: "",
+    categorySecondary: "",
+  };
+
+  function ensureOrderFields(order) {
+    if (!order) return order;
+    var key;
+    for (key in ORDER_FIELD_DEFAULTS) {
+      if (ORDER_FIELD_DEFAULTS.hasOwnProperty(key) && order[key] === undefined) {
+        order[key] = Array.isArray(ORDER_FIELD_DEFAULTS[key])
+          ? []
+          : ORDER_FIELD_DEFAULTS[key];
+      }
+    }
+    if (order.status === "draft") {
+      patchDraftPayee(order);
+    }
+    return order;
+  }
+
+  function patchDraftPayee(order) {
+    if (!order) return order;
+    var hasPayeeName = typeof order.payeeName === "string" && order.payeeName.trim();
+    var hasPayeeMobile = typeof order.payeeMobile === "string" && order.payeeMobile.trim();
+    var hasPayeeBank = typeof order.payeeBank === "string" && order.payeeBank.trim();
+    var hasPayeeCard = typeof order.payeeCard === "string" && order.payeeCard.trim();
+    var isLegacyEmpty = !hasPayeeName || order.payeeName === "待定";
+    if (!isLegacyEmpty && hasPayeeMobile && hasPayeeBank && hasPayeeCard) return order;
+
+    var contact = null;
+    if (order.productName === "玉米") {
+      contact = CONTACTS[1];
+    } else if (order.productName === "小麦") {
+      contact = CONTACTS[0];
+    } else {
+      contact = CONTACTS.find(function (item) { return item && item.name; }) || null;
+    }
+    if (!contact) return order;
+
+    order.payeeName = contact.name;
+    order.payeeMobile = contact.mobile;
+    order.payeeBank = contact.bank ? contact.bank + "支行" : "中国邮政储蓄银行支行";
+    order.payeeCard = contact.card ? "尾号 " + contact.card.replace(/\D/g, "").slice(-4) : "尾号 2233";
+    return order;
   }
 
   function buildBaseOrders() {
@@ -691,6 +769,231 @@ if (typeof window !== "undefined") {
       items: [{ name: "茄子", qty: 400, unit: "斤", price: 4, subtotal: 1600 }],
     };
 
+    // Phase 3: 挂单（draft）
+    // 业务定义：填了毛重但没填皮重的订单 → 自动归为挂单
+    var orderP = {
+      id: buildOrderNo(new Date(Date.now() - 15 * 60 * 1000)),
+      status: "draft",
+      payeeName: "李大姐",
+      payeeMobile: "13900006666",
+      payeeBank: "中国邮政储蓄银行烟台支行",
+      payeeCard: "尾号 2233",
+      summary: "小麦 x 0斤",
+      amount: 0,
+      createdAt: isoMinusMinutes(15),
+      payMethod: "",
+      items: [{ name: "小麦", qty: 0, unit: "斤", price: 0, subtotal: 0 }],
+      orderType: "normal",
+      operatorId: "op01",
+      operatorName: "张老板",
+      productName: "小麦",
+      categoryPrimary: "粮油",
+      categorySecondary: "小麦",
+      grossWeight: 12500,
+      tareWeight: 0,
+      deduction: 0,
+      netWeight: 0,
+      unitPrice: 0,
+      unit: "斤",
+      photos: [{ url: "https://placeholder.co/400x300", takenAt: isoMinusMinutes(16) }],
+    };
+
+    var orderQ = {
+      id: buildOrderNo(new Date(Date.now() - 25 * 60 * 1000)),
+      status: "draft",
+      payeeName: "王大哥",
+      payeeMobile: "13800007777",
+      payeeBank: "中国邮政储蓄银行保定支行",
+      payeeCard: "尾号 5612",
+      summary: "玉米 x 0斤",
+      amount: 0,
+      createdAt: isoMinusMinutes(25),
+      payMethod: "",
+      items: [{ name: "玉米", qty: 0, unit: "斤", price: 0, subtotal: 0 }],
+      orderType: "normal",
+      operatorId: "op01",
+      operatorName: "张老板",
+      productName: "玉米",
+      categoryPrimary: "粮油",
+      categorySecondary: "玉米",
+      grossWeight: 8300,
+      tareWeight: 0,
+      deduction: 0,
+      netWeight: 0,
+      unitPrice: 0,
+      unit: "斤",
+      photos: [],
+    };
+
+    // Phase 3: 待开价（pending_price）
+    var orderR = {
+      id: buildOrderNo(new Date(Date.now() - 35 * 60 * 1000)),
+      status: "pending_price",
+      payeeName: "李大姐",
+      payeeMobile: "138****2233",
+      payeeBank: "邮储银行烟台支行",
+      payeeCard: "尾号 2233",
+      summary: "大豆 x 15000斤",
+      amount: 0,
+      createdAt: isoMinusMinutes(35),
+      payMethod: "",
+      items: [{ name: "大豆", qty: 15000, unit: "斤", price: 0, subtotal: 0 }],
+      orderType: "normal",
+      operatorId: "op01",
+      operatorName: "张老板",
+      productName: "大豆",
+      categoryPrimary: "粮油",
+      categorySecondary: "大豆",
+      grossWeight: 15600,
+      tareWeight: 500,
+      deduction: 100,
+      netWeight: 15000,
+      unitPrice: 0,
+      unit: "斤",
+      photos: [{ url: "https://placeholder.co/400x300", takenAt: isoMinusMinutes(36) }],
+    };
+
+    var orderS = {
+      id: buildOrderNo(new Date(Date.now() - 50 * 60 * 1000)),
+      status: "pending_price",
+      payeeName: "王大哥",
+      payeeMobile: "139****5612",
+      payeeBank: "邮储银行保定支行",
+      payeeCard: "尾号 5612",
+      summary: "小麦 x 20000斤",
+      amount: 0,
+      createdAt: isoMinusMinutes(50),
+      payMethod: "",
+      items: [{ name: "小麦", qty: 20000, unit: "斤", price: 0, subtotal: 0 }],
+      orderType: "normal",
+      operatorId: "op02",
+      operatorName: "李经理",
+      productName: "小麦",
+      categoryPrimary: "粮油",
+      categorySecondary: "小麦",
+      grossWeight: 20800,
+      tareWeight: 600,
+      deduction: 200,
+      netWeight: 20000,
+      unitPrice: 0,
+      unit: "斤",
+      photos: [],
+    };
+
+    var orderT = {
+      id: buildOrderNo(new Date(Date.now() - 65 * 60 * 1000)),
+      status: "pending_price",
+      payeeName: "赵师傅",
+      payeeMobile: "136****9801",
+      payeeBank: "农业银行",
+      payeeCard: "尾号 9801",
+      summary: "玉米 x 25000斤",
+      amount: 0,
+      createdAt: isoMinusMinutes(65),
+      payMethod: "",
+      items: [{ name: "玉米", qty: 25000, unit: "斤", price: 0, subtotal: 0 }],
+      orderType: "normal",
+      operatorId: "op01",
+      operatorName: "张老板",
+      productName: "玉米",
+      categoryPrimary: "粮油",
+      categorySecondary: "玉米",
+      grossWeight: 25800,
+      tareWeight: 600,
+      deduction: 200,
+      netWeight: 25000,
+      unitPrice: 0,
+      unit: "斤",
+      photos: [{ url: "https://placeholder.co/400x300", takenAt: isoMinusMinutes(66) }],
+    };
+
+    // Phase 3: 待结算（unpaid）— 已开价，完整信息
+    var orderU = {
+      id: buildOrderNo(new Date(Date.now() - 80 * 60 * 1000)),
+      status: "unpaid",
+      payeeName: "孙阿姨",
+      payeeMobile: "137****3326",
+      payeeBank: "农商银行德州支行",
+      payeeCard: "尾号 3326",
+      summary: "大豆 x 10000斤",
+      amount: 28000,
+      createdAt: isoMinusMinutes(80),
+      payMethod: "",
+      items: [{ name: "大豆", qty: 10000, unit: "斤", price: 2.8, subtotal: 28000 }],
+      orderType: "normal",
+      operatorId: "op01",
+      operatorName: "张老板",
+      productName: "大豆",
+      categoryPrimary: "粮油",
+      categorySecondary: "大豆",
+      grossWeight: 10400,
+      tareWeight: 300,
+      deduction: 100,
+      netWeight: 10000,
+      unitPrice: 2.8,
+      unit: "斤",
+      photos: [{ url: "https://placeholder.co/400x300", takenAt: isoMinusMinutes(82) }],
+    };
+
+    var orderV = {
+      id: buildOrderNo(new Date(Date.now() - 95 * 60 * 1000)),
+      status: "unpaid",
+      payeeName: "刘师傅",
+      payeeMobile: "135****7119",
+      payeeBank: "邮储银行临沂支行",
+      payeeCard: "尾号 7119",
+      summary: "小麦 x 30000斤",
+      amount: 42000,
+      createdAt: isoMinusMinutes(95),
+      payMethod: "",
+      items: [{ name: "小麦", qty: 30000, unit: "斤", price: 1.4, subtotal: 42000 }],
+      orderType: "normal",
+      operatorId: "op02",
+      operatorName: "李经理",
+      productName: "小麦",
+      categoryPrimary: "粮油",
+      categorySecondary: "小麦",
+      grossWeight: 31000,
+      tareWeight: 800,
+      deduction: 200,
+      netWeight: 30000,
+      unitPrice: 1.4,
+      unit: "斤",
+      photos: [],
+    };
+
+    // Phase 3: 待客户付款（pending_client）
+    var orderW = {
+      id: buildOrderNo(new Date(Date.now() - 110 * 60 * 1000)),
+      status: "pending_client",
+      payeeName: "李大姐",
+      payeeMobile: "138****2233",
+      payeeBank: "邮储银行烟台支行",
+      payeeCard: "尾号 2233",
+      summary: "玉米 x 18000斤",
+      amount: 23400,
+      createdAt: isoMinusMinutes(110),
+      payMethod: "",
+      items: [{ name: "玉米", qty: 18000, unit: "斤", price: 1.3, subtotal: 23400 }],
+      orderType: "normal",
+      operatorId: "op01",
+      operatorName: "张老板",
+      clientId: "cli01",
+      clientName: "保定粮油公司",
+      clientMobile: "131****6688",
+      transferredAt: isoMinusMinutes(100),
+      productName: "玉米",
+      categoryPrimary: "粮油",
+      categorySecondary: "玉米",
+      grossWeight: 18600,
+      tareWeight: 400,
+      deduction: 200,
+      netWeight: 18000,
+      unitPrice: 1.3,
+      unit: "斤",
+      photos: [{ url: "https://placeholder.co/400x300", takenAt: isoMinusMinutes(112) }],
+    };
+
     return [
       orderA,
       orderB,
@@ -707,6 +1010,14 @@ if (typeof window !== "undefined") {
       orderM,
       orderN,
       orderO,
+      orderP,
+      orderQ,
+      orderR,
+      orderS,
+      orderT,
+      orderU,
+      orderV,
+      orderW,
     ];
   }
 
@@ -716,7 +1027,7 @@ if (typeof window !== "undefined") {
 
     // 版本不匹配或没有数据时，重新初始化
     if (!text || storedVersion !== ORDER_DATA_VERSION) {
-      var init = buildBaseOrders();
+      var init = buildBaseOrders().map(ensureOrderFields);
       safeSetStorageItem(ORDER_STORAGE_KEY, JSON.stringify(init));
       safeSetStorageItem(ORDER_VERSION_KEY, ORDER_DATA_VERSION);
       return init;
@@ -724,14 +1035,17 @@ if (typeof window !== "undefined") {
     try {
       var parsed = JSON.parse(text);
       if (!Array.isArray(parsed) || parsed.length === 0) {
-        var fallback = buildBaseOrders();
+        var fallback = buildBaseOrders().map(ensureOrderFields);
         safeSetStorageItem(ORDER_STORAGE_KEY, JSON.stringify(fallback));
         safeSetStorageItem(ORDER_VERSION_KEY, ORDER_DATA_VERSION);
         return fallback;
       }
-      return parsed;
+      // 向后兼容：为旧订单补齐新字段，并修复历史挂单缺失的收款人
+      var upgraded = parsed.map(ensureOrderFields);
+      safeSetStorageItem(ORDER_STORAGE_KEY, JSON.stringify(upgraded));
+      return upgraded;
     } catch (err) {
-      var recovery = buildBaseOrders();
+      var recovery = buildBaseOrders().map(ensureOrderFields);
       safeSetStorageItem(ORDER_STORAGE_KEY, JSON.stringify(recovery));
       safeSetStorageItem(ORDER_VERSION_KEY, ORDER_DATA_VERSION);
       return recovery;
@@ -811,14 +1125,24 @@ if (typeof window !== "undefined") {
     if (!input) return "";
     var map = {
       all: "all",
+      draft: "draft",
+      pending_price: "pending_price",
+      unpaid: "unpaid",
+      pending_client: "pending_client",
       pending: "pending",
+      paying: "paying",
       processing: "processing",
       success: "success",
       failed: "failed",
       canceled: "canceled",
+      挂单: "draft",
+      待开价: "pending_price",
+      待结算: "unpaid",
+      待客户付款: "pending_client",
       待支付: "pending",
       支付中: "processing",
       支付成功: "success",
+      已完成: "success",
       支付失败: "failed",
       已取消: "canceled",
     };
@@ -826,10 +1150,11 @@ if (typeof window !== "undefined") {
   }
 
   function getStatusLabel(status) {
+    if (ORDER_STATUS[status]) return ORDER_STATUS[status].label;
     var map = {
       pending: "待支付",
       processing: "支付中",
-      success: "支付成功",
+      success: "已完成",
       failed: "支付失败",
       canceled: "已撤销",
     };
@@ -863,9 +1188,183 @@ if (typeof window !== "undefined") {
   function clearOrders() {
     safeRemoveStorageItem(ORDER_STORAGE_KEY);
     safeRemoveStorageItem(ORDER_VERSION_KEY);
+    safeRemoveStorageItem(RECYCLE_STORAGE_KEY);
+  }
+
+  // ==================== 回收站 ====================
+  var RECYCLE_STORAGE_KEY = "ylt_buyer_orders_recycle_v1";
+  var RECYCLE_EXPIRE_DAYS = 30;
+
+  function loadRecycleBin() {
+    var raw = safeGetStorageItem(RECYCLE_STORAGE_KEY);
+    if (!raw) return [];
+    try { return JSON.parse(raw); } catch (e) { return []; }
+  }
+
+  function saveRecycleBin(list) {
+    safeSetStorageItem(RECYCLE_STORAGE_KEY, JSON.stringify(list));
+  }
+
+  function softDeleteOrder(orderId) {
+    if (!orderId) return null;
+    var list = loadOrdersRaw();
+    var idx = list.findIndex(function(o) { return o.id === orderId; });
+    if (idx < 0) return null;
+    var order = list.splice(idx, 1)[0];
+    order._deletedAt = new Date().toISOString();
+    order._originalStatus = order.status;
+    order.status = "deleted";
+    saveOrdersRaw(list);
+    var bin = loadRecycleBin();
+    bin.unshift(order);
+    saveRecycleBin(bin);
+    return cloneData(order);
+  }
+
+  function getDeletedOrders() {
+    purgeExpiredDeleted();
+    return cloneData(loadRecycleBin());
+  }
+
+  function restoreOrder(orderId) {
+    if (!orderId) return null;
+    var bin = loadRecycleBin();
+    var idx = bin.findIndex(function(o) { return o.id === orderId; });
+    if (idx < 0) return null;
+    var order = bin.splice(idx, 1)[0];
+    order.status = order._originalStatus || "draft";
+    delete order._deletedAt;
+    delete order._originalStatus;
+    saveRecycleBin(bin);
+    var list = loadOrdersRaw();
+    list.unshift(order);
+    saveOrdersRaw(list);
+    return cloneData(order);
+  }
+
+  function permanentDeleteOrder(orderId) {
+    if (!orderId) return false;
+    var bin = loadRecycleBin();
+    var idx = bin.findIndex(function(o) { return o.id === orderId; });
+    if (idx < 0) return false;
+    bin.splice(idx, 1);
+    saveRecycleBin(bin);
+    return true;
+  }
+
+  function purgeExpiredDeleted() {
+    var bin = loadRecycleBin();
+    var now = Date.now();
+    var cutoff = RECYCLE_EXPIRE_DAYS * 24 * 60 * 60 * 1000;
+    var filtered = bin.filter(function(o) {
+      if (!o._deletedAt) return false;
+      return (now - new Date(o._deletedAt).getTime()) < cutoff;
+    });
+    if (filtered.length !== bin.length) saveRecycleBin(filtered);
+  }
+
+  function getRecycleCount() {
+    return getDeletedOrders().length;
+  }
+
+  // Phase 3: 按状态筛选订单
+  function getOrdersByStatus(status) {
+    var all = getOrders();
+    if (!status || status === "all") return all;
+    var normalized = normalizeStatus(status) || status;
+    return all.filter(function (o) { return o.status === normalized; });
+  }
+
+  // Phase 3: 各状态订单计数
+  function getOrderCounts() {
+    var all = getOrders();
+    var counts = {};
+    all.forEach(function (o) {
+      counts[o.status] = (counts[o.status] || 0) + 1;
+    });
+    return counts;
+  }
+
+  function getPendingSettlementAmount() {
+    return getOrders().reduce(function (total, order) {
+      if (order.status !== "unpaid" && order.status !== "pending_client") return total;
+      return total + (Number(order.amount) || 0);
+    }, 0);
+  }
+
+  // Phase 3: 单笔开价
+  function updateOrderPrice(orderId, unitPrice) {
+    if (!orderId || unitPrice === undefined) return null;
+    var list = loadOrdersRaw();
+    var idx = list.findIndex(function (o) { return o.id === orderId; });
+    if (idx < 0) return null;
+    var order = list[idx];
+    order.unitPrice = unitPrice;
+    order.netWeight = order.netWeight || 0;
+    order.amount = Math.round(order.netWeight * unitPrice * 100) / 100;
+    if (order.items && order.items.length > 0) {
+      order.items[0].price = unitPrice;
+      order.items[0].subtotal = order.amount;
+    }
+    order.summary = (order.productName || (order.items && order.items[0] && order.items[0].name) || "商品") + " x " + order.netWeight + (order.unit || "斤");
+    if (order.status === "pending_price") {
+      order.status = "unpaid";
+    }
+    saveOrdersRaw(list);
+    return cloneData(order);
+  }
+
+  // Phase 3: 批量开价
+  function batchUpdatePrice(orderIds, unitPrice) {
+    if (!orderIds || !orderIds.length || unitPrice === undefined) return [];
+    var results = [];
+    orderIds.forEach(function (id) {
+      var updated = updateOrderPrice(id, unitPrice);
+      if (updated) results.push(updated);
+    });
+    return results;
+  }
+
+  // Phase 3: 转交客户付款
+  function transferToClient(orderId, clientId, clientName, clientMobile) {
+    if (!orderId) return null;
+    var list = loadOrdersRaw();
+    var idx = list.findIndex(function (o) { return o.id === orderId; });
+    if (idx < 0) return null;
+    var order = list[idx];
+    order.clientId = clientId || "";
+    order.clientName = clientName || "";
+    order.clientMobile = clientMobile || "";
+    order.transferredAt = new Date().toISOString();
+    order.status = "pending_client";
+    saveOrdersRaw(list);
+    return cloneData(order);
+  }
+
+  // Phase 3: 撤回（从客户付款状态撤回到待结算）
+  function withdrawFromClient(orderId) {
+    if (!orderId) return null;
+    var list = loadOrdersRaw();
+    var idx = list.findIndex(function (o) { return o.id === orderId; });
+    if (idx < 0) return null;
+    var order = list[idx];
+    if (order.status !== "pending_client") return null;
+    order.status = "unpaid";
+    order.clientId = "";
+    order.clientName = "";
+    order.clientMobile = "";
+    order.transferredAt = null;
+    saveOrdersRaw(list);
+    return cloneData(order);
+  }
+
+  // Phase 3: 获取状态信息（label, color, bg, icon）
+  function getStatusInfo(status) {
+    return ORDER_STATUS[status] || { label: "未知", color: "text-gray-400", bg: "bg-gray-50", icon: "fa-question" };
   }
 
   window.BuyerMockStore = {
+    ORDER_STATUS: ORDER_STATUS,
     buildOrderNo: buildOrderNo,
     getPayer: getPayer,
     getFrequentContacts: getFrequentContacts,
@@ -879,6 +1378,20 @@ if (typeof window !== "undefined") {
     getOrderRemainingMs: getOrderRemainingMs,
     normalizeStatus: normalizeStatus,
     getStatusLabel: getStatusLabel,
+    getStatusInfo: getStatusInfo,
+    getOrdersByStatus: getOrdersByStatus,
+    getOrderCounts: getOrderCounts,
+    getPendingSettlementAmount: getPendingSettlementAmount,
+    updateOrderPrice: updateOrderPrice,
+    batchUpdatePrice: batchUpdatePrice,
+    transferToClient: transferToClient,
+    withdrawFromClient: withdrawFromClient,
+    softDeleteOrder: softDeleteOrder,
+    getDeletedOrders: getDeletedOrders,
+    restoreOrder: restoreOrder,
+    permanentDeleteOrder: permanentDeleteOrder,
+    purgeExpiredDeleted: purgeExpiredDeleted,
+    getRecycleCount: getRecycleCount,
     clearOrders: clearOrders,
   };
 })();
@@ -1798,6 +2311,177 @@ if (typeof window !== "undefined") {
   };
 })();
 
+// ==================== 客户管理模拟数据中心（收购商间转单付款） ====================
+(function () {
+  var STORAGE_KEY = "ylt_buyer_clients_v1";
+  var VERSION_KEY = "ylt_buyer_clients_version";
+  var CURRENT_VERSION = "v3";
+
+  var PLATFORM_MERCHANTS = [
+    { id: "pm01", name: "张老板收购站", mobile: "13700005555", merchantNo: "6001234001", org: "保定收购站", idNo: "130602198405126519", bank: "中国邮政储蓄银行保定市分行", card: "6221 8855 0000 5555" },
+    { id: "pm02", name: "李站长", mobile: "13800008888", merchantNo: "6001234002", org: "石家庄粮油", idNo: "130104198109086432", bank: "中国农业银行石家庄中山支行", card: "6228 4800 0000 8888" },
+    { id: "pm03", name: "王经理", mobile: "13900006666", merchantNo: "6001234003", org: "邯郸丰收粮站", idNo: "130403198712153246", bank: "中国邮政储蓄银行邯郸市分行", card: "6221 8855 0000 6666" },
+    { id: "pm04", name: "赵老板", mobile: "13500003333", merchantNo: "6001234004", org: "衡水粮食收购", idNo: "131102198302217834", bank: "河北衡水农村商业银行", card: "6210 0333 0000 3333" },
+    { id: "pm05", name: "刘站长", mobile: "13600004444", merchantNo: "6001234005", org: "沧州农贸中心", idNo: "130903198911304928", bank: "中国建设银行沧州解放路支行", card: "6217 0044 0000 4444" },
+  ];
+
+  var SELF_MOBILE = "13800008888";
+
+  var DEFAULT_CLIENTS = [
+    { id: "cl01", name: "张老板收购站", mobile: "13700005555", merchantNo: "6001234001", org: "保定收购站", cooperationCount: 8, addedAt: "2026-03-15" },
+    { id: "cl02", name: "李站长", mobile: "13800008888", merchantNo: "6001234002", org: "石家庄粮油", cooperationCount: 3, addedAt: "2026-04-01" },
+  ];
+
+  function cloneData(data) {
+    if (typeof structuredClone === "function") return structuredClone(data);
+    return JSON.parse(JSON.stringify(data));
+  }
+
+  function safeGetStorageItem(key) {
+    try { return window.localStorage.getItem(key); }
+    catch (err) {
+      try { return window.sessionStorage.getItem(key); }
+      catch (e) { return null; }
+    }
+  }
+
+  function safeSetStorageItem(key, value) {
+    try { window.localStorage.setItem(key, value); }
+    catch (err) {
+      try { window.sessionStorage.setItem(key, value); }
+      catch (e) {}
+    }
+  }
+
+  function safeRemoveStorageItem(key) {
+    try { window.localStorage.removeItem(key); } catch (e) {}
+    try { window.sessionStorage.removeItem(key); } catch (e) {}
+  }
+
+  function readClients() {
+    var ver = safeGetStorageItem(VERSION_KEY);
+    if (ver !== CURRENT_VERSION) {
+      safeSetStorageItem(VERSION_KEY, CURRENT_VERSION);
+      var init = cloneData(DEFAULT_CLIENTS);
+      safeSetStorageItem(STORAGE_KEY, JSON.stringify(init));
+      return init;
+    }
+    var raw = safeGetStorageItem(STORAGE_KEY);
+    if (!raw) {
+      var defaults = cloneData(DEFAULT_CLIENTS);
+      safeSetStorageItem(STORAGE_KEY, JSON.stringify(defaults));
+      return defaults;
+    }
+    try { return JSON.parse(raw); }
+    catch (e) {
+      var fallback = cloneData(DEFAULT_CLIENTS);
+      safeSetStorageItem(STORAGE_KEY, JSON.stringify(fallback));
+      return fallback;
+    }
+  }
+
+  function writeClients(clients) {
+    safeSetStorageItem(STORAGE_KEY, JSON.stringify(clients));
+  }
+
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  window.ClientMockStore = {
+    getClients: function () {
+      var list = readClients();
+      list.sort(function (a, b) { return (b.cooperationCount || 0) - (a.cooperationCount || 0); });
+      return cloneData(list);
+    },
+
+    findClientById: function (id) {
+      var list = readClients();
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id === id) return cloneData(list[i]);
+      }
+      return null;
+    },
+
+    findClientByMobile: function (mobile) {
+      var list = readClients();
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].mobile === mobile) return cloneData(list[i]);
+      }
+      return null;
+    },
+
+    addClient: function (merchantId) {
+      var merchant = null;
+      for (var i = 0; i < PLATFORM_MERCHANTS.length; i++) {
+        if (PLATFORM_MERCHANTS[i].id === merchantId) { merchant = PLATFORM_MERCHANTS[i]; break; }
+      }
+      if (!merchant) return { success: false, message: "该手机号未注册丰收云收购商账号", client: null };
+      if (merchant.mobile === SELF_MOBILE) return { success: false, message: "不能添加自己为客户", client: null };
+      var list = readClients();
+      for (var j = 0; j < list.length; j++) {
+        if (list[j].mobile === merchant.mobile) return { success: false, message: "该收购商已在您的客户列表中", client: null };
+      }
+      var newClient = {
+        id: "cl" + String(Date.now()).slice(-6),
+        name: merchant.name,
+        mobile: merchant.mobile,
+        merchantNo: merchant.merchantNo || "",
+        org: merchant.org,
+        cooperationCount: 0,
+        addedAt: todayStr(),
+      };
+      list.push(newClient);
+      writeClients(list);
+      return { success: true, message: "添加成功", client: cloneData(newClient) };
+    },
+
+    removeClient: function (id) {
+      var list = readClients();
+      var filtered = [];
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id !== id) filtered.push(list[i]);
+      }
+      writeClients(filtered);
+    },
+
+    searchPlatformMerchants: function (keyword) {
+      if (!keyword) return [];
+      var kw = String(keyword).toLowerCase();
+      var list = readClients();
+      var addedMobiles = {};
+      for (var i = 0; i < list.length; i++) addedMobiles[list[i].mobile] = true;
+      var results = [];
+      for (var j = 0; j < PLATFORM_MERCHANTS.length; j++) {
+        var m = PLATFORM_MERCHANTS[j];
+        if (addedMobiles[m.mobile]) continue;
+        if (m.name.toLowerCase().indexOf(kw) !== -1 || m.mobile.indexOf(kw) !== -1) {
+          results.push(cloneData(m));
+        }
+      }
+      return results;
+    },
+
+    incrementCooperation: function (id) {
+      var list = readClients();
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id === id) {
+          list[i].cooperationCount = (list[i].cooperationCount || 0) + 1;
+          writeClients(list);
+          return cloneData(list[i]);
+        }
+      }
+      return null;
+    },
+
+    clearClients: function () {
+      safeRemoveStorageItem(STORAGE_KEY);
+      safeRemoveStorageItem(VERSION_KEY);
+    },
+  };
+})();
+
 // ==================== 页面过渡（统一拦截所有内部链接） ====================
 function getUrlParam(k) {
   return new URLSearchParams(window.location.search).get(k);
@@ -1805,17 +2489,25 @@ function getUrlParam(k) {
 
 function _navigateTo(href) {
   // 同页面不跳转
-  var cur = window.location.pathname.split("/").pop().split("?")[0];
-  var tar = href.split("?")[0];
-  if (cur === tar) return;
+  var currentUrl = new URL(window.location.href);
+  var targetUrl = new URL(href, window.location.href);
+  var cur = currentUrl.pathname.split("/").pop();
+  var tar = targetUrl.pathname.split("/").pop();
+  if (cur === tar) {
+    if (currentUrl.search === targetUrl.search && currentUrl.hash === targetUrl.hash) {
+      return;
+    }
+    window.location.href = targetUrl.href;
+    return;
+  }
   var box = document.querySelector(".mobile-container");
   if (box) {
     box.classList.add("_leaving");
     setTimeout(function () {
-      window.location.href = href;
+      window.location.href = targetUrl.href;
     }, 150);
   } else {
-    window.location.href = href;
+    window.location.href = targetUrl.href;
   }
 }
 
@@ -2514,19 +3206,129 @@ function _toggleFab() {
 (function () {
   var IDENTITY_KEY = "ylt_user_identity_v1";
   var CURRENT_KEY = "ylt_current_user";
+  var DISPLAY_PROFILE_KEY = "ylt_user_display_profile_v1";
 
   function _storage() {
     try { localStorage.setItem("_t", "1"); localStorage.removeItem("_t"); return localStorage; }
     catch (e) { return sessionStorage; }
   }
 
+  function _readJson(key) {
+    try {
+      var raw = _storage().getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+
+  function _writeJson(key, data) {
+    try { _storage().setItem(key, JSON.stringify(data)); } catch (e) {}
+  }
+
+  function _clone(data) {
+    return data ? JSON.parse(JSON.stringify(data)) : data;
+  }
+
+  function _normalizeMobile(mobile) {
+    return (mobile || "").replace(/\s/g, "");
+  }
+
+  function _readDisplayProfiles() {
+    return _readJson(DISPLAY_PROFILE_KEY) || {};
+  }
+
+  function _writeDisplayProfiles(data) {
+    _writeJson(DISPLAY_PROFILE_KEY, data || {});
+  }
+
+  function _getDisplayProfile(mobile) {
+    var clean = _normalizeMobile(mobile);
+    if (!clean) return {};
+    var map = _readDisplayProfiles();
+    return map[clean] || {};
+  }
+
+  function _getDisplayName(mobile, fallbackName) {
+    var profile = _getDisplayProfile(mobile);
+    return profile && profile.name ? profile.name : (fallbackName || "");
+  }
+
+  function _getTeamsByMobile(mobile, fallbackTeams) {
+    var clean = _normalizeMobile(mobile);
+    var fallback = Array.isArray(fallbackTeams) ? _clone(fallbackTeams) : [];
+    if (!clean || !window.TeamMockStore || typeof TeamMockStore.getAllTeams !== "function") {
+      return fallback;
+    }
+    var allTeams = TeamMockStore.getAllTeams();
+    var matched = [];
+    for (var i = 0; i < allTeams.length; i++) {
+      var team = allTeams[i] || {};
+      var members = Array.isArray(team.members) ? team.members : [];
+      for (var j = 0; j < members.length; j++) {
+        if (members[j] && members[j].mobile === clean) {
+          matched.push({
+            teamId: team.teamId,
+            teamName: team.teamName,
+            role: members[j].role
+          });
+          break;
+        }
+      }
+    }
+    return matched.length ? matched : fallback;
+  }
+
+  function _buildUserSnapshot(sourceUser, sessionData, mobile) {
+    var base = _clone(sourceUser || {});
+    var session = _clone(sessionData || {});
+    var clean = _normalizeMobile(mobile || session.mobile || base.mobile);
+    var roles = Array.isArray(session.roles) && session.roles.length
+      ? session.roles.slice()
+      : (Array.isArray(base.roles) ? base.roles.slice() : []);
+    var defaultRole = session.defaultRole || base.defaultRole || (roles[0] || null);
+    var teams = _getTeamsByMobile(clean, session.teams && session.teams.length ? session.teams : base.teams);
+    var currentTeamId = session.currentTeamId != null ? session.currentTeamId : (base.currentTeamId || null);
+    var currentTeam = null;
+    var i;
+
+    if (!currentTeamId && teams.length) {
+      currentTeamId = teams[0].teamId;
+    }
+
+    for (i = 0; i < teams.length; i++) {
+      if (teams[i] && teams[i].teamId === currentTeamId) {
+        currentTeam = teams[i];
+        break;
+      }
+    }
+
+    if (!currentTeam && teams.length) {
+      currentTeam = teams[0];
+      currentTeamId = currentTeam.teamId;
+    }
+
+    return {
+      mobile: clean,
+      userId: session.userId || base.userId || "",
+      name: _getDisplayName(clean, session.name || base.name || ""),
+      roles: roles,
+      defaultRole: defaultRole,
+      currentRole: session.currentRole || base.currentRole || defaultRole,
+      merchantId: session.merchantId || base.merchantId || "",
+      teams: teams,
+      currentTeamId: currentTeamId || null,
+      currentTeamName: currentTeam && currentTeam.teamName ? currentTeam.teamName : "",
+      currentTeamRole: currentTeam && currentTeam.role ? currentTeam.role : null
+    };
+  }
+
   // 预置 Mock 用户池（模拟后端数据）
   var MOCK_USERS = {
-    "13700005555": { name: "王老板", roles: ["buyer", "farmer"], defaultRole: "farmer", merchantId: "YLT202603001" },
-    "13800008888": { name: "张老板", roles: ["buyer"], defaultRole: "buyer", merchantId: "YLT202603002" },
-    "13900006666": { name: "李大姐", roles: ["farmer"], defaultRole: "farmer", merchantId: "YLT202603003" },
-    "13600001234": { name: "赵师傅", roles: ["farmer"], defaultRole: "farmer", merchantId: "YLT202603004" },
-    "13500009876": { name: "刘哥", roles: ["buyer", "farmer"], defaultRole: "farmer", merchantId: "YLT202603005" },
+    "13700005555": { userId: "U001", name: "王老板", roles: ["buyer", "farmer"], defaultRole: "farmer", merchantId: "YLT202603001", teams: [{ teamId: "T001", teamName: "张老板收购站", role: "owner" }], currentTeamId: "T001" },
+    "13800008888": { userId: "U002", name: "张老板", roles: ["buyer"], defaultRole: "buyer", merchantId: "YLT202603002", teams: [{ teamId: "T001", teamName: "张老板收购站", role: "manager" }], currentTeamId: "T001" },
+    "13900006666": { userId: "U005", name: "李大姐", roles: ["farmer"], defaultRole: "farmer", merchantId: "YLT202603003", teams: [], currentTeamId: null },
+    "13600001234": { userId: "U006", name: "赵师傅", roles: ["farmer"], defaultRole: "farmer", merchantId: "YLT202603004", teams: [], currentTeamId: null },
+    "13500009876": { userId: "U007", name: "刘哥", roles: ["buyer", "farmer"], defaultRole: "farmer", merchantId: "YLT202603005", teams: [], currentTeamId: null },
+    "13600001111": { userId: "U003", name: "小王", roles: ["buyer"], defaultRole: "buyer", merchantId: "YLT202603006", teams: [{ teamId: "T001", teamName: "张老板收购站", role: "operator" }, { teamId: "T002", teamName: "小王收购站", role: "owner" }], currentTeamId: "T002" },
   };
 
   // 全平台农户池（用于合作农户搜索，比当前用户的联系人更大）
@@ -2540,24 +3342,41 @@ function _toggleFab() {
   ];
 
   function getUserByMobile(mobile) {
-    if (!mobile) return null;
-    var clean = mobile.replace(/\s/g, "");
-    return MOCK_USERS[clean] || null;
+    var clean = _normalizeMobile(mobile);
+    if (!clean) return null;
+    var user = MOCK_USERS[clean];
+    if (!user) return null;
+    return _buildUserSnapshot(user, { mobile: clean, currentRole: user.defaultRole || null }, clean);
   }
 
   function login(mobile) {
-    var user = getUserByMobile(mobile);
+    var clean = _normalizeMobile(mobile);
+    var user = getUserByMobile(clean);
     if (!user) return null;
-    var session = { mobile: mobile.replace(/\s/g, ""), name: user.name, roles: user.roles, currentRole: user.defaultRole, merchantId: user.merchantId };
-    _storage().setItem(CURRENT_KEY, JSON.stringify(session));
-    return session;
+    var session = {
+      mobile: clean,
+      userId: user.userId || "",
+      name: user.name,
+      roles: user.roles,
+      defaultRole: user.defaultRole,
+      currentRole: user.defaultRole,
+      merchantId: user.merchantId,
+      teams: user.teams || [],
+      currentTeamId: user.currentTeamId || null
+    };
+    _writeJson(CURRENT_KEY, session);
+    try {
+      if (session.currentTeamId) _storage().setItem("ylt_user_current_team_v1", session.currentTeamId);
+      else _storage().removeItem("ylt_user_current_team_v1");
+    } catch (e) {}
+    return getCurrentUser();
   }
 
   function getCurrentUser() {
-    try {
-      var raw = _storage().getItem(CURRENT_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch (e) { return null; }
+    var session = _readJson(CURRENT_KEY);
+    if (!session) return null;
+    var base = MOCK_USERS[_normalizeMobile(session.mobile)] || session;
+    return _buildUserSnapshot(base, session, session.mobile);
   }
 
   function getCurrentRole() {
@@ -2569,6 +3388,24 @@ function _toggleFab() {
     var u = getCurrentUser();
     if (!u) return;
     u.currentRole = role;
+    if (u.teams && u.teams.length) {
+      var matched = null;
+      for (var i = 0; i < u.teams.length; i++) {
+        if (u.teams[i] && u.teams[i].teamId) {
+          matched = u.teams[i];
+          break;
+        }
+      }
+      u.currentTeamId = matched ? matched.teamId : null;
+      try {
+        _storage().setItem("ylt_user_current_team_v1", u.currentTeamId || "");
+      } catch (e) {}
+    } else {
+      u.currentTeamId = null;
+      try {
+        _storage().removeItem("ylt_user_current_team_v1");
+      } catch (e) {}
+    }
     _storage().setItem(CURRENT_KEY, JSON.stringify(u));
   }
 
@@ -2595,6 +3432,58 @@ function _toggleFab() {
     _storage().removeItem(CURRENT_KEY);
   }
 
+  function setDisplayName(mobile, name) {
+    var clean = _normalizeMobile(mobile);
+    var value = (name || "").replace(/\s+/g, " ").trim();
+    if (!clean || !value) return null;
+    var profiles = _readDisplayProfiles();
+    var next = profiles[clean] || {};
+    next.name = value;
+    profiles[clean] = next;
+    _writeDisplayProfiles(profiles);
+
+    var session = _readJson(CURRENT_KEY);
+    if (session && _normalizeMobile(session.mobile) === clean) {
+      session.name = value;
+      _writeJson(CURRENT_KEY, session);
+    }
+    return getUserByMobile(clean);
+  }
+
+  function listDemoUsers() {
+    return Object.keys(MOCK_USERS).map(function (mobile) {
+      var user = getUserByMobile(mobile) || {};
+      return {
+        mobile: mobile,
+        name: user.name || "",
+        roles: user.roles || [],
+        defaultRole: user.defaultRole || null,
+        merchantId: user.merchantId || "",
+        teams: user.teams || [],
+        currentTeamId: user.currentTeamId || null,
+        currentTeamName: user.currentTeamName || "",
+        currentTeamRole: user.currentTeamRole || null
+      };
+    });
+  }
+
+  function switchAccount(mobile, preferredRole) {
+    var user = getUserByMobile(mobile);
+    if (!user) return null;
+    var session = login(mobile);
+    if (!session) return null;
+    var nextRole = session.currentRole;
+    if (preferredRole && session.roles && session.roles.indexOf(preferredRole) >= 0) {
+      setCurrentRole(preferredRole);
+      nextRole = preferredRole;
+    }
+    return {
+      user: getCurrentUser(),
+      role: nextRole,
+      homeUrl: getHomeUrl(nextRole)
+    };
+  }
+
   function searchPlatformFarmers(keyword) {
     if (!keyword || keyword.length < 1) return [];
     var kw = keyword.toLowerCase();
@@ -2610,12 +3499,333 @@ function _toggleFab() {
     getCurrentUser: getCurrentUser,
     getCurrentRole: getCurrentRole,
     setCurrentRole: setCurrentRole,
+    setCurrentTeamId: function (teamId) {
+      var u = getCurrentUser();
+      if (!u) return;
+      u.currentTeamId = teamId || null;
+      try {
+        if (u.currentTeamId) _storage().setItem("ylt_user_current_team_v1", u.currentTeamId);
+        else _storage().removeItem("ylt_user_current_team_v1");
+      } catch (e) {}
+      _storage().setItem(CURRENT_KEY, JSON.stringify(u));
+    },
     hasMultipleRoles: hasMultipleRoles,
     getOtherRole: getOtherRole,
     getRoleLabel: getRoleLabel,
     getHomeUrl: getHomeUrl,
     logout: logout,
+    setDisplayName: setDisplayName,
+    getDisplayName: function (mobile) {
+      var user = getUserByMobile(mobile);
+      return user && user.name ? user.name : "";
+    },
+    listDemoUsers: listDemoUsers,
+    switchAccount: switchAccount,
     searchPlatformFarmers: searchPlatformFarmers,
     MOCK_USERS: MOCK_USERS,
+  };
+})();
+
+// ==================== 团队管理 Mock Store ====================
+(function () {
+  var STORAGE_KEY = 'ylt_teams_v1';
+  var USER_TEAM_KEY = 'ylt_user_current_team_v1';
+
+  var TEAM_ROLES = {
+    owner: { label: '超管', color: 'green', canManage: true, canPay: true, canSwitchRole: true },
+    manager: { label: '负责人', color: 'blue', canManage: true, canPay: true, canSwitchRole: false },
+    operator: { label: '开单员', color: 'gray', canManage: false, canPay: false, canSwitchRole: false },
+  };
+
+  var DEFAULT_TEAMS = [
+    {
+      teamId: 'T001',
+      teamName: '张老板收购站',
+      ownerId: 'U001',
+      ownerName: '张老板',
+      ownerMobile: '13700005555',
+      createdAt: '2026-03-01',
+      members: [
+        { userId: 'U001', name: '张老板', mobile: '13700005555', role: 'owner', joinedAt: '2026-03-01', lastActiveAt: '2026-04-14' },
+        { userId: 'U003', name: '小王', mobile: '13600001111', role: 'operator', joinedAt: '2026-04-01', lastActiveAt: '2026-04-13' },
+        { userId: 'U004', name: '老李', mobile: '13600002222', role: 'manager', joinedAt: '2026-04-05', lastActiveAt: '2026-04-12' },
+      ]
+    },
+    {
+      teamId: 'T002',
+      teamName: '小王收购站',
+      ownerId: 'U003',
+      ownerName: '小王',
+      ownerMobile: '13600001111',
+      createdAt: '2026-03-15',
+      members: [
+        { userId: 'U003', name: '小王', mobile: '13600001111', role: 'owner', joinedAt: '2026-03-15', lastActiveAt: '2026-04-14' },
+      ]
+    }
+  ];
+
+  function _storage() {
+    try { localStorage.setItem('_t', '1'); localStorage.removeItem('_t'); return localStorage; }
+    catch (e) { return sessionStorage; }
+  }
+
+  function cloneData(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  function readTeams() {
+    try {
+      var raw = _storage().getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) { /* ignore */ }
+    var init = cloneData(DEFAULT_TEAMS);
+    _storage().setItem(STORAGE_KEY, JSON.stringify(init));
+    return init;
+  }
+
+  function writeTeams(teams) {
+    _storage().setItem(STORAGE_KEY, JSON.stringify(teams));
+  }
+
+  function findTeamIndex(teams, teamId) {
+    for (var i = 0; i < teams.length; i++) {
+      if (teams[i].teamId === teamId) return i;
+    }
+    return -1;
+  }
+
+  function findMemberIndex(members, userId) {
+    for (var i = 0; i < members.length; i++) {
+      if (members[i].userId === userId) return i;
+    }
+    return -1;
+  }
+
+  function getCurrentTeamId() {
+    try {
+      return _storage().getItem(USER_TEAM_KEY) || null;
+    } catch (e) { return null; }
+  }
+
+  window.TeamMockStore = {
+    // Team CRUD
+    getTeam: function (teamId) {
+      var teams = readTeams();
+      var idx = findTeamIndex(teams, teamId);
+      return idx >= 0 ? cloneData(teams[idx]) : null;
+    },
+
+    getAllTeams: function () {
+      return cloneData(readTeams());
+    },
+
+    // User's teams
+    getTeamsForUser: function (userId) {
+      var teams = readTeams();
+      var result = [];
+      for (var t = 0; t < teams.length; t++) {
+        var members = teams[t].members;
+        for (var m = 0; m < members.length; m++) {
+          if (members[m].userId === userId) {
+            result.push({ teamId: teams[t].teamId, teamName: teams[t].teamName, role: members[m].role });
+            break;
+          }
+        }
+      }
+      return result;
+    },
+
+    getCurrentTeam: function () {
+      var tid = getCurrentTeamId();
+      if (!tid) return null;
+      return this.getTeam(tid);
+    },
+
+    switchTeam: function (teamId) {
+      _storage().setItem(USER_TEAM_KEY, teamId);
+    },
+
+    getCurrentRole: function () {
+      var team = this.getCurrentTeam();
+      if (!team) return null;
+      var user = window.UserIdentityStore ? window.UserIdentityStore.getCurrentUser() : null;
+      if (!user) return null;
+      var members = team.members;
+      for (var i = 0; i < members.length; i++) {
+        if (members[i].mobile === user.mobile) return members[i].role;
+      }
+      return null;
+    },
+
+    getRoleInfo: function (role) {
+      return TEAM_ROLES[role] || null;
+    },
+
+    // Member management
+    getMembers: function (teamId) {
+      var team = this.getTeam(teamId);
+      return team ? team.members : [];
+    },
+
+    addMember: function (teamId, member) {
+      var teams = readTeams();
+      var idx = findTeamIndex(teams, teamId);
+      if (idx < 0) return false;
+      var mIdx = findMemberIndex(teams[idx].members, member.userId);
+      if (mIdx >= 0) return false; // already exists
+      teams[idx].members.push(member);
+      writeTeams(teams);
+      return true;
+    },
+
+    removeMember: function (teamId, userId) {
+      var teams = readTeams();
+      var idx = findTeamIndex(teams, teamId);
+      if (idx < 0) return false;
+      var mIdx = findMemberIndex(teams[idx].members, userId);
+      if (mIdx < 0) return false;
+      if (teams[idx].members[mIdx].role === 'owner') return false; // cannot remove owner
+      teams[idx].members.splice(mIdx, 1);
+      writeTeams(teams);
+      return true;
+    },
+
+    updateMemberRole: function (teamId, userId, newRole) {
+      if (!TEAM_ROLES[newRole]) return false;
+      var teams = readTeams();
+      var idx = findTeamIndex(teams, teamId);
+      if (idx < 0) return false;
+      var mIdx = findMemberIndex(teams[idx].members, userId);
+      if (mIdx < 0) return false;
+      if (teams[idx].members[mIdx].role === 'owner') return false; // cannot change owner role
+      teams[idx].members[mIdx].role = newRole;
+      writeTeams(teams);
+      return true;
+    },
+
+    // Utilities
+    isOwnerOrManager: function () {
+      var role = this.getCurrentRole();
+      return role === 'owner' || role === 'manager';
+    },
+
+    canSelfPay: function () {
+      var role = this.getCurrentRole();
+      var info = TEAM_ROLES[role];
+      return info ? info.canPay : false;
+    },
+
+    clearTeams: function () {
+      _storage().removeItem(STORAGE_KEY);
+      _storage().removeItem(USER_TEAM_KEY);
+    },
+
+    TEAM_ROLES: TEAM_ROLES,
+  };
+})();
+
+// ==================== 附言管理数据中心 ====================
+(function () {
+  var STORAGE_KEY = 'ylt_buyer_remarks_v1';
+
+  function _storage() {
+    try { window.localStorage.setItem('_t', '1'); window.localStorage.removeItem('_t'); return window.localStorage; }
+    catch (e) { return window.sessionStorage; }
+  }
+
+  var DEFAULT_TEMPLATES = [
+    { id: 'rt01', name: '标准货款', template: '{商品名称}{重量}货款', isDefault: true, type: 'preset' },
+    { id: 'rt02', name: '带付款方', template: '{付款方}{商品名称}货款', isDefault: false, type: 'preset' },
+    { id: 'rt03', name: '带日期', template: '{日期}{商品名称}{重量}', isDefault: false, type: 'preset' },
+  ];
+
+  var DEFAULT_CUSTOM = [
+    { id: 'rc01', name: '尾款结算', template: '尾款结算', isDefault: false, type: 'custom' },
+  ];
+
+  function loadRemarks() {
+    var raw = _storage().getItem(STORAGE_KEY);
+    if (!raw) { var init = DEFAULT_TEMPLATES.concat(DEFAULT_CUSTOM); _storage().setItem(STORAGE_KEY, JSON.stringify(init)); return JSON.parse(JSON.stringify(init)); }
+    try { return JSON.parse(raw); } catch (e) { return []; }
+  }
+
+  function saveRemarks(list) {
+    _storage().setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+
+  function cloneData(d) { return JSON.parse(JSON.stringify(d)); }
+
+  window.RemarkMockStore = {
+    getRemarks: function () {
+      var all = loadRemarks();
+      var presets = all.filter(function (r) { return r.type === 'preset'; });
+      var customs = all.filter(function (r) { return r.type === 'custom'; });
+      return presets.concat(customs);
+    },
+
+    getDefaultRemark: function () {
+      var all = loadRemarks();
+      var def = all.find(function (r) { return r.isDefault; });
+      return def ? cloneData(def) : (all.length ? cloneData(all[0]) : null);
+    },
+
+    setDefaultRemark: function (id) {
+      var all = loadRemarks();
+      all.forEach(function (r) { r.isDefault = (r.id === id); });
+      saveRemarks(all);
+    },
+
+    addCustomRemark: function (name, template) {
+      var all = loadRemarks();
+      var newItem = { id: 'rc' + Date.now(), name: name, template: template || name, isDefault: false, type: 'custom' };
+      all.push(newItem);
+      saveRemarks(all);
+      return cloneData(newItem);
+    },
+
+    updateRemark: function (id, patch) {
+      var all = loadRemarks();
+      var idx = all.findIndex(function (r) { return r.id === id; });
+      if (idx < 0) return null;
+      if (patch.name !== undefined) all[idx].name = patch.name;
+      if (patch.template !== undefined) all[idx].template = patch.template;
+      saveRemarks(all);
+      return cloneData(all[idx]);
+    },
+
+    removeRemark: function (id) {
+      var all = loadRemarks();
+      var idx = all.findIndex(function (r) { return r.id === id; });
+      if (idx < 0) return false;
+      if (all[idx].type === 'preset') return false;
+      all.splice(idx, 1);
+      saveRemarks(all);
+      return true;
+    },
+
+    renderRemarkText: function (remarkOrId, order, payerName) {
+      var remark = remarkOrId;
+      if (typeof remarkOrId === 'string') {
+        var all = loadRemarks();
+        remark = all.find(function (r) { return r.id === remarkOrId; });
+      }
+      if (!remark || !remark.template) return '';
+      var tpl = remark.template;
+      var o = order || {};
+      var now = new Date();
+      var mm = String(now.getMonth() + 1).padStart(2, '0');
+      var dd = String(now.getDate()).padStart(2, '0');
+      tpl = tpl.replace(/\{商品名称\}/g, o.productName || '');
+      tpl = tpl.replace(/\{重量\}/g, (o.netWeight || 0) + (o.unit || '斤'));
+      tpl = tpl.replace(/\{付款方\}/g, payerName || o.clientName || '');
+      tpl = tpl.replace(/\{日期\}/g, mm + '-' + dd);
+      tpl = tpl.replace(/\{金额\}/g, String(o.amount || 0));
+      tpl = tpl.replace(/\{收款人\}/g, o.payeeName || '');
+      return tpl;
+    },
+
+    clearRemarks: function () {
+      _storage().removeItem(STORAGE_KEY);
+    },
   };
 })();

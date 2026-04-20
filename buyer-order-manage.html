@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 订单管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js?v=2"></script>
+    <style>
+        /* ========== Tab 页签 (Sliding Indicator) ========== */
+        .tab-container { 
+            position: relative; display: flex; 
+            border-bottom: 1px solid rgba(0,0,0,0.06); 
+            background: white; 
+        }
+        .tab-item {
+            flex: 1; text-align: center; padding: 14px 0;
+            font-size: 14px; font-weight: 500; color: #6B7280;
+            cursor: pointer; transition: color 0.3s ease; position: relative; z-index: 10;
+        }
+        .tab-item.active { color: #11A64A; font-weight: 600; }
+        
+        /* 滑动指示器 */
+        .tab-indicator {
+            position: absolute; bottom: 0; height: 3px; background: #11A64A;
+            border-radius: 3px 3px 0 0; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 33.333%; z-index: 20;
+        }
+        
+        .tab-badge {
+            display: inline-block; min-width: 18px; height: 18px; line-height: 18px;
+            padding: 0 5px; border-radius: 9px; font-size: 11px; font-weight: 600;
+            background: #F3F4F6; color: #6B7280; text-align: center; margin-left: 4px;
+            transition: all 0.3s ease;
+        }
+        .tab-item.active .tab-badge { background: #EBF7F0; color: #11A64A; }
+
+        /* ========== 搜索栏 ========== */
+        .search-row {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 16px 10px; background: white;
+        }
+        .sort-row {
+            position: relative;
+            padding: 1px 16px 2px;
+            background: #F7F8FA;
+        }
+        .toolbar-icon-btn {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: #F9FAFB; border: 1px solid #F3F4F6;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: all 0.15s ease;
+        }
+        .toolbar-icon-btn:active { transform: scale(0.97); background: #F3F4F6; }
+        .toolbar-icon-btn.active {
+            background: #EBF7F0; border-color: rgba(17,166,74,0.16); color: #11A64A;
+        }
+        .toolbar-icon-btn.active i { color: #11A64A !important; }
+        .sort-inline-trigger {
+            display: inline-flex; align-items: center; gap: 6px;
+            height: 22px; padding: 0;
+            background: transparent; border: 0; color: #6B7280;
+            font-size: 13px; font-weight: 500;
+            transition: all 0.15s ease;
+        }
+        .sort-inline-trigger:active {
+            transform: scale(0.98);
+        }
+        .sort-inline-trigger.open {
+            color: #11A64A;
+        }
+        .sort-inline-trigger.open .sort-caret {
+            transform: rotate(180deg);
+        }
+        .sort-caret {
+            transition: transform 0.15s ease;
+        }
+        .sort-menu {
+            position: absolute;
+            left: 0;
+            top: calc(100% - 2px);
+            min-width: 132px;
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.06);
+            background: #FFFFFF;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-4px);
+            transition: all 0.18s ease;
+            z-index: 80;
+        }
+        .sort-menu.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .sort-option-inline {
+            width: 100%;
+            height: 36px;
+            padding: 0 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #4B5563;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+        .sort-option-inline:active {
+            transform: scale(0.98);
+        }
+        .sort-option-inline.active {
+            background: #EBF7F0;
+            color: #11A64A;
+        }
+
+        /* ========== 订单卡片 ========== */
+        .order-card {
+            background: white; border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            overflow: hidden; transition: all 0.15s;
+            position: relative;
+        }
+        .order-card-frame { overflow: hidden; border-radius: 12px; }
+        .order-card:active { background: #FAFAFA; }
+        .order-main-card { padding: 12px 14px; }
+        /* 选中态 */
+        .order-card.selected { background: #F0FDF4; border-color: rgba(17,166,74,0.28); }
+        /* 行 1：标题 + 右上提示/金额 */
+        .order-title-row {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; margin-bottom: 8px;
+        }
+        .order-title {
+            font-size: 15px; font-weight: 700; color: #1F2937; line-height: 1.3;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .order-amount {
+            font-family: Poppins, sans-serif;
+            font-size: 19px; font-weight: 700; color: #11A64A;
+            white-space: nowrap; line-height: 1;
+        }
+        .order-miss-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 12px; font-weight: 600; color: #D97706; white-space: nowrap;
+        }
+        .order-miss-tag i { font-size: 10px; }
+
+        /* 行 2：核心数据（紧凑一行） */
+        .order-data-row {
+            display: flex; align-items: baseline; gap: 12px;
+            font-size: 13px; color: #6B7280; line-height: 1.4;
+            padding: 8px 0; border-top: 1px dashed #F3F4F6;
+        }
+        .order-data-item { display: inline-flex; align-items: baseline; gap: 4px; }
+        .order-data-label { font-size: 11px; color: #9CA3AF; }
+        .order-data-value { font-size: 13px; color: #1F2937; font-weight: 600; }
+        .order-data-value.miss { color: #D97706; font-weight: 600; }
+        .order-data-sep { color: #D1D5DB; font-size: 11px; }
+
+        /* 行 3：底部信息 + 操作 */
+        .order-footer-row {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; padding-top: 8px;
+            border-top: 1px solid #F3F4F6;
+            font-size: 12px; color: #6B7280;
+        }
+        .order-footer-info {
+            display: inline-flex; align-items: center; gap: 6px;
+            min-width: 0; flex: 1; overflow: hidden;
+        }
+        .order-footer-info i { color: #9CA3AF; font-size: 11px; flex-shrink: 0; }
+        .order-footer-info .payee {
+            font-weight: 500; color: #4B5563;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .order-footer-info .time { color: #9CA3AF; font-size: 11px; flex-shrink: 0; }
+        .order-footer-info .dot { color: #D1D5DB; font-size: 11px; flex-shrink: 0; }
+
+        /* 转交/来源信息（待结算 Tab） */
+        .order-status-row {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; padding-top: 8px;
+            border-top: 1px solid #F3F4F6;
+            font-size: 12px;
+        }
+        .order-status-info { display: inline-flex; align-items: center; gap: 6px; min-width: 0; flex: 1; }
+        .order-status-info i { font-size: 11px; flex-shrink: 0; }
+        .order-status-info.transfer-out i { color: #3B82F6; }
+        .order-status-info.transfer-in i { color: #F59E0B; }
+        .order-status-info .label {
+            color: #4B5563; font-weight: 500;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .order-status-info .name { color: #1F2937; font-weight: 600; }
+        .order-status-actions {
+            display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0;
+        }
+        .order-status-actions .order-enter-btn {
+            height: 28px; padding: 0 12px;
+            font-size: 12px;
+        }
+        .withdraw-btn {
+            height: 28px; padding: 0 12px; border-radius: 8px;
+            background: white; border: 1px solid #FCA5A5; color: #DC2626;
+            font-size: 12px; font-weight: 500; flex-shrink: 0;
+            transition: all 0.15s;
+        }
+        .withdraw-btn:active { background: #FEF2F2; transform: scale(0.97); }
+
+        /* 进入按钮（待开价 Tab 主操作） */
+        .order-enter-btn {
+            height: 30px; padding: 0 14px; border-radius: 8px;
+            background: #11A64A; color: white;
+            font-size: 12px; font-weight: 600; flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(17,166,74,0.18);
+        }
+        .order-enter-btn:active { transform: scale(0.97); }
+
+        /* 兼容旧样式（保留以防其他地方用到） */
+        .order-status-pill {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 4px 10px; border-radius: 999px;
+            font-size: 11px; font-weight: 600; white-space: nowrap; flex-shrink: 0;
+            background: #FFF7ED; border: 1px solid #FED7AA; color: #C56A10;
+        }
+        .order-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 14px; margin-top: 10px; }
+        .order-meta-item { min-width: 0; }
+        .order-meta-label { font-size: 11px; color: #9CA3AF; line-height: 1.2; }
+        .order-meta-value { font-size: 13px; color: #4B5563; line-height: 1.4; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .order-meta-value strong { font-weight: 600; color: #1F2937; }
+        .order-meta-value-missing { color: #D97706; font-weight: 600; }
+        .order-extra-grid {
+            margin-top: 10px; padding-top: 10px;
+            border-top: 1px dashed #E5E7EB;
+        }
+        .order-footer-label { font-size: 12px; color: #9CA3AF; }
+        .order-footer-value { font-size: 13px; color: #4B5563; }
+        .order-assist-row {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; margin-top: 12px; padding-top: 12px;
+            border-top: 1px solid #F3F4F6;
+        }
+        .order-assist-note { min-width: 0; }
+        .order-assist-note-title { font-size: 12px; color: #9CA3AF; }
+        .order-assist-note-value {
+            margin-top: 4px; font-size: 13px; font-weight: 600; color: #2563EB;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .danger-action-btn {
+            height: 38px; padding: 0 16px; border-radius: 12px;
+            background: #EF4444; color: white; font-size: 13px; font-weight: 600;
+            box-shadow: 0 4px 12px rgba(239,68,68,0.18);
+            flex-shrink: 0;
+        }
+        .danger-action-btn:active { transform: scale(0.97); }
+
+        /* ========== 勾选框 ========== */
+        .check-box {
+            width: 18px; height: 18px; border-radius: 5px;
+            border: 2px solid #D1D5DB; display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s; cursor: pointer; flex-shrink: 0;
+        }
+        .check-box.checked { border-color: #11A64A; background: #11A64A; }
+        .check-box.checked i { display: block; }
+        .check-box i { display: none; color: white; font-size: 9px; }
+
+        /* ========== 底部批量操作栏 ========== */
+        .batch-bar {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: white; border-top: 1px solid #F3F4F6;
+            padding: 10px 14px; z-index: 50;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+            transform: translateY(100%); opacity: 0;
+            transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
+        .batch-bar.show { transform: translateY(0); opacity: 1; }
+        .batch-select-trigger {
+            display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+            user-select: none; -webkit-tap-highlight-color: transparent;
+        }
+        .batch-select-trigger .check-box {
+            width: 18px; height: 18px; border-radius: 5px; border-width: 1.5px;
+        }
+        .batch-meta {
+            display: flex; flex-direction: column; gap: 2px;
+            color: #4B5563; font-size: 13px;
+        }
+        .batch-meta strong {
+            font-family: Poppins, sans-serif; font-weight: 700; color: #11A64A;
+        }
+        .batch-amount {
+            display: inline-flex; align-items: baseline; gap: 2px;
+            color: #1F2937; font-weight: 600;
+        }
+        .batch-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-shrink: 0; }
+        .batch-action-btn {
+            height: 40px; min-width: 84px; padding: 0 12px; border-radius: 13px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 600; white-space: nowrap;
+            transition: transform 0.15s;
+        }
+        .batch-action-btn:active { transform: scale(0.97); }
+        .batch-action-btn:disabled {
+            opacity: 0.45; transform: none; box-shadow: none; cursor: not-allowed;
+        }
+
+        /* ========== Toast ========== */
+        .toast-tip {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75); color: white; padding: 10px 22px;
+            border-radius: 16px; font-size: 13px; pointer-events: none;
+            opacity: 0; transition: opacity 0.3s; z-index: 600; white-space: nowrap;
+        }
+        .toast-tip.show { opacity: 1; }
+
+        /* ========== 弹窗 ========== */
+        .app-modal-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.45); z-index: 400;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.25s ease;
+        }
+        .app-modal-overlay.show { opacity: 1; visibility: visible; }
+        .app-modal {
+            background: #fff; border-radius: 16px; width: 300px;
+            padding: 24px 20px 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            transform: scale(0.9); transition: transform 0.25s ease;
+        }
+        .app-modal-overlay.show .app-modal { transform: scale(1); }
+
+        /* ========== 底部弹出面板 ========== */
+        .sheet-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 200;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .sheet-overlay.show { opacity: 1; pointer-events: auto; }
+        .sheet-panel {
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 201;
+            background: white; border-radius: 16px 16px 0 0;
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+            max-height: 70%; display: flex; flex-direction: column;
+        }
+        .sheet-panel.show { transform: translateY(0); }
+
+        /* ========== 状态标签 ========== */
+        .status-badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; white-space: nowrap; }
+
+        /* ========== 滑动删除 ========== */
+        .swipe-wrapper { position: relative; overflow: hidden; border-radius: 12px; }
+        .swipe-delete {
+            position: absolute; right: 0; top: 0; bottom: 0; width: 72px;
+            background: #EF4444; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 13px; font-weight: 500; cursor: pointer;
+            transform: translateX(100%); transition: transform 0.2s ease;
+        }
+        .swipe-wrapper.swiped .swipe-delete { transform: translateX(0); }
+        .swipe-content { position: relative; z-index: 1; background: white; transition: transform 0.2s ease; }
+        .swipe-wrapper.swiped .swipe-content { transform: translateX(-72px); }
+
+        .filter-option {
+            font-size: 12px; padding: 6px 12px; border-radius: 8px;
+            border: 1px solid #E5E7EB; background: white; color: #4B5563;
+            transition: all 0.2s ease; cursor: pointer;
+        }
+        .filter-option.active { background: #F0FDF4; border-color: #11A64A; color: #11A64A; font-weight: 500; }
+        .date-input {
+            flex: 1; height: 36px; padding: 0 12px; border: 1px solid #E5E7EB;
+            border-radius: 8px; font-size: 12px; color: #374151; background: white;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container" style="position:relative; overflow:hidden; display:flex; flex-direction:column;">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- Tab 切换 -->
+    <div class="shrink-0 sticky top-0 z-40 bg-white">
+        <div class="tab-container relative">
+            <div class="tab-item active" id="tabDraft" onclick="switchTab('draft')">挂单 <span class="tab-badge" id="countDraft">0</span></div>
+            <div class="tab-item" id="tabPendingPrice" onclick="switchTab('pending_price')">待开价 <span class="tab-badge" id="countPendingPrice">0</span></div>
+            <div class="tab-item" id="tabUnpaid" onclick="switchTab('unpaid')">待结算 <span class="tab-badge" id="countUnpaid">0</span></div>
+            <div class="tab-indicator" id="tabIndicator">
+                <div class="mx-auto w-10 h-full bg-[#11A64A] rounded-t-md"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索栏 -->
+    <div class="search-row shrink-0">
+        <div class="glass-card rounded-xl px-3 py-2.5 flex items-center gap-2 border border-gray-100 flex-1">
+            <i class="fas fa-search text-gray-400 text-sm"></i>
+            <input id="searchInput" type="text" placeholder="搜索品名或收款人" class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
+        </div>
+        <button id="filterBtn" class="toolbar-icon-btn" onclick="FilterPanel.open()">
+            <i class="fas fa-filter text-gray-500 text-sm"></i>
+        </button>
+    </div>
+
+    <div class="sort-row shrink-0">
+        <button id="sortTrigger" class="sort-inline-trigger" onclick="toggleSortMenu(event)">
+            <i class="fas fa-arrow-down-wide-short text-[11px]"></i>
+            <span id="sortTriggerText">最新优先</span>
+            <i class="fas fa-chevron-down text-[10px] sort-caret"></i>
+        </button>
+        <div id="sortMenu" class="sort-menu">
+            <button class="sort-option-inline active" data-sort="created_desc" onclick="SortMenu.select(event, 'created_desc')">
+                <span>最新优先</span>
+                <i class="fas fa-check text-[11px]"></i>
+            </button>
+            <button class="sort-option-inline" data-sort="created_asc" onclick="SortMenu.select(event, 'created_asc')">
+                <span>最早优先</span>
+                <i class="fas fa-check text-[11px] hidden"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 列表区域 -->
+    <div id="listArea" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-1.5 space-y-2.5" style="padding-bottom:86px;"></div>
+
+    <!-- 批量操作栏 -->
+    <div id="batchBar" class="batch-bar">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3 min-w-0">
+                <div id="batchSelectToggle" class="batch-select-trigger" onclick="toggleSelectAll()">
+                    <div id="batchSelectBox" class="check-box"><i class="fas fa-check"></i></div>
+                    <span class="text-[13px] font-medium text-gray-700">全选</span>
+                </div>
+                <div class="batch-meta min-w-0">
+                    <span>已选 <strong id="batchCount">0</strong> 笔</span>
+                    <span id="batchAmountWrap" class="batch-amount hidden">
+                        <span class="text-gray-400">合计</span>
+                        <span>¥<span id="batchAmount" style="font-family:Poppins;">0.00</span></span>
+                    </span>
+                </div>
+            </div>
+            <div class="batch-actions" id="batchBtns"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toastTip" class="toast-tip"></div>
+
+    <!-- 批量开价底部弹层 -->
+    <div class="sheet-overlay" id="priceModalOverlay" onclick="if(event.target===this)closePriceModal()"></div>
+    <div class="sheet-panel" id="priceSheet" style="max-height:none;">
+        <div class="flex justify-center pt-2 pb-1"><div class="w-10 h-1 bg-gray-300 rounded-full"></div></div>
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between shrink-0">
+            <div>
+                <div class="text-[16px] font-semibold text-gray-800">批量开价</div>
+                <div class="text-[13px] text-gray-500 mt-1">为选中的 <span id="priceModalCount">0</span> 笔订单统一设置单价</div>
+            </div>
+            <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="closePriceModal()">
+                <i class="fas fa-times text-gray-400 text-sm"></i>
+            </button>
+        </div>
+        <div class="px-4 py-4 space-y-4">
+            <div class="rounded-2xl border border-[#11A64A]/12 bg-[#F8FCF9] px-4 py-3">
+                <div class="text-[12px] text-gray-500 mb-2">统一单价</div>
+                <div class="flex items-center gap-3">
+                    <span class="text-[24px] font-bold text-gray-800" style="font-family:Poppins;">¥</span>
+                    <input id="priceInput" type="number" step="0.001" min="0" placeholder="请输入单价"
+                        class="flex-1 h-12 px-4 border border-gray-200 rounded-2xl text-[16px] text-gray-800 outline-none focus:border-primary transition-colors bg-white" style="font-family:Poppins;">
+                    <span class="text-[14px] font-medium text-gray-500">元/斤</span>
+                </div>
+            </div>
+        </div>
+        <div class="px-4 py-3 border-t border-gray-100 flex gap-3 shrink-0">
+            <button class="flex-1 h-11 rounded-2xl bg-gray-100 text-gray-600 text-[14px] font-medium" onclick="closePriceModal()">取消</button>
+            <button class="flex-1 h-11 rounded-2xl bg-primary text-white text-[14px] font-medium active:scale-[0.97] transition-transform" onclick="confirmBatchPrice()">确认开价</button>
+        </div>
+    </div>
+
+    <!-- 确认弹窗 -->
+    <div class="app-modal-overlay" id="confirmModalOverlay" onclick="if(event.target===this)closeConfirmModal()">
+        <div class="app-modal">
+            <div class="text-[15px] font-semibold text-gray-800 text-center mb-2" id="confirmTitle"></div>
+            <div class="text-[13px] text-gray-500 text-center mb-5 leading-relaxed" id="confirmMsg"></div>
+            <div class="flex gap-3">
+                <button class="flex-1 py-2.5 rounded-xl bg-gray-100 text-gray-600 text-[14px] font-medium" onclick="closeConfirmModal()">取消</button>
+                <button class="flex-1 py-2.5 rounded-xl bg-primary text-white text-[14px] font-medium active:scale-[0.97] transition-transform" id="confirmOkBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 客户选择面板 -->
+    <div class="sheet-overlay" id="clientSheetOverlay" onclick="closeClientSheet()"></div>
+    <div class="sheet-panel" id="clientSheet">
+        <div class="flex justify-center pt-2 pb-1"><div class="w-10 h-1 bg-gray-300 rounded-full"></div></div>
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between shrink-0">
+            <h3 class="text-[15px] font-semibold text-gray-800">选择客户</h3>
+            <button class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="closeClientSheet()">
+                <i class="fas fa-times text-gray-400 text-sm"></i>
+            </button>
+        </div>
+        <div class="px-4 pt-3 shrink-0">
+            <div class="glass-card rounded-xl px-3 py-2 flex items-center gap-2 border border-gray-100">
+                <i class="fas fa-search text-gray-400 text-xs"></i>
+                <input id="clientSearchInput" type="text" placeholder="搜索客户" class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400" oninput="renderClientList()">
+            </div>
+        </div>
+        <div id="clientList" class="flex-1 overflow-y-auto no-scrollbar px-4 py-3 space-y-2"></div>
+        <div class="px-4 py-3 border-t border-gray-100 shrink-0">
+            <button class="w-full py-3 rounded-2xl bg-primary text-white text-[14px] font-medium active:scale-[0.97] transition-transform disabled:opacity-50" id="clientConfirmBtn" disabled onclick="confirmClientTransfer()">确认转交</button>
+        </div>
+    </div>
+
+    <!-- 筛选面板 -->
+    <div class="sheet-overlay" id="filterOverlay" onclick="FilterPanel.close()"></div>
+    <div class="sheet-panel" id="filterSheet">
+        <div class="flex justify-center pt-2 pb-1"><div class="w-10 h-1 bg-gray-300 rounded-full"></div></div>
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between shrink-0">
+            <h3 class="text-[15px] font-semibold text-gray-800">筛选</h3>
+            <button class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="FilterPanel.close()">
+                <i class="fas fa-times text-gray-400 text-sm"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+            <div>
+                <div class="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 mb-2"><i class="far fa-calendar-alt text-gray-400 text-sm"></i><span>时间范围</span></div>
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-option active" data-type="time" data-value="all">全部</button>
+                    <button class="filter-option" data-type="time" data-value="today">今天</button>
+                    <button class="filter-option" data-type="time" data-value="week">近7天</button>
+                    <button class="filter-option" data-type="time" data-value="month">近30天</button>
+                    <button class="filter-option" data-type="time" data-value="custom">自定义</button>
+                </div>
+                <div id="customDateRange" class="mt-3 hidden flex items-center gap-2">
+                    <input type="date" id="startDate" class="date-input">
+                    <span class="text-gray-400">至</span>
+                    <input type="date" id="endDate" class="date-input">
+                </div>
+            </div>
+        </div>
+        <div class="px-4 py-3 border-t border-gray-100 flex gap-3 shrink-0">
+            <button class="flex-1 h-10 rounded-2xl border border-gray-200 text-[13px] font-medium text-gray-600 bg-white" onclick="FilterPanel.reset()">重置</button>
+            <button class="flex-1 h-10 rounded-2xl text-[13px] font-medium text-white bg-primary" onclick="FilterPanel.confirm()">确定</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ==================== 状态 & 常量 ====================
+const mockStore = window.BuyerMockStore || null;
+const clientStore = window.ClientMockStore || null;
+const urlQs = new URLSearchParams(window.location.search);
+const state = {
+    currentTab: urlQs.get('tab') || 'draft',
+    selectedIds: new Set(),
+    searchKeyword: '',
+    filterTimeRange: 'all',
+    filterStartDate: null,
+    filterEndDate: null,
+    sortOrder: 'created_desc',
+    selectedClientId: null,
+    swipedId: null,
+};
+
+// ==================== 初始化 ====================
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = `
+    <div class="flex items-center justify-between shrink-0 relative select-none z-[60]" style="height:44px;background:transparent;margin-top:8px;padding:0 15px;">
+        <div class="w-[120px] flex items-center">
+            <a href="buyer-home.html" class="nav-link w-8 h-8 flex items-center justify-center rounded-full active:bg-gray-100"><i class="fas fa-chevron-left text-gray-800 text-lg"></i></a>
+        </div>
+        <div class="absolute left-1/2 transform -translate-x-1/2 text-gray-800 font-medium text-[16px]" style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;">订单管理</div>
+        <div class="w-[120px] flex justify-end">
+            <a href="buyer-recycle.html" class="relative h-9 px-1 no-underline flex items-center gap-1.5 active:opacity-80" style="text-decoration:none;">
+                <i class="fas fa-trash-can text-gray-500 text-[12px]"></i>
+                <span class="text-[12px] text-gray-600 font-medium">回收站</span>
+                <span id="recycleBadge" class="absolute -top-1 -right-1 w-[16px] h-[16px] bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white" style="font-family:Poppins;display:none;">0</span>
+            </a>
+        </div>
+    </div>`;
+function updateRecycleBadge() {
+    var badge = document.getElementById('recycleBadge');
+    if (!badge || !mockStore || !mockStore.getRecycleCount) return;
+    var count = mockStore.getRecycleCount();
+    if (count > 0) { badge.textContent = count > 99 ? '99+' : count; badge.style.display = 'flex'; }
+    else { badge.style.display = 'none'; }
+}
+updateRecycleBadge();
+document.getElementById('searchInput').addEventListener('input', function() {
+    state.searchKeyword = this.value.trim();
+    renderCurrentTab();
+});
+renderSortState();
+
+// 初始化 tab
+if (['draft','pending_price','unpaid'].includes(state.currentTab)) {
+    switchTab(state.currentTab);
+} else {
+    switchTab('draft');
+}
+
+// ==================== Tab 切换 ====================
+function switchTab(tab) {
+    state.currentTab = tab;
+    state.selectedIds.clear();
+    state.swipedId = null;
+    document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+    document.getElementById({ draft: 'tabDraft', pending_price: 'tabPendingPrice', unpaid: 'tabUnpaid' }[tab]).classList.add('active');
+    
+    // 移动指示器
+    const indicator = document.getElementById('tabIndicator');
+    if (tab === 'draft') indicator.style.transform = 'translateX(0)';
+    else if (tab === 'pending_price') indicator.style.transform = 'translateX(100%)';
+    else if (tab === 'unpaid') indicator.style.transform = 'translateX(200%)';
+    
+    updateCounts();
+    renderCurrentTab();
+    updateBatchBar();
+}
+
+function updateCounts() {
+    if (!mockStore) return;
+    const counts = mockStore.getOrderCounts();
+    document.getElementById('countDraft').textContent = counts.draft || 0;
+    document.getElementById('countPendingPrice').textContent = counts.pending_price || 0;
+    document.getElementById('countUnpaid').textContent = (counts.unpaid || 0) + (counts.pending_client || 0);
+}
+
+// ==================== 数据获取 ====================
+function getTabOrders() {
+    if (!mockStore) return [];
+    let orders = [];
+    if (state.currentTab === 'unpaid') {
+        orders = [...mockStore.getOrdersByStatus('unpaid'), ...mockStore.getOrdersByStatus('pending_client')];
+    } else {
+        orders = mockStore.getOrdersByStatus(state.currentTab);
+    }
+    // 搜索过滤
+    if (state.searchKeyword) {
+        const kw = state.searchKeyword.toLowerCase();
+        orders = orders.filter(o => {
+            const name = (o.productName || o.summary || '').toLowerCase();
+            const payee = (o.payeeName || '').toLowerCase();
+            return name.includes(kw) || payee.includes(kw);
+        });
+    }
+    // 时间过滤
+    orders = applyTimeFilter(orders);
+    orders.sort((a, b) => {
+        const diff = new Date(b.createdAt) - new Date(a.createdAt);
+        return state.sortOrder === 'created_asc' ? -diff : diff;
+    });
+    return orders;
+}
+
+function applyTimeFilter(orders) {
+    const { filterTimeRange, filterStartDate, filterEndDate } = state;
+    if (filterTimeRange === 'all') return orders;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return orders.filter(o => {
+        const d = new Date(o.createdAt);
+        const day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        if (filterTimeRange === 'today') return day.getTime() === today.getTime();
+        if (filterTimeRange === 'week') return day >= new Date(today - 7*864e5);
+        if (filterTimeRange === 'month') return day >= new Date(today - 30*864e5);
+        if (filterTimeRange === 'custom' && filterStartDate && filterEndDate) {
+            const s = new Date(filterStartDate), e = new Date(filterEndDate); e.setHours(23,59,59,999);
+            return day >= s && day <= e;
+        }
+        return true;
+    });
+}
+
+function getCurrentSelectableIds() {
+    return getTabOrders().map(function(order) { return order.id; });
+}
+
+function isAllSelected() {
+    const ids = getCurrentSelectableIds();
+    if (!ids.length || state.currentTab === 'draft') return false;
+    return ids.every(function(id) { return state.selectedIds.has(id); });
+}
+
+// ==================== 渲染 ====================
+function smartTime(iso) {
+    if (!iso) return '';
+    const d = new Date(iso), now = new Date();
+    const h = String(d.getHours()).padStart(2,'0'), m = String(d.getMinutes()).padStart(2,'0');
+    const mo = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
+    const diff = Math.floor((now - d) / 864e5);
+    if (diff === 0) return `今天 ${h}:${m}`;
+    if (diff === 1) return `昨天 ${h}:${m}`;
+    if (now.getFullYear() === d.getFullYear()) return `${mo}-${dd} ${h}:${m}`;
+    return `${d.getFullYear()}-${mo}-${dd} ${h}:${m}`;
+}
+
+function fmt(v) { return Number(v||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtQty(v, unit) { return Number(v||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2}) + (unit || '斤'); }
+function fmtUnitPrice(v, unit) {
+    if (!Number(v || 0)) return '未填写';
+    return `¥${Number(v || 0).toFixed(2)}/${unit || '斤'}`;
+}
+function renderMissingValue(text) {
+    return `<span class="order-meta-value-missing">${text || '未填写'}</span>`;
+}
+function renderStatusPill(text) {
+    return `<span class="order-status-pill">${text}</span>`;
+}
+function renderOrderFooter(payee, createdAt) {
+    return `<div class="order-footer-row">
+        <div class="min-w-0">
+            <div class="order-footer-label">收款人</div>
+            <div class="order-footer-value">${payee}</div>
+        </div>
+        <div class="text-right">
+            <div class="order-footer-label">创建时间</div>
+            <div class="order-footer-value">${smartTime(createdAt)}</div>
+        </div>
+    </div>`;
+}
+function renderCompactMetrics(rows) {
+    return `<div class="order-meta-grid">${rows.map(function(row) {
+        return `<div class="order-meta-item"><div class="order-meta-label">${row.label}</div><div class="order-meta-value">${row.value}</div></div>`;
+    }).join('')}</div>`;
+}
+
+function renderCurrentTab() {
+    const orders = getTabOrders();
+    const area = document.getElementById('listArea');
+    if (orders.length === 0) {
+        state.selectedIds.clear();
+        area.innerHTML = renderEmpty();
+        updateBatchBar();
+        return;
+    }
+    if (state.currentTab === 'draft') area.innerHTML = orders.map(renderDraftCard).join('');
+    else if (state.currentTab === 'pending_price') area.innerHTML = orders.map(renderPriceCard).join('');
+    else area.innerHTML = orders.map(renderUnpaidCard).join('');
+    syncSelectedIdsToVisibleOrders();
+    updateBatchBar();
+}
+
+function renderEmpty() {
+    const cfg = {
+        draft: { title: '暂无挂单', desc: '开单时选择「挂单」可暂存未完成的单据' },
+        pending_price: { title: '暂无待开价订单', desc: '价格未定时选择「待开价」，后续统一定价' },
+        unpaid: { title: '暂无待结算订单', desc: '稍后结算和客户转来的订单会出现在这里' },
+    }[state.currentTab];
+    return `<div class="text-center pt-20">
+        <div class="w-12 h-1.5 rounded-full bg-gray-200/80 mx-auto mb-5"></div>
+        <div class="text-[14px] text-gray-500 font-medium">${cfg.title}</div>
+        <div class="text-[11px] text-gray-400 mt-1.5 px-8">${cfg.desc}</div>
+    </div>`;
+}
+
+// ---- 挂单卡片 ----
+function renderDraftCard(o) {
+    const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '商品';
+    const payee = o.payeeName || '李大姐';
+    const swiped = state.swipedId === o.id;
+    return `<div class="swipe-wrapper ${swiped?'swiped':''} mb-2.5" id="swipe-${o.id}">
+        <div class="swipe-content order-card order-main-card" onclick="goEditOrder('${o.id}','draft')">
+            <div class="order-title-row">
+                <span class="order-title">${name}</span>
+                <span class="order-miss-tag"><i class="fas fa-circle-exclamation"></i>缺皮重</span>
+            </div>
+            <div class="order-data-row">
+                <span class="order-data-item"><span class="order-data-label">毛重</span><span class="order-data-value">${fmtQty(o.grossWeight || 0, o.unit)}</span></span>
+                <span class="order-data-sep">|</span>
+                <span class="order-data-item"><span class="order-data-label">皮重</span><span class="order-data-value miss">待填写</span></span>
+            </div>
+            <div class="order-footer-row">
+                <div class="order-footer-info">
+                    <i class="fas fa-user"></i><span class="payee">${payee}</span>
+                    <span class="dot">·</span><span class="time">${smartTime(o.createdAt)}</span>
+                </div>
+                <button class="order-enter-btn" onclick="event.stopPropagation();goEditOrder('${o.id}','draft')">编辑</button>
+            </div>
+        </div>
+        <div class="swipe-delete" onclick="event.stopPropagation();deleteOrder('${o.id}')"><i class="fas fa-trash-can mr-1"></i>删除</div>
+    </div>`;
+}
+
+// ---- 待开价卡片 ----
+function renderPriceCard(o) {
+    const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '商品';
+    const payee = o.payeeName || '未选择';
+    const checked = state.selectedIds.has(o.id);
+    const swiped = state.swipedId === o.id;
+    return `<div class="swipe-wrapper ${swiped?'swiped':''} mb-2.5" id="swipe-${o.id}">
+        <div class="swipe-content order-card order-main-card ${checked?'selected':''}" onclick="toggleSelect('${o.id}')">
+        <div class="flex items-start gap-2.5">
+            <div class="check-box ${checked?'checked':''} mt-0.5"><i class="fas fa-check"></i></div>
+            <div class="flex-1 min-w-0">
+                <div class="order-title-row">
+                    <span class="order-title">${name}</span>
+                    <span class="order-miss-tag"><i class="fas fa-circle-exclamation"></i>缺单价</span>
+                </div>
+                <div class="order-data-row">
+                    <span class="order-data-item"><span class="order-data-label">净重</span><span class="order-data-value">${fmtQty(o.netWeight || 0, o.unit)}</span></span>
+                    <span class="order-data-sep">|</span>
+                    <span class="order-data-item"><span class="order-data-label">单价</span><span class="order-data-value miss">待填写</span></span>
+                </div>
+                <div class="order-footer-row">
+                    <div class="order-footer-info">
+                        <i class="fas fa-user"></i><span class="payee">${payee}</span>
+                        <span class="dot">·</span><span class="time">${smartTime(o.createdAt)}</span>
+                    </div>
+                    <button class="order-enter-btn" onclick="event.stopPropagation();goEditOrder('${o.id}','pending_price')">补价</button>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="swipe-delete" onclick="event.stopPropagation();deleteOrder('${o.id}')"><i class="fas fa-trash-can mr-1"></i>删除</div>
+    </div>`;
+}
+
+// ---- 待结算卡片 ----
+function renderUnpaidCard(o) {
+    const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '商品';
+    const payee = o.payeeName || '未选择';
+    const checked = state.selectedIds.has(o.id);
+    const isPendingClient = o.status === 'pending_client';
+    const isFromClient = !!o.fromClientName;
+    const swiped = state.swipedId === o.id;
+
+    let statusRow = '';
+    if (isPendingClient && o.clientName) {
+        statusRow = `<div class="order-status-row">
+            <div class="order-status-info transfer-out">
+                <i class="fas fa-paper-plane"></i>
+                <span class="label">已转给 <span class="name">${o.clientName}</span></span>
+            </div>
+            <div class="order-status-actions">
+                <button class="order-enter-btn" onclick="event.stopPropagation();goEditOrder('${o.id}','unpaid')">详情</button>
+                <button class="withdraw-btn" onclick="event.stopPropagation();doWithdraw('${o.id}')">撤回</button>
+            </div>
+        </div>`;
+    } else if (isFromClient) {
+        statusRow = `<div class="order-status-row">
+            <div class="order-status-info transfer-in">
+                <i class="fas fa-inbox"></i>
+                <span class="label"><span class="name">${o.fromClientName}</span> 转来</span>
+            </div>
+        </div>`;
+    }
+
+    // pending_client 不能直接删除（需先撤回）
+    const canDelete = !isPendingClient;
+    const deleteBtn = canDelete
+        ? `<div class="swipe-delete" onclick="event.stopPropagation();deleteOrder('${o.id}')"><i class="fas fa-trash-can mr-1"></i>删除</div>`
+        : `<div class="swipe-delete" style="background:#6B7280;" onclick="event.stopPropagation();showToast('请先撤回再删除')"><i class="fas fa-ban mr-1"></i>需撤回</div>`;
+
+    return `<div class="swipe-wrapper ${swiped?'swiped':''} mb-2.5" id="swipe-${o.id}">
+        <div class="swipe-content order-card order-main-card ${checked?'selected':''}" onclick="toggleSelect('${o.id}')">
+        <div class="flex items-start gap-2.5">
+            <div class="check-box ${checked?'checked':''} mt-0.5"><i class="fas fa-check"></i></div>
+            <div class="flex-1 min-w-0">
+                <div class="order-title-row">
+                    <span class="order-title">${name}</span>
+                    <span class="order-amount">¥${fmt(o.amount)}</span>
+                </div>
+                <div class="order-data-row">
+                    <span class="order-data-item"><span class="order-data-label">净重</span><span class="order-data-value">${fmtQty(o.netWeight || 0, o.unit)}</span></span>
+                    <span class="order-data-sep">×</span>
+                    <span class="order-data-item"><span class="order-data-label">单价</span><span class="order-data-value">${fmtUnitPrice(o.unitPrice, o.unit)}</span></span>
+                </div>
+                <div class="order-footer-row">
+                    <div class="order-footer-info">
+                        <i class="fas fa-user"></i><span class="payee">${payee}</span>
+                        <span class="dot">·</span><span class="time">${smartTime(o.createdAt)}</span>
+                    </div>
+                    ${isPendingClient ? '' : `<button class="order-enter-btn" onclick="event.stopPropagation();goEditOrder('${o.id}','unpaid')">详情</button>`}
+                </div>
+                ${statusRow}
+            </div>
+        </div>
+        </div>
+        ${deleteBtn}
+    </div>`;
+}
+
+// ==================== 选择 & 批量操作 ====================
+function toggleSelect(id) {
+    if (state.selectedIds.has(id)) state.selectedIds.delete(id);
+    else state.selectedIds.add(id);
+    renderCurrentTab();
+    updateBatchBar();
+}
+
+function toggleSelectAll() {
+    if (state.currentTab === 'draft') return;
+    const ids = getCurrentSelectableIds();
+    if (!ids.length) return;
+    const shouldSelectAll = !isAllSelected();
+    ids.forEach(function(id) {
+        if (shouldSelectAll) state.selectedIds.add(id);
+        else state.selectedIds.delete(id);
+    });
+    renderCurrentTab();
+    updateBatchBar();
+}
+
+function syncSelectedIdsToVisibleOrders() {
+    const visibleIds = new Set(getCurrentSelectableIds());
+    [...state.selectedIds].forEach(function(id) {
+        if (!visibleIds.has(id)) state.selectedIds.delete(id);
+    });
+}
+
+function updateBatchBar() {
+    const bar = document.getElementById('batchBar');
+    const selectBox = document.getElementById('batchSelectBox');
+    const count = state.selectedIds.size;
+    const currentOrders = getTabOrders();
+    if (state.currentTab === 'draft' || currentOrders.length === 0) {
+        bar.classList.remove('show');
+        selectBox.classList.remove('checked');
+        return;
+    }
+    bar.classList.add('show');
+    document.getElementById('batchCount').textContent = count;
+    selectBox.classList.toggle('checked', isAllSelected());
+
+    const btnsEl = document.getElementById('batchBtns');
+    const amountWrap = document.getElementById('batchAmountWrap');
+
+    if (state.currentTab === 'pending_price') {
+        amountWrap.classList.add('hidden');
+        btnsEl.innerHTML = `<button class="batch-action-btn bg-primary text-white shadow-glow" ${count === 0 ? 'disabled' : ''} onclick="openPriceModal()">批量开价</button>`;
+    } else {
+        // 待结算 tab
+        const orders = getTabOrders().filter(o => state.selectedIds.has(o.id));
+        const total = orders.reduce((s,o) => s + (o.amount||0), 0);
+        amountWrap.classList.remove('hidden');
+        document.getElementById('batchAmount').textContent = fmt(total);
+        btnsEl.innerHTML = `
+            <button class="batch-action-btn bg-white border border-primary text-primary" ${count === 0 ? 'disabled' : ''} onclick="openClientSheet()">转给客户</button>
+            <button class="batch-action-btn bg-primary text-white shadow-glow" ${count === 0 ? 'disabled' : ''} onclick="goMergePay()">合并付款</button>`;
+    }
+}
+
+// ==================== 批量开价弹窗 ====================
+function openPriceModal() {
+    document.getElementById('priceModalCount').textContent = state.selectedIds.size;
+    document.getElementById('priceInput').value = '';
+    document.getElementById('priceModalOverlay').classList.add('show');
+    document.getElementById('priceSheet').classList.add('show');
+    setTimeout(() => document.getElementById('priceInput').focus(), 300);
+}
+function closePriceModal() {
+    document.getElementById('priceModalOverlay').classList.remove('show');
+    document.getElementById('priceSheet').classList.remove('show');
+}
+
+function confirmBatchPrice() {
+    const price = parseFloat(document.getElementById('priceInput').value);
+    if (!price || price <= 0) { showToast('请输入有效单价'); return; }
+    const ids = [...state.selectedIds];
+    if (mockStore) mockStore.batchUpdatePrice(ids, price);
+    closePriceModal();
+    showToast(`${ids.length} 笔订单已开价`);
+    state.selectedIds.clear();
+    setTimeout(() => switchTab('unpaid'), 400);
+}
+
+// ==================== 客户选择面板 ====================
+function openClientSheet() {
+    state.selectedClientId = null;
+    document.getElementById('clientSearchInput').value = '';
+    document.getElementById('clientSheetOverlay').classList.add('show');
+    document.getElementById('clientSheet').classList.add('show');
+    document.getElementById('clientConfirmBtn').disabled = true;
+    renderClientList();
+}
+function closeClientSheet() {
+    document.getElementById('clientSheetOverlay').classList.remove('show');
+    document.getElementById('clientSheet').classList.remove('show');
+}
+
+function renderClientList() {
+    const kw = (document.getElementById('clientSearchInput').value || '').trim().toLowerCase();
+    let clients = clientStore ? clientStore.getClients() : [];
+    if (kw) clients = clients.filter(c => (c.name||'').toLowerCase().includes(kw) || (c.mobile||'').includes(kw) || (c.org||'').toLowerCase().includes(kw));
+    const el = document.getElementById('clientList');
+    if (!clients.length) { el.innerHTML = '<div class="text-center text-[13px] text-gray-400 pt-8">暂无客户</div>'; return; }
+    el.innerHTML = clients.map(c => {
+        const sel = state.selectedClientId === c.id;
+        return `<div class="glass-card rounded-xl p-3 flex items-center gap-3 cursor-pointer ${sel?'border-primary/30 bg-green-50/50':''}" onclick="pickClient('${c.id}')">
+            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                <i class="fas fa-building text-blue-500 text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="text-[14px] font-semibold text-gray-800">${c.name}</div>
+                <div class="text-[12px] text-gray-500">${c.org || c.mobile || ''}</div>
+            </div>
+            <div class="w-5 h-5 rounded-full border-2 ${sel?'border-primary bg-primary':'border-gray-300'} flex items-center justify-center">
+                ${sel?'<i class="fas fa-check text-white text-[9px]"></i>':''}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function pickClient(id) {
+    state.selectedClientId = id;
+    document.getElementById('clientConfirmBtn').disabled = false;
+    renderClientList();
+}
+
+function confirmClientTransfer() {
+    if (!state.selectedClientId) return;
+    const client = clientStore ? clientStore.findClientById(state.selectedClientId) : null;
+    if (!client) { showToast('客户不存在'); return; }
+    const ids = [...state.selectedIds];
+    ids.forEach(id => { if (mockStore) mockStore.transferToClient(id, client.id, client.name, client.mobile); });
+    closeClientSheet();
+    showToast(`${ids.length} 笔订单已转给 ${client.name}`);
+    state.selectedIds.clear();
+    updateCounts();
+    renderCurrentTab();
+    updateBatchBar();
+}
+
+// ==================== 撤回 ====================
+function doWithdraw(orderId) {
+    document.getElementById('confirmTitle').textContent = '撤回确认';
+    document.getElementById('confirmMsg').textContent = '撤回后该订单将回到待结算状态，确定撤回吗？';
+    document.getElementById('confirmOkBtn').onclick = function() {
+        if (mockStore) mockStore.withdrawFromClient(orderId);
+        closeConfirmModal();
+        showToast('已撤回');
+        updateCounts();
+        renderCurrentTab();
+    };
+    document.getElementById('confirmModalOverlay').classList.add('show');
+}
+function closeConfirmModal() { document.getElementById('confirmModalOverlay').classList.remove('show'); }
+
+// ==================== 删除挂单 ====================
+function deleteDraft(orderId) { deleteOrder(orderId); }
+function deleteOrder(orderId) {
+    document.getElementById('confirmTitle').textContent = '删除订单';
+    document.getElementById('confirmMsg').textContent = '删除后将移入回收站（30天内可恢复），确定删除吗？';
+    document.getElementById('confirmOkBtn').onclick = function() {
+        if (mockStore && mockStore.softDeleteOrder) mockStore.softDeleteOrder(orderId);
+        closeConfirmModal();
+        state.swipedId = null;
+        state.selectedIds.delete(orderId);
+        showToast('已移入回收站');
+        updateCounts();
+        renderCurrentTab();
+        updateRecycleBadge();
+    };
+    document.getElementById('confirmModalOverlay').classList.add('show');
+}
+
+// ==================== 滑动删除（兼容触摸+鼠标） ====================
+let touchStartX = 0, touchStartY = 0, touchTarget = null, isDragging = false;
+
+function swipeStart(x, y, e) {
+    const card = e.target.closest('.swipe-wrapper');
+    if (!card) return;
+    touchTarget = card;
+    touchStartX = x;
+    touchStartY = y;
+    isDragging = false;
+}
+function swipeMove(x, y, e) {
+    if (!touchTarget) return;
+    const dx = x - touchStartX;
+    const dy = y - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && dx < -30) {
+        if (e.preventDefault) e.preventDefault();
+        isDragging = true;
+        const id = touchTarget.id.replace('swipe-','');
+        if (state.swipedId !== id) { state.swipedId = id; renderCurrentTab(); }
+    }
+}
+function swipeEnd() {
+    touchTarget = null;
+    isDragging = false;
+}
+
+// Touch events (mobile)
+document.addEventListener('touchstart', function(e) { swipeStart(e.touches[0].clientX, e.touches[0].clientY, e); }, { passive: true });
+document.addEventListener('touchmove', function(e) { swipeMove(e.touches[0].clientX, e.touches[0].clientY, e); }, { passive: false });
+document.addEventListener('touchend', swipeEnd, { passive: true });
+
+// Mouse events (desktop)
+document.addEventListener('mousedown', function(e) { swipeStart(e.clientX, e.clientY, e); });
+document.addEventListener('mousemove', function(e) { if (touchTarget) swipeMove(e.clientX, e.clientY, e); });
+document.addEventListener('mouseup', swipeEnd);
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.swipe-delete') && !e.target.closest('.swipe-content') && state.swipedId) {
+        state.swipedId = null;
+        renderCurrentTab();
+    }
+});
+
+// ==================== 导航 ====================
+function goEditOrder(orderId, backTab) {
+    const back = backTab || 'draft';
+    window.location.href = `buyer-order-edit.html?orderNo=${orderId}&back=${encodeURIComponent('buyer-order-manage.html?tab=' + back)}`;
+}
+function goEditDraft(orderId) { goEditOrder(orderId, 'draft'); }
+function goOrderDetail(orderId, mode) {
+    let back = 'unpaid';
+    if (mode === 'price') back = 'pending_price';
+    window.location.href = `buyer-order-edit.html?orderNo=${orderId}&back=${encodeURIComponent('buyer-order-manage.html?tab=' + back)}`;
+}
+function goMergePay() {
+    const ids = [...state.selectedIds];
+    window.location.href = `buyer-bank-merge-h5.html?orderIds=${ids.join(',')}`;
+}
+
+// ==================== 筛选面板 ====================
+const FilterPanel = {
+    open() {
+        SortMenu.close();
+        document.getElementById('filterOverlay').classList.add('show');
+        document.getElementById('filterSheet').classList.add('show');
+    },
+    close() {
+        document.getElementById('filterOverlay').classList.remove('show');
+        document.getElementById('filterSheet').classList.remove('show');
+    },
+    reset() {
+        state.filterTimeRange = 'all';
+        state.filterStartDate = null;
+        state.filterEndDate = null;
+        document.querySelectorAll('#filterSheet .filter-option').forEach(b => b.classList.toggle('active', b.dataset.value === 'all'));
+        document.getElementById('customDateRange').classList.add('hidden');
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+    },
+    confirm() {
+        if (state.filterTimeRange === 'custom') {
+            state.filterStartDate = document.getElementById('startDate').value;
+            state.filterEndDate = document.getElementById('endDate').value;
+        }
+        this.close();
+        renderCurrentTab();
+    }
+};
+const SortMenu = {
+    open() {
+        document.getElementById('sortMenu').classList.add('show');
+        document.getElementById('sortTrigger').classList.add('open');
+    },
+    close() {
+        document.getElementById('sortMenu').classList.remove('show');
+        document.getElementById('sortTrigger').classList.remove('open');
+    },
+    toggle() {
+        const menu = document.getElementById('sortMenu');
+        if (menu.classList.contains('show')) this.close();
+        else this.open();
+    },
+    select(event, sortOrder) {
+        event.stopPropagation();
+        state.sortOrder = sortOrder;
+        renderSortState();
+        SortMenu.close();
+        renderCurrentTab();
+    }
+};
+function toggleSortMenu(event) {
+    event.stopPropagation();
+    SortMenu.toggle();
+}
+function renderSortState() {
+    document.querySelectorAll('#sortMenu .sort-option-inline').forEach(function(option) {
+        const active = option.dataset.sort === state.sortOrder;
+        option.classList.toggle('active', active);
+        const icon = option.querySelector('i');
+        if (icon) icon.classList.toggle('hidden', !active);
+    });
+    const triggerText = document.getElementById('sortTriggerText');
+    if (triggerText) triggerText.textContent = state.sortOrder === 'created_asc' ? '最早优先' : '最新优先';
+}
+document.addEventListener('click', function(event) {
+    const wrap = event.target.closest('.sort-row');
+    if (!wrap) SortMenu.close();
+});
+document.querySelectorAll('#filterSheet .filter-option').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll(`#filterSheet [data-type="${this.dataset.type}"]`).forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        state.filterTimeRange = this.dataset.value;
+        document.getElementById('customDateRange').classList.toggle('hidden', this.dataset.value !== 'custom');
+    });
+});
+
+// ==================== Toast ====================
+function showToast(msg) {
+    const t = document.getElementById('toastTip');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => t.classList.remove('show'), 1800);
+}
+</script>
+</body>
+</html>
