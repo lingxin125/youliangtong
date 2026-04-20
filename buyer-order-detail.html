@@ -10,24 +10,71 @@
     <script src="shared.js"></script>
     <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
-        .detail-table { width: 100%; border-collapse: collapse; }
-        .detail-table th {
-            font-size: 10px;
+        .product-info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .product-info-card {
+            border-radius: 16px;
+            border: 1px solid rgba(15, 23, 42, 0.06);
+            background: #F8FAFC;
+            padding: 14px 16px;
+        }
+        .product-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            padding-bottom: 10px;
+            margin-bottom: 2px;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+        }
+        .product-info-title {
+            font-size: 11px;
             color: #9CA3AF;
-            font-weight: 500;
-            padding: 6px 0;
-            text-align: left;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+            padding-top: 2px;
         }
-        .detail-table th:last-child,
-        .detail-table td:last-child { text-align: right; }
-        .detail-table td {
+        .product-info-name {
+            font-size: 14px;
+            color: #1F2937;
+            font-weight: 600;
+            line-height: 1.5;
+            text-align: right;
+            word-break: break-word;
+        }
+        .product-field-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+        }
+        .product-field-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .product-field-row.remark-row {
+            align-items: flex-start;
+        }
+        .product-field-label {
             font-size: 12px;
-            color: #374151;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+            color: #9CA3AF;
+            flex-shrink: 0;
         }
-        .detail-table tr:last-child td { border-bottom: none; }
+        .product-field-value {
+            font-size: 13px;
+            color: #374151;
+            font-weight: 500;
+            text-align: right;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .product-field-value.remark-value {
+            max-width: 72%;
+        }
 
         .info-row {
             display: flex;
@@ -83,6 +130,43 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        .price-input-wrap {
+            display: flex;
+            align-items: center;
+            border: 2px solid #11A64A;
+            border-radius: 12px;
+            padding: 10px 16px;
+            background: #fff;
+        }
+        .price-input-wrap .prefix { font-size: 18px; font-weight: 700; color: #374151; margin-right: 4px; }
+        .price-input-wrap input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 18px;
+            font-weight: 700;
+            color: #374151;
+            background: transparent;
+            min-width: 0;
+        }
+        .price-input-wrap .suffix { font-size: 13px; color: #9CA3AF; margin-left: 4px; }
+
+        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .photo-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; cursor: pointer; }
+
+        .lightbox-overlay {
+            position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.85);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+        .lightbox-overlay.show { opacity: 1; pointer-events: auto; }
+        .lightbox-overlay img { max-width: 92%; max-height: 80vh; border-radius: 12px; }
+        .transfer-info {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 14px; border-radius: 12px;
+            background: #EFF6FF; color: #2563EB; font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -108,7 +192,7 @@
             </div>
         </div>
 
-        <!-- 卡片2：订单信息 + 收款方 + 付款方 + 商品明细 -->
+        <!-- 卡片2：订单信息 + 收款方 + 付款方 + 商品信息 -->
         <div class="glass-panel rounded-2xl p-4">
             <!-- 订单信息 -->
             <div class="section-title" style="padding-top:0;border-top:none;">
@@ -138,10 +222,6 @@
                 <span>收款方信息</span>
             </div>
             <div class="info-row">
-                <span class="info-label">商户名称</span>
-                <span id="payeeCompanyText" class="info-value"></span>
-            </div>
-            <div class="info-row">
                 <span class="info-label">收款方</span>
                 <span id="payeeNameText" class="info-value"></span>
             </div>
@@ -160,10 +240,6 @@
                 <span>付款方信息</span>
             </div>
             <div class="info-row">
-                <span class="info-label">商户名称</span>
-                <span id="payerCompanyText" class="info-value"></span>
-            </div>
-            <div class="info-row">
                 <span class="info-label">付款方</span>
                 <span id="payerNameText" class="info-value"></span>
             </div>
@@ -176,31 +252,42 @@
                 <span id="payerCardText" class="info-value"></span>
             </div>
 
-            <!-- 商品明细 -->
+            <!-- 商品信息 -->
             <div class="section-title" style="margin-top:16px;">
                 <div class="section-dot"></div>
-                <span>商品明细</span>
+                <span>商品信息</span>
             </div>
-            <table class="detail-table mb-3">
-                <thead>
-                    <tr>
-                        <th>商品名称</th>
-                        <th>单价</th>
-                        <th>总重量</th>
-                        <th>小计</th>
-                    </tr>
-                </thead>
-                <tbody id="itemBody"></tbody>
-            </table>
-            <div class="flex items-center justify-between py-3 border-t border-gray-100 bg-gray-50/50 -mx-4 px-4 -mb-4 rounded-b-2xl">
+            <div id="productCardList" class="product-info-list"></div>
+            <div class="flex items-center justify-between py-3 border-t border-gray-100 bg-gray-50/50 -mx-4 px-4 -mb-4 mt-3 rounded-b-2xl">
                 <span id="itemCountText" class="text-xs text-gray-500 font-medium">合计（0项商品）</span>
                 <span id="itemTotalText" class="text-base font-bold text-primary" style="font-family:Poppins;">¥ 0.00</span>
             </div>
+        </div>
+
+        <!-- 卡片3：拍照留存 -->
+        <div id="photosCard" class="glass-panel rounded-2xl p-4 mb-3" style="display:none;">
+            <div class="section-title" style="padding-top:0;border-top:none;">
+                <div class="section-dot"></div>
+                <span id="photosTitle">拍照留存</span>
+            </div>
+            <div id="photoGrid" class="photo-grid"></div>
+        </div>
+
+        <!-- 转交信息 -->
+        <div id="transferCard" class="glass-panel rounded-2xl p-4 mb-3" style="display:none;">
+            <div class="section-title" style="padding-top:0;border-top:none;">
+                <div class="section-dot"></div>
+                <span>转交信息</span>
+            </div>
+            <div id="transferInfo"></div>
         </div>
     </div>
 
     <div id="bottomActions" class="absolute bottom-0 left-0 right-0 px-4 py-4 bg-gradient-to-t from-white via-white to-transparent"></div>
     <div id="toastTip" class="toast-tip"></div>
+    <div id="lightbox" class="lightbox-overlay" onclick="closeLightbox()">
+        <img id="lightboxImg" src="" alt="预览">
+    </div>
 </div>
 
 <script>
@@ -215,6 +302,7 @@ const queryGrainOrderNo = params.get('grainOrderNo') || queryOrderNo;
 const orderFromStore = (mockStore && queryGrainOrderNo && typeof mockStore.findOrderById === 'function')
     ? mockStore.findOrderById(queryGrainOrderNo)
     : null;
+const isPriceMode = params.get('mode') === 'price';
 const state = {
     status: normalizeStatus(params.get('status')) || normalizeStatus(orderFromStore && orderFromStore.status) || 'success',
     grainOrderNo: queryGrainOrderNo || (orderFromStore && orderFromStore.id) || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
@@ -237,7 +325,27 @@ const state = {
     bankFlowNo: params.get('bankFlowNo') || params.get('bankOrderNo') || (orderFromStore && (orderFromStore.bankFlowNo || orderFromStore.bankOrderNo)) || '',
     cancelSource: params.get('cancelSource') || (orderFromStore && orderFromStore.cancelSource) || '',
     items: parseItems(params.get('items') || JSON.stringify(orderFromStore && orderFromStore.items || [])),
-    source: params.get('source') || 'orders'
+    photosFromQuery: parseItems(params.get('photos')),
+    source: params.get('source') || 'orders',
+    // Phase 3 new fields
+    productName: (orderFromStore && orderFromStore.productName) || '',
+    categoryPrimary: (orderFromStore && orderFromStore.categoryPrimary) || '',
+    categorySecondary: (orderFromStore && orderFromStore.categorySecondary) || '',
+    grossWeight: parseFloat(orderFromStore && orderFromStore.grossWeight) || 0,
+    tareWeight: parseFloat(orderFromStore && orderFromStore.tareWeight) || 0,
+    tareWeightRaw: orderFromStore && orderFromStore.tareWeightRaw !== undefined ? String(orderFromStore.tareWeightRaw ?? '') : '',
+    deduction: parseFloat(orderFromStore && orderFromStore.deduction) || 0,
+    deductRatioRaw: orderFromStore && orderFromStore.deductRatioRaw !== undefined ? String(orderFromStore.deductRatioRaw ?? '') : '',
+    netWeight: parseFloat(orderFromStore && orderFromStore.netWeight) || 0,
+    unitPrice: parseFloat(orderFromStore && orderFromStore.unitPrice) || 0,
+    unitPriceRaw: orderFromStore && orderFromStore.unitPriceRaw !== undefined ? String(orderFromStore.unitPriceRaw ?? '') : '',
+    unit: (orderFromStore && orderFromStore.unit) || '斤',
+    photos: (orderFromStore && orderFromStore.photos) || [],
+    clientId: (orderFromStore && orderFromStore.clientId) || '',
+    clientName: (orderFromStore && orderFromStore.clientName) || '',
+    clientMobile: (orderFromStore && orderFromStore.clientMobile) || '',
+    transferredAt: (orderFromStore && orderFromStore.transferredAt) || null,
+    remark: params.get('remark') || (orderFromStore && orderFromStore.remark) || '',
 };
 state.orderNo = state.grainOrderNo;
 state.paymentOrderNo = state.paymentOrderNo || buildPaymentOrderNo(state.grainOrderNo);
@@ -246,10 +354,14 @@ state.cancelSource = normalizeCancelSource(state.cancelSource) || inferCancelSou
 
 const backLink = state.source === 'orders' ? 'buyer-orders.html' : 'buyer-home.html';
 
+const headerTitle = (state.status === 'draft' || state.status === 'pending_price' || state.status === 'unpaid' || state.status === 'pending_client') ? '订单详情' : '付款详情';
 document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader('付款详情', backLink);
+document.getElementById('navBar').innerHTML = renderHeader(headerTitle, backLink);
 
 ensureItems();
+if ((!state.photos || !state.photos.length) && state.photosFromQuery && state.photosFromQuery.length) {
+    state.photos = state.photosFromQuery;
+}
 syncPendingStatus();
 renderAll();
 startPendingTimer();
@@ -260,14 +372,21 @@ function normalizeStatus(status) {
         if (normalized) return normalized;
     }
     const map = {
+        draft: 'draft',
+        pending_price: 'pending_price',
         unpaid: 'unpaid',
+        pending_client: 'pending_client',
         pending: 'pending',
         paying: 'paying',
         processing: 'paying',
         success: 'success',
         failed: 'failed',
         canceled: 'canceled',
-        '待支付': 'unpaid',
+        '挂单': 'draft',
+        '待开价': 'pending_price',
+        '待结算': 'unpaid',
+        '待客户付款': 'pending_client',
+        '待支付': 'pending',
         '支付中': 'paying',
         '支付成功': 'success',
         '支付失败': 'failed',
@@ -392,6 +511,38 @@ function formatQtyOnly(qty) {
     return Number.isInteger(num) ? String(num) : String(num);
 }
 
+function formatWeight(value, unit, rawValue, allowZero) {
+    const raw = rawValue !== undefined && rawValue !== null ? String(rawValue).trim() : '';
+    if (raw === '') {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric) || (!allowZero && numeric <= 0)) return '未填写';
+        return formatQtyOnly(numeric) + (unit ? ' ' + unit : '');
+    }
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return '未填写';
+    return formatQtyOnly(numeric) + (unit ? ' ' + unit : '');
+}
+
+function formatPercent(rawValue, deduction, grossWeight, tareWeight) {
+    const raw = rawValue !== undefined && rawValue !== null ? String(rawValue).trim() : '';
+    if (raw !== '') {
+        const numeric = Number(raw);
+        if (Number.isFinite(numeric)) {
+            return (Number.isInteger(numeric) ? String(numeric) : numeric.toFixed(2).replace(/\.?0+$/, '')) + '%';
+        }
+    }
+    const base = Math.max(Number(grossWeight || 0) - Number(tareWeight || 0), 0);
+    const deductionNum = Number(deduction || 0);
+    if (base <= 0) return deductionNum > 0 ? '0%' : '-';
+    const ratio = (deductionNum / base) * 100;
+    return (Number.isInteger(ratio) ? String(ratio) : ratio.toFixed(2).replace(/\.?0+$/, '')) + '%';
+}
+
+function formatText(value, fallback) {
+    const text = value === undefined || value === null ? '' : String(value).trim();
+    return text || (fallback || '-');
+}
+
 function getRemainingMs() {
     const created = new Date(state.createdAt).getTime();
     return created + 30 * 60 * 1000 - Date.now();
@@ -410,16 +561,48 @@ function renderStatus() {
     const title = document.getElementById('statusTitle');
     const desc = document.getElementById('statusDesc');
 
-    if (state.status === 'pending' || state.status === 'unpaid') {
+    if (state.status === 'draft') {
+        iconWrap.className = 'w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2';
+        icon.className = 'fas fa-file-pen text-gray-500 text-2xl';
+        title.className = 'text-base font-bold text-gray-600 mb-1';
+        title.textContent = '挂单中';
+        desc.textContent = '订单已创建，等待补充信息';
+        return;
+    }
+
+    if (state.status === 'pending_price') {
+        iconWrap.className = 'w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-2';
+        icon.className = 'fas fa-tag text-amber-600 text-2xl';
+        title.className = 'text-base font-bold text-amber-600 mb-1';
+        title.textContent = '待开价';
+        desc.textContent = '已过磅称重，请补充单价完成开单';
+        return;
+    }
+
+    if (state.status === 'pending_client') {
+        iconWrap.className = 'w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-2';
+        icon.className = 'fas fa-user-clock text-blue-600 text-2xl';
+        title.className = 'text-base font-bold text-blue-600 mb-1';
+        title.textContent = '待客户付款';
+        desc.textContent = state.clientName ? ('已转给 ' + state.clientName + '，等待对方付款') : '已转交客户，等待付款';
+        return;
+    }
+
+    if (state.status === 'unpaid') {
+        iconWrap.className = 'w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-2';
+        icon.className = 'fas fa-clock text-amber-600 text-2xl';
+        title.className = 'text-base font-bold text-amber-600 mb-1';
+        title.textContent = '待结算';
+        desc.textContent = '订单已开价，请尽快完成付款';
+        return;
+    }
+
+    if (state.status === 'pending') {
         iconWrap.className = 'w-14 h-14 rounded-full bg-yellow-50 flex items-center justify-center mx-auto mb-2';
         icon.className = 'fas fa-clock text-yellow-500 text-2xl';
         title.className = 'text-base font-bold text-yellow-600 mb-1';
         title.textContent = '待支付';
-        if (state.status === 'pending') {
-            desc.innerHTML = '请在30分钟内完成支付，剩余 <span class="text-red-500 font-semibold" id="statusCountdown">' + getCountdownText() + '</span>';
-        } else {
-            desc.textContent = '订单待支付，可继续支付或取消订单';
-        }
+        desc.innerHTML = '请在30分钟内完成支付，剩余 <span class="text-red-500 font-semibold" id="statusCountdown">' + getCountdownText() + '</span>';
         return;
     }
 
@@ -458,22 +641,50 @@ function renderStatus() {
 }
 
 function renderItems() {
-    const body = document.getElementById('itemBody');
-    body.innerHTML = state.items.map(item => {
-        const qty = Number(item.qty || 0);
-        const unit = item.unit || '斤';
-        const price = Number(item.price || 0);
-        const subtotal = Number(item.subtotal || qty * price);
+    const list = document.getElementById('productCardList');
+    const items = state.items.length ? state.items : [{}];
+    list.innerHTML = items.map(function(item) {
+        const productName = formatText(item.name || state.productName, '-');
+        const unit = item.unit || state.unit || '斤';
+        const qty = Number(item.qty || item.netWeight || state.netWeight || 0);
+        const price = Number(item.price || item.unitPrice || state.unitPrice || 0);
+        const grossWeight = item.grossWeight !== undefined ? item.grossWeight : state.grossWeight;
+        const tareWeight = item.tareWeight !== undefined ? item.tareWeight : state.tareWeight;
+        const tareWeightRaw = item.tareWeightRaw !== undefined ? item.tareWeightRaw : state.tareWeightRaw;
+        const deduction = item.deduction !== undefined ? item.deduction : state.deduction;
+        const deductRatioRaw = item.deductRatioRaw !== undefined ? item.deductRatioRaw : state.deductRatioRaw;
+        const remark = formatText(item.remark !== undefined ? item.remark : state.remark, '-');
         return `
-            <tr>
-                <td class="font-medium">
-                    ${item.name || '-'}
-                    ${item.remark ? `<div class="text-[10px] text-gray-400 font-normal mt-0.5 leading-tight">备注: ${item.remark}</div>` : ''}
-                </td>
-                <td style="font-family:Poppins;">${formatUnitPrice(price, unit)}</td>
-                <td>${formatQtyOnly(qty)}</td>
-                <td class="font-medium" style="font-family:Poppins;">¥${subtotal.toFixed(2)}</td>
-            </tr>
+            <div class="product-info-card">
+                <div class="product-info-header">
+                    <div class="product-info-title">商品名称</div>
+                    <div class="product-info-name">${productName}</div>
+                </div>
+                <div class="product-field-row">
+                    <span class="product-field-label">毛重</span>
+                    <span class="product-field-value">${formatWeight(grossWeight, unit, grossWeight, false)}</span>
+                </div>
+                <div class="product-field-row">
+                    <span class="product-field-label">皮重</span>
+                    <span class="product-field-value">${formatWeight(tareWeight, unit, tareWeightRaw, true)}</span>
+                </div>
+                <div class="product-field-row">
+                    <span class="product-field-label">扣减比例</span>
+                    <span class="product-field-value">${formatPercent(deductRatioRaw, deduction, grossWeight, tareWeight)}</span>
+                </div>
+                <div class="product-field-row">
+                    <span class="product-field-label">净重</span>
+                    <span class="product-field-value">${formatWeight(qty, unit, qty, true)}</span>
+                </div>
+                <div class="product-field-row">
+                    <span class="product-field-label">单价</span>
+                    <span class="product-field-value">${formatUnitPrice(price, unit)}</span>
+                </div>
+                <div class="product-field-row remark-row">
+                    <span class="product-field-label">备注</span>
+                    <span class="product-field-value remark-value">${remark}</span>
+                </div>
+            </div>
         `;
     }).join('');
 
@@ -481,15 +692,22 @@ function renderItems() {
         const subtotal = Number(item.subtotal || (Number(item.qty || 0) * Number(item.price || 0)));
         return sum + subtotal;
     }, 0);
-    document.getElementById('itemCountText').textContent = '合计（' + state.items.length + '项商品）';
-    document.getElementById('itemTotalText').textContent = formatMoney(total);
+    const fallbackItem = items[0] || {};
+    const fallbackQty = Number(fallbackItem.qty || fallbackItem.netWeight || state.netWeight || 0);
+    const fallbackPrice = Number(fallbackItem.price || fallbackItem.unitPrice || state.unitPrice || 0);
+    const fallbackTotal = Number(fallbackItem.subtotal || state.amount || fallbackQty * fallbackPrice || 0);
+    const finalTotal = total > 0 ? total : fallbackTotal;
+    document.getElementById('itemCountText').textContent = '合计（' + Math.max(state.items.length, 1) + '项商品）';
+    document.getElementById('itemTotalText').textContent = formatMoney(finalTotal);
 }
 
 function renderInfo() {
-    document.getElementById('amountText').textContent = formatMoney(state.amount);
+    const amountDisplay = state.amount > 0 ? formatMoney(state.amount) : '待计算';
+    document.getElementById('amountText').textContent = amountDisplay;
+    if (state.amount <= 0) {
+        document.getElementById('amountText').className = 'text-3xl font-bold text-gray-400';
+    }
     
-    // 收款方信息
-    document.getElementById('payeeCompanyText').textContent = state.payeeCompany;
     document.getElementById('payeeNameText').textContent = state.payeeName;
     document.getElementById('payeeBankNameText').textContent = state.payeeBank;
     document.getElementById('payeeCardNoText').textContent = state.payeeCard;
@@ -503,8 +721,6 @@ function renderInfo() {
     document.getElementById('infoCreatedAt').textContent = formatTime(state.createdAt);
     document.getElementById('paymentOrderRow').style.display = shouldShowPaymentOrderNo() ? 'flex' : 'none';
     
-    // 付款方信息
-    document.getElementById('payerCompanyText').textContent = state.payerCompany;
     document.getElementById('payerNameText').textContent = state.payerName;
     document.getElementById('payerBankText').textContent = state.payerBank;
     document.getElementById('payerCardText').textContent = state.payerCard;
@@ -560,13 +776,46 @@ function syncStateToStore() {
         paymentOrderNo: state.paymentOrderNo,
         bankFlowNo: state.bankFlowNo,
         cancelSource: state.cancelSource || '',
-        items: state.items
+        items: state.items,
+        grossWeight: state.grossWeight,
+        tareWeight: state.tareWeight,
+        tareWeightRaw: state.tareWeightRaw,
+        deduction: state.deduction,
+        deductRatioRaw: state.deductRatioRaw,
+        netWeight: state.netWeight,
+        unitPrice: state.unitPrice,
+        unitPriceRaw: state.unitPriceRaw,
+        unit: state.unit,
+        photos: state.photos,
+        remark: state.remark
     });
 }
 
 function renderBottomActions() {
     const box = document.getElementById('bottomActions');
-    if (state.status === 'pending' || state.status === 'unpaid' || state.status === 'paying' || state.status === 'processing') {
+
+    if (state.status === 'draft') {
+        box.innerHTML = `
+            <a href="buyer-billing.html?editOrder=${encodeURIComponent(state.grainOrderNo)}" class="block w-full py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow text-center no-underline active:scale-[0.98] transition-transform" style="text-decoration:none;">
+                <i class="fas fa-pen mr-1"></i> 继续编辑
+            </a>
+        `;
+        return;
+    }
+
+    if (state.status === 'unpaid') {
+        box.innerHTML = `
+            <div class="flex gap-3 mt-2">
+                <button class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold text-sm rounded-2xl active:scale-[0.98] transition-transform" onclick="cancelOrder()">取消订单</button>
+                <a href="${buildCashierHref(false)}" class="flex-1 py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow active:scale-[0.98] transition-transform text-center no-underline" style="text-decoration:none;">
+                    继续支付
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    if (state.status === 'pending' || state.status === 'paying' || state.status === 'processing') {
         box.innerHTML = `
             <div class="flex gap-3 mt-2">
                 <button class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold text-sm rounded-2xl active:scale-[0.98] transition-transform" onclick="cancelOrder()">取消订单</button>
@@ -598,6 +847,8 @@ function renderAll() {
     renderStatus();
     renderItems();
     renderInfo();
+    renderPhotos();
+    renderTransferCard();
     renderBottomActions();
 }
 
@@ -636,6 +887,43 @@ function startPendingTimer() {
         if (statusCountdown) statusCountdown.textContent = countdown;
     }, 1000);
 }
+
+// === Phase 3: Photos ===
+function renderPhotos() {
+    const card = document.getElementById('photosCard');
+    if (!state.photos || !state.photos.length) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    document.getElementById('photosTitle').textContent = '拍照留存（' + state.photos.length + '张）';
+    document.getElementById('photoGrid').innerHTML = state.photos.map((p, i) =>
+        `<img src="${p.url || p}" alt="照片${i+1}" onclick="openLightbox('${p.url || p}')">`
+    ).join('');
+}
+
+function openLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('show');
+}
+
+// === Phase 3: Transfer card ===
+function renderTransferCard() {
+    const card = document.getElementById('transferCard');
+    if (state.status !== 'pending_client' || !state.clientName) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    const timeStr = state.transferredAt ? formatTime(state.transferredAt) : '';
+    document.getElementById('transferInfo').innerHTML = `
+        <div class="transfer-info">
+            <i class="fas fa-share"></i>
+            <div class="flex-1">
+                <div class="font-medium">已转给：${state.clientName}</div>
+                ${timeStr ? '<div class="text-[10px] opacity-70 mt-0.5">转交时间：' + timeStr + '</div>' : ''}
+            </div>
+        </div>
+    `;
+}
+
 </script>
 </body>
 </html>

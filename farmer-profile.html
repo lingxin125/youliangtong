@@ -112,24 +112,24 @@
 
             <div class="info-row">
                 <span class="info-label"><i class="fas fa-store"></i>名称</span>
-                <span class="info-value">李小农果园</span>
+                <span class="info-value" id="merchantName">李小农果园</span>
             </div>
 
             <div class="info-row">
                 <span class="info-label"><i class="fas fa-phone"></i>手机号</span>
-                <span class="info-value">13912346677</span>
+                <span class="info-value" id="mobileNo">13912346677</span>
             </div>
 
             <div class="info-row">
                 <span class="info-label"><i class="fas fa-user-tag"></i>当前身份</span>
                 <span class="info-value">
-                    <span class="role-tag">卖方</span>
+                    <span class="role-tag" id="roleTag">卖方</span>
                 </span>
             </div>
 
             <div class="info-row">
                 <span class="info-label"><i class="fas fa-calendar-alt"></i>创建日期</span>
-                <span class="info-value">2024-04-08</span>
+                <span class="info-value" id="createdAt">2024-04-08</span>
             </div>
         </div>
     </div>
@@ -179,6 +179,33 @@ function copyMerchantNo() {
         document.body.removeChild(input);
     }
 }
+
+function renderProfile() {
+    var user = window.UserIdentityStore ? UserIdentityStore.getCurrentUser() : null;
+    var merchantNoEl = document.getElementById('merchantNo');
+    var merchantNameEl = document.getElementById('merchantName');
+    var mobileNoEl = document.getElementById('mobileNo');
+    var roleTagEl = document.getElementById('roleTag');
+    var createdAtEl = document.getElementById('createdAt');
+
+    if (merchantNoEl) {
+        merchantNoEl.textContent = user && user.merchantId ? user.merchantId : '--';
+    }
+    if (merchantNameEl) {
+        merchantNameEl.textContent = user && user.name ? user.name : '--';
+    }
+    if (mobileNoEl) {
+        mobileNoEl.textContent = user && user.mobile ? user.mobile : '--';
+    }
+    if (roleTagEl && window.UserIdentityStore && UserIdentityStore.getCurrentRole) {
+        roleTagEl.textContent = UserIdentityStore.getCurrentRole() === 'buyer' ? '买方' : '卖方';
+    }
+    if (createdAtEl) {
+        createdAtEl.textContent = '2024-04-08';
+    }
+}
+
+renderProfile();
 </script>
 </body>
 </html>

@@ -144,6 +144,163 @@
         .switch-role-modal-overlay.show .switch-role-modal-sheet {
             transform: translateY(0);
         }
+        .team-context-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 16px;
+            background: #F2F8F4;
+            border-radius: 999px;
+            border: 1px solid rgba(17, 166, 74, 0.12);
+            transition: all 0.2s ease;
+            max-width: 100%;
+            margin-top: 2px;
+        }
+        .team-context-pill.is-clickable:active {
+            transform: scale(0.97);
+            background: #EAF3EC;
+        }
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(17, 166, 74, 0.1);
+            color: #11A64A;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(17, 166, 74, 0.1);
+        }
+        .team-switch-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 93;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .team-switch-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .team-switch-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .team-switch-modal-overlay.show .team-switch-modal-sheet {
+            transform: translateY(0);
+        }
+        .version-switch-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 94;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .version-switch-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .version-switch-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .version-switch-modal-overlay.show .version-switch-modal-sheet {
+            transform: translateY(0);
+        }
+        .team-option-card {
+            border: 1px solid rgba(17, 24, 39, 0.06);
+            border-radius: 16px;
+            background: #fff;
+            transition: all 0.18s ease;
+        }
+        .team-option-card.active {
+            border-color: rgba(17, 166, 74, 0.25);
+            background: #F5FBF7;
+            box-shadow: 0 6px 16px rgba(17, 166, 74, 0.08);
+        }
+        .account-switch-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 94;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .account-switch-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .account-switch-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .account-switch-modal-overlay.show .account-switch-modal-sheet {
+            transform: translateY(0);
+        }
+        .account-option-card {
+            border: 1px solid rgba(17, 24, 39, 0.06);
+            border-radius: 16px;
+            background: #fff;
+            transition: all 0.18s ease;
+        }
+        .account-option-card.active {
+            border-color: rgba(17, 166, 74, 0.25);
+            background: #F5FBF7;
+            box-shadow: 0 6px 16px rgba(17, 166, 74, 0.08);
+        }
+        .header-role-tag {
+            font-size: 10px;
+            background: rgba(17, 166, 74, 0.1);
+            color: #11A64A;
+            padding: 1px 6px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-left: 6px;
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            border: 1px solid rgba(17, 166, 74, 0.08);
+            letter-spacing: 0.02em;
+        }
+        .header-mobile-info {
+            display: inline-flex;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            color: #94A3B8;
+            font-size: 13px;
+        }
+        .header-split-line {
+            width: 1px;
+            height: 14px;
+            background: #D1D5DB;
+            margin: 0 12px;
+        }
     </style>
 </head>
 <body>
@@ -166,44 +323,62 @@
                     </button>
                 </div>
             </div>
-            <a href="buyer-profile.html" class="block no-underline active:scale-[0.98] transition-transform relative z-0" style="text-decoration:none;">
-                <div class="flex items-center gap-4 px-2">
+            <div class="block no-underline active:scale-[0.98] transition-transform relative z-0">
+                <div class="flex items-center gap-5 px-2">
+                    <!-- 头像：保持 60x60 -->
                     <div class="w-[60px] h-[60px] rounded-full bg-gray-200 flex items-center justify-center border border-black/5 shadow-sm overflow-hidden shrink-0">
                         <img id="buyerAvatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face" alt="头像" class="w-full h-full object-cover">
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xl font-bold text-gray-900 truncate">张三的粮站</span>
-                            <span class="text-[10px] bg-[#E5F5EC] text-[#11A64A] px-2 py-0.5 rounded-full font-medium shrink-0">买方</span>
+                    <!-- 右侧信息：使用 flex-col 并 justify-center 实现与头像的垂直居中融合 -->
+                    <div class="flex-1 min-w-0 flex flex-col justify-center py-1">
+                        <div class="mb-0.5">
+                            <span id="buyerDisplayName" class="text-[18px] font-bold text-gray-900 truncate">张老板</span>
                         </div>
-                        <div class="text-sm text-gray-500 flex items-center gap-1.5" style="font-family:Poppins;">
-                            <span id="buyerTopMerchantNo">6026245559</span>
-                            <i class="far fa-copy text-gray-400 text-[11px] cursor-pointer active:text-gray-900 transition-colors" onclick="return copyTopMerchantNo(event, 'buyerTopMerchantNo')" title="复制商户号"></i>
+                        <div class="flex items-center text-[13px] text-gray-500 font-poppins mb-2">
+                            <span id="buyerTopMobile">13700005555</span>
+                            <div class="header-split-line" style="height:10px;"></div>
+                            <span id="buyerHeaderRoleTag" class="role-badge">超管</span>
+                        </div>
+                        <!-- 团队切换 Pill：保持大尺寸易读 -->
+                        <div id="buyerTeamContextWrap" class="hidden">
+                            <div id="buyerTeamContextCard" class="team-context-pill" onclick="event.stopPropagation();">
+                                <i class="fas fa-building text-[#11A64A] text-[11px]"></i>
+                                <span id="buyerTeamName" class="text-[13px] font-bold text-gray-700 truncate max-w-[160px]">张老板收购站</span>
+                                <i id="buyerTeamChevron" class="fas fa-right-left text-gray-400 text-[10px] ml-1.5 hidden"></i>
+                            </div>
                         </div>
                     </div>
-                    <div class="w-7 h-7 rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)] flex items-center justify-center shrink-0">
+                    <div class="w-7 h-7 rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)] flex items-center justify-center shrink-0 cursor-pointer active:scale-95 transition-transform" onclick="window.location.href='buyer-profile.html'">
                         <i class="fas fa-chevron-right text-gray-300 text-[11px] ml-[1px]"></i>
                     </div>
                 </div>
-            </a>
+            </div>
         </div>
 
         <!-- 功能菜单 -->
         <div class="bg-white rounded-2xl overflow-hidden border border-black/[0.04]">
-            <!-- 消息通知 -->
-            <a href="buyer-notifications.html?source=my" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+            <!-- 品类管理 -->
+            <a href="buyer-category-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                        <i class="fas fa-bell text-[#11A64A] text-[15px]"></i>
+                        <i class="fas fa-layer-group text-[#11A64A] text-[15px]"></i>
                     </div>
-                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">消息通知（待定）</span>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">品类管理</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
-                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
             <div class="h-px bg-gray-50 mx-4"></div>
+            <!-- 团队管理 (超管/负责人可见) -->
+            <a href="buyer-team.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;" id="menuTeamManage">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-users-gear text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">团队管理</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4" id="menuTeamManageDivider"></div>
             <!-- 需求管理 -->
             <a href="buyer-demand-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
@@ -211,28 +386,6 @@
                         <i class="fas fa-list-check text-[#11A64A] text-[15px]"></i>
                     </div>
                     <span class="text-[15px] font-medium text-gray-700 tracking-wide">需求管理</span>
-                </div>
-                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
-            </a>
-            <div class="h-px bg-gray-50 mx-4"></div>
-            <!-- 邀请农户 -->
-            <a href="#" onclick="return openInviteModal(event)" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                        <i class="fas fa-user-plus text-[#11A64A] text-[15px]"></i>
-                    </div>
-                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">邀请农户建档</span>
-                </div>
-                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
-            </a>
-            <div class="h-px bg-gray-50 mx-4"></div>
-            <!-- 帮助与反馈 -->
-            <a href="#" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                        <i class="fas fa-circle-question text-[#11A64A] text-[15px]"></i>
-                    </div>
-                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">帮助与反馈（占位）</span>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
@@ -248,13 +401,13 @@
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
             <div class="h-px bg-gray-50 mx-4"></div>
-            <!-- 品类管理 -->
-            <a href="buyer-category-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+            <!-- 附言管理 -->
+            <a href="buyer-remark-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                        <i class="fas fa-layer-group text-[#11A64A] text-[15px]"></i>
+                        <i class="fas fa-comment-dots text-[#11A64A] text-[15px]"></i>
                     </div>
-                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">品类管理</span>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">附言管理</span>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
@@ -269,6 +422,72 @@
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            <!-- 切换版本 -->
+            <a href="#" onclick="return openVersionSwitcher(event)" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-font text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">切换版本</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="currentVersionHint" class="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[12px] font-bold transition-all duration-300">标准版</span>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            <!-- 切换账号 -->
+            <a href="#" onclick="return openAccountSwitcher(event)" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-repeat text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">切换账号</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="currentAccountHint" class="text-[11px] text-gray-400 font-poppins">13700005555</span>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
+            </a>
+            <!--
+            <div class="h-px bg-gray-50 mx-4"></div>
+            消息通知（暂隐藏）
+            <a href="buyer-notifications.html?source=my" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-bell text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">消息通知</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            邀请农户建档（暂隐藏）
+            <a href="#" onclick="return openInviteModal(event)" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-user-plus text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">邀请农户建档</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            帮助与反馈（暂隐藏）
+            <a href="#" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-circle-question text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">帮助与反馈</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            -->
             <!--
             <div class="h-px bg-gray-100 mx-4"></div>
             关于模块（MVP 暂不开放）
@@ -287,7 +506,8 @@
             -->
         </div>
 
-        <!-- 服务通知设置 -->
+        <!-- 微信服务通知（暂隐藏） -->
+        <!--
         <div class="bg-white rounded-2xl p-4 border border-black/[0.04] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -295,11 +515,10 @@
                         <i class="fab fa-weixin text-[#07C160] text-[16px]"></i>
                     </div>
                     <div>
-                        <div class="text-[15px] font-medium text-gray-700 tracking-wide">微信服务通知（待定）</div>
+                        <div class="text-[15px] font-medium text-gray-700 tracking-wide">微信服务通知</div>
                         <div class="text-[11px] text-gray-400">开启后接收订单、支付等通知</div>
                     </div>
                 </div>
-                <!-- 开关 -->
                 <div class="relative inline-block w-11 h-6 cursor-pointer" onclick="toggleWechatNotify()">
                     <input type="checkbox" id="wechatNotifySwitch" class="peer sr-only">
                     <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-primary transition-colors duration-300"></div>
@@ -307,6 +526,7 @@
                 </div>
             </div>
         </div>
+        -->
 
         <!-- 退出登录 -->
         <div class="pt-4">
@@ -375,6 +595,70 @@
         </div>
     </div>
 
+    <!-- 团队切换弹窗 -->
+    <div id="teamSwitchModal" class="team-switch-modal-overlay" onclick="closeTeamSwitcher()">
+        <div class="team-switch-modal-sheet" onclick="event.stopPropagation()">
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-1">切换团队</div>
+            <div id="teamSwitchRoleDesc" class="text-[12px] text-gray-500 text-center mb-4"></div>
+            <div id="teamSwitchList" class="space-y-2.5 max-h-[48vh] overflow-y-auto no-scrollbar"></div>
+            <button class="w-full h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform mt-4" onclick="closeTeamSwitcher()">关闭</button>
+        </div>
+    </div>
+
+    <!-- 账号切换弹窗 -->
+    <div id="accountSwitchModal" class="account-switch-modal-overlay" onclick="closeAccountSwitcher()">
+        <div class="account-switch-modal-sheet" onclick="event.stopPropagation()">
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-1">切换账号</div>
+            <div class="text-[12px] text-gray-500 text-center mb-4">选择一个预置演示账号，直接切换查看不同场景</div>
+            <div id="accountSwitchList" class="space-y-2.5 max-h-[48vh] overflow-y-auto no-scrollbar"></div>
+            <button class="w-full h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform mt-4" onclick="closeAccountSwitcher()">关闭</button>
+        </div>
+    </div>
+
+    <!-- 版本切换弹窗 -->
+    <div id="versionSwitchModal" class="version-switch-modal-overlay" onclick="closeVersionSwitcher()">
+        <div class="version-switch-modal-sheet" onclick="event.stopPropagation()">
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-5">切换版本</div>
+            
+            <div class="space-y-3" id="versionOptionList">
+                <!-- 标准版 -->
+                <div class="flex items-center justify-between p-4 rounded-xl border border-primary bg-primary/5 cursor-pointer version-option transition-all duration-200" data-version="standard" onclick="selectVersionOption('standard')">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <i class="fas fa-mobile-screen text-primary"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-[15px] font-semibold text-gray-800">标准版</div>
+                            <div class="text-[11px] text-gray-400">常规字体大小，适合日常使用</div>
+                        </div>
+                    </div>
+                    <div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center version-check shrink-0">
+                        <i class="fas fa-check text-white text-[10px]"></i>
+                    </div>
+                </div>
+                
+                <!-- 关怀版 -->
+                <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white cursor-pointer version-option transition-all duration-200" data-version="elderly" onclick="selectVersionOption('elderly')">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center shrink-0">
+                            <i class="fas fa-heart text-orange-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-[15px] font-semibold text-gray-800">关怀版</div>
+                            <div class="text-[11px] text-gray-400">大字体设计，视觉更清晰</div>
+                        </div>
+                    </div>
+                    <div class="w-5 h-5 rounded-full border border-gray-200 version-check shrink-0"></div>
+                </div>
+            </div>
+            
+            <button class="w-full h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-all mt-6 shadow-lg shadow-primary/20" onclick="confirmSwitchVersion()">确认切换</button>
+        </div>
+    </div>
+
     <!-- 底部导航栏 -->
     <div id="tabBar"></div>
 </div>
@@ -395,6 +679,7 @@ if (window.__FIGMA_CAPTURE_MODE__) {
 // 微信服务通知开关
 function toggleWechatNotify() {
     var checkbox = document.getElementById('wechatNotifySwitch');
+    if (!checkbox) return;
     checkbox.checked = !checkbox.checked;
 
     // 保存状态到本地存储
@@ -409,6 +694,7 @@ function toggleWechatNotify() {
 // 初始化开关状态
 function initWechatNotify() {
     var checkbox = document.getElementById('wechatNotifySwitch');
+    if (!checkbox) return;
     try {
         var enabled = localStorage.getItem('ylt_wechat_notify_enabled');
         checkbox.checked = enabled === '1';
@@ -434,31 +720,31 @@ function showToast(msg) {
     }, 1500);
 }
 
-function copyTopMerchantNo(event, id) {
+function copyTopMobile(event, id) {
     if (event) {
         if (typeof event.preventDefault === 'function') event.preventDefault();
         if (typeof event.stopPropagation === 'function') event.stopPropagation();
         if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
     }
-    var merchantNo = (document.getElementById(id) || {}).textContent || '';
-    if (!merchantNo) {
-        showToast('未获取到商户号');
+    var mobile = (document.getElementById(id) || {}).textContent || '';
+    if (!mobile) {
+        showToast('未获取到手机号');
         return false;
     }
     if (navigator.clipboard) {
-        navigator.clipboard.writeText(merchantNo).then(function() {
-            showToast('商户号已复制');
+        navigator.clipboard.writeText(mobile).then(function() {
+            showToast('手机号已复制');
         }).catch(function() {
             showToast('复制失败，请手动复制');
         });
     } else {
         var input = document.createElement('input');
-        input.value = merchantNo;
+        input.value = mobile;
         document.body.appendChild(input);
         input.select();
         try {
             document.execCommand('copy');
-            showToast('商户号已复制');
+            showToast('手机号已复制');
         } catch (e) {
             showToast('复制失败，请手动复制');
         }
@@ -467,8 +753,13 @@ function copyTopMerchantNo(event, id) {
     return false;
 }
 
+function copyTopMerchantNo(event, id) {
+    return copyTopMobile(event, id);
+}
+
 function getInviteUrl() {
-    var merchantNo = ((document.getElementById('buyerTopMerchantNo') || {}).textContent || '').trim();
+    var currentUser = typeof UserIdentityStore !== 'undefined' ? UserIdentityStore.getCurrentUser() : null;
+    var merchantNo = currentUser && currentUser.merchantId ? currentUser.merchantId : '';
     var inviteUrl = new URL('buyer-farmer-add -jiandang.html', window.location.href);
     inviteUrl.searchParams.set('source', 'invite');
     inviteUrl.searchParams.set('back', 'mine');
@@ -630,14 +921,188 @@ function getSwitchActionText(role) {
     return role === 'buyer' ? '买方' : '卖方';
 }
 
+function getTeamRoleLabel(role) {
+    if (typeof TeamMockStore !== 'undefined' && TeamMockStore.getRoleInfo) {
+        var info = TeamMockStore.getRoleInfo(role);
+        if (info && info.label) return info.label;
+    }
+    return role || '--';
+}
+
+function getBuyerCurrentContext() {
+    var currentRole = typeof UserIdentityStore !== 'undefined' ? (UserIdentityStore.getCurrentRole() || 'buyer') : 'buyer';
+    var currentUser = typeof UserIdentityStore !== 'undefined' ? UserIdentityStore.getCurrentUser() : null;
+    var teams = [];
+    if (currentUser && Array.isArray(currentUser.teams)) {
+        teams = currentUser.teams.slice();
+    } else if (typeof TeamMockStore !== 'undefined' && TeamMockStore.getAllTeams) {
+        teams = TeamMockStore.getAllTeams();
+    }
+    var currentTeamId = currentUser && currentUser.currentTeamId ? currentUser.currentTeamId : null;
+    if (!currentTeamId && typeof TeamMockStore !== 'undefined' && TeamMockStore.getCurrentTeam) {
+        var fallbackTeam = TeamMockStore.getCurrentTeam();
+        currentTeamId = fallbackTeam ? fallbackTeam.teamId : null;
+    }
+    var currentTeam = null;
+    for (var i = 0; i < teams.length; i++) {
+        if (teams[i] && teams[i].teamId === currentTeamId) {
+            currentTeam = teams[i];
+            break;
+        }
+    }
+    if (!currentTeam && teams.length) currentTeam = teams[0];
+    return {
+        currentRole: currentRole,
+        currentUser: currentUser,
+        teams: teams,
+        currentTeam: currentTeam
+    };
+}
+
+function renderBuyerProfileContext() {
+    var ctx = getBuyerCurrentContext();
+    var currentUser = ctx.currentUser;
+    var currentTeam = ctx.currentTeam;
+    var displayNameEl = document.getElementById('buyerDisplayName');
+    var mobileEl = document.getElementById('buyerTopMobile');
+    var teamWrap = document.getElementById('buyerTeamContextWrap');
+    var teamCard = document.getElementById('buyerTeamContextCard');
+    var teamNameEl = document.getElementById('buyerTeamName');
+    // var teamRoleTagEl = document.getElementById('buyerTeamRoleTag'); // 已移除
+    var teamChevronEl = document.getElementById('buyerTeamChevron');
+    var teamManageMenu = document.getElementById('menuTeamManage');
+    var teamManageDivider = document.getElementById('menuTeamManageDivider');
+    var currentAccountHintEl = document.getElementById('currentAccountHint');
+
+    if (displayNameEl) {
+        displayNameEl.textContent = currentUser && currentUser.name ? currentUser.name : '张老板';
+    }
+    if (mobileEl && currentUser && currentUser.mobile) {
+        mobileEl.textContent = currentUser.mobile;
+    }
+    
+    // 处理头部角色标签
+    var headerRoleTagEl = document.getElementById('buyerHeaderRoleTag');
+    if (headerRoleTagEl) {
+        headerRoleTagEl.textContent = getTeamRoleLabel(currentTeam && currentTeam.role);
+    }
+
+    if (currentAccountHintEl) {
+        currentAccountHintEl.textContent = currentUser && currentUser.mobile ? currentUser.mobile : '--';
+    }
+
+    var teamCount = Array.isArray(ctx.teams) ? ctx.teams.length : 0;
+    if (!teamWrap || !teamCard || !teamNameEl || !teamChevronEl) return;
+
+    if (teamCount === 0) {
+        teamWrap.classList.add('hidden');
+        return;
+    }
+
+    teamWrap.classList.remove('hidden');
+    teamNameEl.textContent = currentTeam && currentTeam.teamName ? currentTeam.teamName : '默认团队';
+    // teamRoleTagEl.textContent = getTeamRoleLabel(currentTeam && currentTeam.role); // 已迁移至头部
+
+    var currentTeamRole = currentTeam && currentTeam.role ? currentTeam.role : null;
+    var roleInfo = currentTeamRole && typeof TeamMockStore !== 'undefined' && TeamMockStore.getRoleInfo
+        ? TeamMockStore.getRoleInfo(currentTeamRole)
+        : null;
+    var canManageTeam = !!(roleInfo && roleInfo.canManage);
+    if (teamManageMenu) {
+        teamManageMenu.classList.toggle('hidden', !canManageTeam);
+    }
+    if (teamManageDivider) {
+        teamManageDivider.classList.toggle('hidden', !canManageTeam);
+    }
+
+    if (teamCount > 1) {
+        teamCard.classList.add('is-clickable', 'cursor-pointer');
+        teamCard.onclick = function(e) { 
+            if (e) e.stopPropagation();
+            return openTeamSwitcher(); 
+        };
+        teamChevronEl.classList.remove('hidden');
+    } else {
+        teamCard.classList.remove('is-clickable', 'cursor-pointer');
+        teamCard.onclick = function(e) { if (e) e.stopPropagation(); };
+        teamChevronEl.classList.add('hidden');
+    }
+}
+
+function renderTeamSwitchList() {
+    var list = document.getElementById('teamSwitchList');
+    var desc = document.getElementById('teamSwitchRoleDesc');
+    if (!list || !desc) return;
+    var ctx = getBuyerCurrentContext();
+    // desc.textContent = '当前身份：' + (ctx.currentRole === 'buyer' ? '买方' : '卖方');
+    if (!ctx.teams.length) {
+        list.innerHTML = '<div class="py-10 text-center text-sm text-gray-400">暂无可切换团队</div>';
+        return;
+    }
+    var currentTeamId = ctx.currentTeam && ctx.currentTeam.teamId ? ctx.currentTeam.teamId : '';
+    list.innerHTML = ctx.teams.map(function(team) {
+        var active = team.teamId === currentTeamId;
+        return '<button type="button" class="team-option-card w-full p-4 text-left ' + (active ? 'active' : '') + '" onclick="selectBuyerTeam(\'' + team.teamId + '\')">'
+            + '<div class="flex items-start gap-3">'
+            + '<div class="w-10 h-10 rounded-[12px] ' + (active ? 'bg-[#EBF7F0] border border-[#11A64A]/10' : 'bg-gray-50 border border-gray-100') + ' flex items-center justify-center shrink-0">'
+            + '<i class="fas fa-building ' + (active ? 'text-[#11A64A]' : 'text-gray-400') + ' text-[15px]"></i>'
+            + '</div>'
+            + '<div class="flex-1 min-w-0">'
+            + '<div class="flex items-center gap-2 mb-1">'
+            + '<span class="text-[15px] font-semibold text-gray-800 truncate">' + (team.teamName || '未命名团队') + '</span>'
+            + '<span class="text-[10px] px-2 py-0.5 rounded-full ' + (active ? 'bg-[#E5F5EC] text-[#11A64A]' : 'bg-[#F6F7F8] text-gray-500') + ' font-medium shrink-0">' + getTeamRoleLabel(team.role) + '</span>'
+            + '</div>'
+            + '<div class="text-[12px] text-gray-400">' + (active ? '当前所在团队' : '点击切换到该团队') + '</div>'
+            + '</div>'
+            + '<div class="w-6 h-6 rounded-full ' + (active ? 'bg-[#11A64A]' : 'bg-gray-100') + ' flex items-center justify-center shrink-0 mt-0.5">'
+            + '<i class="fas fa-check text-[10px] ' + (active ? 'text-white' : 'text-gray-300') + '"></i>'
+            + '</div>'
+            + '</div>'
+            + '</button>';
+    }).join('');
+}
+
+function renderAccountSwitchList() {
+    var list = document.getElementById('accountSwitchList');
+    if (!list || typeof UserIdentityStore === 'undefined' || !UserIdentityStore.listDemoUsers) return;
+    var currentUser = UserIdentityStore.getCurrentUser();
+    var currentMobile = currentUser && currentUser.mobile ? currentUser.mobile : '';
+    var users = UserIdentityStore.listDemoUsers();
+    list.innerHTML = users.map(function(user) {
+        var active = user.mobile === currentMobile;
+        var roleText = (user.roles || []).map(function(role) {
+            return role === 'buyer' ? '收购商' : '农户';
+        }).join(' / ');
+        return '<button type="button" class="account-option-card w-full p-4 text-left ' + (active ? 'active' : '') + '" onclick="switchDemoAccount(\'' + user.mobile + '\')">'
+            + '<div class="flex items-start gap-3">'
+            + '<div class="w-10 h-10 rounded-[12px] ' + (active ? 'bg-[#EBF7F0] border border-[#11A64A]/10' : 'bg-gray-50 border border-gray-100') + ' flex items-center justify-center shrink-0">'
+            + '<i class="fas fa-user-circle ' + (active ? 'text-[#11A64A]' : 'text-gray-400') + ' text-[16px]"></i>'
+            + '</div>'
+            + '<div class="flex-1 min-w-0">'
+            + '<div class="flex items-center gap-2 mb-1">'
+            + '<span class="text-[15px] font-semibold text-gray-800 truncate">' + (user.name || '未命名账号') + '</span>'
+            + (active ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-[#E5F5EC] text-[#11A64A] font-medium shrink-0">当前账号</span>' : '')
+            + '</div>'
+            + '<div class="text-[12px] text-gray-500 font-poppins mb-1">' + user.mobile + '</div>'
+            + '<div class="text-[12px] text-gray-400">' + (roleText || '--') + '</div>'
+            + '</div>'
+            + '</div>'
+            + '</button>';
+    }).join('');
+}
+
 (function initSwitchRole() {
     var otherRole = _defaultSwitchRole;
     var label = getSwitchActionText(otherRole);
+    var hasMultipleRoles = false;
     if (typeof UserIdentityStore !== 'undefined') {
         var user = UserIdentityStore.getCurrentUser();
-        if (user && UserIdentityStore.hasMultipleRoles()) {
-            otherRole = UserIdentityStore.getOtherRole() || _defaultSwitchRole;
-            label = UserIdentityStore.getRoleLabel(otherRole);
+        if (user) {
+            hasMultipleRoles = !!(UserIdentityStore.hasMultipleRoles());
+            if (hasMultipleRoles) {
+                otherRole = UserIdentityStore.getOtherRole() || _defaultSwitchRole;
+                label = UserIdentityStore.getRoleLabel(otherRole);
+            }
         }
     }
 
@@ -648,7 +1113,11 @@ function getSwitchActionText(role) {
     var chipWrap = document.getElementById('buyerSwitchRoleWrap');
     var chipLabel = document.getElementById('buyerSwitchRoleLabel');
     if (chipWrap) {
-        chipWrap.classList.remove('hidden');
+        if (hasMultipleRoles) {
+            chipWrap.classList.remove('hidden');
+        } else {
+            chipWrap.classList.add('hidden');
+        }
     }
     if (chipLabel) {
         chipLabel.textContent = '切换到' + _switchTargetActionText;
@@ -656,6 +1125,7 @@ function getSwitchActionText(role) {
 
     var modalDesc = document.getElementById('switchRoleModalDesc');
     if (modalDesc) modalDesc.textContent = '确认切换到' + _switchTargetActionText + '身份？切换后将进入' + _switchTargetActionText + '首页';
+    renderBuyerProfileContext();
 })();
 
 function openSwitchRoleModal(event) {
@@ -683,6 +1153,129 @@ function confirmSwitchRole() {
         return;
     }
     window.location.href = _switchTargetRole === 'buyer' ? 'buyer-home.html' : 'farmer-home.html';
+}
+
+function openTeamSwitcher() {
+    var ctx = getBuyerCurrentContext();
+    if (!ctx.teams || ctx.teams.length <= 1) return false;
+    var modal = document.getElementById('teamSwitchModal');
+    if (!modal) return false;
+    renderTeamSwitchList();
+    modal.classList.add('show');
+    return false;
+}
+
+function closeTeamSwitcher() {
+    var modal = document.getElementById('teamSwitchModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function selectBuyerTeam(teamId) {
+    if (!teamId || typeof TeamMockStore === 'undefined') return;
+    TeamMockStore.switchTeam(teamId);
+    if (typeof UserIdentityStore !== 'undefined' && UserIdentityStore.setCurrentTeamId) {
+        UserIdentityStore.setCurrentTeamId(teamId);
+    }
+    renderBuyerProfileContext();
+    renderTeamSwitchList();
+    closeTeamSwitcher();
+    showToast('已切换团队');
+}
+
+function openAccountSwitcher(event) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+    }
+    var modal = document.getElementById('accountSwitchModal');
+    if (!modal) return false;
+    renderAccountSwitchList();
+    modal.classList.add('show');
+    return false;
+}
+
+function closeAccountSwitcher() {
+    var modal = document.getElementById('accountSwitchModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function switchDemoAccount(mobile) {
+    if (!mobile || typeof UserIdentityStore === 'undefined' || !UserIdentityStore.switchAccount) return;
+    var result = UserIdentityStore.switchAccount(mobile, 'buyer');
+    if (!result) {
+        showToast('切换账号失败');
+        return;
+    }
+    showToast('已切换账号');
+    setTimeout(function() {
+        window.location.href = result.homeUrl || 'buyer-home.html';
+    }, 250);
+}
+
+// 版本切换
+var currentAppVersion = 'standard';
+var tempSelectedVersion = 'standard';
+
+function openVersionSwitcher(e) {
+    if (e) e.preventDefault();
+    tempSelectedVersion = currentAppVersion;
+    updateVersionOptionUI(tempSelectedVersion);
+    document.getElementById('versionSwitchModal').classList.add('show');
+    return false;
+}
+
+function closeVersionSwitcher() {
+    document.getElementById('versionSwitchModal').classList.remove('show');
+}
+
+function selectVersionOption(version) {
+    tempSelectedVersion = version;
+    updateVersionOptionUI(version);
+}
+
+function updateVersionOptionUI(version) {
+    var options = document.querySelectorAll('.version-option');
+    options.forEach(function(opt) {
+        var isTarget = opt.getAttribute('data-version') === version;
+        var checkEl = opt.querySelector('.version-check');
+        if (isTarget) {
+            opt.classList.add('border-primary', 'bg-primary/5');
+            opt.classList.remove('border-gray-100', 'bg-white');
+            if (checkEl) {
+                checkEl.classList.add('bg-primary');
+                checkEl.classList.remove('border', 'border-gray-200');
+                checkEl.innerHTML = '<i class="fas fa-check text-white text-[10px]"></i>';
+            }
+        } else {
+            opt.classList.remove('border-primary', 'bg-primary/5');
+            opt.classList.add('border-gray-100', 'bg-white');
+            if (checkEl) {
+                checkEl.classList.remove('bg-primary');
+                checkEl.classList.add('border', 'border-gray-200');
+                checkEl.innerHTML = '';
+            }
+        }
+    });
+}
+
+function confirmSwitchVersion() {
+    currentAppVersion = tempSelectedVersion;
+    var hintEl = document.getElementById('currentVersionHint');
+    if (hintEl) {
+        hintEl.textContent = currentAppVersion === 'standard' ? '标准版' : '关怀版';
+        if (currentAppVersion === 'elderly') {
+            hintEl.classList.add('bg-orange-50', 'text-orange-500');
+            hintEl.classList.remove('bg-primary/10', 'text-primary');
+        } else {
+            hintEl.classList.remove('bg-orange-50', 'text-orange-500');
+            hintEl.classList.add('bg-primary/10', 'text-primary');
+        }
+    }
+    
+    showToast('已切换至' + (currentAppVersion === 'standard' ? '标准版' : '关怀版'));
+    setTimeout(closeVersionSwitcher, 300);
 }
 
 if (captureState === 'modal') {

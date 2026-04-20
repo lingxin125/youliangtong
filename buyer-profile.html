@@ -74,6 +74,60 @@
         .copy-icon:active {
             color: #11A64A;
         }
+        .edit-trigger {
+            color: #9CA3AF;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+        .edit-trigger:active {
+            color: #11A64A;
+        }
+        .name-editor-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.42);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.22s ease;
+            z-index: 1000;
+        }
+        .name-editor-mask.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .name-editor-sheet {
+            position: fixed;
+            left: 16px;
+            right: 16px;
+            bottom: 16px;
+            background: #fff;
+            border-radius: 20px;
+            padding: 18px 16px 16px;
+            box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.16);
+            transform: translateY(20px);
+            transition: transform 0.22s ease;
+            z-index: 1001;
+        }
+        .name-editor-mask.show .name-editor-sheet {
+            transform: translateY(0);
+        }
+        .name-editor-input {
+            width: 100%;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid rgba(17, 24, 39, 0.08);
+            background: #F8FAFC;
+            padding: 0 14px;
+            font-size: 15px;
+            color: #111827;
+            outline: none;
+        }
+        .name-editor-input:focus {
+            border-color: rgba(17, 166, 74, 0.45);
+            box-shadow: 0 0 0 3px rgba(17, 166, 74, 0.12);
+            background: #fff;
+        }
         .toast {
             position: fixed;
             top: 50%;
@@ -119,27 +173,30 @@
             <!-- 商户名称（只读） -->
             <div class="info-row">
                 <span class="info-label"><i class="fas fa-store"></i>名称</span>
-                <span class="info-value">张三的粮站</span>
+                <span class="info-value">
+                    <span id="merchantName">张三的粮站</span>
+                    <i class="fas fa-pen edit-trigger" onclick="openNameEditor()" title="编辑名称"></i>
+                </span>
             </div>
 
             <!-- 手机号 -->
             <div class="info-row">
                 <span class="info-label"><i class="fas fa-phone"></i>手机号</span>
-                <span class="info-value">13812342233</span>
+                <span class="info-value" id="mobileNo">13812342233</span>
             </div>
 
             <!-- 当前身份 -->
             <div class="info-row">
                 <span class="info-label"><i class="fas fa-user-tag"></i>当前身份</span>
                 <span class="info-value">
-                    <span class="role-tag">买方</span>
+                    <span class="role-tag" id="roleTag">买方</span>
                 </span>
             </div>
 
             <!-- 创建日期 -->
             <div class="info-row">
                 <span class="info-label"><i class="fas fa-calendar-alt"></i>创建日期</span>
-                <span class="info-value">2024-03-15</span>
+                <span class="info-value" id="createdAt">2024-03-15</span>
             </div>
         </div>
 
@@ -151,11 +208,106 @@
 
 <!-- Toast 提示 -->
 <div id="toast" class="toast"></div>
+<div id="nameEditorMask" class="name-editor-mask" onclick="closeNameEditor()">
+    <div class="name-editor-sheet" onclick="event.stopPropagation()">
+        <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-4"></div>
+        <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">编辑名称</div>
+        <div class="text-[12px] text-gray-500 text-center mb-4">修改后，我的页和切换账号会同步展示最新名称</div>
+        <input id="nameEditorInput" class="name-editor-input" type="text" maxlength="20" placeholder="请输入名称">
+        <div class="grid grid-cols-2 gap-3 mt-4">
+            <button class="h-11 rounded-xl bg-gray-100 text-gray-600 text-[14px] font-medium" onclick="closeNameEditor()">取消</button>
+            <button class="h-11 rounded-xl bg-[#11A64A] text-white text-[14px] font-medium" onclick="saveDisplayName()">保存</button>
+        </div>
+    </div>
+</div>
 
 <script>
 document.getElementById('statusBar').innerHTML = renderStatusBar();
 document.getElementById('navBar').innerHTML = renderHeader('个人信息', 'buyer-my.html');
 document.getElementById('tabBar').innerHTML = renderBuyerTabBar('mine');
+
+function getBuyerProfileContext() {
+    var user = window.UserIdentityStore ? UserIdentityStore.getCurrentUser() : null;
+    var currentRole = window.UserIdentityStore ? (UserIdentityStore.getCurrentRole() || 'buyer') : 'buyer';
+    var currentTeam = window.TeamMockStore ? TeamMockStore.getCurrentTeam() : null;
+    return {
+        user: user,
+        currentRole: currentRole,
+        currentTeam: currentTeam
+    };
+}
+
+function renderProfile() {
+    var ctx = getBuyerProfileContext();
+    var user = ctx.user;
+    var currentTeam = ctx.currentTeam;
+
+    var merchantNoEl = document.getElementById('merchantNo');
+    var merchantNameEl = document.getElementById('merchantName');
+    var mobileNoEl = document.getElementById('mobileNo');
+    var roleTagEl = document.getElementById('roleTag');
+    var createdAtEl = document.getElementById('createdAt');
+
+    if (merchantNoEl) {
+        merchantNoEl.textContent = user && user.merchantId ? user.merchantId : '--';
+    }
+    if (merchantNameEl) {
+        merchantNameEl.textContent = user && user.name ? user.name : '--';
+    }
+    if (mobileNoEl) {
+        mobileNoEl.textContent = user && user.mobile ? user.mobile : '--';
+    }
+    if (roleTagEl) {
+        roleTagEl.textContent = ctx.currentRole === 'buyer' ? '买方' : '卖方';
+    }
+    if (createdAtEl) {
+        createdAtEl.textContent = currentTeam && currentTeam.createdAt
+            ? currentTeam.createdAt
+            : '2024-03-15';
+    }
+}
+
+function openNameEditor() {
+    var mask = document.getElementById('nameEditorMask');
+    var input = document.getElementById('nameEditorInput');
+    var currentName = (document.getElementById('merchantName') || {}).textContent || '';
+    if (!mask || !input) return;
+    input.value = currentName;
+    mask.classList.add('show');
+    setTimeout(function() {
+        input.focus();
+        input.select();
+    }, 60);
+}
+
+function closeNameEditor() {
+    var mask = document.getElementById('nameEditorMask');
+    if (!mask) return;
+    mask.classList.remove('show');
+}
+
+function saveDisplayName() {
+    var input = document.getElementById('nameEditorInput');
+    var value = input ? input.value.trim() : '';
+    var user = window.UserIdentityStore ? UserIdentityStore.getCurrentUser() : null;
+    if (!value) {
+        showToast('请输入名称');
+        return;
+    }
+    if (!user || !user.mobile || !window.UserIdentityStore || !UserIdentityStore.setDisplayName) {
+        showToast('保存失败');
+        return;
+    }
+    var updated = UserIdentityStore.setDisplayName(user.mobile, value);
+    if (window.UnifiedMockStore && UnifiedMockStore.setUserProfile) {
+        UnifiedMockStore.setUserProfile({ name: value });
+    }
+    if (updated && updated.name) {
+        document.getElementById('merchantName').textContent = updated.name;
+    }
+    closeNameEditor();
+    showToast('名称已更新');
+}
 
 function showToast(msg) {
     const toast = document.getElementById('toast');
@@ -188,6 +340,8 @@ function copyMerchantNo() {
         document.body.removeChild(input);
     }
 }
+
+renderProfile();
 </script>
 </body>
 </html>

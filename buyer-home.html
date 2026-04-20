@@ -47,10 +47,107 @@
             </div>
         </div>
 
+        <!-- 待办事项 工作台面板 (大厂质感融合版) -->
+        <div class="mb-3">
+            <div class="flex items-center justify-between mb-2.5 px-1">
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-4 rounded-full bg-gradient-to-b from-[#11A64A] to-[#388E3C]"></div>
+                    <span class="text-sm font-medium text-gray-700">待办事项</span>
+                </div>
+                <a href="buyer-order-manage.html" class="text-[12px] text-gray-400 flex items-center gap-1 hover:text-[#11A64A] transition-colors no-underline">
+                    全部订单 <i class="fas fa-chevron-right text-[10px] transform translate-y-[0.5px]"></i>
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-2.5">
+                <!-- 挂单 (纯净灰绿) -->
+                <a href="buyer-order-manage.html?tab=draft" class="block px-3.5 pt-3 pb-3.5 rounded-[16px] bg-gradient-to-br from-[#F8FAF9] to-[#F1F6F3] border border-[#11A64A]/5 active:scale-[0.97] transition-all no-underline relative overflow-hidden group" style="text-decoration:none;">
+                    <!-- 装饰圆点 -->
+                    <div class="absolute -right-4 -top-4 w-12 h-12 rounded-full bg-[#11A64A]/5 blur-md"></div>
+                    <!-- 右下角图形 -->
+                    <div class="absolute -right-2 -bottom-2 w-10 h-10 rounded-xl bg-gradient-to-br from-[#11A64A]/5 to-[#11A64A]/10 transform rotate-12 flex items-center justify-center">
+                        <i class="fas fa-thumbtack text-[16px] text-[#11A64A] opacity-30"></i>
+                    </div>
+                    
+                    <div class="relative z-10 flex flex-col h-full justify-between pb-1.5">
+                        <span class="text-[12px] font-medium text-gray-500 mb-1 -translate-y-[1px]">挂单</span>
+                        <div class="text-[24px] font-bold text-gray-800 leading-none" style="font-family:Poppins;" id="countDraft">0</div>
+                    </div>
+                </a>
+                
+                <!-- 待开价 (品牌明绿) -->
+                <a href="buyer-order-manage.html?tab=pending_price" class="block px-3.5 pt-3 pb-3.5 rounded-[16px] bg-gradient-to-br from-[#EBF7F0] to-[#E1F2E8] border border-[#11A64A]/10 active:scale-[0.97] transition-all no-underline relative overflow-hidden group" style="text-decoration:none;">
+                    <div class="absolute -right-4 -top-4 w-12 h-12 rounded-full bg-[#11A64A]/10 blur-md"></div>
+                    <div class="absolute -right-2 -bottom-2 w-10 h-10 rounded-xl bg-gradient-to-br from-[#11A64A]/10 to-[#11A64A]/20 transform -rotate-12 flex items-center justify-center">
+                        <i class="fas fa-tag text-[16px] text-[#11A64A] opacity-40"></i>
+                    </div>
+                    
+                    <div class="relative z-10 flex flex-col h-full justify-between pb-1.5">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[12px] font-medium text-[#11A64A]/80 -translate-y-[1px]">待开价</span>
+                            <div class="w-1.5 h-1.5 rounded-full bg-[#EF4444] shadow-sm hidden" id="dotPendingPrice"></div>
+                        </div>
+                        <div class="text-[24px] font-bold text-[#11A64A] leading-none" style="font-family:Poppins;" id="countPendingPrice">0</div>
+                    </div>
+                </a>
+                
+                <!-- 待结算 (警示暖橙) -->
+                <a href="buyer-order-manage.html?tab=unpaid" class="block px-3.5 pt-3 pb-3.5 rounded-[16px] bg-gradient-to-br from-[#FFF9F0] to-[#FFF0E0] border border-[#F59E0B]/10 active:scale-[0.97] transition-all no-underline relative overflow-hidden group" style="text-decoration:none;">
+                    <div class="absolute -right-4 -top-4 w-12 h-12 rounded-full bg-[#F59E0B]/10 blur-md"></div>
+                    <div class="absolute -right-2 -bottom-2 w-10 h-10 rounded-xl bg-gradient-to-br from-[#F59E0B]/10 to-[#F59E0B]/20 transform rotate-6 flex items-center justify-center">
+                        <i class="fas fa-file-invoice-dollar text-[16px] text-[#EA580C] opacity-40"></i>
+                    </div>
+                    
+                    <div class="relative z-10 flex flex-col h-full pb-1.5">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-[12px] font-medium text-[#D97706]/80 -translate-y-[1px]">待结算</span>
+                            <div class="w-1.5 h-1.5 rounded-full bg-[#EF4444] shadow-sm hidden" id="dotUnpaid"></div>
+                        </div>
+                        <div class="mt-auto relative">
+                            <div class="text-[24px] font-bold text-[#EA580C] leading-none" style="font-family:Poppins;" id="countUnpaid">0</div>
+                            <div id="amountUnpaid" class="absolute left-0 top-[27px] text-[10px] font-semibold text-[#B45309] leading-none tracking-[0.01em] text-left whitespace-nowrap" style="font-family:Poppins;">¥0</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 快捷入口（4列网格，卡片包裹） -->
+        <div class="bg-white rounded-2xl py-4 px-2 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100/80 mb-3">
+            <div class="grid grid-cols-4 gap-y-4">
+                <a href="buyer-publish.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
+                        <i class="fas fa-bullhorn text-[#11A64A] text-[18px]"></i>
+                    </div>
+                    <span class="text-[11px] text-gray-600 font-medium">发布需求</span>
+                </a>
+                <a href="buyer-contacts.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
+                        <i class="fas fa-users text-[#11A64A] text-[18px]"></i>
+                    </div>
+                    <span class="text-[11px] text-gray-600 font-medium">合作农户</span>
+                </a>
+                <a href="buyer-clients.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
+                        <i class="fas fa-user-tie text-[#11A64A] text-[18px]"></i>
+                    </div>
+                    <span class="text-[11px] text-gray-600 font-medium">我的客户</span>
+                </a>
+                <a href="buyer-orders.html?source=home" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
+                        <i class="fas fa-file-invoice-dollar text-[#11A64A] text-[18px]"></i>
+                    </div>
+                    <span class="text-[11px] text-gray-600 font-medium">付款记录</span>
+                </a>
+            </div>
+        </div>
+
         <!-- 品类明细：时间切换 + 可点击列表 -->
         <div id="categorySummaryPanel" class="bg-white rounded-2xl overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100/80">
             <div class="flex items-center justify-between px-4 py-3" style="background:linear-gradient(135deg,#F0FDF4 0%,#FAFFFE 100%);border-bottom:1px solid #F3F4F6;">
-                <span class="text-sm font-medium text-gray-700">品类明细</span>
+                <div class="flex items-center">
+                    <span class="text-sm font-medium text-gray-700">品类明细</span>
+                </div>
                 <div class="flex items-center gap-1">
                     <span class="filter-chip active text-[10px] px-2 py-0.5" onclick="switchPeriod('today')">今日</span>
                     <span class="filter-chip text-[10px] px-2 py-0.5" onclick="switchPeriod('month')">本月</span>
@@ -128,36 +225,6 @@
             </div>
         </div>
 
-        <!-- 快捷入口（4列网格，卡片包裹） -->
-        <div class="bg-white rounded-2xl py-4 px-2 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100/80">
-            <div class="grid grid-cols-4">
-                <a href="buyer-publish.html?source=home" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
-                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
-                        <i class="fas fa-bullhorn text-[#11A64A] text-[20px]"></i>
-                    </div>
-                    <span class="text-[11px] text-gray-600 font-medium">发布需求</span>
-                </a>
-                <a href="buyer-contacts.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
-                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
-                        <i class="fas fa-users text-[#11A64A] text-[18px]"></i>
-                    </div>
-                    <span class="text-[11px] text-gray-600 font-medium">合作农户</span>
-                </a>
-                <a href="buyer-orders.html?source=home" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
-                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
-                        <i class="fas fa-list-check text-[#11A64A] text-[18px]"></i>
-                    </div>
-                    <span class="text-[11px] text-gray-600 font-medium">付款记录</span>
-                </a>
-                <a href="buyer-merge-pay.html" class="flex flex-col items-center gap-1.5 no-underline relative" style="text-decoration:none;">
-                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
-                        <i class="fas fa-layer-group text-[#11A64A] text-[18px]"></i>
-                    </div>
-                    <span class="text-[11px] text-gray-600 font-medium">合并付款</span>
-                </a>
-            </div>
-        </div>
-
         <!-- 我关注的销售需求（MVP暂隐藏） -->
         <div class="hidden">
             <div class="flex items-center justify-between mb-2">
@@ -174,9 +241,9 @@
         <!-- 我发布的需求 -->
         <div>
             <div class="flex items-center justify-between mb-2">
-                <div class="flex items-center gap-1.5">
-                    <div class="w-[3px] h-[14px] rounded-sm bg-primary"></div>
-                    <span class="text-sm font-medium text-gray-700">我发布的收购需求</span>
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-4 rounded-full bg-gradient-to-b from-[#11A64A] to-[#388E3C]"></div>
+                    <span class="text-sm font-medium text-gray-700">我发布的需求</span>
                 </div>
                 <a href="buyer-demand-manage.html?source=home" class="text-[10px] text-primary no-underline" style="text-decoration:none;">查看更多 <i class="fas fa-chevron-right text-[8px]"></i></a>
             </div>
@@ -330,6 +397,23 @@ function switchCatPeriod(period) {
 
 // ==================== 金额脱敏切换 ====================
 var _masked = false;
+var _pendingSettlementAmount = 0;
+
+function formatCompactCurrency(amount, masked) {
+    if (masked) return '****';
+    var value = Number(amount) || 0;
+    if (Math.abs(value) >= 100000) {
+        return '¥' + (value / 10000).toFixed(1).replace(/\\.0$/, '') + '万';
+    }
+    return '¥' + value.toLocaleString('zh-CN');
+}
+
+function renderPendingSettlementAmount() {
+    var amountEl = document.getElementById('amountUnpaid');
+    if (!amountEl) return;
+    amountEl.textContent = formatCompactCurrency(_pendingSettlementAmount, _masked);
+}
+
 function toggleMask() {
     _masked = !_masked;
     var icon = document.getElementById('eyeIcon');
@@ -341,6 +425,7 @@ function toggleMask() {
     amount.textContent = _masked ? '****' : '¥43,650';
     cent.textContent = _masked ? '' : '.00';
     countNum.textContent = _masked ? '***' : '24';
+    renderPendingSettlementAmount();
 }
 
 // ==================== 品类明细时间切换 ====================
@@ -570,6 +655,22 @@ document.addEventListener('DOMContentLoaded', function() {
     renderFollowedDemands();
     renderPublishedDemands();
     updateMessageBadges();
+
+    // Update pending item counts
+    var mockStore = window.BuyerMockStore;
+    if (mockStore && mockStore.getOrderCounts) {
+        var counts = mockStore.getOrderCounts();
+        var draftEl = document.getElementById('countDraft');
+        var priceEl = document.getElementById('countPendingPrice');
+        var unpaidEl = document.getElementById('countUnpaid');
+        if (draftEl) draftEl.textContent = (counts.draft || 0);
+        if (priceEl) priceEl.textContent = (counts.pending_price || 0);
+        if (unpaidEl) unpaidEl.textContent = ((counts.unpaid || 0) + (counts.pending_client || 0));
+        if (typeof mockStore.getPendingSettlementAmount === 'function') {
+            _pendingSettlementAmount = mockStore.getPendingSettlementAmount();
+            renderPendingSettlementAmount();
+        }
+    }
 });
 </script>
 </body>

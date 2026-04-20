@@ -8,244 +8,126 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
-    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
-        /* 品类标签 */
-        /* 品类选择的高级质感 */
-        .category-grid-item {
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .category-grid-item:active {
-            transform: scale(0.95);
-        }
-
-        /* 历史录入商品标签 */
+        .category-grid-item { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .category-grid-item:active { transform: scale(0.95); }
         .product-tag {
-            display: inline-flex;
-            align-items: center;
-            padding: 5px 10px;
-            background: #F3F4F6;
-            border-radius: 12px;
-            font-size: 12px;
-            color: #4B5563;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
-            white-space: nowrap;
+            display: inline-flex; align-items: center; padding: 5px 10px;
+            background: #F3F4F6; border-radius: 12px; font-size: 12px;
+            color: #4B5563; transition: all 0.2s ease; cursor: pointer;
+            border: 1px solid transparent; white-space: nowrap;
         }
-        .product-tag:hover {
-            background: #E5E7EB;
-        }
-        .product-tag:active {
-            transform: scale(0.95);
-        }
-
-        /* 底部弹窗 - 相对于 mobile-container 定位 */
+        .product-tag:hover { background: #E5E7EB; }
+        .product-tag:active { transform: scale(0.95); }
         .billing-sheet-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 200;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+            position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s ease;
         }
-        .billing-sheet-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
+        .billing-sheet-overlay.show { opacity: 1; visibility: visible; }
         .billing-sheet {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 210;
-            background: #FFFFFF;
-            border-radius: 24px 24px 0 0;
-            transform: translateY(100%);
-            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            max-height: 80%;
-            overflow-y: auto;
+            position: absolute; left: 0; right: 0; bottom: 0; z-index: 210;
+            background: #FFFFFF; border-radius: 24px 24px 0 0;
+            transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 80%; overflow-y: auto;
         }
-        .billing-sheet.show {
-            transform: translateY(0);
-        }
-        .billing-sheet-handle {
-            width: 40px;
-            height: 4px;
-            background: #D1D5DB;
-            border-radius: 2px;
-            margin: 12px auto;
-        }
-
-        /* 付款对象卡片 */
-        .payee-card {
-            background: #F0FDF4;
-            border: 1px solid rgba(17, 166, 74, 0.2);
-            border-radius: 12px;
-            padding: 12px;
-        }
-
-        /* 输入框样式 */
+        .billing-sheet.show { transform: translateY(0); }
+        .billing-sheet-handle { width: 40px; height: 4px; background: #D1D5DB; border-radius: 2px; margin: 12px auto; }
         .custom-input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #E5E7EB;
-            border-radius: 12px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-            color: #1F2937;
-            background: #fff;
+            width: 100%; padding: 10px 14px; border: 1px solid #E5E7EB;
+            border-radius: 12px; font-size: 14px; outline: none;
+            transition: border-color 0.2s; color: #1F2937; background: #fff;
         }
-        .custom-input:focus {
-            border-color: #11A64A;
-        }
-
-        /* 步骤卡片 */
+        .custom-input:focus { border-color: #11A64A; }
         .step-card {
-            background: #FFFFFF;
-            border: 1px solid rgba(243, 244, 246, 0.8);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-            border-radius: 1rem;
-            overflow: hidden;
+            background: #FFFFFF; border: 1px solid rgba(243,244,246,0.8);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02); border-radius: 1rem; overflow: hidden;
         }
-
-        /* 商品项卡片 */
-        .product-item {
-            background: #F9FAFB;
-            border-radius: 12px;
-            padding: 12px;
-        }
-
-        /* 隐藏滚动条 */
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        /* 数字输入框去除箭头 */
+        .product-item { background: #F9FAFB; border-radius: 12px; padding: 12px; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
         input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-
-        /* Toast */
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
         .toast-tip {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.75);
-            color: white;
-            padding: 10px 22px;
-            border-radius: 16px;
-            font-size: 13px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 300;
-            white-space: nowrap;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75); color: white; padding: 10px 22px;
+            border-radius: 16px; font-size: 13px; pointer-events: none;
+            opacity: 0; transition: opacity 0.3s; z-index: 300; white-space: nowrap;
         }
-        .toast-tip.show {
-            opacity: 1;
-        }
-
-        /* 应用内弹窗 */
+        .toast-tip.show { opacity: 1; }
         .app-modal-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.45);
-            z-index: 400;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.25s ease;
+            position: absolute; inset: 0; background: rgba(0,0,0,0.45);
+            z-index: 400; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.25s ease;
         }
-        .app-modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
+        .app-modal-overlay.show { opacity: 1; visibility: visible; }
+        .app-modal { background: #fff; border-radius: 16px; width: 280px; padding: 24px 20px 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); transform: scale(0.9); transition: transform 0.25s ease; }
+        .app-modal-overlay.show .app-modal { transform: scale(1); }
+        .app-modal-title { font-size: 15px; font-weight: 600; color: #1F2937; text-align: center; margin-bottom: 16px; }
+        .app-modal-input { width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; color: #1F2937; margin-bottom: 16px; box-sizing: border-box; }
+        .app-modal-input:focus { border-color: #11A64A; }
+        .app-modal-msg { font-size: 13px; color: #4B5563; text-align: center; margin-bottom: 18px; line-height: 1.5; }
+        .app-modal-btns { display: flex; gap: 10px; }
+        .app-modal-btn { flex: 1; padding: 10px 0; border-radius: 10px; font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; border: none; transition: all 0.15s; }
+        .app-modal-btn:active { transform: scale(0.96); }
+        .app-modal-btn-cancel { background: #F3F4F6; color: #6B7280; }
+        .app-modal-btn-confirm { background: #11A64A; color: #fff; }
+        .app-modal-btn-danger { background: #EF4444; color: #fff; }
+        /* Photo grid */
+        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .photo-thumb {
+            position: relative; width: 100%; padding-bottom: 100%; border-radius: 10px;
+            overflow: hidden; background: #F3F4F6;
         }
-        .app-modal {
-            background: #fff;
-            border-radius: 16px;
-            width: 280px;
-            padding: 24px 20px 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            transform: scale(0.9);
-            transition: transform 0.25s ease;
+        .photo-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .photo-thumb .photo-del {
+            position: absolute; top: 4px; right: 4px; width: 20px; height: 20px;
+            background: rgba(0,0,0,0.5); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; z-index: 2;
         }
-        .app-modal-overlay.show .app-modal {
-            transform: scale(1);
+        .photo-thumb .photo-del i { color: #fff; font-size: 10px; }
+        .photo-add-btn {
+            width: 100%; padding-bottom: 100%; position: relative; border-radius: 10px;
+            border: 2px dashed #D1D5DB; background: #F9FAFB; cursor: pointer;
+            transition: all 0.2s;
         }
-        .app-modal-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1F2937;
-            text-align: center;
-            margin-bottom: 16px;
+        .photo-add-btn:hover { border-color: #11A64A; background: #F0FDF4; }
+        .photo-add-btn .inner {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 2px;
         }
-        .app-modal-input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #E5E7EB;
-            border-radius: 10px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-            color: #1F2937;
-            margin-bottom: 16px;
-            box-sizing: border-box;
+        .photo-add-btn.disabled { opacity: 0.4; pointer-events: none; }
+        /* Combo menu bottom sheet */
+        .combo-menu-item {
+            display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px;
+            border-radius: 12px; cursor: pointer; transition: all 0.15s;
         }
-        .app-modal-input:focus {
-            border-color: #11A64A;
+        .combo-menu-item:active:not(.combo-disabled) { background: #F0FDF4; transform: scale(0.98); }
+        .combo-menu-item.combo-disabled { opacity: 0.45; cursor: not-allowed; }
+        /* Product flat card */
+        .product-flat-card {
+            background: #F9FAFB; border: 1px solid rgba(0,0,0,0.04);
+            border-radius: 14px; padding: 14px; position: relative;
         }
-        .app-modal-msg {
-            font-size: 13px;
-            color: #4B5563;
-            text-align: center;
-            margin-bottom: 18px;
-            line-height: 1.5;
+        .product-flat-card .flat-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; }
+        .product-flat-card .flat-label { font-size: 13px; color: #6B7280; }
+        .product-flat-card .flat-value { font-size: 14px; color: #1F2937; font-weight: 500; }
+        .product-flat-card .flat-highlight { color: #11A64A; font-weight: 700; font-family: Poppins, sans-serif; }
+        .draft-entry-btn {
+            position: relative; width: 48px; height: 48px;
+            border-radius: 14px; border: 1px solid #E5E7EB; background: #FFFFFF;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #6B7280; transition: all 0.15s ease;
         }
-        .app-modal-btns {
-            display: flex;
-            gap: 10px;
+        .draft-entry-btn:active { transform: scale(0.97); background: #F9FAFB; }
+        .draft-entry-badge {
+            position: absolute; top: -5px; right: -5px;
+            min-width: 18px; height: 18px; padding: 0 5px;
+            border-radius: 999px; background: #EF4444; color: #FFFFFF;
+            font-size: 10px; font-weight: 700; line-height: 18px; text-align: center;
+            box-shadow: 0 2px 8px rgba(239,68,68,0.22);
         }
-        .app-modal-btn {
-            flex: 1;
-            padding: 10px 0;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            text-align: center;
-            cursor: pointer;
-            border: none;
-            transition: all 0.15s;
-        }
-        .app-modal-btn:active {
-            transform: scale(0.96);
-        }
-        .app-modal-btn-cancel {
-            background: #F3F4F6;
-            color: #6B7280;
-        }
-        .app-modal-btn-confirm {
-            background: #11A64A;
-            color: #fff;
-        }
-        .app-modal-btn-danger {
-            background: #EF4444;
-            color: #fff;
-        }
+        .draft-entry-badge.hidden { display: none; }
     </style>
 </head>
 <body>
@@ -270,14 +152,13 @@
                     </a>
                 </div>
                 <div id="categoryContainer" class="relative">
-                    <!-- 改用 overflow-x-auto 支持横向滑动以容纳 5 个主分类 -->
                     <div id="primaryCategoryList" class="flex overflow-x-auto hide-scrollbar gap-2 w-full mb-3 pb-1"></div>
                     <div id="secondaryCategoryList" class="flex overflow-x-auto gap-2 pb-1 hide-scrollbar w-full"></div>
                 </div>
             </div>
         </div>
 
-        <!-- ❷ 商品明细 -->
+        <!-- ❷ 商品明细 (一单一品) -->
         <div class="step-card mb-3">
             <div class="p-4">
                 <div class="flex items-center justify-between mb-3">
@@ -285,7 +166,7 @@
                         <div class="w-1 h-4 bg-primary rounded-full"></div>
                         <span class="text-sm font-medium text-gray-800">商品明细</span>
                     </div>
-                    <span class="text-xs text-gray-400" id="itemCount">共 0 项</span>
+                    <!-- <span class="text-xs text-gray-400" id="itemCount">一单一品</span> -->
                 </div>
 
                 <!-- 空状态 -->
@@ -296,28 +177,46 @@
                     <p class="text-sm text-gray-400">暂无商品</p>
                 </div>
 
-                <!-- 商品列表 -->
-                <div id="itemList" class="space-y-2 mb-3">
-                    <!-- 商品项由 JS 生成 -->
-                </div>
+                <!-- 商品平铺卡片 (一单一品) -->
+                <div id="productFlatCard" class="hidden"></div>
 
                 <!-- 添加商品按钮 -->
-                <button onclick="openAddProductSheet()" class="w-full py-2.5 border border-dashed border-gray-300 rounded-2xl text-sm text-gray-500 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                <button id="addProductBtn" onclick="openAddProductSheet()" class="w-full py-2.5 border border-dashed border-gray-300 rounded-2xl text-sm text-gray-500 hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
                     <i class="fas fa-plus-circle"></i>
                     添加商品
                 </button>
             </div>
 
-            <!-- 商品合计 -->
+            <!-- 应付金额 -->
             <div class="border-t border-gray-100"></div>
             <div class="p-4 bg-gray-50/50">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <i class="fas fa-coins text-gray-400 text-sm"></i>
-                        <span class="text-sm font-medium text-gray-800">商品合计</span>
+                        <span class="text-sm font-medium text-gray-800">应付金额</span>
                     </div>
                     <span class="text-lg font-bold text-primary" style="font-family:Poppins;">¥<span id="totalAmount">0.00</span></span>
                 </div>
+            </div>
+        </div>
+
+        <!-- ❸ 拍照留存 -->
+        <div class="step-card mb-3">
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-1 h-4 bg-primary rounded-full"></div>
+                    <span class="text-sm font-medium text-gray-800">拍照留存</span>
+                    <span class="text-xs text-gray-400" id="photoCount">(0/9)</span>
+                </div>
+                <div class="photo-grid" id="photoGrid">
+                    <div class="photo-add-btn" id="photoAddBtn" onclick="document.getElementById('photoInput').click()">
+                        <div class="inner">
+                            <i class="fas fa-camera text-gray-400 text-lg"></i>
+                            <span class="text-[11px] text-gray-400">拍照/相册</span>
+                        </div>
+                    </div>
+                </div>
+                <input type="file" id="photoInput" accept="image/*" multiple class="hidden" onchange="handlePhotoSelect(event)">
             </div>
         </div>
 
@@ -328,8 +227,6 @@
                     <div class="w-1 h-4 bg-primary rounded-full"></div>
                     <span class="text-sm font-medium text-gray-800">收款对象</span>
                 </div>
-
-                <!-- 收款对象选择（未选择时显示） -->
                 <div id="payeeOptions" class="space-y-2">
                     <div onclick="pickByScan()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
                         <div class="w-10 h-10 rounded-[12px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] border border-[#11A64A]/10 flex items-center justify-center shrink-0">
@@ -352,8 +249,6 @@
                         <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
                     </div>
                 </div>
-
-                <!-- 已选择卡片 -->
                 <div id="payeeCard" class="hidden flex items-center gap-3 p-3 bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] border border-[#11A64A]/15 rounded-2xl">
                     <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm border border-[#11A64A]/10">
                         <i class="fas fa-user-check text-[#11A64A]"></i>
@@ -369,19 +264,32 @@
             </div>
         </div>
 
-        <!-- 操作按钮 -->
-        <div class="mb-3 px-1 flex gap-3">
-            <button onclick="saveDraft()" class="flex-1 py-3 bg-white border border-gray-200 text-gray-700 font-semibold text-sm rounded-2xl active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5">
-                <i class="fas fa-clock text-gray-400"></i>
-                稍后结算
-            </button>
-            <button onclick="goCashier()" class="flex-1 py-3 bg-primary text-white font-semibold text-sm rounded-2xl active:scale-[0.98] transition-transform shadow-glow flex items-center justify-center gap-1.5">
-                <i class="fas fa-credit-card"></i>
-                立即付款
-            </button>
-        </div>
+        <!-- ❺ 底部操作栏 (灵动岛悬浮设计) -->
+        <div class="mb-2 mt-1">
+            <div class="flex items-center bg-white border border-gray-100 shadow-sm rounded-[24px] p-1.5">
+                
+                <!-- 草稿箱 -->
+                <button onclick="goDraftOrders()" class="relative shrink-0 w-[52px] h-[48px] rounded-[20px] flex items-center justify-center text-gray-500 hover:bg-gray-50 active:scale-95 transition-all group" aria-label="草稿箱">
+                    <div class="w-[38px] h-[38px] rounded-full bg-gray-100/80 group-hover:bg-gray-200/80 flex items-center justify-center transition-colors">
+                        <i class="fas fa-inbox text-[18px] text-gray-600"></i>
+                    </div>
+                    <span id="draftEntryBadge" class="absolute top-0 right-0 w-[18px] h-[18px] bg-[#FF4D4F] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10" style="font-family:Poppins;">0</span>
+                </button>
 
-        <!-- 底部留白 -->
+                <!-- 分割线 -->
+                <div class="w-[1px] h-[24px] bg-gray-200/80 mx-1 shrink-0"></div>
+
+                <!-- 暂存 -->
+                <button onclick="handleTempSave()" id="tempSaveBtn" class="shrink-0 w-[76px] h-[48px] rounded-[20px] flex items-center justify-center text-[14px] font-semibold text-gray-700 active:scale-95 hover:bg-gray-50 transition-all">
+                    暂存
+                </button>
+
+                <!-- 立即付款 (主按钮) -->
+                <button onclick="confirmBilling()" class="flex-1 h-[48px] ml-1 bg-[#11A64A] text-white font-semibold text-[15px] rounded-[20px] active:scale-[0.98] transition-transform shadow-[0_8px_20px_-6px_rgba(17,166,74,0.4)] flex items-center justify-center gap-1.5">
+                    立即付款
+                </button>
+            </div>
+        </div>
         <div class="h-4"></div>
     </div>
 
@@ -399,14 +307,11 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-
-            <!-- 商品名称 -->
+            <div id="sheetProductSuggestions" class="mb-3 space-y-1.5"></div>
             <div class="mb-3">
                 <label class="text-xs text-gray-500 block mb-1.5">商品名称 <span class="text-red-500">*</span></label>
                 <input type="text" id="sheetProductName" placeholder="请输入商品名称" class="custom-input">
             </div>
-
-            <!-- 毛重 (带单位选择) -->
             <div class="mb-3">
                 <label class="text-xs text-gray-500 block mb-1.5">毛重 <span class="text-red-500">*</span></label>
                 <div class="relative flex items-center border border-gray-200 rounded-xl bg-white focus-within:border-[#11A64A] focus-within:ring-1 focus-within:ring-[#11A64A] overflow-hidden transition-all">
@@ -420,8 +325,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- 皮重 -->
             <div class="mb-3">
                 <label class="text-xs text-gray-500 block mb-1.5">皮重</label>
                 <div class="relative">
@@ -429,8 +332,6 @@
                     <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[13px] font-medium unit-display">斤</span>
                 </div>
             </div>
-
-            <!-- 扣减比例 -->
             <div class="mb-3">
                 <label class="text-xs text-gray-500 block mb-1.5">扣减比例</label>
                 <div class="relative">
@@ -438,21 +339,14 @@
                     <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[13px]">%</span>
                 </div>
             </div>
-
-            <!-- 公式展示区 -->
             <div class="mb-3 py-3 px-2 bg-gradient-to-r from-transparent via-[#EBF7F0]/60 to-transparent border-y border-[#11A64A]/10 text-center">
                 <div class="text-[13px] text-gray-500 tracking-wide flex items-center justify-center gap-1.5 flex-wrap">
-                    <span>毛重</span>
-                    <span class="text-gray-300 px-0.5">-</span>
-                    <span>皮重</span>
-                    <span class="text-gray-300 px-0.5">-</span>
-                    <span>扣杂</span>
-                    <span class="text-gray-300 px-0.5">=</span>
+                    <span>毛重</span><span class="text-gray-300 px-0.5">-</span>
+                    <span>皮重</span><span class="text-gray-300 px-0.5">-</span>
+                    <span>扣杂</span><span class="text-gray-300 px-0.5">=</span>
                     <span class="text-[#11A64A] text-[16px] font-bold tracking-normal ml-1">净重: <span id="formulaNet" style="font-family:Poppins;">0.00</span> <span class="unit-display text-[13px]">斤</span></span>
                 </div>
             </div>
-
-            <!-- 单价 -->
             <div class="mb-3">
                 <label class="text-xs text-gray-500 block mb-1.5">单价</label>
                 <div class="relative">
@@ -461,27 +355,17 @@
                     <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-[11px]">元/<span class="unit-display">斤</span></span>
                 </div>
             </div>
-
-            <!-- 备注字段 -->
             <div class="mb-4">
                 <label class="text-xs text-gray-500 block mb-1.5">备注</label>
                 <input type="text" id="sheetProductRemark" placeholder="请输入备注 (选填)" class="custom-input">
             </div>
-
-            <!-- 小计 -->
             <div class="flex items-center justify-between py-3 border-t border-gray-100 mb-4">
                 <span class="text-sm text-gray-600">金额小计</span>
                 <span class="text-lg font-bold text-[#FF4D4F]" style="font-family:Poppins;">¥<span id="sheetSubtotal">0.00</span></span>
             </div>
-
-            <!-- 按钮 -->
             <div class="flex gap-3">
-                <button onclick="closeAddProductSheet()" class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-2xl active:scale-[0.98] transition-transform text-sm">
-                    取消
-                </button>
-                <button onclick="confirmAddProduct()" class="flex-1 py-3 bg-primary text-white font-medium rounded-2xl active:scale-[0.98] transition-transform shadow-glow text-sm">
-                    添加
-                </button>
+                <button onclick="closeAddProductSheet()" class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-2xl active:scale-[0.98] transition-transform text-sm">取消</button>
+                <button onclick="confirmAddProduct()" class="flex-1 py-3 bg-primary text-white font-medium rounded-2xl active:scale-[0.98] transition-transform shadow-glow text-sm" id="sheetConfirmBtn">添加</button>
             </div>
         </div>
     </div>
@@ -497,15 +381,11 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <!-- 搜索框 -->
             <div class="relative mb-4">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
                 <input type="text" id="farmerSearchInput" placeholder="搜索姓名/手机号" class="w-full pl-9 pr-3 py-2.5 bg-gray-50 rounded-xl text-sm outline-none border border-transparent focus:border-[#11A64A]/30 focus:bg-white transition-colors" onkeyup="filterFarmers(this.value)">
             </div>
-            <!-- 农户列表 -->
-            <div id="farmerSelectList" class="max-h-[50vh] overflow-y-auto hide-scrollbar space-y-2">
-                <!-- JS 渲染 -->
-            </div>
+            <div id="farmerSelectList" class="max-h-[50vh] overflow-y-auto hide-scrollbar space-y-2"></div>
         </div>
     </div>
 
@@ -524,47 +404,19 @@
 
 <script>
 // ==================== 初始化 ====================
+const billingQuery = new URLSearchParams(window.location.search);
 const captureState = new URLSearchParams(window.location.search).get('captureState') || '';
 document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader('开单');
+document.getElementById('navBar').innerHTML = renderHeader('开单', billingQuery.get('back') || '');
 document.getElementById('tabBar').innerHTML = renderBuyerTabBar('billing');
 
 // ==================== 数据配置 ====================
 const CATEGORY_CONFIG = {
-    '水果': {
-        color: 'red',
-        icon: 'fa-apple-whole',
-        brandHex: '#11A64A',
-        tagBg: 'bg-[#F0FDF4]',
-        tagText: 'text-[#11A64A]',
-        tagBorder: 'border-[#11A64A]/10'
-    },
-    '蔬菜': {
-        color: 'green',
-        icon: 'fa-carrot',
-        brandHex: '#11A64A',
-        tagBg: 'bg-[#F0FDF4]',
-        tagText: 'text-[#11A64A]',
-        tagBorder: 'border-[#11A64A]/10'
-    },
-    '粮食': {
-        color: 'amber',
-        icon: 'fa-wheat-awn',
-        brandHex: '#11A64A',
-        tagBg: 'bg-[#F0FDF4]',
-        tagText: 'text-[#11A64A]',
-        tagBorder: 'border-[#11A64A]/10'
-    },
-    '其他': {
-        color: 'gray',
-        icon: 'fa-box-open',
-        brandHex: '#11A64A',
-        tagBg: 'bg-[#F0FDF4]',
-        tagText: 'text-[#11A64A]',
-        tagBorder: 'border-[#11A64A]/10'
-    }
+    '水果': { color: 'red', icon: 'fa-apple-whole', brandHex: '#11A64A', tagBg: 'bg-[#F0FDF4]', tagText: 'text-[#11A64A]', tagBorder: 'border-[#11A64A]/10' },
+    '蔬菜': { color: 'green', icon: 'fa-carrot', brandHex: '#11A64A', tagBg: 'bg-[#F0FDF4]', tagText: 'text-[#11A64A]', tagBorder: 'border-[#11A64A]/10' },
+    '粮食': { color: 'amber', icon: 'fa-wheat-awn', brandHex: '#11A64A', tagBg: 'bg-[#F0FDF4]', tagText: 'text-[#11A64A]', tagBorder: 'border-[#11A64A]/10' },
+    '其他': { color: 'gray', icon: 'fa-box-open', brandHex: '#11A64A', tagBg: 'bg-[#F0FDF4]', tagText: 'text-[#11A64A]', tagBorder: 'border-[#11A64A]/10' }
 };
-
 const mockStore = window.BuyerMockStore || null;
 
 // ==================== 状态管理 ====================
@@ -576,10 +428,14 @@ const SECONDARY_CATEGORIES = {
 };
 
 const state = {
-    currentCategory: null, // 初始由渲染逻辑决定显示哪大类
+    currentCategory: null,
     currentSubCategory: null,
-    products: [],
+    product: null, // single product (one-product-per-order)
     payee: null,
+    photos: [], // data URLs
+    editingProduct: false, // true when editing existing product
+    editingOrderId: billingQuery.get('editOrder') || '',
+    tareInputValue: '',
     payeePool: mockStore ? mockStore.getFrequentContacts() : [
         { name: '李大姐', mobile: '138****2233', bank: '邮储银行烟台支行', card: '尾号 2233', payCount: 15 },
         { name: '王大哥', mobile: '139****5612', bank: '邮储银行保定支行', card: '尾号 5612', payCount: 8 },
@@ -587,365 +443,147 @@ const state = {
     ]
 };
 
-// ==================== 品类和历史商品渲染 ====================
+// ==================== 品类渲染 ====================
 function renderPrimaryCategories() {
     const container = document.getElementById('primaryCategoryList');
     const allPrimary = ['粮食', '水果', '蔬菜', '其他'];
-    
-    // 获取用户喜欢的二级品类
     let favSubcats = [];
-    try {
-        favSubcats = JSON.parse(localStorage.getItem('ylt_favorite_categories')) || ['玉米', '小麦', '苹果', '大白菜'];
-    } catch(e) {
-        favSubcats = ['玉米', '小麦', '苹果', '大白菜'];
-    }
-
-    // 过滤：只有包含常用品种的一级大类才会展示
-    const displayCats = allPrimary.filter(cat => {
-        const subs = SECONDARY_CATEGORIES[cat] || [];
-        return subs.some(s => favSubcats.includes(s));
-    });
-
-    if (displayCats.length === 0) {
-        container.innerHTML = '<div class="text-[12px] text-gray-400 py-2">暂无选中品类，请点击“设置”按钮配置</div>';
-        return;
-    }
-
-    // 如果当前选中的分类不在过滤后的列表里，默认选第一个
-    if (!state.currentCategory || !displayCats.includes(state.currentCategory)) {
-        state.currentCategory = displayCats[0];
-    }
-
+    try { favSubcats = JSON.parse(localStorage.getItem('ylt_favorite_categories')) || ['玉米', '小麦', '苹果', '大白菜']; } catch(e) { favSubcats = ['玉米', '小麦', '苹果', '大白菜']; }
+    const displayCats = allPrimary.filter(cat => (SECONDARY_CATEGORIES[cat] || []).some(s => favSubcats.includes(s)));
+    if (displayCats.length === 0) { container.innerHTML = '<div class="text-[12px] text-gray-400 py-2">暂无选中品类，请点击"设置"按钮配置</div>'; return; }
+    if (!state.currentCategory || !displayCats.includes(state.currentCategory)) state.currentCategory = displayCats[0];
     container.innerHTML = displayCats.map(cat => {
-        const config = CATEGORY_CONFIG[cat];
-        if(!config) return '';
+        const c = CATEGORY_CONFIG[cat]; if(!c) return '';
         const isActive = state.currentCategory === cat;
-        
-        if (isActive) {
-            return `
-            <div onclick="selectCategory('${cat}')" class="shrink-0 w-[72px] ${config.tagBg} rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-[#11A64A]/30 transition-all">
-                <i class="fas ${config.icon} text-[18px]" style="color:${config.brandHex}"></i>
-                <span class="text-[11px] font-bold" style="color:${config.brandHex}">${cat}</span>
-            </div>
-            `;
-        } else {
-            return `
-            <div onclick="selectCategory('${cat}')" class="shrink-0 w-[72px] bg-gray-50 rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-transparent hover:bg-gray-100 transition-all">
-                <i class="fas ${config.icon} text-gray-400 text-[18px]"></i>
-                <span class="text-[11px] font-medium text-gray-500">${cat}</span>
-            </div>
-            `;
-        }
+        return isActive
+            ? `<div onclick="selectCategory('${cat}')" class="shrink-0 w-[72px] ${c.tagBg} rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-[#11A64A]/30 transition-all"><i class="fas ${c.icon} text-[18px]" style="color:${c.brandHex}"></i><span class="text-[11px] font-bold" style="color:${c.brandHex}">${cat}</span></div>`
+            : `<div onclick="selectCategory('${cat}')" class="shrink-0 w-[72px] bg-gray-50 rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-transparent hover:bg-gray-100 transition-all"><i class="fas ${c.icon} text-gray-400 text-[18px]"></i><span class="text-[11px] font-medium text-gray-500">${cat}</span></div>`;
     }).join('');
 }
 
 function renderSecondaryCategories() {
     const wrapper = document.getElementById('secondaryCategoryList');
-    if (!state.currentCategory) {
-        wrapper.innerHTML = '';
-        return;
-    }
-    
-    // 获取用户喜欢的二级品类
+    if (!state.currentCategory) { wrapper.innerHTML = ''; return; }
     let favSubcats = [];
-    try {
-        favSubcats = JSON.parse(localStorage.getItem('ylt_favorite_categories')) || ['玉米', '小麦', '苹果', '大白菜'];
-    } catch(e) {}
-
-    // 只展示该大类下且被标记为常用的品种
-    const allInCat = SECONDARY_CATEGORIES[state.currentCategory] || [];
-    const subcats = allInCat.filter(s => favSubcats.includes(s));
-    
-    // 直接平铺所有分类在一行原生横向滚动内。
-    // 就像淡宝、京东首页的分类一样，手指自然左右滑动即可看到所有选项
+    try { favSubcats = JSON.parse(localStorage.getItem('ylt_favorite_categories')) || ['玉米', '小麦', '苹果', '大白菜']; } catch(e) {}
+    const subcats = (SECONDARY_CATEGORIES[state.currentCategory] || []).filter(s => favSubcats.includes(s));
     wrapper.innerHTML = subcats.map(sub => {
         const isActive = state.currentSubCategory === sub;
-        if (isActive) {
-            return `<button onclick="selectSubCategory('${sub.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')" class="shrink-0 max-w-[150px] truncate px-3 py-1.5 rounded-full border border-[#11A64A] bg-[#EBF7F0] text-[#11A64A] text-[12px] font-semibold transition-all">${sub}</button>`;
-        } else {
-            return `<button onclick="selectSubCategory('${sub.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')" class="shrink-0 max-w-[150px] truncate px-3 py-1.5 rounded-full border border-gray-100 bg-gray-50 text-gray-600 text-[12px] hover:bg-gray-100 transition-all">${sub}</button>`;
-        }
+        const escaped = sub.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        return isActive
+            ? `<button onclick="selectSubCategory('${escaped}')" class="shrink-0 max-w-[150px] truncate px-3 py-1.5 rounded-full border border-[#11A64A] bg-[#EBF7F0] text-[#11A64A] text-[12px] font-semibold transition-all">${sub}</button>`
+            : `<button onclick="selectSubCategory('${escaped}')" class="shrink-0 max-w-[150px] truncate px-3 py-1.5 rounded-full border border-gray-100 bg-gray-50 text-gray-600 text-[12px] hover:bg-gray-100 transition-all">${sub}</button>`;
     }).join('');
 }
 
-
-function normalizeCategoryName(name) {
-    if (name === '蔬菜') return '蓔菜';
-    return name || '';
-}
-
-function inferCategoryByName(name) {
-    const safeName = String(name || '').trim();
-    if (!safeName) return '其他';
-    const rules = [
-        { category: '水果', keywords: ['苹果', '梨', '桃', '葡萄', '猕猴桃', '橙', '柚', '香蕉', '草莓', '西瓜'] },
-        { category: '蔬菜', keywords: ['土豆', '黄瓜', '西红柿', '胡萝卜', '白菜', '洋葱', '青椒', '茄子', '萝卜', '生菜', '包菜', '芹菜'] },
-        { category: '粮食', keywords: ['大米', '小麦', '玉米', '稻谷', '花生油', '菜籽油', '粮', '油'] },
-        { category: '禽蛋', keywords: ['鸡蛋', '鸭蛋', '鹅蛋', '鹌鹑蛋', '蛋'] },
-        { category: '肉类', keywords: ['猪肉', '牛肉', '羊肉', '鸡肉', '鸭肉', '肉'] }
-    ];
-    for (const rule of rules) {
-        if (rule.keywords.some(keyword => safeName.includes(keyword))) {
-            return rule.category;
-        }
+function selectCategory(cat) {
+    if (state.product && state.currentCategory && state.currentCategory !== cat) {
+        showAppModal({ title: '更换品类', message: '更换开单品类将清空目前已添加的商品明细，是否继续？', confirmText: '继续更换', cancelText: '取消', confirmClass: 'app-modal-btn-danger',
+            onConfirm: () => { state.product = null; state.currentCategory = cat; state.currentSubCategory = null; renderPrimaryCategories(); renderSecondaryCategories(); renderProductCard(); updateTotalAmount(); }
+        }); return;
     }
-    return '其他';
+    state.currentCategory = cat; state.currentSubCategory = null;
+    renderPrimaryCategories(); renderSecondaryCategories();
 }
+function selectSubCategory(sub) { state.currentSubCategory = sub; renderSecondaryCategories(); }
 
-function buildHistoryProductSuggestions(category, limit) {
-    const targetCategory = normalizeCategoryName(category);
-    if (!targetCategory || !CATEGORY_CONFIG[targetCategory]) return [];
-
-    const orders = mockStore && typeof mockStore.getOrders === 'function'
-        ? mockStore.getOrders()
-        : [];
-    const stats = {};
-
-    orders.forEach(order => {
-        const orderCategory = normalizeCategoryName(order && order.category);
-        const orderTime = new Date(order && order.createdAt ? order.createdAt : 0).getTime() || 0;
-        const items = Array.isArray(order && order.items) ? order.items : [];
-
-        items.forEach(item => {
-            const name = String(item && item.name ? item.name : '').trim();
-            if (!name) return;
-
-            const itemCategory = normalizeCategoryName(item && item.category) || orderCategory || inferCategoryByName(name);
-            if (itemCategory !== targetCategory) return;
-
-            if (!stats[name]) {
-                stats[name] = { name: name, count: 0, lastUsedAt: 0 };
-            }
-            stats[name].count += 1;
-            if (orderTime > stats[name].lastUsedAt) {
-                stats[name].lastUsedAt = orderTime;
-            }
-        });
-    });
-
-    return Object.values(stats)
-        .sort((a, b) => b.count - a.count || b.lastUsedAt - a.lastUsedAt)
-        .slice(0, limit || 5)
-        .map(item => item.name);
-}
-
-// 在添加商品弹窗内渲染历史商品建议标签
+// ==================== 商品建议 ====================
 function renderSheetSuggestions() {
     const container = document.getElementById('sheetProductSuggestions');
-    if (!container) return;
-
-    if (!state.currentCategory) {
-        container.innerHTML = '';
-        return;
-    }
-
-    const config = CATEGORY_CONFIG[state.currentCategory];
-    if (!config) {
-        container.innerHTML = '';
-        return;
-    }
-
-    const historyProducts = buildHistoryProductSuggestions(state.currentCategory, 5);
-
-    if (historyProducts.length === 0) {
-        container.innerHTML = `
-            <div class="text-[11px] text-gray-400">暂无常用商品，请手动输入</div>
-        `;
-        return;
-    }
-
-    const escapeHtml = function(str) {
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
-    };
-
-    container.innerHTML = `
-        <div class="text-[11px] text-gray-400">常用</div>
-        <div class="flex flex-wrap gap-1.5 items-center">
-            ${historyProducts.map(product => {
-                const encoded = encodeURIComponent(String(product));
-                return `<span class="product-tag text-[11px] py-1 px-2 ${config.tagBg} ${config.tagText} border ${config.tagBorder}" onclick="event.stopPropagation(); fillProductName(decodeURIComponent('${encoded}'))">${escapeHtml(product)}</span>`;
-            }).join('')}
-        </div>
-    `;
+    if (!container || !state.currentCategory) { if(container) container.innerHTML = ''; return; }
+    const config = CATEGORY_CONFIG[state.currentCategory]; if (!config) { container.innerHTML = ''; return; }
+    const orders = mockStore && typeof mockStore.getOrders === 'function' ? mockStore.getOrders() : [];
+    const stats = {};
+    orders.forEach(o => { (Array.isArray(o.items) ? o.items : []).forEach(item => { const n = String(item.name||'').trim(); if(n) { if(!stats[n]) stats[n]={name:n,count:0}; stats[n].count++; } }); });
+    const historyProducts = Object.values(stats).sort((a,b)=>b.count-a.count).slice(0,5).map(i=>i.name);
+    if (historyProducts.length === 0) { container.innerHTML = '<div class="text-[11px] text-gray-400">暂无常用商品，请手动输入</div>'; return; }
+    container.innerHTML = `<div class="text-[11px] text-gray-400">常用</div><div class="flex flex-wrap gap-1.5 items-center">${historyProducts.map(p => {
+        const enc = encodeURIComponent(p);
+        return `<span class="product-tag text-[11px] py-1 px-2 ${config.tagBg} ${config.tagText} border ${config.tagBorder}" onclick="event.stopPropagation();document.getElementById('sheetProductName').value=decodeURIComponent('${enc}')">${p.replace(/</g,'&lt;')}</span>`;
+    }).join('')}</div>`;
 }
 
-// 点击建议标签 → 填入商品名称
-function fillProductName(name) {
-    document.getElementById('sheetProductName').value = name;
-}
-
-function selectCategory(cat) {
-    if (state.products.length > 0 && state.currentCategory && state.currentCategory !== cat) {
-        showAppModal({
-            title: '更换品类',
-            message: '更换开单品类将清空目前已添加的商品明细，是否继续？',
-            confirmText: '继续更换',
-            cancelText: '取消',
-            confirmClass: 'app-modal-btn-danger',
-            onConfirm: () => {
-                state.products = [];
-                state.currentCategory = cat;
-                state.currentSubCategory = null;
-                state.isSecondaryExpanded = false;
-                renderPrimaryCategories();
-                renderSecondaryCategories();
-                renderProductList();
-                updateTotalAmount();
-            }
-        });
-        return;
-    }
-    state.currentCategory = cat;
-    state.currentSubCategory = null;
-    state.isSecondaryExpanded = false;
-    renderPrimaryCategories();
-    renderSecondaryCategories();
-}
-
-function selectSubCategory(sub) {
-    state.currentSubCategory = sub;
-    renderSecondaryCategories();
-}
-
-// ==================== 应用内弹窗 ====================
-function showAppModal({ title, message, inputPlaceholder, confirmText, cancelText, confirmClass, onConfirm }) {
-    const overlay = document.getElementById('appModalOverlay');
-    const titleEl = document.getElementById('appModalTitle');
-    const bodyEl = document.getElementById('appModalBody');
-    const btnsEl = document.getElementById('appModalBtns');
-
-    titleEl.textContent = title || '';
-
-    // 构建内容区域
-    if (inputPlaceholder) {
-        bodyEl.innerHTML = `<input type="text" id="appModalInput" class="app-modal-input" placeholder="${inputPlaceholder}" autofocus>`;
-    } else if (message) {
-        bodyEl.innerHTML = `<div class="app-modal-msg">${message}</div>`;
-    } else {
-        bodyEl.innerHTML = '';
-    }
-
-    // 按钮
-    btnsEl.innerHTML = `
-       
-        <button class="app-modal-btn ${confirmClass || 'app-modal-btn-confirm'}" id="appModalConfirmBtn">${confirmText || '确定'}</button>
-    `;
-
-    document.getElementById('appModalConfirmBtn').onclick = function() {
-        if (onConfirm) {
-            const input = document.getElementById('appModalInput');
-            onConfirm(input ? input.value : null);
-        }
-        closeAppModal();
-    };
-
-    overlay.classList.add('show');
-
-    // 自动聚焦输入框
-    setTimeout(() => {
-        const input = document.getElementById('appModalInput');
-        if (input) input.focus();
-    }, 100);
-}
-
-function closeAppModal() {
-    document.getElementById('appModalOverlay').classList.remove('show');
-}
-
-// ==================== 商品列表管理 ====================
-function renderProductList() {
-    const listContainer = document.getElementById('itemList');
+// ==================== 商品管理 (一单一品) ====================
+function renderProductCard() {
+    const flatCard = document.getElementById('productFlatCard');
     const emptyState = document.getElementById('emptyItemState');
-    const countEl = document.getElementById('itemCount');
+    const addBtn = document.getElementById('addProductBtn');
 
-    countEl.textContent = `共 ${state.products.length} 项`;
-
-    if (state.products.length === 0) {
+    if (!state.product) {
+        flatCard.classList.add('hidden'); flatCard.innerHTML = '';
         emptyState.style.display = 'block';
-        listContainer.innerHTML = '';
-    } else {
-        emptyState.style.display = 'none';
-        listContainer.innerHTML = state.products.map((product, index) => {
-            const catConfig = product.category && CATEGORY_CONFIG[product.category] ? CATEGORY_CONFIG[product.category] : null;
-            const iconClass = catConfig ? catConfig.icon : 'fa-tag';
-            const textClass = catConfig ? catConfig.tagText : 'text-gray-400';
-            return `
-            <div class="product-item flex items-center gap-3">
-                <div class="w-9 h-9 rounded-[10px] ${catConfig ? catConfig.tagBg : 'bg-gray-50'} flex items-center justify-center shrink-0 border ${catConfig ? catConfig.tagBorder : 'border-gray-100'} shadow-sm bg-white">
-                    <i class="fas ${iconClass} ${textClass} text-[13px]"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="text-sm font-medium text-gray-800 truncate">${product.name}</div>
-                    <div class="text-xs text-gray-500 mt-0.5">
-                        ${product.price.toFixed(2)}元/${product.unit} × ${product.qty}${product.unit}
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-sm font-bold text-primary" style="font-family:Poppins;">¥${product.subtotal.toFixed(2)}</div>
-                </div>
-                <button onclick="removeProduct(${index})" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-500 transition-colors">
-                    <i class="fas fa-times-circle"></i>
-                </button>
-            </div>
-        `}).join('');
+        addBtn.style.display = 'flex'; addBtn.disabled = false; addBtn.classList.remove('hidden');
+        return;
     }
-
+    emptyState.style.display = 'none';
+    addBtn.style.display = 'none'; addBtn.classList.add('hidden');
+    const p = state.product;
+    const unit = p.unit || '斤';
+    const getRawInput = (rawValue, fallbackValue) => {
+        if (rawValue !== undefined && rawValue !== null) return String(rawValue).trim();
+        if (fallbackValue !== undefined && fallbackValue !== null && Number(fallbackValue) > 0) return String(fallbackValue);
+        return '';
+    };
+    const formatQty = (value) => Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const tareRaw = getRawInput(p.tareWeightRaw, state.tareInputValue);
+    const deductRatioRaw = getRawInput(p.deductRatioRaw, p.deductRatio);
+    const unitPriceRaw = getRawInput(p.unitPriceRaw, p.unitPrice);
+    const hasTare = tareRaw !== '';
+    const hasDeductRatio = deductRatioRaw !== '';
+    const hasPrice = unitPriceRaw !== '';
+    const detailRows = [
+        `<div class="flat-row"><span class="flat-label">毛重</span><span class="flat-value">${formatQty(p.grossWeight)} ${unit}</span></div>`,
+        `<div class="flat-row"><span class="flat-label">皮重</span><span class="flat-value">${hasTare ? formatQty(p.tareWeight) + ' ' + unit : '未填写'}</span></div>`,
+        `<div class="flat-row"><span class="flat-label">扣减比例</span><span class="flat-value">${hasDeductRatio ? Number(p.deductRatio || 0).toFixed(2) + '%' : '-'}</span></div>`,
+        `<div class="flat-row"><span class="flat-label">净重</span><span class="flat-value flat-highlight">${formatQty(p.netWeight)} ${unit}</span></div>`,
+        `<div class="flat-row"><span class="flat-label">单价</span><span class="flat-value">${hasPrice ? '¥' + Number(p.unitPrice).toFixed(2) + '/' + unit : '未填写'}</span></div>`,
+        `<div class="flat-row border-t border-gray-100 pt-2 mt-1"><span class="flat-label font-medium">备注</span><span class="flat-value text-right max-w-[190px] truncate">${p.remark || '-'}</span></div>`
+    ].filter(Boolean).join('');
+    flatCard.classList.remove('hidden');
+    flatCard.innerHTML = `
+    <div class="product-flat-card" onclick="editProduct()">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-semibold text-gray-800">${p.name}</span>
+            <div class="flex items-center gap-2">
+                <button onclick="event.stopPropagation();editProduct()" class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-primary"><i class="fas fa-pen text-xs"></i></button>
+                <button onclick="event.stopPropagation();removeProduct()" class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500"><i class="fas fa-trash-can text-xs"></i></button>
+            </div>
+        </div>
+        ${detailRows}
+    </div>`;
     updateTotalAmount();
 }
 
-
-function removeProduct(index) {
-    state.products.splice(index, 1);
-    renderProductList();
-}
+function removeProduct() { state.product = null; renderProductCard(); }
+function editProduct() { state.editingProduct = true; openAddProductSheet(); }
 
 function updateTotalAmount() {
-    const total = state.products.reduce((sum, p) => sum + p.subtotal, 0);
-    const formatted = total.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    document.getElementById('totalAmount').textContent = formatted;
-
+    const total = state.product ? (state.product.amount || 0) : 0;
+    document.getElementById('totalAmount').textContent = total.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
 // ==================== 添加商品弹窗 ====================
 function openAddProductSheet() {
-    if (!state.currentCategory) {
-        showToast('请先选择品类');
-        return;
-    }
-    // 重置表单
-    document.getElementById('sheetProductName').value = state.currentSubCategory || '';
-    document.getElementById('sheetGrossWeight').value = '';
-    document.getElementById('sheetTareWeight').value = '';
-    document.getElementById('sheetProductUnit').value = '斤';
-    document.getElementById('sheetDeductRatio').value = '';
-    document.getElementById('sheetProductPrice').value = '';
-    document.getElementById('sheetProductRemark').value = '';
-    
-    syncUnit();
-    calcSheetSubtotal();
-    
-    // 打开弹窗
+    if (!state.currentCategory) { showToast('请先选择品类'); return; }
+    const p = state.editingProduct && state.product ? state.product : null;
+    document.getElementById('sheetProductName').value = p ? p.name : (state.currentSubCategory || '');
+    document.getElementById('sheetGrossWeight').value = p ? p.grossWeight : '';
+    document.getElementById('sheetTareWeight').value = p ? (p.tareWeightRaw ?? state.tareInputValue) : '';
+    document.getElementById('sheetDeductRatio').value = p ? (p.deductRatioRaw !== undefined ? p.deductRatioRaw : (Number(p.deductRatio) > 0 ? String(p.deductRatio) : '')) : '';
+    document.getElementById('sheetProductPrice').value = p ? (p.unitPriceRaw !== undefined ? p.unitPriceRaw : (Number(p.unitPrice) > 0 ? String(p.unitPrice) : '')) : '';
+    document.getElementById('sheetProductRemark').value = p ? (p.remark || '') : '';
+    document.getElementById('sheetProductUnit').value = p ? (p.unit || '斤') : '斤';
+    document.getElementById('sheetConfirmBtn').textContent = state.editingProduct ? '保存' : '添加';
+    syncUnit(); calcSheetSubtotal(); renderSheetSuggestions();
     document.getElementById('addProductOverlay').classList.add('show');
     document.getElementById('addProductSheet').classList.add('show');
 }
-
 function closeAddProductSheet() {
     document.getElementById('addProductSheet').classList.remove('show');
     document.getElementById('addProductOverlay').classList.remove('show');
+    state.editingProduct = false;
 }
-
-function syncUnit() {
-    const unit = document.getElementById('sheetProductUnit').value;
-    document.querySelectorAll('.unit-display').forEach(el => {
-        el.textContent = unit;
-    });
-}
-
+function syncUnit() { const u = document.getElementById('sheetProductUnit').value; document.querySelectorAll('.unit-display').forEach(el => el.textContent = u); }
 function calcSheetSubtotal() {
     const gross = parseFloat(document.getElementById('sheetGrossWeight').value) || 0;
     const tare = parseFloat(document.getElementById('sheetTareWeight').value) || 0;
@@ -955,402 +593,348 @@ function calcSheetSubtotal() {
     
     // 扣杂计算
     const deductRatio = parseFloat(document.getElementById('sheetDeductRatio').value) || 0;
-    const deductWeight = netWeightWithoutDeduct * (deductRatio / 100);
+    const deduction = netWeightWithoutDeduct * (deductRatio / 100);
     
-    // 最终净重
-    const finalNet = Math.max(0, netWeightWithoutDeduct - deductWeight);
-    
-    // 更新公式UI
-    document.getElementById('formulaNet').textContent = finalNet.toFixed(2);
-    
-    // 小计金额
+    const net = Math.max(0, netWeightWithoutDeduct - deduction);
+    document.getElementById('formulaNet').textContent = net.toFixed(2);
     const price = parseFloat(document.getElementById('sheetProductPrice').value) || 0;
-    const subtotal = finalNet * price;
-    document.getElementById('sheetSubtotal').textContent = subtotal.toFixed(2);
+    document.getElementById('sheetSubtotal').textContent = (net * price).toFixed(2);
 }
-
 function confirmAddProduct() {
     const name = document.getElementById('sheetProductName').value.trim();
     const gross = parseFloat(document.getElementById('sheetGrossWeight').value) || 0;
+    const tareRaw = document.getElementById('sheetTareWeight').value.trim();
     const tare = parseFloat(document.getElementById('sheetTareWeight').value) || 0;
+    const deductRatioRaw = document.getElementById('sheetDeductRatio').value.trim();
     const deductRatio = parseFloat(document.getElementById('sheetDeductRatio').value) || 0;
+    const deduction = Math.max(0, gross - tare) * (deductRatio / 100);
+    const unitPriceRaw = document.getElementById('sheetProductPrice').value.trim();
     const price = parseFloat(document.getElementById('sheetProductPrice').value) || 0;
     const remark = document.getElementById('sheetProductRemark').value.trim();
-    const unit = document.getElementById('sheetProductUnit').value.trim() || '斤';
-
-    if (!name) {
-        showToast('请输入商品名称');
-        return;
-    }
-    if (gross <= 0) {
-        showToast('请录入有效的毛重数字');
-        return;
-    }
-    if (tare < 0) {
-        showToast('皮重不可为负数');
-        return;
-    }
-    if (gross < tare) {
-        showToast('毛重不能小于皮重');
-        return;
-    }
-
-    const netWeightWithoutDeduct = gross - tare;
-    const deductWeight = netWeightWithoutDeduct * (deductRatio / 100);
-    const finalNet = netWeightWithoutDeduct - deductWeight;
-    const subtotal = finalNet * price;
-
-    const product = {
+    const unit = document.getElementById('sheetProductUnit').value || '斤';
+    if (!name) { showToast('请输入商品名称'); return; }
+    if (gross <= 0) { showToast('请录入有效的毛重数字'); return; }
+    if (gross < tare) { showToast('毛重不能小于皮重'); return; }
+    const netWeight = Math.max(0, gross - tare - deduction);
+    const amount = netWeight * price;
+    const wasEditingProduct = state.editingProduct;
+    state.tareInputValue = tareRaw;
+    state.product = {
         name,
-        gross,
-        tare,
-        net: finalNet, // 真正的最终净重
+        grossWeight: gross,
+        tareWeight: tare,
+        tareWeightRaw: tareRaw,
         deductRatio,
-        qty: finalNet, // 系统向下兼容，qty 即为最终运算用的净重量
-        price,
+        deductRatioRaw,
+        deduction,
+        netWeight,
+        unitPrice: price,
+        unitPriceRaw,
         unit,
+        amount,
         remark,
-        subtotal,
         category: state.currentCategory
     };
-
-    state.products.push(product);
-    renderProductList();
-    closeAddProductSheet();
-    showToast('商品添加成功');
+    state.editingProduct = false;
+    renderProductCard(); closeAddProductSheet();
+    showToast(wasEditingProduct ? '商品已更新' : '商品添加成功');
 }
 
-// ==================== 付款对象管理 ====================
+// ==================== 拍照留存 ====================
+function renderPhotoGrid() {
+    const grid = document.getElementById('photoGrid');
+    const countEl = document.getElementById('photoCount');
+    countEl.textContent = `(${state.photos.length}/9)`;
+    let html = state.photos.map((url, i) => `
+        <div class="photo-thumb">
+            <img src="${url}" alt="照片${i+1}">
+            <div class="photo-del" onclick="removePhoto(${i})"><i class="fas fa-times"></i></div>
+        </div>
+    `).join('');
+    if (state.photos.length < 9) {
+        html += `<div class="photo-add-btn" onclick="document.getElementById('photoInput').click()"><div class="inner"><i class="fas fa-camera text-gray-400 text-lg"></i><span class="text-[11px] text-gray-400">拍照/相册</span></div></div>`;
+    }
+    grid.innerHTML = html;
+}
+function handlePhotoSelect(event) {
+    const files = Array.from(event.target.files || []);
+    const remaining = 9 - state.photos.length;
+    if (remaining <= 0) { showToast('最多 9 张照片'); event.target.value = ''; return; }
+    const toProcess = files.slice(0, remaining);
+    let loaded = 0;
+    toProcess.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) { state.photos.push(e.target.result); loaded++; if(loaded === toProcess.length) renderPhotoGrid(); };
+        reader.readAsDataURL(file);
+    });
+    if (files.length > remaining) showToast('最多 9 张照片，已忽略多余照片');
+    event.target.value = '';
+}
+function removePhoto(index) { state.photos.splice(index, 1); renderPhotoGrid(); }
+
+// ==================== 收款对象管理 ====================
 function setPayee(payee) {
     state.payee = payee;
-
     const options = document.getElementById('payeeOptions');
     const card = document.getElementById('payeeCard');
-
-    if (!payee) {
-        if (options) options.classList.remove('hidden');
-        if (card) card.classList.add('hidden');
-        return;
-    }
-
-    const nameText = payee.name + '（' + payee.mobile + '）';
-    const metaText = payee.bank + ' · ' + payee.card;
-
-    if (options) options.classList.add('hidden');
-    if (card) {
-        card.classList.remove('hidden');
-        document.getElementById('payeeName').textContent = nameText;
-        document.getElementById('payeeMeta').textContent = metaText;
-    }
+    if (!payee) { if(options) options.classList.remove('hidden'); if(card) card.classList.add('hidden'); return; }
+    if(options) options.classList.add('hidden');
+    if(card) { card.classList.remove('hidden'); document.getElementById('payeeName').textContent = payee.name + '（' + payee.mobile + '）'; document.getElementById('payeeMeta').textContent = (payee.bank||'') + ' · ' + (payee.card||''); }
 }
-
-function clearPayee() {
-    state.payee = null;
-    const options = document.getElementById('payeeOptions');
-    const card = document.getElementById('payeeCard');
-    if (options) options.classList.remove('hidden');
-    if (card) card.classList.add('hidden');
-}
-
+function clearPayee() { state.payee = null; document.getElementById('payeeOptions').classList.remove('hidden'); document.getElementById('payeeCard').classList.add('hidden'); }
 function pickByScan() {
     const chosen = mockStore && mockStore.getRandomContact ? mockStore.getRandomContact() : state.payeePool[Math.floor(Math.random() * state.payeePool.length)];
-    if (!chosen) {
-        showToast('暂无合作农户，请先完成首笔付款');
-        return;
-    }
-    setPayee(chosen);
-    showToast('扫码识别成功，已选中收款对象');
+    if (!chosen) { showToast('暂无合作农户'); return; }
+    setPayee(chosen); showToast('扫码识别成功');
 }
-
-// 农户选择弹窗逻辑
-function openFarmerSelectSheet() {
-    renderFarmerList(state.payeePool);
-    document.getElementById('farmerSelectOverlay').classList.add('show');
-    document.getElementById('farmerSelectSheet').classList.add('show');
-}
-
-function closeFarmerSelectSheet() {
-    document.getElementById('farmerSelectSheet').classList.remove('show');
-    document.getElementById('farmerSelectOverlay').classList.remove('show');
-    document.getElementById('farmerSearchInput').value = '';
-}
-
+function openFarmerSelectSheet() { renderFarmerList(state.payeePool); document.getElementById('farmerSelectOverlay').classList.add('show'); document.getElementById('farmerSelectSheet').classList.add('show'); }
+function closeFarmerSelectSheet() { document.getElementById('farmerSelectSheet').classList.remove('show'); document.getElementById('farmerSelectOverlay').classList.remove('show'); document.getElementById('farmerSearchInput').value = ''; }
 function renderFarmerList(list) {
     const container = document.getElementById('farmerSelectList');
-    if(list.length === 0) {
-        container.innerHTML = `<div class="py-10 text-center text-sm text-gray-400">暂无符合条件的农户</div>`;
-        return;
-    }
-    
-    function maskMobileStr(m) {
-        if(!m) return '无手机号';
-        if(m.includes('*') || m.includes('尾号') || m.includes('手')) return m;
-        if(m.length >= 11) return m.substring(0,3) + '****' + m.substring(m.length - 4);
-        return m;
-    }
-
-    function maskCardStr(c) {
-        if(!c) return '无卡号';
-        if(c.includes('*') || c.includes('尾号') || c.includes('卡')) return c;
-        if(c.length > 4) return '尾号 ' + c.substring(c.length - 4);
-        return c;
-    }
-    
-    container.innerHTML = list.map(farmer => {
-        const farmerJson = JSON.stringify(farmer).replace(/"/g, '&quot;');
-        
-        const mobileDisp = maskMobileStr(farmer.mobile);
-        const bankDisp = `${farmer.bank || '未知银行'} · ${maskCardStr(farmer.card)}`;
-        const countBadge = farmer.payCount ? `<span class="inline-block text-[10px] px-2 py-0.5 rounded-full bg-[#EBF7F0] text-[#11A64A] font-medium border border-[#11A64A]/20 mt-[1px]">付款${farmer.payCount}次</span>` : '';
-
-        return `
-        <div onclick="selectFarmer(${farmerJson})" class="bg-white rounded-2xl p-4 flex items-center gap-3.5 mb-2.5 cursor-pointer border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] active:scale-[0.98] transition-all">
-            <div class="w-12 h-12 rounded-full bg-[#EBF7F0] flex items-center justify-center shrink-0 border border-[#11A64A]/10 self-start mt-0.5">
-                <i class="fas fa-user text-[#11A64A]/80 text-[20px]"></i>
-            </div>
-            
-            <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                <div class="flex items-center flex-wrap gap-2 text-[#11A64A]">
-                    <span class="text-[16px] font-semibold text-gray-800 tracking-tight">${farmer.name}</span>
-                    ${countBadge}
-                </div>
-                <div class="text-[14px] font-medium text-gray-600 tracking-wide" style="font-family:Poppins,monospace;">${mobileDisp}</div>
-                <div class="flex items-center gap-1.5 text-[12px] text-gray-400/90 font-medium tracking-wide" style="font-family:Poppins,monospace;">
-                    <i class="fas fa-building-columns text-[10px] text-gray-400"></i>
-                    <span>${bankDisp}</span>
-                </div>
-            </div>
-            
-            <div class="shrink-0 flex items-center self-stretch pt-2">
-                <div class="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100">
-                    <i class="fas fa-check text-gray-300 text-[10px]"></i>
-                </div>
-            </div>
-        </div>
-        `;
+    if(list.length === 0) { container.innerHTML = '<div class="py-10 text-center text-sm text-gray-400">暂无符合条件的农户</div>'; return; }
+    function mask(m) { if(!m) return '无'; if(m.includes('*')||m.includes('尾号')) return m; return m.length>=11 ? m.substring(0,3)+'****'+m.substring(m.length-4) : m; }
+    function maskCard(c) { if(!c) return '无卡号'; if(c.includes('*')||c.includes('尾号')) return c; return c.length>4 ? '尾号 '+c.substring(c.length-4) : c; }
+    container.innerHTML = list.map(f => {
+        const fj = JSON.stringify(f).replace(/"/g,'&quot;');
+        const badge = f.payCount ? `<span class="inline-block text-[10px] px-2 py-0.5 rounded-full bg-[#EBF7F0] text-[#11A64A] font-medium border border-[#11A64A]/20">付款${f.payCount}次</span>` : '';
+        return `<div onclick="selectFarmer(${fj})" class="bg-white rounded-2xl p-4 flex items-center gap-3.5 mb-2.5 cursor-pointer border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] active:scale-[0.98] transition-all">
+            <div class="w-12 h-12 rounded-full bg-[#EBF7F0] flex items-center justify-center shrink-0 border border-[#11A64A]/10"><i class="fas fa-user text-[#11A64A]/80 text-[20px]"></i></div>
+            <div class="flex-1 min-w-0 flex flex-col gap-1"><div class="flex items-center flex-wrap gap-2"><span class="text-[16px] font-semibold text-gray-800">${f.name}</span>${badge}</div><div class="text-[14px] font-medium text-gray-600" style="font-family:Poppins,monospace;">${mask(f.mobile)}</div><div class="flex items-center gap-1.5 text-[12px] text-gray-400/90" style="font-family:Poppins,monospace;"><i class="fas fa-building-columns text-[10px] text-gray-400"></i><span>${(f.bank||'未知银行')+' · '+maskCard(f.card)}</span></div></div>
+            <div class="shrink-0"><div class="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100"><i class="fas fa-check text-gray-300 text-[10px]"></i></div></div></div>`;
     }).join('');
 }
+function filterFarmers(q) { q=(q||'').trim().toLowerCase(); renderFarmerList(q ? state.payeePool.filter(f=>(f.name&&f.name.toLowerCase().includes(q))||(f.mobile&&f.mobile.includes(q))) : state.payeePool); }
+function selectFarmer(f) { setPayee(f); closeFarmerSelectSheet(); showToast('已选中：'+f.name); }
 
-function filterFarmers(query) {
-    const q = (query || '').trim().toLowerCase();
-    if(!q) {
-        renderFarmerList(state.payeePool);
-        return;
+// ==================== 暂存与草稿箱 ====================
+function updateDraftEntryBadge() {
+    const badge = document.getElementById('draftEntryBadge');
+    if (!badge || !mockStore || typeof mockStore.getOrderCounts !== 'function') return;
+    const counts = mockStore.getOrderCounts();
+    const draftCount = Number(counts && counts.draft || 0);
+    if (draftCount > 0) {
+        badge.textContent = draftCount > 99 ? '99+' : String(draftCount);
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
     }
-    const filtered = state.payeePool.filter(f => 
-        (f.name && f.name.toLowerCase().includes(q)) || 
-        (f.mobile && f.mobile.includes(q))
-    );
-    renderFarmerList(filtered);
 }
 
-function selectFarmer(farmer) {
-    setPayee(farmer);
-    closeFarmerSelectSheet();
-    showToast('已选中：' + farmer.name);
+function goDraftOrders() {
+    window.location.href = 'buyer-order-manage.html?tab=draft';
+}
+
+function hasTareInput() {
+    return String(state.tareInputValue || '').trim() !== '';
+}
+
+function hasUnitPriceInput(product) {
+    const target = product || state.product;
+    if (!target) return false;
+    if (target.unitPriceRaw !== undefined && target.unitPriceRaw !== null) {
+        return String(target.unitPriceRaw).trim() !== '';
+    }
+    return Number(target.unitPrice) > 0;
+}
+
+function resolveDraftStatusFromForm() {
+    const hasPrice = hasUnitPriceInput(state.product);
+    if (!hasTareInput()) return 'draft';
+    if (!hasPrice) return 'pending_price';
+    return 'unpaid';
+}
+
+function saveOrderByStatus(status) {
+    const order = buildOrderData(status);
+    if (state.editingOrderId && mockStore && typeof mockStore.findOrderById === 'function') {
+        const original = mockStore.findOrderById(state.editingOrderId);
+        if (original && original.createdAt) {
+            order.createdAt = original.createdAt;
+        }
+    }
+    if (mockStore && typeof mockStore.upsertOrder === 'function') mockStore.upsertOrder(order);
+    updateDraftEntryBadge();
+    const messages = {
+        draft: { create: '已暂存到挂单', update: '挂单已更新' },
+        pending_price: { create: '已暂存到待开价', update: '待开价订单已更新' },
+        unpaid: { create: '已暂存到待结算', update: '订单已更新为待结算' }
+    };
+    const cfg = messages[status];
+    showToast(state.editingOrderId ? cfg.update : cfg.create);
+    resetBillingForm();
+}
+
+function handleTempSave() {
+    if (!state.payee) { showToast('请先选择收款对象'); return; }
+    if (!state.product) { showToast('请先添加商品'); return; }
+    if (Number(state.product.grossWeight || 0) <= 0) { showToast('请至少填写毛重'); return; }
+    const status = resolveDraftStatusFromForm();
+    saveOrderByStatus(status);
+}
+
+// ==================== 构建订单数据 ====================
+
+function buildOrderData(status) {
+    const p = state.product || {};
+    const orderNo = state.editingOrderId || (mockStore && typeof mockStore.buildOrderNo === 'function' ? mockStore.buildOrderNo(new Date()) : 'SL' + Date.now());
+    const netWeight = p.netWeight || 0;
+    const amount = p.amount || 0;
+    const unit = p.unit || '斤';
+    return {
+        id: orderNo, status: status,
+        productName: p.name || '', categoryPrimary: state.currentCategory || '', categorySecondary: state.currentSubCategory || '',
+        grossWeight: p.grossWeight || 0, tareWeight: p.tareWeight || 0, deduction: p.deduction || 0,
+        tareWeightRaw: p.tareWeightRaw !== undefined ? p.tareWeightRaw : (state.tareInputValue || ''),
+        deductRatioRaw: p.deductRatioRaw !== undefined ? p.deductRatioRaw : '',
+        unitPriceRaw: p.unitPriceRaw !== undefined ? p.unitPriceRaw : '',
+        netWeight: netWeight, unitPrice: p.unitPrice || 0, unit: unit,
+        amount: Number(amount.toFixed(2)),
+        summary: p.name ? (p.name + ' × ' + netWeight.toLocaleString() + unit) : '',
+        payeeName: state.payee ? state.payee.name : '', payeeMobile: state.payee ? state.payee.mobile : '',
+        payeeBank: state.payee ? (state.payee.bank||'') : '', payeeCard: state.payee ? (state.payee.card||'') : '',
+        photos: state.photos.slice(),
+        items: p.name ? [{ name: p.name, qty: netWeight, unit: unit, price: p.unitPrice || 0, subtotal: Number(amount.toFixed(2)) }] : [],
+        category: state.currentCategory || '',
+        createdAt: new Date().toISOString(), payMethod: '', remark: p.remark || ''
+    };
+}
+
+// ==================== 保存逻辑 ====================
+function saveDraft() {
+    handleTempSave();
+}
+function savePendingPrice() {
+    handleTempSave();
+}
+function saveUnpaid() {
+    handleTempSave();
+}
+
+// ==================== 确认开单 ====================
+function confirmBilling() {
+    if (!state.currentCategory) { showToast('请先选择开单品类'); return; }
+    if (!state.product) { showToast('请先添加商品'); return; }
+    if (state.product.grossWeight <= 0) { showToast('请填写毛重'); return; }
+    if (!state.product.unitPrice || state.product.unitPrice <= 0) { showToast('请填写单价'); return; }
+    if (!state.payee) { showToast('请选择收款农户'); return; }
+    const order = buildOrderData('unpaid');
+    if (state.editingOrderId && mockStore && typeof mockStore.findOrderById === 'function') {
+        const original = mockStore.findOrderById(state.editingOrderId);
+        if (original && original.createdAt) {
+            order.createdAt = original.createdAt;
+        }
+    }
+    if (mockStore && typeof mockStore.upsertOrder === 'function') mockStore.upsertOrder(order);
+    window.location.href = 'buyer-billing-done.html?orderNo=' + encodeURIComponent(order.id);
 }
 
 // ==================== 工具函数 ====================
-function showToast(msg) {
-    const tip = document.getElementById('toastTip');
-    tip.textContent = msg;
-    tip.classList.add('show');
-    clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(() => tip.classList.remove('show'), 2000);
+function showToast(msg) { const t = document.getElementById('toastTip'); t.textContent = msg; t.classList.add('show'); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => t.classList.remove('show'), 2000); }
+function showAppModal({ title, message, inputPlaceholder, confirmText, cancelText, confirmClass, onConfirm }) {
+    const overlay = document.getElementById('appModalOverlay');
+    document.getElementById('appModalTitle').textContent = title || '';
+    document.getElementById('appModalBody').innerHTML = inputPlaceholder ? `<input type="text" id="appModalInput" class="app-modal-input" placeholder="${inputPlaceholder}" autofocus>` : (message ? `<div class="app-modal-msg">${message}</div>` : '');
+    document.getElementById('appModalBtns').innerHTML = `<button class="app-modal-btn ${confirmClass || 'app-modal-btn-confirm'}" id="appModalConfirmBtn">${confirmText || '确定'}</button>`;
+    document.getElementById('appModalConfirmBtn').onclick = function() { if(onConfirm) { const inp = document.getElementById('appModalInput'); onConfirm(inp ? inp.value : null); } closeAppModal(); };
+    overlay.classList.add('show');
 }
-
-function buildOrderNo() {
-    if (mockStore && typeof mockStore.buildOrderNo === 'function') {
-        return mockStore.buildOrderNo(new Date());
-    }
-    const now = new Date();
-    return 'SL' +
-        now.getFullYear() +
-        String(now.getMonth() + 1).padStart(2, '0') +
-        String(now.getDate()).padStart(2, '0') +
-        String(now.getHours()).padStart(2, '0') +
-        String(now.getMinutes()).padStart(2, '0') +
-        String(now.getSeconds()).padStart(2, '0');
-}
-
-// ==================== 结算跳转 ====================
-// ==================== 稍后结算（保存草稿） ====================
-function saveDraft() {
-    if (!state.currentCategory) {
-        showToast('请先选择品类');
-        return;
-    }
-    if (state.products.length === 0) {
-        showToast('请至少添加一项商品');
-        return;
-    }
-    if (!state.payee) {
-        showToast('请选择收款对象');
-        return;
-    }
-
-    const items = state.products.map(p => ({
-        name: p.name,
-        qty: p.qty,
-        unit: p.unit,
-        price: Number(p.price.toFixed(2)),
-        subtotal: Number(p.subtotal.toFixed(2)),
-        remark: p.remark || ''
-    }));
-    const amount = items.reduce((sum, item) => sum + item.subtotal, 0);
-    const summary = items.length === 1
-        ? items[0].name + ' x ' + items[0].qty + items[0].unit
-        : items[0].name + ' 等' + items.length + '项';
-
-    const orderDraft = {
-        id: buildOrderNo(),
-        status: 'unpaid',
-        payeeName: state.payee.name,
-        payeeMobile: state.payee.mobile,
-        payeeBank: state.payee.bank,
-        payeeCard: state.payee.card,
-        summary: summary,
-        amount: Number(amount.toFixed(2)),
-        createdAt: new Date().toISOString(),
-        payMethod: '',
-        items: items,
-        category: state.currentCategory
-    };
-
-    if (mockStore && typeof mockStore.upsertOrder === 'function') {
-        mockStore.upsertOrder(orderDraft);
-    }
-
-    // 显示成功提示
-    showAppModal({
-        title: '开单成功',
-        message: `订单已生成，稍后可在付款记录或合并付款中进行结算。`,
-        confirmText: '知道了',
-        // cancelText: '查看订单',
-        onConfirm: function() {
-            // 留在当前页面，重置表单
-            resetBillingForm();
-        }
-    });
-}
-
-// 重置开单表单
-function resetBillingForm() {
-    state.products = [];
-    state.payee = null;
-    renderProductList();
-    clearPayee();
-}
-
-// ==================== 立即付款 ====================
-function goCashier() {
-    if (!state.currentCategory) {
-        showToast('请先选择品类');
-        return;
-    }
-    if (state.products.length === 0) {
-        showToast('请至少添加一项商品');
-        return;
-    }
-    if (!state.payee) {
-        showToast('请选择收款对象');
-        return;
-    }
-
-    const items = state.products.map(p => ({
-        name: p.name,
-        qty: p.qty,
-        unit: p.unit,
-        price: Number(p.price.toFixed(2)),
-        subtotal: Number(p.subtotal.toFixed(2)),
-        remark: p.remark || ''
-    }));
-    const amount = items.reduce((sum, item) => sum + item.subtotal, 0);
-    const summary = items.length === 1
-        ? items[0].name + ' x ' + items[0].qty + items[0].unit
-        : items[0].name + ' 等' + items.length + '项';
-
-    const createdAt = new Date().toISOString();
-    const orderNo = buildOrderNo();
-    const orderDraft = {
-        id: orderNo,
-        status: 'paying',
-        payeeName: state.payee.name,
-        payeeMobile: state.payee.mobile,
-        payeeBank: state.payee.bank,
-        payeeCard: state.payee.card,
-        summary: summary,
-        amount: Number(amount.toFixed(2)),
-        createdAt: createdAt,
-        payMethod: '',
-        items: items,
-        category: state.currentCategory
-    };
-
-    if (mockStore && typeof mockStore.upsertOrder === 'function') {
-        mockStore.upsertOrder(orderDraft);
-    }
-
-    const params = new URLSearchParams({
-        source: 'billing',
-        orderNo: orderNo,
-        mode: 'detail',
-        amount: amount.toFixed(2),
-        payeeName: state.payee.name,
-        payeeMobile: state.payee.mobile,
-        payeeBank: state.payee.bank,
-        payeeCard: state.payee.card,
-        summary: summary,
-        createdAt: createdAt,
-        itemCount: String(items.length),
-        items: JSON.stringify(items),
-        category: state.currentCategory
-    });
-
-    window.location.href = 'buyer-cashier.html?' + params.toString();
-}
+function closeAppModal() { document.getElementById('appModalOverlay').classList.remove('show'); }
+function resetBillingForm() { state.product = null; state.payee = null; state.photos = []; state.editingOrderId = ''; state.tareInputValue = ''; renderProductCard(); clearPayee(); renderPhotoGrid(); }
 
 // ==================== 页面初始化 ====================
 function hydrateFromQuery() {
     const params = new URLSearchParams(window.location.search);
-
     const payeeName = params.get('payeeName');
-    if (payeeName) {
-        setPayee({
-            name: payeeName,
-            mobile: params.get('payeeMobile') || '手机号未提供',
-            bank: params.get('payeeBank') || '结算银行未提供',
-            card: params.get('payeeCard') || '尾号 ****'
-        });
-    }
-
-    if (params.get('picked') === '1') {
-        showToast('已选择收款对象');
+    if (payeeName) { setPayee({ name: payeeName, mobile: params.get('payeeMobile') || '', bank: params.get('payeeBank') || '', card: params.get('payeeCard') || '尾号 ****' }); }
+    if (params.get('picked') === '1') showToast('已选择收款对象');
+    const editOrderId = params.get('editOrder');
+    if (editOrderId && mockStore && typeof mockStore.findOrderById === 'function') {
+        const order = mockStore.findOrderById(editOrderId);
+        if (order) {
+            state.editingOrderId = editOrderId;
+            state.currentCategory = order.categoryPrimary || order.category || state.currentCategory;
+            const subCategoryPool = SECONDARY_CATEGORIES[state.currentCategory] || [];
+            state.currentSubCategory = subCategoryPool.includes(order.categorySecondary) ? order.categorySecondary : null;
+            const tareWeightRaw = order.tareWeightRaw !== undefined
+                ? String(order.tareWeightRaw ?? '')
+                : (order.tareWeight === 0
+                    ? (order.status === 'draft' ? '' : '0')
+                    : (order.tareWeight !== undefined && order.tareWeight !== null && order.tareWeight !== '' ? String(order.tareWeight) : ''));
+            const deductRatioRaw = order.deductRatioRaw !== undefined
+                ? String(order.deductRatioRaw ?? '')
+                : (order.deductRatio !== undefined && order.deductRatio !== null && order.deductRatio !== '' && Number(order.deductRatio) > 0
+                    ? String(order.deductRatio)
+                    : '');
+            const unitPriceRaw = order.unitPriceRaw !== undefined
+                ? String(order.unitPriceRaw ?? '')
+                : (order.unitPrice !== undefined && order.unitPrice !== null && order.unitPrice !== '' && Number(order.unitPrice) > 0
+                    ? String(order.unitPrice)
+                    : '');
+            state.product = {
+                name: order.productName || (order.items && order.items[0] && order.items[0].name) || '',
+                grossWeight: order.grossWeight || 0,
+                tareWeight: order.tareWeight || 0,
+                tareWeightRaw: tareWeightRaw,
+                deductRatio: order.deductRatio !== undefined ? Number(order.deductRatio || 0) : (order.grossWeight && order.grossWeight > (order.tareWeight || 0)
+                    ? Number((((order.deduction || 0) / Math.max(order.grossWeight - (order.tareWeight || 0), 1)) * 100).toFixed(2))
+                    : 0),
+                deductRatioRaw: deductRatioRaw,
+                deduction: order.deduction || 0,
+                netWeight: order.netWeight || 0,
+                unitPrice: order.unitPrice || 0,
+                unitPriceRaw: unitPriceRaw,
+                unit: order.unit || '斤',
+                amount: order.amount || 0,
+                remark: order.remark || '',
+                category: order.categoryPrimary || order.category || '',
+            };
+            state.tareInputValue = tareWeightRaw;
+            state.photos = Array.isArray(order.photos)
+                ? order.photos.map(function(p) { return (p && typeof p === 'object') ? (p.url || '') : String(p || ''); }).filter(Boolean)
+                : [];
+            if (order.payeeName) {
+                setPayee({
+                    name: order.payeeName,
+                    mobile: order.payeeMobile || '',
+                    bank: order.payeeBank || '',
+                    card: order.payeeCard || '',
+                });
+            } else {
+                clearPayee();
+            }
+            // 根据订单状态动态生成标题和返回地址
+            var backHref = params.get('back') || 'buyer-order-manage.html?tab=draft';
+            var editTitle = '编辑订单';
+            var toastText = '已回填订单信息';
+            if (order.status === 'draft') {
+                editTitle = '编辑挂单';
+                toastText = '已回填挂单信息';
+            } else if (order.status === 'pending_price') {
+                editTitle = '补充单价';
+                toastText = '已回填待开价信息';
+            } else if (order.status === 'unpaid' || order.status === 'pending_client') {
+                editTitle = '订单详情';
+                toastText = '已回填订单信息';
+            }
+            document.getElementById('navBar').innerHTML = renderHeader(editTitle, backHref);
+            // 回填后重新渲染所有依赖 state 的 UI
+            renderPrimaryCategories();
+            renderSecondaryCategories();
+            renderProductCard();
+            renderPhotoGrid();
+            showToast(toastText);
+        }
     }
 }
 
-// ==================== 启动 ====================
-renderPrimaryCategories();
-renderSecondaryCategories();
-renderProductList();
-hydrateFromQuery();
-
-// 初始状态：关闭弹窗
+renderPrimaryCategories(); renderSecondaryCategories(); renderProductCard(); renderPhotoGrid(); hydrateFromQuery(); updateDraftEntryBadge();
 document.getElementById('addProductSheet').classList.remove('show');
 document.getElementById('addProductOverlay').classList.remove('show');
-
-// 点击遮罩层关闭弹窗
-document.getElementById('addProductOverlay').addEventListener('click', function() {
-    closeAddProductSheet();
-});
+document.getElementById('addProductOverlay').addEventListener('click', closeAddProductSheet);
 
 if (captureState === 'modal') {
-    state.currentCategory = '粮食';
-    renderPrimaryCategories();
-    renderSecondaryCategories();
-    setTimeout(function() {
-        openAddProductSheet();
-    }, 120);
+    state.currentCategory = '粮食'; renderPrimaryCategories(); renderSecondaryCategories();
+    setTimeout(function() { openAddProductSheet(); }, 120);
 }
 </script>
 </body>

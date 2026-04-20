@@ -89,6 +89,71 @@
         .switch-role-modal-overlay.show .switch-role-modal-sheet {
             transform: translateY(0);
         }
+        .account-switch-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 94;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .account-switch-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .account-switch-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .account-switch-modal-overlay.show .account-switch-modal-sheet {
+            transform: translateY(0);
+        }
+        .account-option-card {
+            border: 1px solid rgba(17, 24, 39, 0.06);
+            border-radius: 16px;
+            background: #fff;
+            transition: all 0.18s ease;
+        }
+        .account-option-card.active {
+            border-color: rgba(17, 166, 74, 0.25);
+            background: #F5FBF7;
+            box-shadow: 0 6px 16px rgba(17, 166, 74, 0.08);
+        }
+        .version-switch-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 96;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .version-switch-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .version-switch-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .version-switch-modal-overlay.show .version-switch-modal-sheet {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -118,12 +183,11 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xl font-bold text-gray-900 truncate">李小农果园</span>
-                            <span class="text-[10px] bg-[#E5F5EC] text-[#11A64A] px-2 py-0.5 rounded-full font-medium shrink-0">卖方</span>
+                            <span id="farmerDisplayName" class="text-xl font-bold text-gray-900 truncate">李小农果园</span>
                         </div>
                         <div class="text-sm text-gray-500 flex items-center gap-1.5" style="font-family:Poppins;">
-                            <span id="farmerTopMerchantNo">6026248888</span>
-                            <i class="far fa-copy text-gray-400 text-[11px] cursor-pointer active:text-gray-900 transition-colors" onclick="return copyTopMerchantNo(event, 'farmerTopMerchantNo')" title="复制商户号"></i>
+                            <span id="farmerTopMobile">13900006666</span>
+                            <i class="far fa-copy text-gray-400 text-[11px] cursor-pointer active:text-gray-900 transition-colors" onclick="return copyTopMobile(event, 'farmerTopMobile')" title="复制手机号"></i>
                         </div>
                     </div>
                     <div class="w-7 h-7 rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)] flex items-center justify-center shrink-0">
@@ -191,6 +255,34 @@
                     <span class="text-[15px] font-medium text-gray-700 tracking-wide">账户管理</span>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            <!-- 切换版本 -->
+            <a href="#" onclick="return openVersionSwitcher(event)" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-font text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">切换版本</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="currentVersionHint" class="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[12px] font-bold transition-all duration-300">标准版</span>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            <!-- 切换账号 -->
+            <a href="#" onclick="return openAccountSwitcher(event)" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-repeat text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">切换账号</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="currentAccountHint" class="text-[11px] text-gray-400 font-poppins">13700005555</span>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
             </a>
             <div class="h-px bg-gray-50 mx-4"></div>
             <!-- 报表分析 -->
@@ -281,6 +373,59 @@
         </div>
     </div>
 
+    <!-- 账号切换弹窗 -->
+    <div id="accountSwitchModal" class="account-switch-modal-overlay" onclick="closeAccountSwitcher()">
+        <div class="account-switch-modal-sheet" onclick="event.stopPropagation()">
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-1">切换账号</div>
+            <div class="text-[12px] text-gray-500 text-center mb-4">选择一个预置演示账号，直接切换查看不同场景</div>
+            <div id="accountSwitchList" class="space-y-2.5 max-h-[48vh] overflow-y-auto no-scrollbar"></div>
+            <button class="w-full h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform mt-4" onclick="closeAccountSwitcher()">关闭</button>
+        </div>
+    </div>
+
+    <!-- 版本切换弹窗 -->
+    <div id="versionSwitchModal" class="version-switch-modal-overlay" onclick="closeVersionSwitcher()">
+        <div class="version-switch-modal-sheet" onclick="event.stopPropagation()">
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-5">切换版本</div>
+            
+            <div class="space-y-3">
+                <!-- 标准版 -->
+                <div class="flex items-center justify-between p-4 rounded-xl border border-primary bg-primary/5 cursor-pointer version-option transition-all duration-200" data-version="standard" onclick="selectVersionOption('standard')">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <i class="fas fa-mobile-screen text-primary"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-[15px] font-semibold text-gray-800">标准版</div>
+                            <div class="text-[11px] text-gray-400">常规字体大小，适合日常使用</div>
+                        </div>
+                    </div>
+                    <div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center version-check shrink-0">
+                        <i class="fas fa-check text-white text-[10px]"></i>
+                    </div>
+                </div>
+                
+                <!-- 关怀版 -->
+                <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white cursor-pointer version-option transition-all duration-200" data-version="elderly" onclick="selectVersionOption('elderly')">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center shrink-0">
+                            <i class="fas fa-heart text-orange-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-[15px] font-semibold text-gray-800">关怀版</div>
+                            <div class="text-[11px] text-gray-400">大字体设计，视觉更清晰</div>
+                        </div>
+                    </div>
+                    <div class="w-5 h-5 rounded-full border border-gray-200 version-check shrink-0"></div>
+                </div>
+            </div>
+            
+            <button class="w-full h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-all mt-6 shadow-lg shadow-primary/20" onclick="confirmSwitchVersion()">确认切换</button>
+        </div>
+    </div>
+
     <!-- 底部导航栏 -->
     <div id="tabBar"></div>
 </div>
@@ -295,6 +440,22 @@ if (window.__FIGMA_CAPTURE_MODE__) {
     var farmerAvatar = document.getElementById('farmerAvatar');
     if (farmerAvatar) {
         farmerAvatar.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23DDEFE4'/%3E%3Ccircle cx='60' cy='46' r='22' fill='%2311A64A' fill-opacity='0.22'/%3E%3Cpath d='M24 100c8-18 21-27 36-27s28 9 36 27' fill='%2311A64A' fill-opacity='0.22'/%3E%3C/svg%3E";
+    }
+}
+
+function renderFarmerProfileContext() {
+    var currentUser = typeof UserIdentityStore !== 'undefined' ? UserIdentityStore.getCurrentUser() : null;
+    var nameEl = document.getElementById('farmerDisplayName');
+    var mobileEl = document.getElementById('farmerTopMobile');
+    var currentAccountHintEl = document.getElementById('currentAccountHint');
+    if (nameEl) {
+        nameEl.textContent = currentUser && currentUser.name ? currentUser.name : '李小农果园';
+    }
+    if (mobileEl && currentUser && currentUser.mobile) {
+        mobileEl.textContent = currentUser.mobile;
+    }
+    if (currentAccountHintEl) {
+        currentAccountHintEl.textContent = currentUser && currentUser.mobile ? currentUser.mobile : '--';
     }
 }
 
@@ -340,37 +501,41 @@ function showToast(msg) {
     }, 1500);
 }
 
-function copyTopMerchantNo(event, id) {
+function copyTopMobile(event, id) {
     if (event) {
         if (typeof event.preventDefault === 'function') event.preventDefault();
         if (typeof event.stopPropagation === 'function') event.stopPropagation();
         if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
     }
-    var merchantNo = (document.getElementById(id) || {}).textContent || '';
-    if (!merchantNo) {
-        showToast('未获取到商户号');
+    var mobile = (document.getElementById(id) || {}).textContent || '';
+    if (!mobile) {
+        showToast('未获取到手机号');
         return false;
     }
     if (navigator.clipboard) {
-        navigator.clipboard.writeText(merchantNo).then(function() {
-            showToast('商户号已复制');
+        navigator.clipboard.writeText(mobile).then(function() {
+            showToast('手机号已复制');
         }).catch(function() {
             showToast('复制失败，请手动复制');
         });
     } else {
         var input = document.createElement('input');
-        input.value = merchantNo;
+        input.value = mobile;
         document.body.appendChild(input);
         input.select();
         try {
             document.execCommand('copy');
-            showToast('商户号已复制');
+            showToast('手机号已复制');
         } catch (e) {
             showToast('复制失败，请手动复制');
         }
         document.body.removeChild(input);
     }
     return false;
+}
+
+function copyTopMerchantNo(event, id) {
+    return copyTopMobile(event, id);
 }
 
 function openLogoutModal(event) {
@@ -394,8 +559,69 @@ function confirmLogout() {
     window.location.href = 'login.html';
 }
 
+function renderAccountSwitchList() {
+    var list = document.getElementById('accountSwitchList');
+    if (!list || typeof UserIdentityStore === 'undefined' || !UserIdentityStore.listDemoUsers) return;
+    var currentUser = UserIdentityStore.getCurrentUser();
+    var currentMobile = currentUser && currentUser.mobile ? currentUser.mobile : '';
+    var users = UserIdentityStore.listDemoUsers();
+    list.innerHTML = users.map(function(user) {
+        var active = user.mobile === currentMobile;
+        var roleText = (user.roles || []).map(function(role) {
+            return role === 'buyer' ? '收购商' : '农户';
+        }).join(' / ');
+        return '<button type="button" class="account-option-card w-full p-4 text-left ' + (active ? 'active' : '') + '" onclick="switchDemoAccount(\'' + user.mobile + '\')">'
+            + '<div class="flex items-start gap-3">'
+            + '<div class="w-10 h-10 rounded-[12px] ' + (active ? 'bg-[#EBF7F0] border border-[#11A64A]/10' : 'bg-gray-50 border border-gray-100') + ' flex items-center justify-center shrink-0">'
+            + '<i class="fas fa-user-circle ' + (active ? 'text-[#11A64A]' : 'text-gray-400') + ' text-[16px]"></i>'
+            + '</div>'
+            + '<div class="flex-1 min-w-0">'
+            + '<div class="flex items-center gap-2 mb-1">'
+            + '<span class="text-[15px] font-semibold text-gray-800 truncate">' + (user.name || '未命名账号') + '</span>'
+            + (active ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-[#E5F5EC] text-[#11A64A] font-medium shrink-0">当前账号</span>' : '')
+            + '</div>'
+            + '<div class="text-[12px] text-gray-500 font-poppins mb-1">' + user.mobile + '</div>'
+            + '<div class="text-[12px] text-gray-400">' + (roleText || '--') + '</div>'
+            + '</div>'
+            + '</div>'
+            + '</button>';
+    }).join('');
+}
+
+function openAccountSwitcher(event) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+    }
+    var modal = document.getElementById('accountSwitchModal');
+    if (!modal) return false;
+    renderAccountSwitchList();
+    modal.classList.add('show');
+    return false;
+}
+
+function closeAccountSwitcher() {
+    var modal = document.getElementById('accountSwitchModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function switchDemoAccount(mobile) {
+    if (!mobile || typeof UserIdentityStore === 'undefined' || !UserIdentityStore.switchAccount) return;
+    var result = UserIdentityStore.switchAccount(mobile, 'farmer');
+    if (!result) {
+        showToast('切换账号失败');
+        return;
+    }
+    showToast('已切换账号');
+    setTimeout(function() {
+        window.location.href = result.homeUrl || 'farmer-home.html';
+    }, 250);
+}
+
 // 页面加载时初始化
 initWechatNotify();
+renderFarmerProfileContext();
 
 // === 身份切换逻辑 ===
 var _switchTargetRole = null;
@@ -410,9 +636,11 @@ function getSwitchActionText(role) {
 (function initSwitchRole() {
     var otherRole = _defaultSwitchRole;
     var label = getSwitchActionText(otherRole);
+    var hasMultipleRoles = false;
     if (typeof UserIdentityStore !== 'undefined') {
         var user = UserIdentityStore.getCurrentUser();
         if (user && UserIdentityStore.hasMultipleRoles()) {
+            hasMultipleRoles = true;
             otherRole = UserIdentityStore.getOtherRole() || _defaultSwitchRole;
             label = UserIdentityStore.getRoleLabel(otherRole);
         }
@@ -425,7 +653,7 @@ function getSwitchActionText(role) {
     var chipWrap = document.getElementById('farmerSwitchRoleWrap');
     var chipLabel = document.getElementById('farmerSwitchRoleLabel');
     if (chipWrap) {
-        chipWrap.classList.remove('hidden');
+        chipWrap.classList.toggle('hidden', !hasMultipleRoles);
     }
     if (chipLabel) {
         chipLabel.textContent = '切换到' + _switchTargetActionText;
@@ -460,6 +688,70 @@ function confirmSwitchRole() {
         return;
     }
     window.location.href = _switchTargetRole === 'buyer' ? 'buyer-home.html' : 'farmer-home.html';
+}
+
+// 版本切换
+var currentAppVersion = 'standard';
+var tempSelectedVersion = 'standard';
+
+function openVersionSwitcher(e) {
+    if (e) e.preventDefault();
+    tempSelectedVersion = currentAppVersion;
+    updateVersionOptionUI(tempSelectedVersion);
+    document.getElementById('versionSwitchModal').classList.add('show');
+    return false;
+}
+
+function closeVersionSwitcher() {
+    document.getElementById('versionSwitchModal').classList.remove('show');
+}
+
+function selectVersionOption(version) {
+    tempSelectedVersion = version;
+    updateVersionOptionUI(version);
+}
+
+function updateVersionOptionUI(version) {
+    var options = document.querySelectorAll('.version-option');
+    options.forEach(function(opt) {
+        var isTarget = opt.getAttribute('data-version') === version;
+        var checkEl = opt.querySelector('.version-check');
+        if (isTarget) {
+            opt.classList.add('border-primary', 'bg-primary/5');
+            opt.classList.remove('border-gray-100', 'bg-white');
+            if (checkEl) {
+                checkEl.classList.add('bg-primary');
+                checkEl.classList.remove('border', 'border-gray-200');
+                checkEl.innerHTML = '<i class="fas fa-check text-white text-[10px]"></i>';
+            }
+        } else {
+            opt.classList.remove('border-primary', 'bg-primary/5');
+            opt.classList.add('border-gray-100', 'bg-white');
+            if (checkEl) {
+                checkEl.classList.remove('bg-primary');
+                checkEl.classList.add('border', 'border-gray-200');
+                checkEl.innerHTML = '';
+            }
+        }
+    });
+}
+
+function confirmSwitchVersion() {
+    currentAppVersion = tempSelectedVersion;
+    var hintEl = document.getElementById('currentVersionHint');
+    if (hintEl) {
+        hintEl.textContent = currentAppVersion === 'standard' ? '标准版' : '关怀版';
+        if (currentAppVersion === 'elderly') {
+            hintEl.classList.add('bg-orange-50', 'text-orange-500');
+            hintEl.classList.remove('bg-primary/10', 'text-primary');
+        } else {
+            hintEl.classList.remove('bg-orange-50', 'text-orange-500');
+            hintEl.classList.add('bg-primary/10', 'text-primary');
+        }
+    }
+    
+    showToast('已切换至' + (currentAppVersion === 'standard' ? '标准版' : '关怀版'));
+    setTimeout(closeVersionSwitcher, 300);
 }
 
 if (captureState === 'modal') {
