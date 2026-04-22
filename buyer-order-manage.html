@@ -129,7 +129,8 @@
         }
         .order-card-frame { overflow: hidden; border-radius: 12px; }
         .order-card:active { background: #FAFAFA; }
-        .order-main-card { padding: 12px 14px; }
+        .order-main-card { padding: 12px 16px 12px 18px; }
+        .draft-card-content { padding-left: 18px; }
         /* 选中态 */
         .order-card.selected { background: #F0FDF4; border-color: rgba(17,166,74,0.28); }
         /* 行 1：标题 + 右上提示/金额 */
@@ -139,6 +140,11 @@
         }
         .order-title {
             font-size: 15px; font-weight: 700; color: #1F2937; line-height: 1.3;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .order-subtitle {
+            margin-top: -2px;
+            font-size: 12px; color: #6B7280; font-weight: 500;
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
         .order-amount {
@@ -222,7 +228,51 @@
             box-shadow: 0 2px 6px rgba(17,166,74,0.18);
         }
         .order-enter-btn:active { transform: scale(0.97); }
-
+        .order-card-shell {
+            display: flex; align-items: stretch; gap: 8px;
+        }
+        .order-card-body {
+            flex: 1; min-width: 0;
+        }
+        .order-side-enter {
+            width: 32px; min-width: 32px;
+            display: flex; align-items: center; justify-content: center;
+            color: #9CA3AF;
+            padding: 0; margin: -12px -12px -12px 0; flex-shrink: 0;
+        }
+        .order-side-enter:active {
+            color: #6B7280; transform: scale(0.97);
+        }
+        .order-side-enter i { font-size: 14px; }
+        .order-time-row {
+            display: flex; align-items: center; justify-content: flex-end;
+            padding-top: 8px; margin-top: 8px;
+            border-top: 1px solid #F3F4F6;
+        }
+        .order-time-text {
+            font-size: 11px; color: #9CA3AF; white-space: nowrap;
+        }
+        .order-flow-row {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; padding-top: 8px; margin-top: 8px;
+            border-top: 1px solid #F3F4F6;
+        }
+        .order-flow-info {
+            display: inline-flex; align-items: center; gap: 6px;
+            min-width: 0; overflow: hidden;
+            font-size: 12px; color: #4B5563;
+        }
+        .order-flow-info i {
+            font-size: 11px; color: #9CA3AF; flex-shrink: 0;
+        }
+        .order-flow-info.transfer-out i { color: #3B82F6; }
+        .order-flow-info.transfer-in i { color: #F59E0B; }
+        .order-flow-info .flow-text {
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .order-flow-info .name {
+            color: #1F2937; font-weight: 600;
+        }
         /* 兼容旧样式（保留以防其他地方用到） */
         .order-status-pill {
             display: inline-flex; align-items: center; justify-content: center;
@@ -726,6 +776,14 @@ function renderCompactMetrics(rows) {
     }).join('')}</div>`;
 }
 
+function getOrderFlowTime(order) {
+    if (!order) return '';
+    if (order.status === 'pending_client' || order.fromClientName) {
+        return smartTime(order.transferredAt || order.createdAt);
+    }
+    return smartTime(order.createdAt);
+}
+
 function renderCurrentTab() {
     const orders = getTabOrders();
     const area = document.getElementById('listArea');
@@ -759,24 +817,28 @@ function renderEmpty() {
 function renderDraftCard(o) {
     const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '商品';
     const payee = o.payeeName || '李大姐';
+    const tareText = Number(o.tareWeight || 0) > 0 ? fmtQty(o.tareWeight || 0, o.unit) : '待填写';
     const swiped = state.swipedId === o.id;
     return `<div class="swipe-wrapper ${swiped?'swiped':''} mb-2.5" id="swipe-${o.id}">
-        <div class="swipe-content order-card order-main-card" onclick="goEditOrder('${o.id}','draft')">
-            <div class="order-title-row">
-                <span class="order-title">${name}</span>
-                <span class="order-miss-tag"><i class="fas fa-circle-exclamation"></i>缺皮重</span>
-            </div>
-            <div class="order-data-row">
-                <span class="order-data-item"><span class="order-data-label">毛重</span><span class="order-data-value">${fmtQty(o.grossWeight || 0, o.unit)}</span></span>
-                <span class="order-data-sep">|</span>
-                <span class="order-data-item"><span class="order-data-label">皮重</span><span class="order-data-value miss">待填写</span></span>
-            </div>
-            <div class="order-footer-row">
-                <div class="order-footer-info">
-                    <i class="fas fa-user"></i><span class="payee">${payee}</span>
-                    <span class="dot">·</span><span class="time">${smartTime(o.createdAt)}</span>
+        <div class="swipe-content order-card order-main-card draft-card-content" onclick="goEditOrder('${o.id}','draft')">
+            <div class="order-card-shell">
+                <div class="order-card-body">
+                    <div class="order-title-row">
+                        <span class="order-title">${payee}</span>
+                    </div>
+                    <div class="order-subtitle">${name}</div>
+                    <div class="order-data-row">
+                        <span class="order-data-item"><span class="order-data-label">毛重</span><span class="order-data-value">${fmtQty(o.grossWeight || 0, o.unit)}</span></span>
+                        <span class="order-data-sep">|</span>
+                        <span class="order-data-item"><span class="order-data-label">皮重</span><span class="order-data-value ${tareText === '待填写' ? 'miss' : ''}">${tareText}</span></span>
+                    </div>
+                    <div class="order-time-row">
+                        <span class="order-time-text">${smartTime(o.createdAt)}</span>
+                    </div>
                 </div>
-                <button class="order-enter-btn" onclick="event.stopPropagation();goEditOrder('${o.id}','draft')">编辑</button>
+                <button class="order-side-enter" onclick="event.stopPropagation();goEditOrder('${o.id}','draft')">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
         <div class="swipe-delete" onclick="event.stopPropagation();deleteOrder('${o.id}')"><i class="fas fa-trash-can mr-1"></i>删除</div>
@@ -793,28 +855,54 @@ function renderPriceCard(o) {
         <div class="swipe-content order-card order-main-card ${checked?'selected':''}" onclick="toggleSelect('${o.id}')">
         <div class="flex items-start gap-2.5">
             <div class="check-box ${checked?'checked':''} mt-0.5"><i class="fas fa-check"></i></div>
-            <div class="flex-1 min-w-0">
-                <div class="order-title-row">
-                    <span class="order-title">${name}</span>
-                    <span class="order-miss-tag"><i class="fas fa-circle-exclamation"></i>缺单价</span>
-                </div>
-                <div class="order-data-row">
-                    <span class="order-data-item"><span class="order-data-label">净重</span><span class="order-data-value">${fmtQty(o.netWeight || 0, o.unit)}</span></span>
-                    <span class="order-data-sep">|</span>
-                    <span class="order-data-item"><span class="order-data-label">单价</span><span class="order-data-value miss">待填写</span></span>
-                </div>
-                <div class="order-footer-row">
-                    <div class="order-footer-info">
-                        <i class="fas fa-user"></i><span class="payee">${payee}</span>
-                        <span class="dot">·</span><span class="time">${smartTime(o.createdAt)}</span>
+            <div class="order-card-shell flex-1 min-w-0">
+                <div class="order-card-body">
+                    <div class="order-title-row">
+                        <span class="order-title">${payee}</span>
                     </div>
-                    <button class="order-enter-btn" onclick="event.stopPropagation();goEditOrder('${o.id}','pending_price')">补价</button>
+                    <div class="order-subtitle">${name}</div>
+                    <div class="order-data-row">
+                        <span class="order-data-item"><span class="order-data-label">重量</span><span class="order-data-value">${fmtQty(o.netWeight || 0, o.unit)}</span></span>
+                        <span class="order-data-sep">|</span>
+                        <span class="order-data-item"><span class="order-data-label">单价</span><span class="order-data-value miss">待填写</span></span>
+                    </div>
+                    <div class="order-time-row">
+                        <span class="order-time-text">${smartTime(o.createdAt)}</span>
+                    </div>
                 </div>
+                <button class="order-side-enter" onclick="event.stopPropagation();goEditOrder('${o.id}','pending_price')">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
         </div>
         <div class="swipe-delete" onclick="event.stopPropagation();deleteOrder('${o.id}')"><i class="fas fa-trash-can mr-1"></i>删除</div>
     </div>`;
+}
+
+function renderUnpaidFlow(o) {
+    if (o.status === 'pending_client' && o.clientName) {
+        return {
+            rowClass: 'transfer-out',
+            icon: 'fa-paper-plane',
+            text: `已转给 <span class="name">${o.clientName}</span>`,
+            time: getOrderFlowTime(o)
+        };
+    }
+    if (o.fromClientName) {
+        return {
+            rowClass: 'transfer-in',
+            icon: 'fa-inbox',
+            text: `<span class="name">${o.fromClientName}</span> 转来`,
+            time: getOrderFlowTime(o)
+        };
+    }
+    return {
+        rowClass: '',
+        icon: 'fa-clock',
+        text: '待结算',
+        time: getOrderFlowTime(o)
+    };
 }
 
 // ---- 待结算卡片 ----
@@ -823,29 +911,8 @@ function renderUnpaidCard(o) {
     const payee = o.payeeName || '未选择';
     const checked = state.selectedIds.has(o.id);
     const isPendingClient = o.status === 'pending_client';
-    const isFromClient = !!o.fromClientName;
     const swiped = state.swipedId === o.id;
-
-    let statusRow = '';
-    if (isPendingClient && o.clientName) {
-        statusRow = `<div class="order-status-row">
-            <div class="order-status-info transfer-out">
-                <i class="fas fa-paper-plane"></i>
-                <span class="label">已转给 <span class="name">${o.clientName}</span></span>
-            </div>
-            <div class="order-status-actions">
-                <button class="order-enter-btn" onclick="event.stopPropagation();goEditOrder('${o.id}','unpaid')">详情</button>
-                <button class="withdraw-btn" onclick="event.stopPropagation();doWithdraw('${o.id}')">撤回</button>
-            </div>
-        </div>`;
-    } else if (isFromClient) {
-        statusRow = `<div class="order-status-row">
-            <div class="order-status-info transfer-in">
-                <i class="fas fa-inbox"></i>
-                <span class="label"><span class="name">${o.fromClientName}</span> 转来</span>
-            </div>
-        </div>`;
-    }
+    const flow = renderUnpaidFlow(o);
 
     // pending_client 不能直接删除（需先撤回）
     const canDelete = !isPendingClient;
@@ -857,24 +924,27 @@ function renderUnpaidCard(o) {
         <div class="swipe-content order-card order-main-card ${checked?'selected':''}" onclick="toggleSelect('${o.id}')">
         <div class="flex items-start gap-2.5">
             <div class="check-box ${checked?'checked':''} mt-0.5"><i class="fas fa-check"></i></div>
-            <div class="flex-1 min-w-0">
-                <div class="order-title-row">
-                    <span class="order-title">${name}</span>
-                    <span class="order-amount">¥${fmt(o.amount)}</span>
-                </div>
-                <div class="order-data-row">
-                    <span class="order-data-item"><span class="order-data-label">净重</span><span class="order-data-value">${fmtQty(o.netWeight || 0, o.unit)}</span></span>
-                    <span class="order-data-sep">×</span>
-                    <span class="order-data-item"><span class="order-data-label">单价</span><span class="order-data-value">${fmtUnitPrice(o.unitPrice, o.unit)}</span></span>
-                </div>
-                <div class="order-footer-row">
-                    <div class="order-footer-info">
-                        <i class="fas fa-user"></i><span class="payee">${payee}</span>
-                        <span class="dot">·</span><span class="time">${smartTime(o.createdAt)}</span>
+            <div class="order-card-shell flex-1 min-w-0">
+                <div class="order-card-body">
+                    <div class="order-title-row">
+                        <span class="order-title">${payee}</span>
+                        <span class="order-amount">¥${fmt(o.amount)}</span>
                     </div>
-                    ${isPendingClient ? '' : `<button class="order-enter-btn" onclick="event.stopPropagation();goEditOrder('${o.id}','unpaid')">详情</button>`}
+                    <div class="order-subtitle">${name}</div>
+                    <div class="order-data-row">
+                        <span class="order-data-item"><span class="order-data-label">重量</span><span class="order-data-value">${fmtQty(o.netWeight || 0, o.unit)}</span></span>
+                    </div>
+                    <div class="order-flow-row">
+                        <div class="order-flow-info ${flow.rowClass}">
+                            <i class="fas ${flow.icon}"></i>
+                            <span class="flow-text">${flow.text}</span>
+                        </div>
+                        <span class="order-time-text">${flow.time}</span>
+                    </div>
                 </div>
-                ${statusRow}
+                <button class="order-side-enter" onclick="event.stopPropagation();goEditOrder('${o.id}','unpaid')">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
         </div>

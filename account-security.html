@@ -39,7 +39,7 @@
         </div>
 
         <div class="mt-5">
-            <button id="addAccountBtn" onclick="openAccountForm()" class="w-full h-12 rounded-2xl bg-primary text-white text-[15px] font-semibold shadow-glow active:scale-[0.98] transition-transform">
+            <button id="addAccountBtn" onclick="goAddAccount()" class="w-full h-12 rounded-2xl bg-primary text-white text-[15px] font-semibold shadow-glow active:scale-[0.98] transition-transform">
                 新增账户
             </button>
         </div>
@@ -54,10 +54,13 @@
                 </button>
             </div>
 
-            <div class="grid grid-cols-3 gap-1 rounded-2xl bg-gray-100 p-1 mb-4">
-                <button id="accountTypeSelf" type="button" onclick="setAccountType('self_private')" class="h-9 rounded-xl text-[12px] font-medium transition-colors">本人银行卡</button>
-                <button id="accountTypeOther" type="button" onclick="setAccountType('other_private')" class="h-9 rounded-xl text-[12px] font-medium transition-colors">非本人银行卡</button>
-                <button id="accountTypePublic" type="button" onclick="setAccountType('public')" class="h-9 rounded-xl text-[12px] font-medium transition-colors">对公账户</button>
+            <div class="mb-4">
+                <label class="block text-[12px] text-gray-500 mb-1.5">账户类型</label>
+                <select id="accountTypeSelect" onchange="setAccountType(this.value)" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white appearance-none" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%239CA3AF%22 d=%22M6 8L1 3h10z%22/></svg>');background-repeat:no-repeat;background-position:right 12px center;">
+                    <option value="self_private">本人银行卡</option>
+                    <option value="other_private">非本人银行卡</option>
+                    <option value="public">对公账户</option>
+                </select>
             </div>
 
             <div id="uploadSection" class="mb-4">
@@ -105,6 +108,11 @@
                     <input id="authConfirmInput" type="checkbox" class="mt-0.5 accent-[#11A64A]">
                     <span class="text-[12px] leading-5 text-gray-500">确认使用非本人银行卡进行结算</span>
                 </label>
+            </div>
+            <div id="bankToggleWrap" class="mt-3 text-center" style="display:none;">
+                <button type="button" id="bankToggleLink" onclick="toggleBankMode()" class="text-[12px] text-gray-400 underline active:text-gray-600 transition-colors">
+                    没有邮储银行卡？使用其他银行 >
+                </button>
             </div>
             <div class="mt-5 flex gap-3">
                 <button onclick="closeAccountForm()" class="flex-1 h-11 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 active:scale-[0.98] transition-transform">取消</button>
@@ -183,6 +191,7 @@
     var pendingDeleteId = null;
     var pendingDefaultId = null;
     var currentAccountType = 'self_private';
+    var isPostalBank = true;
     var uploadState = { idFront: false, idBack: false, bankCard: false };
     var currentProfile = isFarmerPage
         ? { name: '李大姐', idNo: '370611197802146628' }
@@ -232,6 +241,7 @@
     }
 
     function initializeAccountForm() {
+        isPostalBank = true;
         renderBankOptions();
         setAccountType('self_private');
     }
@@ -279,17 +289,8 @@
 
     function setAccountType(type) {
         currentAccountType = type;
-        var buttons = [
-            ['accountTypeSelf', 'self_private'],
-            ['accountTypeOther', 'other_private'],
-            ['accountTypePublic', 'public']
-        ];
-        buttons.forEach(function(item) {
-            var el = document.getElementById(item[0]);
-            var active = item[1] === type;
-            el.className = 'h-9 rounded-xl text-[12px] font-medium transition-colors ' +
-                (active ? 'bg-white text-[#11A64A] shadow-sm' : 'text-gray-500');
-        });
+        var sel = document.getElementById('accountTypeSelect');
+        if (sel) sel.value = type;
 
         document.getElementById('uploadSection').style.display = type === 'public' ? 'none' : 'block';
         document.getElementById('idUploadGrid').style.display = type === 'other_private' ? 'grid' : 'none';
@@ -323,6 +324,52 @@
                 document.getElementById('ownerIdNoInput').value = '';
             }
         }
+
+        updateBankModeUI();
+    }
+
+    function toggleBankMode() {
+        isPostalBank = !isPostalBank;
+        updateBankModeUI();
+    }
+
+    function updateBankModeUI() {
+        var bankField = document.getElementById('bankNameInput').parentElement;
+        var branchField = document.getElementById('branchNameInput').parentElement;
+        var toggleLink = document.getElementById('bankToggleLink');
+        var toggleWrap = document.getElementById('bankToggleWrap');
+
+        if (!isFarmerPage) {
+            bankField.style.display = 'none';
+            branchField.style.display = 'none';
+            if (toggleWrap) toggleWrap.style.display = 'none';
+            return;
+        }
+
+        if (toggleWrap) toggleWrap.style.display = 'block';
+
+        if (isPostalBank) {
+            bankField.style.display = 'none';
+            branchField.style.display = 'none';
+            if (toggleLink) toggleLink.textContent = '没有邮储银行卡？使用其他银行 >';
+        } else {
+            bankField.style.display = 'block';
+            branchField.style.display = 'block';
+            if (toggleLink) toggleLink.textContent = '返回使用邮储银行卡 >';
+            renderNonPostalBankOptions();
+        }
+    }
+
+    function renderNonPostalBankOptions() {
+        var bankInput = document.getElementById('bankNameInput');
+        var banks = Object.keys(bankBranchMap).filter(function(b) {
+            return b !== '中国邮政储蓄银行';
+        });
+        bankInput.innerHTML = banks.map(function(bank) {
+            return '<option value="' + bank + '">' + bank + '</option>';
+        }).join('');
+        bankInput.value = banks[0] || '';
+        syncBranchOptions();
     }
 
     function getDefaultAccount() {
@@ -415,6 +462,12 @@
             '</div>';
     }
 
+    function goAddAccount() {
+        var role = isFarmerPage ? 'farmer' : 'buyer';
+        var backSource = encodeURIComponent(sourcePage);
+        window.location.href = 'account-add.html?role=' + role + '&source=' + backSource;
+    }
+
     function openAccountForm() {
         initializeAccountForm();
         var modal = document.getElementById('accountModal');
@@ -432,6 +485,7 @@
     }
 
     function clearAccountForm() {
+        isPostalBank = true;
         uploadState = { idFront: false, idBack: false, bankCard: false };
         document.getElementById('cardNoInput').value = '';
         document.getElementById('holderNameInput').value = '';
@@ -491,13 +545,25 @@
     }
 
     function submitAccountForm() {
-        var bank = document.getElementById('bankNameInput').value;
-        var branch = document.getElementById('branchNameInput').value;
         var cardNo = document.getElementById('cardNoInput').value.trim().replace(/\s+/g, '');
         var holder = document.getElementById('holderNameInput').value.trim();
         var idNo = document.getElementById('ownerIdNoInput').value.trim().replace(/\s+/g, '');
 
-        if (!bank || !branch || !cardNo || !holder) {
+        var bank, branch;
+        if (!isFarmerPage || isPostalBank) {
+            bank = '中国邮政储蓄银行';
+            var postalBranches = bankBranchMap['中国邮政储蓄银行'] || [];
+            branch = postalBranches[0] || '';
+        } else {
+            bank = document.getElementById('bankNameInput').value;
+            branch = document.getElementById('branchNameInput').value;
+            if (!bank || !branch) {
+                showToast('请选择开户银行和支行');
+                return;
+            }
+        }
+
+        if (!cardNo || !holder) {
             showToast('请完整填写账户信息');
             return;
         }

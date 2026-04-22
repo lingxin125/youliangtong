@@ -446,6 +446,7 @@ if (typeof window !== "undefined") {
     clientId: "",
     clientName: "",
     clientMobile: "",
+    fromClientName: "",
     transferredAt: null,
     photos: [],
     grossWeight: 0,
@@ -499,6 +500,48 @@ if (typeof window !== "undefined") {
     order.payeeBank = contact.bank ? contact.bank + "支行" : "中国邮政储蓄银行支行";
     order.payeeCard = contact.card ? "尾号 " + contact.card.replace(/\D/g, "").slice(-4) : "尾号 2233";
     return order;
+  }
+
+  function buildFromClientUnpaidOrder() {
+    return {
+      id: "DD20260421093058",
+      status: "unpaid",
+      payeeName: "陈大姐",
+      payeeMobile: "136****5518",
+      payeeBank: "邮储银行潍坊支行",
+      payeeCard: "尾号 5518",
+      summary: "玉米 x 12000斤",
+      amount: 16800,
+      createdAt: isoMinusMinutes(88),
+      transferredAt: isoMinusMinutes(72),
+      fromClientName: "安丘粮贸公司",
+      payMethod: "",
+      items: [{ name: "玉米", qty: 12000, unit: "斤", price: 1.4, subtotal: 16800 }],
+      orderType: "normal",
+      operatorId: "op03",
+      operatorName: "王主管",
+      productName: "玉米",
+      categoryPrimary: "粮油",
+      categorySecondary: "玉米",
+      grossWeight: 12500,
+      tareWeight: 300,
+      deduction: 200,
+      netWeight: 12000,
+      unitPrice: 1.4,
+      unit: "斤",
+      photos: [],
+    };
+  }
+
+  function ensureSpecialMockOrders(orders) {
+    var list = Array.isArray(orders) ? orders.slice() : [];
+    var hasFromClientUnpaid = list.some(function (order) {
+      return order && order.status === "unpaid" && order.fromClientName;
+    });
+    if (!hasFromClientUnpaid) {
+      list.push(ensureOrderFields(buildFromClientUnpaidOrder()));
+    }
+    return list;
   }
 
   function buildBaseOrders() {
@@ -1017,6 +1060,7 @@ if (typeof window !== "undefined") {
       orderT,
       orderU,
       orderV,
+      buildFromClientUnpaidOrder(),
       orderW,
     ];
   }
@@ -1027,7 +1071,7 @@ if (typeof window !== "undefined") {
 
     // 版本不匹配或没有数据时，重新初始化
     if (!text || storedVersion !== ORDER_DATA_VERSION) {
-      var init = buildBaseOrders().map(ensureOrderFields);
+      var init = ensureSpecialMockOrders(buildBaseOrders().map(ensureOrderFields));
       safeSetStorageItem(ORDER_STORAGE_KEY, JSON.stringify(init));
       safeSetStorageItem(ORDER_VERSION_KEY, ORDER_DATA_VERSION);
       return init;
@@ -1035,17 +1079,17 @@ if (typeof window !== "undefined") {
     try {
       var parsed = JSON.parse(text);
       if (!Array.isArray(parsed) || parsed.length === 0) {
-        var fallback = buildBaseOrders().map(ensureOrderFields);
+        var fallback = ensureSpecialMockOrders(buildBaseOrders().map(ensureOrderFields));
         safeSetStorageItem(ORDER_STORAGE_KEY, JSON.stringify(fallback));
         safeSetStorageItem(ORDER_VERSION_KEY, ORDER_DATA_VERSION);
         return fallback;
       }
       // 向后兼容：为旧订单补齐新字段，并修复历史挂单缺失的收款人
-      var upgraded = parsed.map(ensureOrderFields);
+      var upgraded = ensureSpecialMockOrders(parsed.map(ensureOrderFields));
       safeSetStorageItem(ORDER_STORAGE_KEY, JSON.stringify(upgraded));
       return upgraded;
     } catch (err) {
-      var recovery = buildBaseOrders().map(ensureOrderFields);
+      var recovery = ensureSpecialMockOrders(buildBaseOrders().map(ensureOrderFields));
       safeSetStorageItem(ORDER_STORAGE_KEY, JSON.stringify(recovery));
       safeSetStorageItem(ORDER_VERSION_KEY, ORDER_DATA_VERSION);
       return recovery;

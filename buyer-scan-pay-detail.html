@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 待支付详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500,700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #11A64A;
+        }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #F8FAFC;
+        }
+        .poppins { font-family: 'Poppins', sans-serif; }
+        .glass-panel {
+            background: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+            border: 1px solid rgba(15, 23, 42, 0.04);
+            margin-bottom: 12px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        .section-title:first-child { padding-top: 0; border-top: none; }
+        .section-dot { width: 4px; height: 14px; background: var(--primary); border-radius: 2px; }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { font-size: 12px; color: #9CA3AF; }
+        .info-value { font-size: 12px; color: #374151; font-weight: 500; text-align: right; }
+
+        .product-info-list { display: flex; flex-direction: column; gap: 12px; }
+        .product-info-card {
+            border-radius: 16px;
+            border: 1px solid rgba(15, 23, 42, 0.06);
+            background: #F8FAFC;
+            padding: 14px 16px;
+        }
+        .product-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            padding-bottom: 10px;
+            margin-bottom: 2px;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+        }
+        .product-info-title { font-size: 11px; color: #9CA3AF; flex-shrink: 0; padding-top: 2px; }
+        .product-info-name { font-size: 14px; color: #1F2937; font-weight: 600; text-align: right; }
+        .product-field-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+        }
+        .product-field-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .product-field-label { font-size: 12px; color: #9CA3AF; }
+        .product-field-value { font-size: 13px; color: #374151; font-weight: 500; text-align: right; }
+        
+        .sticky-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 16px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="pb-24">
+    <!-- H5 导航栏 -->
+    <div class="sticky top-0 z-50 bg-white border-b border-gray-100 flex items-center justify-between px-4 h-12">
+        <a href="buyer-scan-pay-list.html" class="w-8 text-gray-600"><i class="fas fa-chevron-left"></i></a>
+        <h1 class="text-base font-bold text-gray-800">订单详情</h1>
+        <div class="w-8"></div>
+    </div>
+
+    <div class="p-4">
+        <!-- 顶部金额卡片 -->
+        <div class="glass-panel overflow-hidden mb-3">
+            <div class="py-10 text-center bg-white">
+                <div class="text-base font-medium text-gray-600 mb-2">付款金额</div>
+                <div id="amountText" class="text-3xl font-bold text-gray-800 poppins">¥ 125,840.00</div>
+            </div>
+        </div>
+
+        <!-- 详细信息卡片 -->
+        <div class="glass-panel p-4">
+            <!-- 订单信息 -->
+            <div class="section-title">
+                <div class="section-dot"></div>
+                <span>订单信息</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">收粮订单号</span>
+                <span class="info-value font-mono">SL20231027100456</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">下单时间</span>
+                <span class="info-value">2023-10-27 10:30:12</span>
+            </div>
+
+            <!-- 收款方信息 -->
+            <div class="section-title" style="margin-top:16px;">
+                <div class="section-dot"></div>
+                <span>收款方信息</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">收款方</span>
+                <span class="info-value">王建国</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">收款银行</span>
+                <span class="info-value">中国农业银行</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">收款卡号</span>
+                <span class="info-value">6228 **** **** 7890</span>
+            </div>
+
+            <!-- 付款方信息 -->
+            <div class="section-title" style="margin-top:16px;">
+                <div class="section-dot"></div>
+                <span>付款方信息</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款方</span>
+                <span class="info-value">张老板</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款银行</span>
+                <span class="info-value">中国农业银行</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款卡号</span>
+                <span class="info-value">6228 **** **** 5678</span>
+            </div>
+
+            <!-- 商品信息 -->
+            <div class="section-title" style="margin-top:16px;">
+                <div class="section-dot"></div>
+                <span>商品信息</span>
+            </div>
+            <div class="product-info-list">
+                <div class="product-info-card">
+                    <div class="product-info-header">
+                        <div class="product-info-title">商品名称</div>
+                        <div class="product-info-name">玉米</div>
+                    </div>
+                    <div class="product-field-row">
+                        <span class="product-field-label">毛重</span>
+                        <span class="product-field-value">55.00 斤</span>
+                    </div>
+                    <div class="product-field-row">
+                        <span class="product-field-label">皮重</span>
+                        <span class="product-field-value">4.50 斤</span>
+                    </div>
+                    <div class="product-field-row">
+                        <span class="product-field-label">扣杂</span>
+                        <span class="product-field-value">0斤</span>
+                    </div>
+                    <div class="product-field-row">
+                        <span class="product-field-label">净重</span>
+                        <span class="product-field-value">50.50 吨</span>
+                    </div>
+                    <div class="product-field-row">
+                        <span class="product-field-label">单价</span>
+                        <span class="product-field-value">2,491.88 元/吨</span>
+                    </div>
+                    <div class="product-field-row">
+                        <span class="product-field-label">备注</span>
+                        <span class="product-field-value">优质玉米，无杂质</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between py-3 border-t border-gray-100 bg-gray-50/50 -mx-4 px-4 -mb-4 mt-3 rounded-b-2xl">
+                <span class="text-base text-gray-500 font-medium">应付金额</span>
+                <span class="text-base font-bold text-[#11A64A] poppins">¥ 125,840.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认支付按钮 -->
+    <div class="sticky-bottom">
+        <button onclick="handlePay()" id="payBtn" class="w-full bg-[#11A64A] text-white h-12 rounded-full font-bold shadow-lg shadow-green-100 active:scale-95 transition-transform">
+            确认支付
+        </button>
+    </div>
+
+    <script>
+        function handlePay() {
+            const btn = document.getElementById('payBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>支付中...';
+            btn.disabled = true;
+            btn.style.opacity = '0.8';
+            
+            setTimeout(() => {
+                const params = new URLSearchParams(window.location.search);
+                const orderId = params.get('orderId') || 'SL20231027100456';
+                window.location.href = 'buyer-scan-pay-list.html?paidOrderId=' + orderId;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
