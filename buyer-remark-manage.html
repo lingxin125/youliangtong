@@ -164,7 +164,7 @@
                 <div class="text-[12px] font-medium text-gray-700 mb-2">可用参数（点击插入）</div>
                 <div class="flex flex-wrap gap-2" id="paramChips">
                     <button type="button" onclick="insertPlaceholder('{商品名称}')" class="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-[11px] text-gray-600 active:scale-[0.97] transition-all">{商品名称}</button>
-                    <button type="button" onclick="insertPlaceholder('{重量}')" class="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-[11px] text-gray-600 active:scale-[0.97] transition-all">{重量}</button>
+                    <button type="button" onclick="insertPlaceholder('{净重}')" class="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-[11px] text-gray-600 active:scale-[0.97] transition-all">{净重}</button>
                     <button type="button" onclick="insertPlaceholder('{付款方}')" class="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-[11px] text-gray-600 active:scale-[0.97] transition-all">{付款方}</button>
                     <button type="button" onclick="insertPlaceholder('{日期}')" class="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-[11px] text-gray-600 active:scale-[0.97] transition-all">{日期}</button>
                     <button type="button" onclick="insertPlaceholder('{金额}')" class="px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-[11px] text-gray-600 active:scale-[0.97] transition-all">{金额}</button>
@@ -375,7 +375,7 @@ function updatePreview() {
     }
     var rendered = template
         .replace(/\{商品名称\}/g, '小麦')
-        .replace(/\{重量\}/g, '20000斤')
+        .replace(/\{净重\}/g, '20000斤')
         .replace(/\{付款方\}/g, '张老板收购站')
         .replace(/\{日期\}/g, '04-18')
         .replace(/\{金额\}/g, '38500')

@@ -446,7 +446,7 @@
     <div class="search-row shrink-0">
         <div class="glass-card rounded-xl px-3 py-2.5 flex items-center gap-2 border border-gray-100 flex-1">
             <i class="fas fa-search text-gray-400 text-sm"></i>
-            <input id="searchInput" type="text" placeholder="搜索品名或收款人" class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
+            <input id="searchInput" type="text" placeholder="搜索商品或收款人" class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
         </div>
         <button id="filterBtn" class="toolbar-icon-btn" onclick="FilterPanel.open()">
             <i class="fas fa-filter text-gray-500 text-sm"></i>
@@ -816,29 +816,44 @@ function renderEmpty() {
 // ---- 挂单卡片 ----
 function renderDraftCard(o) {
     const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '商品';
-    const payee = o.payeeName || '李大姐';
-    const tareText = Number(o.tareWeight || 0) > 0 ? fmtQty(o.tareWeight || 0, o.unit) : '待填写';
+    const payee = o.payeeName || '未填写';
+    const tareText = Number(o.tareWeight || 0) > 0 ? fmtQty(o.tareWeight || 0, o.unit) : '-';
     const swiped = state.swipedId === o.id;
-    return `<div class="swipe-wrapper ${swiped?'swiped':''} mb-2.5" id="swipe-${o.id}">
-        <div class="swipe-content order-card order-main-card draft-card-content" onclick="goEditOrder('${o.id}','draft')">
-            <div class="order-card-shell">
-                <div class="order-card-body">
-                    <div class="order-title-row">
-                        <span class="order-title">${payee}</span>
+    return `<div class="swipe-wrapper ${swiped?'swiped':''} mb-3" id="swipe-${o.id}">
+        <div class="swipe-content order-card ${state.selectedIds.has(o.id)?'selected':''}" onclick="goEditOrder('${o.id}','draft')">
+            <div class="py-2.5 px-3.5 relative">
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                        <i class="fas fa-user-circle text-gray-300 text-[14px] shrink-0"></i>
+                        <span class="text-[14px] font-bold text-gray-800 truncate">${payee}</span>
                     </div>
-                    <div class="order-subtitle">${name}</div>
-                    <div class="order-data-row">
-                        <span class="order-data-item"><span class="order-data-label">毛重</span><span class="order-data-value">${fmtQty(o.grossWeight || 0, o.unit)}</span></span>
-                        <span class="order-data-sep">|</span>
-                        <span class="order-data-item"><span class="order-data-label">皮重</span><span class="order-data-value ${tareText === '待填写' ? 'miss' : ''}">${tareText}</span></span>
+                    <span class="px-2 py-0.5 rounded-full bg-orange-50 text-orange-500 text-[10px] font-medium shrink-0 ml-2">待补皮重</span>
+                </div>
+                
+                <div class="text-[12px] text-gray-500 font-medium mb-1.5 flex items-center gap-1.5">
+                    <i class="fas fa-box text-gray-300 text-[11px]"></i>
+                    ${name}
+                </div>
+                
+                <div class="flex items-stretch gap-3">
+                    <div class="flex-1 bg-gray-50/80 rounded-xl py-1.5 px-3 flex justify-start gap-8 items-center">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[11px] text-gray-400">毛重</span>
+                            <span class="text-[13px] font-semibold text-gray-800 font-poppins">${fmtQty(o.grossWeight || 0, o.unit)}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[11px] text-gray-400">皮重</span>
+                            <span class="text-[13px] font-semibold text-gray-800 font-poppins">${tareText}</span>
+                        </div>
                     </div>
-                    <div class="order-time-row">
-                        <span class="order-time-text">${smartTime(o.createdAt)}</span>
+                    <div class="flex items-center justify-center shrink-0 w-4">
+                        <i class="fas fa-chevron-right text-gray-400 text-[15px]"></i>
                     </div>
                 </div>
-                <button class="order-side-enter" onclick="event.stopPropagation();goEditOrder('${o.id}','draft')">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+                
+                <div class="text-right mt-0.5">
+                    <span class="text-[10px] text-gray-400">${smartTime(o.createdAt)}</span>
+                </div>
             </div>
         </div>
         <div class="swipe-delete" onclick="event.stopPropagation();deleteOrder('${o.id}')"><i class="fas fa-trash-can mr-1"></i>删除</div>
@@ -851,30 +866,45 @@ function renderPriceCard(o) {
     const payee = o.payeeName || '未选择';
     const checked = state.selectedIds.has(o.id);
     const swiped = state.swipedId === o.id;
-    return `<div class="swipe-wrapper ${swiped?'swiped':''} mb-2.5" id="swipe-${o.id}">
-        <div class="swipe-content order-card order-main-card ${checked?'selected':''}" onclick="toggleSelect('${o.id}')">
-        <div class="flex items-start gap-2.5">
-            <div class="check-box ${checked?'checked':''} mt-0.5"><i class="fas fa-check"></i></div>
-            <div class="order-card-shell flex-1 min-w-0">
-                <div class="order-card-body">
-                    <div class="order-title-row">
-                        <span class="order-title">${payee}</span>
+    return `<div class="swipe-wrapper ${swiped?'swiped':''} mb-3" id="swipe-${o.id}">
+        <div class="swipe-content order-card ${checked?'selected':''}" onclick="toggleSelect('${o.id}')">
+            <div class="py-2.5 px-3.5 flex items-start gap-3">
+                <div class="check-box ${checked?'checked':''} mt-0.5 shrink-0"><i class="fas fa-check"></i></div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                            <i class="fas fa-user-circle text-gray-300 text-[14px] shrink-0"></i>
+                            <span class="text-[14px] font-bold text-gray-800 truncate">${payee}</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-500 text-[10px] font-medium shrink-0 ml-2">待开单价</span>
                     </div>
-                    <div class="order-subtitle">${name}</div>
-                    <div class="order-data-row">
-                        <span class="order-data-item"><span class="order-data-label">重量</span><span class="order-data-value">${fmtQty(o.netWeight || 0, o.unit)}</span></span>
-                        <span class="order-data-sep">|</span>
-                        <span class="order-data-item"><span class="order-data-label">单价</span><span class="order-data-value miss">待填写</span></span>
+                    
+                    <div class="text-[12px] text-gray-500 font-medium mb-1.5 flex items-center gap-1.5">
+                        <i class="fas fa-box text-gray-300 text-[11px]"></i>
+                        ${name}
                     </div>
-                    <div class="order-time-row">
-                        <span class="order-time-text">${smartTime(o.createdAt)}</span>
+                    
+                    <div class="flex items-stretch gap-3">
+                        <div class="flex-1 bg-gray-50/80 rounded-xl py-1.5 px-3 flex justify-start gap-8 items-center" onclick="event.stopPropagation();goEditOrder('${o.id}','pending_price')">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[11px] text-gray-400">净重</span>
+                                <span class="text-[13px] font-semibold text-gray-800 font-poppins">${fmtQty(o.netWeight || 0, o.unit)}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[11px] text-gray-400">单价</span>
+                                <span class="text-[13px] font-semibold text-gray-800 font-poppins">-</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center shrink-0 w-4" onclick="event.stopPropagation();goEditOrder('${o.id}','pending_price')">
+                            <i class="fas fa-chevron-right text-gray-400 text-[15px]"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="text-right mt-0.5">
+                        <span class="text-[10px] text-gray-400">${smartTime(o.createdAt)}</span>
                     </div>
                 </div>
-                <button class="order-side-enter" onclick="event.stopPropagation();goEditOrder('${o.id}','pending_price')">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
             </div>
-        </div>
         </div>
         <div class="swipe-delete" onclick="event.stopPropagation();deleteOrder('${o.id}')"><i class="fas fa-trash-can mr-1"></i>删除</div>
     </div>`;
@@ -920,33 +950,47 @@ function renderUnpaidCard(o) {
         ? `<div class="swipe-delete" onclick="event.stopPropagation();deleteOrder('${o.id}')"><i class="fas fa-trash-can mr-1"></i>删除</div>`
         : `<div class="swipe-delete" style="background:#6B7280;" onclick="event.stopPropagation();showToast('请先撤回再删除')"><i class="fas fa-ban mr-1"></i>需撤回</div>`;
 
-    return `<div class="swipe-wrapper ${swiped?'swiped':''} mb-2.5" id="swipe-${o.id}">
-        <div class="swipe-content order-card order-main-card ${checked?'selected':''}" onclick="toggleSelect('${o.id}')">
-        <div class="flex items-start gap-2.5">
-            <div class="check-box ${checked?'checked':''} mt-0.5"><i class="fas fa-check"></i></div>
-            <div class="order-card-shell flex-1 min-w-0">
-                <div class="order-card-body">
-                    <div class="order-title-row">
-                        <span class="order-title">${payee}</span>
-                        <span class="order-amount">¥${fmt(o.amount)}</span>
+    return `<div class="swipe-wrapper ${swiped?'swiped':''} mb-3" id="swipe-${o.id}">
+        <div class="swipe-content order-card ${checked?'selected':''}" onclick="toggleSelect('${o.id}')">
+            <div class="py-2.5 px-3.5 flex items-start gap-3">
+                <div class="check-box ${checked?'checked':''} mt-0.5 shrink-0"><i class="fas fa-check"></i></div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                            <i class="fas fa-user-circle text-gray-300 text-[14px] shrink-0"></i>
+                            <span class="text-[14px] font-bold text-gray-800 truncate">${payee}</span>
+                        </div>
+                        <span class="text-[16px] font-bold text-primary font-poppins shrink-0 ml-2">¥${fmt(o.amount)}</span>
                     </div>
-                    <div class="order-subtitle">${name}</div>
-                    <div class="order-data-row">
-                        <span class="order-data-item"><span class="order-data-label">重量</span><span class="order-data-value">${fmtQty(o.netWeight || 0, o.unit)}</span></span>
+                    
+                    <div class="text-[12px] text-gray-500 font-medium mb-1.5 flex items-center gap-1.5">
+                        <i class="fas fa-box text-gray-300 text-[11px]"></i>
+                        ${name}
                     </div>
-                    <div class="order-flow-row">
-                        <div class="order-flow-info ${flow.rowClass}">
-                            <i class="fas ${flow.icon}"></i>
+                    
+                    <div class="flex items-stretch gap-3">
+                        <div class="flex-1 bg-gray-50/80 rounded-xl py-1.5 px-3 flex justify-start gap-8 items-center" onclick="event.stopPropagation();goEditOrder('${o.id}','unpaid')">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[11px] text-gray-400">净重</span>
+                                <span class="text-[13px] font-semibold text-gray-800 font-poppins">${fmtQty(o.netWeight || 0, o.unit)}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-center shrink-0 w-4" onclick="event.stopPropagation();goEditOrder('${o.id}','unpaid')">
+                            <i class="fas fa-chevron-right text-gray-400 text-[15px]"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-0.5">
+                        ${flow.rowClass ? `
+                        <div class="order-flow-info ${flow.rowClass} text-[10px] font-medium">
+                            <i class="fas ${flow.icon} mr-1"></i>
                             <span class="flow-text">${flow.text}</span>
                         </div>
-                        <span class="order-time-text">${flow.time}</span>
+                        ` : `<div></div>`}
+                        <span class="text-[10px] text-gray-400 ml-auto shrink-0">${flow.time}</span>
                     </div>
                 </div>
-                <button class="order-side-enter" onclick="event.stopPropagation();goEditOrder('${o.id}','unpaid')">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
             </div>
-        </div>
         </div>
         ${deleteBtn}
     </div>`;
@@ -1182,7 +1226,10 @@ function goOrderDetail(orderId, mode) {
 }
 function goMergePay() {
     const ids = [...state.selectedIds];
-    window.location.href = `buyer-bank-merge-h5.html?orderIds=${ids.join(',')}`;
+    if (!ids.length) return;
+    // 先跳到付款人选择页，由那边决定自己付还是客户付
+    // 如果只有一笔，直接传 orderNo；多笔时传第一笔（合并付款场景）
+    window.location.href = 'buyer-billing-done.html?orderNo=' + encodeURIComponent(ids[0]) + '&mergeIds=' + encodeURIComponent(ids.join(','));
 }
 
 // ==================== 筛选面板 ====================

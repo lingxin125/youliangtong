@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD-003 丰收云三期 — 开单体系升级 V2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root {
+  --bg: #FFFBF0;
+  --card-bg: #FFFFFF;
+  --card-border: rgba(0,0,0,0.04);
+  --shadow-2: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.06);
+  --primary: #11A64A;
+  --primary-dark: #388E3C;
+  --primary-light: #81C784;
+  --text: #1F2937;
+  --text-secondary: #6B7280;
+  --radius: 16px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+body {
+  font-family: "Noto Sans SC", "Poppins", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  padding: 0;
+}
+/* ---- Layout: sidebar + main ---- */
+.page-layout {
+  display: flex;
+  min-height: 100vh;
+}
+.sidebar {
+  width: 260px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  background: var(--card-bg);
+  border-right: 1px solid var(--card-border);
+  box-shadow: 2px 0 12px rgba(0,0,0,0.04);
+  overflow-y: auto;
+  z-index: 100;
+  padding: 20px 0;
+  flex-shrink: 0;
+}
+.sidebar-header {
+  padding: 8px 20px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  margin-bottom: 12px;
+}
+.sidebar-header h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sidebar-header h2 i { color: var(--primary); font-size: 14px; }
+.sidebar nav a {
+  display: block;
+  padding: 8px 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all .2s;
+  line-height: 1.5;
+}
+.sidebar nav a:hover {
+  color: var(--primary);
+  background: rgba(17,166,74,0.04);
+}
+.sidebar nav a.active {
+  color: var(--primary);
+  border-left-color: var(--primary);
+  background: rgba(17,166,74,0.06);
+  font-weight: 600;
+}
+.sidebar nav a.indent {
+  padding-left: 36px;
+  font-size: 12.5px;
+}
+.sidebar nav .nav-divider {
+  height: 1px;
+  background: rgba(0,0,0,0.05);
+  margin: 8px 20px;
+}
+.main-content {
+  margin-left: 260px;
+  flex: 1;
+  padding: 24px 32px 80px;
+  max-width: 960px;
+}
+/* Mobile: collapse sidebar */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; padding: 16px; max-width: 100%; }
+}
+/* ---- Header ---- */
+.doc-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 40px 36px 32px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-3);
+  position: relative;
+  overflow: hidden;
+}
+.doc-header::before {
+  content: '';
+  position: absolute;
+  top: -40%; right: -10%;
+  width: 300px; height: 300px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+.doc-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+.doc-header .subtitle { font-size: 15px; opacity: 0.85; }
+/* ---- Meta ---- */
+.meta-bar {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 18px 24px;
+  box-shadow: var(--shadow-2); margin-bottom: 28px;
+}
+.meta-item { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-secondary); }
+.meta-item i { color: var(--primary); }
+.meta-item strong { color: var(--text); font-weight: 500; }
+/* ---- Card ---- */
+.card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 28px 32px;
+  box-shadow: var(--shadow-2); margin-bottom: 24px;
+}
+.card h2 {
+  font-size: 20px; font-weight: 700; margin-bottom: 18px;
+  padding-bottom: 10px; border-bottom: 2px solid rgba(17,166,74,0.15);
+  display: flex; align-items: center; gap: 10px;
+}
+.card h2 i { color: var(--primary); font-size: 18px; }
+.card h3 { font-size: 17px; font-weight: 600; margin: 18px 0 10px; color: var(--primary-dark); }
+.card h4 { font-size: 15px; font-weight: 600; margin: 14px 0 8px; }
+.card p, .card li { font-size: 14.5px; }
+.card ul, .card ol { padding-left: 22px; margin: 8px 0; }
+.card li { margin-bottom: 5px; }
+/* ---- TOC ---- */
+.toc a {
+  display: block; padding: 7px 0; font-size: 14px;
+  color: var(--text); text-decoration: none;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  transition: color .2s;
+}
+.toc a:hover { color: var(--primary); }
+.toc a.indent { padding-left: 20px; color: var(--text-secondary); font-size: 13.5px; }
+/* ---- Story Card ---- */
+.story-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 28px 32px;
+  box-shadow: var(--shadow-2); margin-bottom: 28px;
+}
+.story-card .story-title {
+  font-size: 16px; font-weight: 700; margin-bottom: 14px;
+  padding: 12px 16px; background: linear-gradient(135deg, rgba(17,166,74,0.08), rgba(17,166,74,0.03));
+  border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0;
+}
+.value-box {
+  background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 12px;
+  padding: 16px 20px; margin: 14px 0; font-size: 14px;
+}
+.value-box strong { color: var(--primary-dark); }
+/* ---- Acceptance ---- */
+.ac-scenario { margin: 12px 0; padding: 14px 18px; background: #F9FAFB; border-radius: 12px; border: 1px solid #E5E7EB; }
+.ac-scenario .sc-title { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-right: 4px; }
+.tag-given { background: #DBEAFE; color: #1D4ED8; }
+.tag-when  { background: #FEF3C7; color: #B45309; }
+.tag-then  { background: #D1FAE5; color: #065F46; }
+/* ---- Wireframe ---- */
+pre.wireframe {
+  background: #1F2937; color: #E5E7EB; padding: 20px;
+  border-radius: 12px; font-family: "Courier New", monospace;
+  font-size: 13px; line-height: 1.5; overflow-x: auto;
+  margin: 14px 0;
+}
+/* ---- Status Badges ---- */
+.badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badge-draft     { background: #F3F4F6; color: #6B7280; }
+.badge-pending_price { background: #FEF3C7; color: #B45309; }
+.badge-unpaid    { background: #FEF3C7; color: #B45309; }
+.badge-pending_client { background: #DBEAFE; color: #1D4ED8; }
+.badge-paying    { background: #DBEAFE; color: #1D4ED8; }
+.badge-success   { background: #D1FAE5; color: #065F46; }
+.badge-failed    { background: #FEE2E2; color: #DC2626; }
+.badge-canceled  { background: #F3F4F6; color: #6B7280; }
+/* ---- Phase Banner ---- */
+.phase-banner {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 20px; margin: 28px 0 18px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+  color: #fff; border-radius: 12px; font-weight: 600; font-size: 16px;
+}
+.phase-banner i { font-size: 18px; }
+/* ---- Table ---- */
+.card table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+.card th { background: #F9FAFB; text-align: left; padding: 10px 14px; font-weight: 600; border-bottom: 2px solid #E5E7EB; }
+.card td { padding: 10px 14px; border-bottom: 1px solid #F3F4F6; }
+/* ---- Mermaid ---- */
+pre.mermaid { background: transparent; text-align: center; margin: 16px 0; }
+/* ---- Print ---- */
+@media print {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; }
+  body { background: #fff; padding: 0; }
+  .doc-header { background: var(--primary) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .card, .story-card, .meta-bar { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+  .phase-banner { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  .card, .story-card { padding: 18px 16px; }
+  .doc-header { padding: 28px 20px 24px; }
+  .doc-header h1 { font-size: 22px; }
+  .meta-bar { flex-direction: column; gap: 10px; }
+}
+/* end styles */
+</style>
+</head>
+<body>
+<div class="page-layout">
+
+<!-- ===== Left Sidebar ===== -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2><i class="fas fa-file-lines"></i> PRD-003 目录</h2>
+  </div>
+  <nav>
+    <a href="#sec1">1. 综述</a>
+    <a href="#sec1-1" class="indent">1.1 项目背景</a>
+    <a href="#sec1-2" class="indent">1.2 用户旅程地图</a>
+    <a href="#sec1-3" class="indent">1.3 Mermaid 图</a>
+    <div class="nav-divider"></div>
+    <a href="#sec2">2. 用户故事</a>
+    <a href="#phase1" class="indent">阶段一：开单</a>
+    <a href="#us01" class="indent">&nbsp;&nbsp;US-01 开单页升级</a>
+    <a href="#us02" class="indent">&nbsp;&nbsp;US-02 拍照留存</a>
+    <a href="#us03" class="indent">&nbsp;&nbsp;US-03 暂存功能</a>
+    <a href="#phase2" class="indent">阶段二：开单后决策</a>
+    <a href="#us05" class="indent">&nbsp;&nbsp;US-05 开单完成页</a>
+    <a href="#phase3" class="indent">阶段三：订单管理</a>
+    <a href="#us04" class="indent">&nbsp;&nbsp;US-04 订单管理页</a>
+    <a href="#us12" class="indent">&nbsp;&nbsp;US-12 统一订单详情编辑页</a>
+    <a href="#us13" class="indent">&nbsp;&nbsp;US-13 回收站功能</a>
+    <a href="#phase4" class="indent">阶段四：客户功能</a>
+    <a href="#us06" class="indent">&nbsp;&nbsp;US-06 客户管理</a>
+    <a href="#us11" class="indent">&nbsp;&nbsp;US-11 客户付款</a>
+    <a href="#us07" class="indent">&nbsp;&nbsp;US-07 首页改造</a>
+    <a href="#us14" class="indent">&nbsp;&nbsp;US-14 附言管理</a>
+    <a href="#phase5" class="indent">阶段五：团队管理</a>
+    <a href="#us08" class="indent">&nbsp;&nbsp;US-08 团队成员管理</a>
+    <a href="#us09" class="indent">&nbsp;&nbsp;US-09 团队切换</a>
+    <a href="#us10" class="indent">&nbsp;&nbsp;US-10 开单员流程</a>
+  </nav>
+</aside>
+
+<!-- ===== Right Main Content ===== -->
+<div class="main-content">
+
+<!-- Header -->
+<div class="doc-header">
+  <h1><i class="fas fa-file-lines"></i> 产品需求文档：丰收云三期 — 开单体系升级</h1>
+  <div class="subtitle">PRD-003 &middot; V2.0 &middot; 2026-04-18 更新</div>
+</div>
+
+<!-- Meta -->
+<div class="meta-bar">
+  <div class="meta-item"><i class="fas fa-code-branch"></i> 版本 <strong>V2.0</strong></div>
+  <div class="meta-item"><i class="fas fa-user-pen"></i> 作者 <strong>产品团队</strong></div>
+  <div class="meta-item"><i class="fas fa-calendar-days"></i> 日期 <strong>2026-04-18</strong></div>
+  <div class="meta-item"><i class="fas fa-circle-check"></i> 状态 <strong>评审中（V2.0 更新）</strong></div>
+</div>
+
+<!-- Content starts -->
+
+<!-- Section 1 -->
+<div class="card" id="sec1">
+  <h2><i class="fas fa-book-open"></i> 1. 综述 (Overview)</h2>
+
+  <h3 id="sec1-1">1.1 项目背景与核心问题</h3>
+  <p>丰收云（邮粮通）是面向农产品交易场景的微信小程序，服务收购商（含游商/收粮贩子）和农户两类核心角色。当前已上线的开单功能存在以下核心问题：</p>
+  <ol>
+    <li><strong>开单流程过于线性</strong>：当前开单页只有"立即付款"和"稍后结算"两个出口，无法覆盖真实收购现场的多种场景（挂单、待开价、欠账、转客户付款）。</li>
+    <li><strong>缺少协作能力</strong>：游商（收粮贩子）替货主（客户）收粮后，无法将订单转给客户付款，只能线下沟通，资金流转依赖微信/银行卡外部转账。</li>
+    <li><strong>缺少团队管理</strong>：收购商无法管理团队成员（开单员），开单员开的单无法归属团队统一管理。</li>
+    <li><strong>开单页信息密集</strong>：操作人员年龄偏大，当前页面承载过多决策（付款方式选择等），导致使用门槛高。</li>
+  </ol>
+  <p style="margin-top:12px"><strong>竞品对标</strong>：商易通（17,974 MAU）已具备挂单、待开价功能，但无系统内付款能力。丰收云依托邮政金融的支付能力，三期补齐开单深度后可形成"专业开单 + 系统内付款 + 拍照留存"的差异化壁垒。</p>
+  <p style="margin-top:12px;padding:12px 16px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;font-size:14px;"><strong>V2.0 更新说明（2026-04-18）</strong>：基于原型实现和多轮评审反馈，本版本做了以下关键调整：① 开单页底部改为「草稿箱图标 + 暂存按钮 + 立即付款按钮」三段式布局，取消组合弹层；② 新增统一订单详情编辑页（buyer-order-edit.html），替代跳回开单页编辑的旧方案；③ 订单管理页支持滑动删除 + 回收站；④ 挂单定义更新为「有毛重但缺皮重」，待开价定义更新为「有毛重+皮重+收款人但缺单价」；⑤ 收款人在所有路径中均为必填项；⑥ 新增回收站页面（buyer-recycle.html），30天保留策略。</p>
+
+  <h3 id="sec1-2">1.2 核心业务流程 / 用户旅程地图</h3>
+  <ol>
+    <li><strong>阶段一：开单</strong> — 收购商/游商在收购现场录入商品信息，支持一单一品、拍照留存，底部三段式操作栏（草稿箱/暂存/立即付款）</li>
+    <li><strong>阶段二：开单后决策</strong> — 确认开单后选择由谁付款（自己付/选择客户付）</li>
+    <li><strong>阶段三：订单管理</strong> — 统一处理中心，管理挂单、待开价、待结算订单，支持滑动删除、回收站、统一详情编辑页</li>
+    <li><strong>阶段四：客户功能</strong> — 添加合作收购商为客户，客户收到转来的订单后确认付款或驳回</li>
+    <li><strong>阶段五：团队管理</strong> — 收购商默认团队、超管/负责人/开单员三种角色；农户端当前阶段无团队概念；多团队用户可在收购商「我的」页轻量切换当前团队上下文</li>
+  </ol>
+<!-- PLACEHOLDER_MERMAID -->
+
+  <h3 id="sec1-3">1.3 Mermaid 图</h3>
+
+  <h4>1.3.1 用户操作流（核心开单 → 付款全流程）</h4>
+  <pre class="mermaid">
+flowchart TD
+    A[收购商/游商 进入开单页] --> B[录入商品信息\n品类+毛重+皮重+单价+收款人]
+    B --> C{底部操作栏}
+    C -->|暂存| D{信息完整度判断}
+    D -->|有毛重缺皮重| D1[draft 挂单]
+    D -->|有毛重+皮重+收款人\n缺单价| D2[pending_price 待开价]
+    D -->|信息完整| D3[unpaid 欠账]
+    C -->|立即付款| G[确认开单 → 开单完成页]
+    D1 --> H[订单管理 → 挂单 Tab]
+    D2 --> I[订单管理 → 待开价 Tab]
+    D3 --> J[订单管理 → 待结算 Tab]
+    G --> K1[立即付款]
+    G --> K2[选择客户付款]
+    K1 --> L[收银台] --> L1{支付结果}
+    L1 -->|成功| M[付款记录 · success]
+    L1 -->|失败| N[付款记录 · failed] -->|重试| L
+    K2 --> O[选择客户] --> P[订单同步到客户端]
+    P --> J
+    H -->|点击编辑| EDIT[统一订单详情编辑页]
+    I -->|点击补价| EDIT
+    J -->|点击详情| EDIT
+    EDIT -->|暂存| D
+    EDIT -->|确认开单| G
+    J -->|合并付款| L
+    J -->|转给客户| O
+  </pre>
+
+  <h4>1.3.2 订单状态机</h4>
+  <pre class="mermaid">
+stateDiagram-v2
+    [*] --> draft: 暂存（有毛重缺皮重）
+    [*] --> pending_price: 暂存（有皮重缺单价）
+    [*] --> unpaid: 暂存（信息完整·欠账）
+    [*] --> pending_client: 确认开单→选客户付
+    [*] --> paying: 确认开单→立即付款
+    draft --> pending_price: 编辑补皮重但无单价
+    draft --> unpaid: 编辑补全所有信息
+    draft --> paying: 编辑→确认开单→立即付款
+    pending_price --> unpaid: 补价后暂存（欠账）
+    pending_price --> paying: 补价→确认开单→立即付款
+    pending_price --> pending_client: 补价→选客户付
+    unpaid --> paying: 自己付款
+    unpaid --> pending_client: 转给客户付款
+    pending_client --> paying: 客户确认付款
+    pending_client --> unpaid: 客户驳回 / 游商撤回
+    paying --> success: 支付成功
+    paying --> failed: 支付失败
+    failed --> paying: 重试付款
+    failed --> unpaid: 回到待结算
+    unpaid --> canceled: 删除（移入回收站）
+    draft --> canceled: 删除（移入回收站）
+    pending_price --> canceled: 删除（移入回收站）
+    pending_client --> canceled: 需先撤回再删除
+    success --> [*]
+    canceled --> [*]
+  </pre>
+
+  <h4>1.3.3 关键场景时序：游商开单 → 客户付款</h4>
+  <pre class="mermaid">
+sequenceDiagram
+    participant YS as 游商（开单方）
+    participant SYS as 丰收云系统
+    participant KH as 客户（货主/付款方）
+    participant NH as 农户（收款方）
+    YS->>SYS: 录入商品信息 + 确认开单
+    SYS-->>YS: 展示开单完成页
+    YS->>SYS: 选择客户付款 → 选择客户"张老板"
+    SYS-->>YS: 订单状态变为"待客户付款"
+    SYS-->>KH: 推送订单通知（待我付款）
+    alt 客户确认付款
+        KH->>SYS: 查看订单详情 → 确认付款
+        SYS->>SYS: 发起支付（邮政金融）
+        SYS-->>NH: 资金到账
+        SYS-->>KH: 展示支付成功
+        SYS-->>YS: 订单状态同步为"已完成"
+    else 客户驳回
+        KH->>SYS: 驳回订单
+        SYS-->>YS: 订单回到"待结算"状态
+        Note over YS: 可重新选客户/自己付/撤销
+    end
+  </pre>
+
+  <h4>状态定义一览（V2.0 更新）</h4>
+  <table style="font-size:13px;margin:10px 0;">
+    <tr><th>状态</th><th>业务定义</th><th>进入条件</th></tr>
+    <tr><td><span class="badge badge-draft">draft 挂单</span></td><td>有毛重但缺皮重</td><td>暂存时皮重未填</td></tr>
+    <tr><td><span class="badge badge-pending_price">pending_price 待开价</span></td><td>有毛重+皮重+收款人，缺单价</td><td>暂存时单价未填</td></tr>
+    <tr><td><span class="badge badge-unpaid">unpaid 欠账</span></td><td>信息全部完整，未进入支付</td><td>暂存时信息完整 / 编辑后暂存</td></tr>
+    <tr><td><span class="badge badge-pending_client">pending_client 待客户付</span></td><td>已转给客户等待付款</td><td>选择客户付款 / 转给客户</td></tr>
+    <tr><td><span class="badge badge-paying">paying 付款中</span></td><td>已进入支付流程</td><td>点击立即付款</td></tr>
+    <tr><td><span class="badge badge-success">success 成功</span></td><td>付款完成</td><td>支付成功</td></tr>
+    <tr><td><span class="badge badge-failed">failed 失败</span></td><td>支付失败，可重试</td><td>银行/支付失败</td></tr>
+    <tr><td><span class="badge badge-canceled">canceled 已取消</span></td><td>订单被删除/取消</td><td>删除（移入回收站）</td></tr>
+  </table>
+</div>
+
+<!-- ==================== STORIES ==================== -->
+<div class="card" id="sec2">
+  <h2><i class="fas fa-users"></i> 2. 用户故事详述 (User Stories)</h2>
+  <p>共 13 个用户故事，分布在 5 个阶段中。</p>
+</div>
+
+<!-- PLACEHOLDER_PHASE1 -->
+
+<div class="phase-banner" id="phase1"><i class="fas fa-pen-to-square"></i> 阶段一：开单</div>
+
+<!-- US-01 -->
+<div class="story-card" id="us01">
+  <div class="story-title">US-01: 开单页升级 — 一单一品 + 收款人必填 + 三段式底部操作栏</div>
+  <div class="value-box">
+    <strong>作为</strong> 收购商/游商（年龄偏大的操作员）<br>
+    <strong>我希望</strong> 开单页只做一件事——录入商品信息，付款决策放在开单后<br>
+    <strong>以便于</strong> 降低认知负担，快速完成开单
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li><strong>前置条件</strong>：用户已登录收购商端，进入开单页面。</li>
+    <li><strong>操作流程 (Happy Path)</strong>：
+      <ol>
+        <li>用户选择一级品类（粮食/水果/蔬菜/其他）→ 二级品类。</li>
+        <li>点击"添加商品"，录入商品信息：商品名称（必填）、毛重（必填）、皮重（选填）、杂重/扣减（选填）、单价（选填）、备注（选填）。系统自动计算净重和小计。</li>
+        <li><strong>一单一品</strong>：添加一个商品后，"添加商品"按钮禁用。商品信息平铺展示。</li>
+        <li><strong>收款人必填</strong>：用户必须选择收款农户（扫码/从合作农户列表选择），该规则适用于立即付款、暂存、欠账等所有路径。</li>
+        <li><strong>底部操作栏</strong>：左侧「草稿箱」图标入口 + 中间「暂存」按钮 + 右侧「立即付款」按钮。</li>
+        <li>点击「立即付款」→ 校验通过 → 生成订单 → 跳转开单完成页（US-05）。</li>
+      </ol>
+    </li>
+    <li><strong>「暂存」的智能判定规则</strong>：
+      <ul>
+        <li><span class="badge badge-draft">挂单</span> 有毛重但无皮重。保存到订单管理"挂单" Tab。</li>
+        <li><span class="badge badge-pending_price">待开价</span> 有毛重+皮重+收款人，但无单价。保存到"待开价" Tab。</li>
+        <li><span class="badge badge-unpaid">欠账</span> 信息全部完整，但当前不想付款。保存到"待结算" Tab。</li>
+        <li>系统根据填写情况自动决定暂存后的订单状态，不再通过组合弹层手动选状态。</li>
+      </ul>
+    </li>
+    <li><strong>「立即付款」校验规则</strong>：必须选择品类 ✓ / 必须有一个商品且毛重、皮重已填 ✓ / 必须填写单价 ✓ / 必须选择收款人 ✓</li>
+    <li><strong>草稿箱规则</strong>：左侧草稿箱图标用于查看和恢复未完成草稿，不承担状态选择逻辑。</li>
+    <li><strong>异常处理</strong>：未选品类→提示"请先选择开单品类"；未添加商品→提示"请先添加商品"；未填皮重→提示"请先填写皮重"；未填单价→提示"请填写单价"；未选收款人→提示"请选择收款农户"；未填毛重点击暂存→提示"请至少填写毛重"。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 信息完整立即付款</div>
+    <p><span class="tag tag-given">GIVEN</span> 我已选择品类、添加商品（含毛重、皮重和单价）、选择收款人</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「立即付款」</p>
+    <p><span class="tag tag-then">THEN</span> 系统校验通过，跳转到开单完成页。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 有毛重无皮重时暂存为挂单</div>
+    <p><span class="tag tag-given">GIVEN</span> 我已添加商品、填写毛重并选择收款人，但未填皮重</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「暂存」</p>
+    <p><span class="tag tag-then">THEN</span> 订单保存为 draft 状态，提示"已挂单"，订单出现在订单管理"挂单" Tab。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景3: 有皮重无单价时暂存为待开价</div>
+    <p><span class="tag tag-given">GIVEN</span> 我已填写毛重、皮重和收款人，但未填单价</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「暂存」</p>
+    <p><span class="tag tag-then">THEN</span> 订单保存为 pending_price 状态，提示"已保存为待开价"。</p>
+  </div>
+  <h4>页面布局线框图</h4>
+  <pre class="wireframe">+─────────────────────────────────+
+|         ◀ 开单          草稿箱   |
++─────────────────────────────────+
+|                                 |
+|  ❶ 开单品类                     |
+|  [粮食] [水果] [蔬菜] [其他]    |
+|  [小麦] [玉米] [大豆] ...       |
+|                                 |
+|  ❷ 商品明细（一单一品）          |
+|  +─────────────────────────+   |
+|  | 小麦                     |   |
+|  | 毛重: 20,500斤           |   |
+|  | 皮重: 400斤  杂重: 100斤 |   |
+|  | 净重: 20,000斤           |   |
+|  | 单价: ¥1.925/斤          |   |
+|  | 小计: ¥38,500.00         |   |
+|  +─────────────────────────+   |
+|                                 |
+|  📷 拍照留存 (0/9)              |
+|  [+] 点击拍照或选择相册         |
+|                                 |
+|  ❸ 收款对象（必填）             |
+|  +─────────────────────────+   |
+|  | 👤 李大姐  邮储·尾号2233 |   |
+|  |         [扫码] [选择]    |   |
+|  +─────────────────────────+   |
+|                                 |
++─────────────────────────────────+
+| [草稿箱]   [暂存]   [立即付款 ▶] |
++─────────────────────────────────+
+
+暂存后的自动判定：
+- 有毛重无皮重 → 挂单
+- 有毛重+皮重+收款人无单价 → 待开价
+- 信息全部完整 → 欠账</pre>
+</div>
+
+<!-- US-02 -->
+<div class="story-card" id="us02">
+  <div class="story-title">US-02: 拍照留存 — 磅单和货物照片作为交易凭证</div>
+  <div class="value-box">
+    <strong>作为</strong> 收购商/游商<br>
+    <strong>我希望</strong> 开单时拍照留存磅单、货物照片<br>
+    <strong>以便于</strong> 作为交易凭证，减少后续纠纷
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li>拍照入口位于商品明细下方、收款对象上方。</li>
+    <li>点击"+"按钮，可选择拍照或从相册选择。</li>
+    <li>每单最多 9 张照片，以缩略图网格展示。支持预览大图和删除。</li>
+    <li>照片不分类、不加水印。照片随订单保存（含所有路径）。</li>
+    <li><strong>异常处理</strong>：超过 9 张时"+"按钮禁用，提示"最多 9 张照片"；拍照失败时提示"照片获取失败，请重试"。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 成功拍照</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在开单页已添加商品</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击拍照入口并拍摄一张照片</p>
+    <p><span class="tag tag-then">THEN</span> 照片以缩略图展示在拍照区域，计数更新为"(1/9)"。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 照片随订单保存</div>
+    <p><span class="tag tag-given">GIVEN</span> 我已拍摄 3 张照片并确认开单</p>
+    <p><span class="tag tag-when">WHEN</span> 我在订单详情页查看该订单</p>
+    <p><span class="tag tag-then">THEN</span> 3 张照片在详情页可查看。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景3: 达到上限</div>
+    <p><span class="tag tag-given">GIVEN</span> 我已拍摄 9 张照片</p>
+    <p><span class="tag tag-when">WHEN</span> 我查看拍照区域</p>
+    <p><span class="tag tag-then">THEN</span> "+"按钮禁用，显示"(9/9)"。</p>
+  </div>
+</div>
+
+<!-- US-03 -->
+<div class="story-card" id="us03">
+  <div class="story-title">US-03: 暂存功能升级 — 挂单/待开价/欠账三种自动判定路径</div>
+  <div class="value-box">
+    <strong>作为</strong> 收购商/游商<br>
+    <strong>我希望</strong> 根据当前填写状态自动进入不同的暂存状态<br>
+    <strong>以便于</strong> 后续在订单管理页集中处理
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ul>
+    <li><span class="badge badge-draft">挂单 draft</span>：已填写毛重和收款人，但<strong>没有皮重</strong>。说明过磅信息未完整，需后续补皮重。→ 订单管理"挂单" Tab。</li>
+    <li><span class="badge badge-pending_price">待开价 pending_price</span>：已填写<strong>毛重 + 皮重 + 收款人</strong>，但<strong>没有单价</strong>。说明重量已确定，价格待补。→ "待开价" Tab。</li>
+    <li><span class="badge badge-unpaid">欠账 unpaid</span>：品类、商品、毛重、皮重、收款人、单价等信息<strong>全部完整</strong>，但当前不想付款。→ "待结算" Tab。</li>
+  </ul>
+  <p>暂存后：提示"已保存"+ 对应状态名称，开单页表单清空，可继续开下一单。已拍照片随订单一起保存。</p>
+  <p><strong>约束补充</strong>：收款人为所有路径必填项，因此不存在“未选择收款人但能暂存”的合法场景。</p>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 挂单</div>
+    <p><span class="tag tag-given">GIVEN</span> 我已填写毛重并选择收款人，但未填皮重</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「暂存」</p>
+    <p><span class="tag tag-then">THEN</span> 订单保存为 draft 状态，提示"已挂单"，开单页清空。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 待开价</div>
+    <p><span class="tag tag-given">GIVEN</span> 我已填写毛重、皮重和收款人，但未填单价</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「暂存」</p>
+    <p><span class="tag tag-then">THEN</span> 订单保存为 pending_price 状态，提示"已保存为待开价"。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景3: 欠账</div>
+    <p><span class="tag tag-given">GIVEN</span> 我已填写全部信息（含皮重、单价和收款人）</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「暂存」</p>
+    <p><span class="tag tag-then">THEN</span> 订单保存为 unpaid 状态，提示"已记欠账"。</p>
+  </div>
+</div>
+
+<!-- PLACEHOLDER_PHASE2 -->
+
+<div class="phase-banner" id="phase2"><i class="fas fa-code-fork"></i> 阶段二：开单后决策</div>
+
+<!-- US-05 -->
+<div class="story-card" id="us05">
+  <div class="story-title">US-05: 付款人选择页 — 选择由谁付款 + 选择附言</div>
+  <div class="value-box">
+    <strong>作为</strong> 收购商/游商<br>
+    <strong>我希望</strong> 确认开单后在一个简洁的页面选择付款人和付款附言<br>
+    <strong>以便于</strong> 快速决定付款路径，附言自动传递给银行通道
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li>用户在开单页点击「确认开单」且校验通过后，系统生成订单，跳转到付款人选择页。</li>
+    <li>页面核心信息为<strong>金额</strong>（最大视觉重心），下方一行轻摘要（品类 > 商品 · 重量 · 收款人）和订单号。</li>
+    <li><strong>附言选择</strong>：页面中间有附言选择卡片，默认预选用户设置的默认附言模板（参数已自动填充）。点击可弹出附言选择器底部弹窗，展示所有附言模板及实时预览效果。附言跟着订单走，保存在 <code>order.remark</code> 字段，传递给收银台/银行通道。</li>
+    <li>两个操作选项：
+      <ul>
+        <li><strong>我自己付款</strong>：保存附言到订单 → 跳转收银台，订单状态变为 <span class="badge badge-paying">paying</span>。</li>
+        <li><strong>选择客户代付</strong>：保存附言到订单 → 弹出客户选择器 → 确认后订单状态变为 <span class="badge badge-pending_client">pending_client</span>，订单同步到客户端。</li>
+      </ul>
+    </li>
+    <li><strong>异常处理</strong>：用户无客户时→提示"请先添加客户"，提供跳转入口；用户返回上一页→订单不生成，回到开单页（数据保留）。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 选择附言后自己付款</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在付款人选择页，附言已预选"小麦20000斤货款"</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「我自己付款」</p>
+    <p><span class="tag tag-then">THEN</span> 附言保存到订单，跳转到收银台页面，订单状态为 paying。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 切换附言后选择客户代付</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在付款人选择页，点击附言区域切换为"张老板收购站小麦货款"</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「选择客户代付」→ 选择"张老板" → 确认</p>
+    <p><span class="tag tag-then">THEN</span> 附言保存到订单，订单状态变为 pending_client，提示"已发送给张老板"。</p>
+  </div>
+  <h4>页面布局线框图</h4>
+  <pre class="wireframe">+─────────────────────────────────+
+|       ◀ 开单完成                 |
++─────────────────────────────────+
+|                                 |
+|  ✅ 订单已生成                   |
+|  SL20260413143001               |
+|                                 |
+|  小麦 · 20,000斤 · ¥38,500.00  |
+|  收款人：李大姐                  |
+|                                 |
+|  +─────────────────────────+   |
+|  | 💳 立即付款              |   |
+|  |    自己付款给农户         |   |
+|  +─────────────────────────+   |
+|                                 |
+|  +─────────────────────────+   |
+|  | 👤 选择客户付款          |   |
+|  |    订单同步到客户端       |   |
+|  +─────────────────────────+   |
+|                                 |
++─────────────────────────────────+</pre>
+</div>
+
+<!-- PLACEHOLDER_PHASE3 -->
+
+<div class="phase-banner" id="phase3"><i class="fas fa-clipboard-list"></i> 阶段三：订单管理</div>
+
+<!-- US-04 -->
+<div class="story-card" id="us04">
+  <div class="story-title">US-04: 统一订单管理页 — 挂单/待开价/待结算三 Tab 处理中心</div>
+  <div class="value-box">
+    <strong>作为</strong> 收购商/游商<br>
+    <strong>我希望</strong> 在一个页面集中管理挂单、待开价、待结算的订单<br>
+    <strong>以便于</strong> 高效处理各种状态的订单，不遗漏任何待办事项
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li><strong>页面结构</strong>：顶部搜索 + 三个 Tab 页签 + 右上角「回收站」图标文字入口。列表卡片采用更紧凑的信息布局。</li>
+    <li><strong>Tab 1：挂单</strong>（<span class="badge badge-draft">draft</span>）— 展示有毛重但缺皮重的订单。卡片右下角为「编辑」按钮，点击进入统一订单详情编辑页（US-12）。支持鼠标和触摸左滑删除。</li>
+    <li><strong>Tab 2：待开价</strong>（<span class="badge badge-pending_price">pending_price</span>）— 展示有毛重+皮重+收款人但无单价的订单。卡片右下角为「补价」按钮，点击进入统一订单详情编辑页。支持批量开价，也支持左滑删除。</li>
+    <li><strong>Tab 3：待结算</strong>（<span class="badge badge-unpaid">unpaid</span> + <span class="badge badge-pending_client">pending_client</span>）— 展示信息完整未付款的订单。普通订单卡片右下角为「详情」按钮；pending_client 订单显示蓝色左边框 + "已转给 XXX [撤回]" 标识。支持批量「合并付款」和「转给客户」。</li>
+    <li><strong>删除规则</strong>：三个 Tab 都支持左滑删除，但删除为软删除，订单进入回收站而不是直接丢失；pending_client 订单必须先撤回，才能删除。</li>
+    <li><strong>搜索与筛选</strong>：按商品名、收款人搜索；按时间范围、金额范围筛选。</li>
+    <li><strong>异常处理</strong>：各 Tab 无数据→空状态插图；批量开价单价非法→提示"请输入有效单价"；撤回→二次确认弹窗；尝试删除 pending_client 订单→提示"请先撤回后再删除"。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 挂单编辑</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在"挂单" Tab 看到一笔缺皮重的小麦订单</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击卡片上的「编辑」按钮</p>
+    <p><span class="tag tag-then">THEN</span> 系统进入统一订单详情编辑页，允许我补充皮重、扣减和单价。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 待开价补价</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在"待开价" Tab 看到一笔小麦订单（20,000斤，无单价）</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「补价」→ 在详情编辑页填入单价 1.925 → 暂存</p>
+    <p><span class="tag tag-then">THEN</span> 系统计算金额 ¥38,500，订单移到"待结算" Tab。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景3: 左滑删除</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在"挂单" Tab 看到一笔不再需要的订单</p>
+    <p><span class="tag tag-when">WHEN</span> 我左滑卡片并点击删除</p>
+    <p><span class="tag tag-then">THEN</span> 订单从当前 Tab 消失，并进入回收站。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景4: 已转客户订单展示</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在"待结算" Tab 看到一笔已转给张老板的订单</p>
+    <p><span class="tag tag-when">WHEN</span> 我查看该卡片</p>
+    <p><span class="tag tag-then">THEN</span> 卡片显示蓝色左边框和"已转给 张老板 [撤回]"标识。</p>
+  </div>
+  <h4>页面布局线框图</h4>
+  <pre class="wireframe">+─────────────────────────────────+
+|      ◀ 订单管理        回收站    |
++─────────────────────────────────+
+|  🔍 搜索订单                     |
++─────────────────────────────────+
+| [挂单 (3)] [待开价 (5)] [待结算 (8)] |
++─────────────────────────────────+
+|                                 |
+|  小麦 · 毛重 20,500斤           |
+|  收款人：李大姐                 |
+|  缺：皮重                       |
+|  2026-04-13 14:30      [编辑]   |
+|  ← 左滑删除                     |
+|  ─────────────────────────────  |
+|  玉米 · 净重 15,000斤           |
+|  收款人：王大哥                 |
+|  ¥ 待开价                       |
+|  2026-04-13 15:10      [补价]   |
+|  ← 左滑删除                     |
++─────────────────────────────────+
+
+待结算卡片（已转客户）：
++─────────────────────────────────+
+|▎小麦 · 20,000斤  ¥38,500       |
+|  收款人：李大姐                 |
+|  已转给 张老板 [撤回]           |
+|  2026-04-13 14:30      [详情]   |
++─────────────────────────────────+
+
+待结算 Tab 底栏：
++─────────────────────────────────+
+| 已选 3 笔  ¥115,000            |
+| [转给客户]        [合并付款]     |
++─────────────────────────────────+</pre>
+</div>
+
+<!-- US-12 -->
+<div class="story-card" id="us12">
+  <div class="story-title">US-12: 统一订单详情编辑页 — 一页承接挂单/待开价/待结算处理</div>
+  <div class="value-box">
+    <strong>作为</strong> 收购商/游商<br>
+    <strong>我希望</strong> 在一个独立页面里完成挂单补信息、待开价补价、待结算查看详情<br>
+    <strong>以便于</strong> 不再跳回开单页造成上下文混乱
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li><strong>页面定位</strong>：新增独立页面 <code>buyer-order-edit.html</code>，不显示底部 Tab 栏，专门承接订单管理页点击后的编辑与查看动作。</li>
+    <li><strong>三种主要模式</strong>：
+      <ul>
+        <li><span class="badge badge-draft">draft</span>：页面标题为"编辑挂单"，可编辑字段为皮重、扣减、单价。</li>
+        <li><span class="badge badge-pending_price">pending_price</span>：页面标题为"补充单价"，只允许编辑单价。</li>
+        <li><span class="badge badge-unpaid">unpaid</span> / <span class="badge badge-pending_client">pending_client</span>：页面标题为"订单详情"，主体信息只读，底部显示对应动作按钮。</li>
+      </ul>
+    </li>
+    <li><strong>智能暂存流转</strong>：
+      <ul>
+        <li>无皮重 → 暂存后保持 <span class="badge badge-draft">draft</span></li>
+        <li>有皮重但无单价 → 暂存后流转为 <span class="badge badge-pending_price">pending_price</span></li>
+        <li>全部信息完整 → 暂存后流转为 <span class="badge badge-unpaid">unpaid</span></li>
+      </ul>
+    </li>
+    <li><strong>底部按钮</strong>：
+      <ul>
+        <li>draft / pending_price：显示「暂存」+「确认开单」</li>
+        <li>unpaid：显示「转给客户」+「立即付款」</li>
+        <li>pending_client：显示「撤回」等状态动作，主体信息保持只读</li>
+      </ul>
+    </li>
+    <li><strong>确认开单规则</strong>：必须满足皮重已填、单价已填、收款人已存在，确认后跳转开单完成页（US-05）。</li>
+    <li><strong>页面展示内容</strong>：状态卡、基本信息、过磅信息、价格信息、收款对象、拍照留存、备注。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 挂单补皮重后暂存为待开价</div>
+    <p><span class="tag tag-given">GIVEN</span> 我打开一笔 draft 订单，当前缺皮重和单价</p>
+    <p><span class="tag tag-when">WHEN</span> 我补充皮重但不填单价，点击「暂存」</p>
+    <p><span class="tag tag-then">THEN</span> 订单状态更新为 pending_price，返回订单管理后出现在"待开价" Tab。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 待开价补单价后确认开单</div>
+    <p><span class="tag tag-given">GIVEN</span> 我打开一笔 pending_price 订单</p>
+    <p><span class="tag tag-when">WHEN</span> 我填入单价并点击「确认开单」</p>
+    <p><span class="tag tag-then">THEN</span> 系统跳转到开单完成页，我继续选择付款路径。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景3: 待结算只读详情</div>
+    <p><span class="tag tag-given">GIVEN</span> 我打开一笔 unpaid 订单</p>
+    <p><span class="tag tag-when">WHEN</span> 我进入统一订单详情编辑页</p>
+    <p><span class="tag tag-then">THEN</span> 页面主体信息为只读，底部显示「转给客户」和「立即付款」按钮。</p>
+  </div>
+</div>
+
+<!-- US-13 -->
+<div class="story-card" id="us13">
+  <div class="story-title">US-13: 回收站功能 — 软删除、恢复与 30 天保留</div>
+  <div class="value-box">
+    <strong>作为</strong> 收购商/游商<br>
+    <strong>我希望</strong> 删除后的订单先进入回收站而不是立即消失
+    <br><strong>以便于</strong> 降低误删损失，并支持恢复或彻底清理
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li><strong>删除方式</strong>：订单管理页中的删除为软删除，数据转入回收站页面 <code>buyer-recycle.html</code>。</li>
+    <li><strong>回收站入口</strong>：位于订单管理页右上角，以图标 + "回收站"文字形式展示，不使用胶囊按钮。</li>
+    <li><strong>保留策略</strong>：回收站订单默认保留 30 天，到期自动清理。</li>
+    <li><strong>回收站操作</strong>：支持「恢复」和「永久删除」两种操作；恢复后返回原始状态 Tab。</li>
+    <li><strong>状态限制</strong>：<span class="badge badge-pending_client">pending_client</span> 订单必须先撤回为 <span class="badge badge-unpaid">unpaid</span>，才能执行删除。</li>
+    <li><strong>数据记录</strong>：删除时需记录删除时间和原始状态，用于恢复和自动清理。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 删除进入回收站</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在订单管理页删除一笔挂单</p>
+    <p><span class="tag tag-when">WHEN</span> 删除动作完成</p>
+    <p><span class="tag tag-then">THEN</span> 该订单从挂单列表消失，并出现在回收站中。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 恢复订单</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在回收站看到一笔原状态为 pending_price 的订单</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「恢复」</p>
+    <p><span class="tag tag-then">THEN</span> 订单从回收站消失，并重新出现在订单管理的"待开价" Tab。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景3: 已转客户订单不能直接删</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在待结算列表看到一笔 pending_client 订单</p>
+    <p><span class="tag tag-when">WHEN</span> 我尝试直接删除该订单</p>
+    <p><span class="tag tag-then">THEN</span> 系统提示"请先撤回后再删除"，不执行删除。</p>
+  </div>
+</div>
+
+<div class="phase-banner" id="phase4"><i class="fas fa-handshake"></i> 阶段四：客户功能</div>
+
+<!-- US-06 -->
+<div class="story-card" id="us06">
+  <div class="story-title">US-06: 我的客户 — 添加平台收购商为客户</div>
+  <div class="value-box">
+    <strong>作为</strong> 收购商/游商<br>
+    <strong>我希望</strong> 通过手机号搜索并添加平台收购商为客户<br>
+    <strong>以便于</strong> 开单后可以将订单转给客户付款
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li>从首页快捷入口"我的客户"进入客户管理页。</li>
+    <li>点击"添加客户" → 输入手机号 → 搜索平台收购商 → 点击"添加"。</li>
+    <li>客户列表展示：姓名、手机号、合作笔数。</li>
+    <li>与"合作农户"的区别：客户只能搜索已有平台收购商添加，不能邀请新注册。</li>
+    <li><strong>异常处理</strong>：手机号未注册→提示"该手机号未注册丰收云收购商账号"；已添加过→提示"该收购商已在您的客户列表中"；添加自己→提示"不能添加自己为客户"。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 成功添加客户</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在客户管理页</p>
+    <p><span class="tag tag-when">WHEN</span> 我输入手机号 13700005555 → 搜索 → 点击添加</p>
+    <p><span class="tag tag-then">THEN</span> "张老板"出现在我的客户列表中。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 手机号未注册</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在客户管理页</p>
+    <p><span class="tag tag-when">WHEN</span> 我输入一个未注册的手机号 → 搜索</p>
+    <p><span class="tag tag-then">THEN</span> 提示"该手机号未注册丰收云收购商账号"。</p>
+  </div>
+</div>
+
+<!-- US-11 -->
+<div class="story-card" id="us11">
+  <div class="story-title">US-11: 客户视角 — 查看游商转来的订单并完成付款或驳回</div>
+  <div class="value-box">
+    <strong>作为</strong> 客户（货主/收购商）<br>
+    <strong>我希望</strong> 在自己的订单管理页看到别人转给我的订单<br>
+    <strong>以便于</strong> 确认信息后直接付款，或驳回不合理的订单
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li>展示位置：订单管理页"待结算" Tab，与自己的订单混合展示。</li>
+    <li>区分标识：转来的订单显示"来自：XXX"标签（蓝色）。</li>
+    <li>操作：<strong>确认付款</strong>→跳转收银台；<strong>驳回</strong>→二次确认→订单退回给游商（unpaid）。</li>
+    <li>付款完成后：双方订单状态同步更新为 <span class="badge badge-success">success</span>。游商端标注"由张老板付款"。</li>
+    <li><strong>异常处理</strong>：游商在客户付款前撤回→客户端该订单消失，提示"该订单已被撤回"。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 客户确认付款</div>
+    <p><span class="tag tag-given">GIVEN</span> 我（张老板）在待结算 Tab 看到一笔"来自：小王"的订单</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击该订单 → 确认付款 → 支付成功</p>
+    <p><span class="tag tag-then">THEN</span> 订单状态变为 success，小王端同步显示"已完成"。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 客户驳回</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在待结算 Tab 看到一笔"来自：小王"的订单</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击驳回 → 确认</p>
+    <p><span class="tag tag-then">THEN</span> 订单从我的列表消失，小王端订单回到 unpaid 状态。</p>
+  </div>
+</div>
+
+<!-- US-07 -->
+<div class="story-card" id="us07">
+  <div class="story-title">US-07: 首页升级 — 待处理事项统计 + 3 宫格快捷入口</div>
+  <div class="value-box">
+    <strong>作为</strong> 收购商/游商<br>
+    <strong>我希望</strong> 首页一眼看到有多少挂单、待开价、待结算<br>
+    <strong>以便于</strong> 快速了解待办事项并跳转处理
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li><strong>快捷入口更新为 3 个</strong>：合作农户 / 我的客户 / 订单查询，采用 <code>grid-cols-3</code> 的三宫格布局。</li>
+    <li><strong>新增"待处理事项"区域</strong>：位于快捷入口下方，展示三个统计卡片（挂单数 / 待开价数 / 待结算数），点击跳转对应 Tab，数字实时更新。</li>
+    <li><strong>统计口径</strong>：挂单 = draft；待开价 = pending_price；待结算 = unpaid + pending_client。</li>
+    <li><strong>其他区域保持不变</strong>：今日采购统计、今日品类明细。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 待处理统计展示</div>
+    <p><span class="tag tag-given">GIVEN</span> 我有 3 笔挂单、5 笔待开价、8 笔待结算</p>
+    <p><span class="tag tag-when">WHEN</span> 我进入收购商首页</p>
+    <p><span class="tag tag-then">THEN</span> 待处理事项区域显示"挂单 3"、"待开价 5"、"待结算 8"。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 点击跳转</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在首页看到"待开价 5"</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击该卡片</p>
+    <p><span class="tag tag-then">THEN</span> 跳转到订单管理页，自动切换到"待开价" Tab。</p>
+  </div>
+</div>
+
+<!-- US-14 -->
+<div class="story-card" id="us14">
+  <div class="story-title">US-14: 附言管理 — 配置银行转账附言模板</div>
+  <div class="value-box">
+    <strong>作为</strong> 收购商/游商<br>
+    <strong>我希望</strong> 管理付款附言模板，付款时自动填充并传递给银行通道<br>
+    <strong>以便于</strong> 收款方（农户）在银行流水中能识别这笔款项的来源和用途
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li><strong>入口</strong>：「我的」页面 → 附言管理。</li>
+    <li><strong>预设附言模板</strong>（3 个，不可删除，可编辑）：
+      <ul>
+        <li>标准货款：<code>{商品名称}{重量}货款</code> → 示例：小麦20000斤货款</li>
+        <li>带付款方：<code>{付款方}{商品名称}货款</code> → 示例：张老板收购站小麦货款</li>
+        <li>带日期：<code>{日期}{商品名称}{重量}</code> → 示例：04-18小麦20000斤</li>
+      </ul>
+    </li>
+    <li><strong>自定义附言</strong>：用户可新增纯文本附言（如"尾款结算""预付款"），支持编辑和删除。</li>
+    <li><strong>设为默认</strong>：任意附言可设为默认，付款人选择页自动预选默认附言。</li>
+    <li><strong>参数占位符</strong>：<code>{商品名称}</code> <code>{重量}</code> <code>{付款方}</code> <code>{日期}</code> <code>{金额}</code> <code>{收款人}</code>，系统根据当前订单数据实时填充。</li>
+    <li><strong>附言跟着订单走</strong>：在付款人选择页选定附言后，渲染后的文本保存在 <code>order.remark</code> 字段，传递给收银台和银行支付通道。不管是自己付还是客户代付，都使用同一条附言。</li>
+    <li><strong>异常处理</strong>：删除预设模板→不允许；自定义附言名称为空→提示"请输入附言名称"。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 使用默认附言付款</div>
+    <p><span class="tag tag-given">GIVEN</span> 我已设置"标准货款"为默认附言，当前订单为小麦20000斤</p>
+    <p><span class="tag tag-when">WHEN</span> 我在付款人选择页点击「我自己付款」</p>
+    <p><span class="tag tag-then">THEN</span> 订单附言自动填充为"小麦20000斤货款"，传递给收银台。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 新增自定义附言</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在附言管理页</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「新增自定义附言」→ 输入"代付货款" → 保存</p>
+    <p><span class="tag tag-then">THEN</span> "代付货款"出现在自定义附言列表中，可在付款时选择。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景3: 切换附言</div>
+    <p><span class="tag tag-given">GIVEN</span> 我在付款人选择页，默认附言为"小麦20000斤货款"</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击附言区域 → 选择"张老板收购站小麦货款"</p>
+    <p><span class="tag tag-then">THEN</span> 附言切换为新选择的内容，后续付款使用该附言。</p>
+  </div>
+</div>
+
+<!-- PLACEHOLDER_PHASE5 -->
+
+<div class="phase-banner" id="phase5"><i class="fas fa-people-group"></i> 阶段五：团队管理</div>
+
+<!-- US-08 -->
+<div class="story-card" id="us08">
+  <div class="story-title">US-08: 团队管理 — 超管添加成员并分配角色</div>
+  <div class="value-box">
+    <strong>作为</strong> 收购商（超管）<br>
+    <strong>我希望</strong> 添加团队成员并分配角色<br>
+    <strong>以便于</strong> 开单员可以替我收粮开单，订单归属我的团队
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li>每个收购商默认拥有一个团队（无需手动创建），自己是超管。</li>
+    <li>农户端当前阶段无团队概念，不展示当前团队、切换团队或团队管理入口。</li>
+    <li>收购商「我的」页个人信息下方展示轻量当前团队区域，仅展示当前团队名称和当前角色，不展示说明文案。</li>
+    <li>团队管理入口仅超管/负责人可见；开单员不可见团队管理入口，但可看到自己当前所在团队和角色。</li>
+    <li>三种角色：
+      <ul>
+        <li><strong>超管</strong>（创建者）：全部权限，管理团队、开单、付款、切换买卖方、查看所有成员数据。</li>
+        <li><strong>负责人</strong>（管理员）：与超管类似，可管理成员，但不能删除团队。</li>
+        <li><strong>开单员</strong>：开单（归属团队）、可转客户、查看自己开的单。不能自己付款、不能管理团队。</li>
+      </ul>
+    </li>
+    <li>添加成员流程：超管/负责人点击「添加新员工」→ 输入员工姓名（必填）+ 手机号（必填，作为登录账号）→ 选择角色（负责人/开单员）→ 确认添加。添加成功后，员工可通过手机号+验证码登录系统。</li>
+    <li>成员管理：成员列表（姓名、手机号、角色、加入时间）、查看当前角色、移除成员。</li>
+    <li><strong>异常处理</strong>：手机号已在团队中→提示"该手机号已在团队中"；手机号格式不正确→提示"请输入正确的手机号"；姓名为空→提示"请输入员工姓名"；移除成员→二次确认，不影响历史订单。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 添加成员</div>
+    <p><span class="tag tag-given">GIVEN</span> 我是超管，在团队管理页</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击「添加新员工」→ 输入姓名"小王" + 手机号"13600001111" → 选择角色"开单员" → 确认添加</p>
+    <p><span class="tag tag-then">THEN</span> 小王出现在成员列表中，角色为开单员，提示"已成功添加员工"。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 修改角色</div>
+    <p><span class="tag tag-given">GIVEN</span> 小王是开单员</p>
+    <p><span class="tag tag-when">WHEN</span> 我将小王的角色改为负责人</p>
+    <p><span class="tag tag-then">THEN</span> 小王获得管理员权限，可以管理其他成员。</p>
+  </div>
+</div>
+
+<!-- US-09 -->
+<div class="story-card" id="us09">
+  <div class="story-title">US-09: 团队切换 — 多团队用户切换当前团队上下文</div>
+  <div class="value-box">
+    <strong>作为</strong> 同时属于多个团队的用户<br>
+    <strong>我希望</strong> 在「我的」页面切换团队<br>
+    <strong>以便于</strong> 在自己的团队和别人的团队间灵活切换
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li>入口：收购商「我的」页个人信息下方的轻量当前团队区域，展示当前团队名称 + 角色标签。</li>
+    <li>切换展示：仅多团队用户展示切换图标；单团队用户只静态展示团队名称和角色。</li>
+    <li>切换交互：点击当前团队区域 → 底部弹出团队列表 → 选择目标团队。</li>
+    <li>切换后效果：订单、客户、农户、统计数据全部切换为目标团队的上下文。</li>
+    <li>默认团队：首次登录进入自己的团队；切回买方身份时优先恢复上次选择团队，没有历史记录则进入默认团队。</li>
+    <li>开单员限制：可见当前团队和角色；不可见团队管理入口，不能自己付款。</li>
+    <li>身份切换：买方/卖方切换独立放在顶部右上角，仅双身份用户展示；团队切换不改变买方/卖方身份。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 切换团队</div>
+    <p><span class="tag tag-given">GIVEN</span> 我（小王）属于"小王收购站"（超管）和"张老板收购站"（开单员）</p>
+    <p><span class="tag tag-when">WHEN</span> 我点击轻量当前团队区域，并切换到"张老板收购站"</p>
+    <p><span class="tag tag-then">THEN</span> 界面数据全部切换为张老板团队的上下文，我的角色显示为"开单员"。</p>
+  </div>
+</div>
+
+<!-- US-10 -->
+<div class="story-card" id="us10">
+  <div class="story-title">US-10: 开单员开单 — 订单自动归属团队</div>
+  <div class="value-box">
+    <strong>作为</strong> 团队开单员<br>
+    <strong>我希望</strong> 开单流程和普通收购商一样，但订单归属团队<br>
+    <strong>以便于</strong> 替团队超管（货主）收粮，超管可以统一管理和付款
+  </div>
+  <h4>业务规则与逻辑</h4>
+  <ol>
+    <li>开单页：与普通收购商完全一样，无任何区别。</li>
+    <li>开单完成页：只显示「选择客户付款」选项（开单员暂不能自己付款）。</li>
+    <li>订单归属：开单员开的单自动归属当前团队，超管可在"待结算" Tab 中看到。</li>
+    <li>组合按钮：开单员同样可以使用挂单/待开价/欠账功能，订单归属团队。</li>
+    <li>超管视角：超管在订单管理中可以看到所有团队成员开的单，通过筛选区分开单人。</li>
+    <li>我的页展示：开单员可见当前团队和角色，不展示团队管理入口；农户端不展示团队信息。</li>
+  </ol>
+  <h4>验收标准</h4>
+  <div class="ac-scenario">
+    <div class="sc-title">场景1: 开单员开单</div>
+    <p><span class="tag tag-given">GIVEN</span> 我（小王）在"张老板收购站"团队中，角色为开单员</p>
+    <p><span class="tag tag-when">WHEN</span> 我完成开单 → 在开单完成页选择客户付款 → 选择张老板</p>
+    <p><span class="tag tag-then">THEN</span> 订单状态为 pending_client，张老板在待结算 Tab 中看到该订单（标注"来自：小王"）。</p>
+  </div>
+  <div class="ac-scenario">
+    <div class="sc-title">场景2: 开单员欠账</div>
+    <p><span class="tag tag-given">GIVEN</span> 我（小王）在"张老板收购站"团队中</p>
+    <p><span class="tag tag-when">WHEN</span> 我开单后选择「欠账」</p>
+    <p><span class="tag tag-then">THEN</span> 订单进入张老板团队的待结算 Tab，张老板可以看到并处理。</p>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center;padding:32px 0 16px;color:var(--text-secondary);font-size:13px;">
+  <i class="fas fa-leaf" style="color:var(--primary);margin-right:6px;"></i>
+  丰收云（邮粮通）产品团队 &middot; PRD-003 V2.0 &middot; 2026-04-18
+</div>
+
+</div><!-- /.main-content -->
+</div><!-- /.page-layout -->
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#D1FAE5',
+      primaryTextColor: '#1F2937',
+      primaryBorderColor: '#11A64A',
+      lineColor: '#6B7280',
+      secondaryColor: '#FEF3C7',
+      tertiaryColor: '#DBEAFE',
+      fontFamily: '"Noto Sans SC", "Poppins", sans-serif',
+      fontSize: '13px'
+    },
+    flowchart: { curve: 'basis', padding: 16 },
+    sequence: { mirrorActors: false }
+  });
+
+  // Scroll spy for sidebar
+  const sidebarLinks = document.querySelectorAll('.sidebar nav a');
+  const sections = [];
+  sidebarLinks.forEach(link => {
+    const id = link.getAttribute('href')?.replace('#', '');
+    if (id) {
+      const el = document.getElementById(id);
+      if (el) sections.push({ id, el, link });
+    }
+  });
+
+  function updateActive() {
+    let current = '';
+    for (const s of sections) {
+      const rect = s.el.getBoundingClientRect();
+      if (rect.top <= 80) current = s.id;
+    }
+    sidebarLinks.forEach(l => l.classList.remove('active'));
+    if (current) {
+      const activeLink = document.querySelector('.sidebar nav a[href="#' + current + '"]');
+      if (activeLink) activeLink.classList.add('active');
+    }
+  }
+
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+</body>
+</html>

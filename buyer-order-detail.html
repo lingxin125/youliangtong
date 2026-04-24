@@ -8,72 +8,101 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500,700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="shared.js"></script>
-    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
     <style>
-        .product-info-list {
+        .product-name-box {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .product-info-card {
-            border-radius: 16px;
-            border: 1px solid rgba(15, 23, 42, 0.06);
-            background: #F8FAFC;
-            padding: 14px 16px;
-        }
-        .product-info-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 16px;
-            padding-bottom: 10px;
-            margin-bottom: 2px;
-            border-bottom: 1px solid rgba(15, 23, 42, 0.05);
-        }
-        .product-info-title {
-            font-size: 11px;
-            color: #9CA3AF;
-            flex-shrink: 0;
-            padding-top: 2px;
-        }
-        .product-info-name {
-            font-size: 14px;
-            color: #1F2937;
-            font-weight: 600;
-            line-height: 1.5;
-            text-align: right;
-            word-break: break-word;
-        }
-        .product-field-row {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            gap: 16px;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+            gap: 10px;
+            padding: 14px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #FCFDFD 0%, #F7F8FA 100%);
+            border: 1px solid #EEF1F4;
+            margin-bottom: 12px;
         }
-        .product-field-row:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
+        .product-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: #EBF7F0;
+            color: #11A64A;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
-        .product-field-row.remark-row {
-            align-items: flex-start;
-        }
-        .product-field-label {
+        .product-title {
             font-size: 12px;
             color: #9CA3AF;
-            flex-shrink: 0;
+            line-height: 1.2;
         }
-        .product-field-value {
-            font-size: 13px;
-            color: #374151;
+        .product-value {
+            margin-top: 3px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1F2937;
+            line-height: 1.3;
+        }
+        .billing-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .billing-field.col-span-2 {
+            grid-column: span 2;
+        }
+        .field-label {
+            display: block;
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 6px;
+        }
+        .field-shell {
+            display: flex;
+            align-items: center;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            background: #F9FAFB;
+            overflow: hidden;
+            min-height: 40px;
+        }
+        .field-display {
+            min-width: 0;
+            flex: 1;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1F2937;
+            line-height: 20px;
+        }
+        .field-display.text-primary {
+            color: #11A64A;
+        }
+        .field-display.placeholder {
+            color: #9CA3AF;
             font-weight: 500;
+        }
+        .field-unit {
+            flex-shrink: 0;
+            min-width: 30px;
+            padding-right: 12px;
             text-align: right;
-            line-height: 1.5;
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+        .textarea-display {
+            min-height: 76px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #E5E7EB;
+            background: #F9FAFB;
+            color: #1F2937;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
             word-break: break-word;
         }
-        .product-field-value.remark-value {
-            max-width: 72%;
+        .textarea-display.placeholder {
+            color: #9CA3AF;
         }
 
         .info-row {
@@ -130,27 +159,6 @@
             opacity: 1;
             transform: translateY(0);
         }
-
-        .price-input-wrap {
-            display: flex;
-            align-items: center;
-            border: 2px solid #11A64A;
-            border-radius: 12px;
-            padding: 10px 16px;
-            background: #fff;
-        }
-        .price-input-wrap .prefix { font-size: 18px; font-weight: 700; color: #374151; margin-right: 4px; }
-        .price-input-wrap input {
-            flex: 1;
-            border: none;
-            outline: none;
-            font-size: 18px;
-            font-weight: 700;
-            color: #374151;
-            background: transparent;
-            min-width: 0;
-        }
-        .price-input-wrap .suffix { font-size: 13px; color: #9CA3AF; margin-left: 4px; }
 
         .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .photo-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; cursor: pointer; }
@@ -257,9 +265,43 @@
                 <div class="section-dot"></div>
                 <span>商品信息</span>
             </div>
-            <div id="productCardList" class="product-info-list"></div>
+            <div class="product-name-box">
+                <div class="product-icon">
+                    <i class="fas fa-box text-[15px]"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="product-title">商品名称</div>
+                    <div id="productNameText" class="product-value truncate">--</div>
+                </div>
+            </div>
+            <div class="billing-grid">
+                <div class="billing-field">
+                    <label class="field-label">毛重</label>
+                    <div id="grossWeightWrap"></div>
+                </div>
+                <div class="billing-field">
+                    <label class="field-label">皮重</label>
+                    <div id="tareWeightWrap"></div>
+                </div>
+                <div class="billing-field">
+                    <label class="field-label">扣杂</label>
+                    <div id="deductionWrap"></div>
+                </div>
+                <div class="billing-field">
+                    <label class="field-label">净重</label>
+                    <div id="netWeightWrap"></div>
+                </div>
+                <div class="billing-field col-span-2">
+                    <label class="field-label">单价</label>
+                    <div id="unitPriceWrap"></div>
+                </div>
+                <div class="billing-field col-span-2">
+                    <label class="field-label">备注</label>
+                    <div id="remarkWrap"></div>
+                </div>
+            </div>
             <div class="flex items-center justify-between py-3 border-t border-gray-100 bg-gray-50/50 -mx-4 px-4 -mb-4 mt-3 rounded-b-2xl">
-                <span id="itemCountText" class="text-xs text-gray-500 font-medium">合计（0项商品）</span>
+                <span class="text-xs text-gray-500 font-medium">订单金额</span>
                 <span id="itemTotalText" class="text-base font-bold text-primary" style="font-family:Poppins;">¥ 0.00</span>
             </div>
         </div>
@@ -328,18 +370,18 @@ const state = {
     photosFromQuery: parseItems(params.get('photos')),
     source: params.get('source') || 'orders',
     // Phase 3 new fields
-    productName: (orderFromStore && orderFromStore.productName) || '',
+    productName: params.get('productName') || (orderFromStore && orderFromStore.productName) || '',
     categoryPrimary: (orderFromStore && orderFromStore.categoryPrimary) || '',
     categorySecondary: (orderFromStore && orderFromStore.categorySecondary) || '',
-    grossWeight: parseFloat(orderFromStore && orderFromStore.grossWeight) || 0,
-    tareWeight: parseFloat(orderFromStore && orderFromStore.tareWeight) || 0,
-    tareWeightRaw: orderFromStore && orderFromStore.tareWeightRaw !== undefined ? String(orderFromStore.tareWeightRaw ?? '') : '',
-    deduction: parseFloat(orderFromStore && orderFromStore.deduction) || 0,
-    deductRatioRaw: orderFromStore && orderFromStore.deductRatioRaw !== undefined ? String(orderFromStore.deductRatioRaw ?? '') : '',
-    netWeight: parseFloat(orderFromStore && orderFromStore.netWeight) || 0,
-    unitPrice: parseFloat(orderFromStore && orderFromStore.unitPrice) || 0,
-    unitPriceRaw: orderFromStore && orderFromStore.unitPriceRaw !== undefined ? String(orderFromStore.unitPriceRaw ?? '') : '',
-    unit: (orderFromStore && orderFromStore.unit) || '斤',
+    grossWeight: parseFloat(params.get('grossWeight')) || parseFloat(orderFromStore && orderFromStore.grossWeight) || 0,
+    tareWeight: parseFloat(params.get('tareWeight')) || parseFloat(orderFromStore && orderFromStore.tareWeight) || 0,
+    tareWeightRaw: params.get('tareWeightRaw') !== null ? String(params.get('tareWeightRaw') || '') : (orderFromStore && orderFromStore.tareWeightRaw !== undefined ? String(orderFromStore.tareWeightRaw ?? '') : ''),
+    deduction: parseFloat(params.get('deduction')) || parseFloat(orderFromStore && orderFromStore.deduction) || 0,
+    deductRatioRaw: params.get('deductRatioRaw') !== null ? String(params.get('deductRatioRaw') || '') : (orderFromStore && orderFromStore.deductRatioRaw !== undefined ? String(orderFromStore.deductRatioRaw ?? '') : ''),
+    netWeight: parseFloat(params.get('netWeight')) || parseFloat(orderFromStore && orderFromStore.netWeight) || 0,
+    unitPrice: parseFloat(params.get('unitPrice')) || parseFloat(orderFromStore && orderFromStore.unitPrice) || 0,
+    unitPriceRaw: params.get('unitPriceRaw') !== null ? String(params.get('unitPriceRaw') || '') : (orderFromStore && orderFromStore.unitPriceRaw !== undefined ? String(orderFromStore.unitPriceRaw ?? '') : ''),
+    unit: params.get('unit') || (orderFromStore && orderFromStore.unit) || '斤',
     photos: (orderFromStore && orderFromStore.photos) || [],
     clientId: (orderFromStore && orderFromStore.clientId) || '',
     clientName: (orderFromStore && orderFromStore.clientName) || '',
@@ -354,7 +396,14 @@ state.cancelSource = normalizeCancelSource(state.cancelSource) || inferCancelSou
 
 const backLink = state.source === 'orders' ? 'buyer-orders.html' : 'buyer-home.html';
 
-const headerTitle = (state.status === 'draft' || state.status === 'pending_price' || state.status === 'unpaid' || state.status === 'pending_client') ? '订单详情' : '付款详情';
+if (state.status === 'unpaid' || state.status === 'paying' || state.status === 'processing') {
+    state.status = 'pending';
+}
+if (state.status !== 'pending' && state.status !== 'success' && state.status !== 'failed' && state.status !== 'canceled') {
+    state.status = 'pending';
+}
+
+const headerTitle = '订单详情';
 document.getElementById('statusBar').innerHTML = renderStatusBar();
 document.getElementById('navBar').innerHTML = renderHeader(headerTitle, backLink);
 
@@ -372,22 +421,14 @@ function normalizeStatus(status) {
         if (normalized) return normalized;
     }
     const map = {
-        draft: 'draft',
-        pending_price: 'pending_price',
-        unpaid: 'unpaid',
-        pending_client: 'pending_client',
         pending: 'pending',
-        paying: 'paying',
-        processing: 'paying',
+        paying: 'pending',
+        processing: 'pending',
         success: 'success',
         failed: 'failed',
         canceled: 'canceled',
-        '挂单': 'draft',
-        '待开价': 'pending_price',
-        '待结算': 'unpaid',
-        '待客户付款': 'pending_client',
         '待支付': 'pending',
-        '支付中': 'paying',
+        '支付中': 'pending',
         '支付成功': 'success',
         '支付失败': 'failed',
         '已取消': 'canceled'
@@ -400,11 +441,11 @@ function normalizeCancelSource(source) {
         unpaid: 'unpaid',
         pending: 'unpaid',
         waiting: 'unpaid',
-        paying: 'paying',
-        processing: 'paying',
+        paying: 'unpaid',
+        processing: 'unpaid',
         bank: 'bank',
         '待支付': 'unpaid',
-        '支付中': 'paying',
+        '支付中': 'unpaid',
         '银行处理中': 'bank'
     };
     return map[source] || '';
@@ -413,9 +454,9 @@ function normalizeCancelSource(source) {
 function inferCancelSource(status, failReason, payMethod) {
     if (status !== 'canceled') return '';
     const reasonText = failReason || '';
-    if (reasonText.indexOf('支付中') > -1) return 'paying';
+    if (reasonText.indexOf('支付中') > -1) return 'unpaid';
     if (reasonText.indexOf('待支付') > -1) return 'unpaid';
-    if (payMethod) return 'paying';
+    if (payMethod) return 'unpaid';
     return 'unpaid';
 }
 
@@ -442,7 +483,7 @@ function buildBankFlowNo(grainOrderNo) {
 }
 
 function shouldShowPaymentOrderNo() {
-    if (state.status === 'paying' || state.status === 'processing' || state.status === 'success' || state.status === 'failed') {
+    if (state.status === 'success' || state.status === 'failed') {
         return true;
     }
     if (state.status === 'canceled') {
@@ -461,13 +502,17 @@ function parseItems(raw) {
     }
 }
 
+if (Array.isArray(state.photosFromQuery) && state.photosFromQuery.length) {
+    state.photos = state.photosFromQuery;
+}
+
 function ensureItems() {
     if (state.items.length > 0) return;
     state.items = [{
-        name: state.summary || '订单商品',
-        qty: 1,
-        unit: '单',
-        price: Number(state.amount.toFixed(2)),
+        name: state.productName || state.summary || '订单商品',
+        qty: Number(state.netWeight || 0),
+        unit: state.unit || '斤',
+        price: Number(state.unitPrice || 0),
         subtotal: Number(state.amount.toFixed(2))
     }];
 }
@@ -561,57 +606,12 @@ function renderStatus() {
     const title = document.getElementById('statusTitle');
     const desc = document.getElementById('statusDesc');
 
-    if (state.status === 'draft') {
-        iconWrap.className = 'w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2';
-        icon.className = 'fas fa-file-pen text-gray-500 text-2xl';
-        title.className = 'text-base font-bold text-gray-600 mb-1';
-        title.textContent = '挂单中';
-        desc.textContent = '订单已创建，等待补充信息';
-        return;
-    }
-
-    if (state.status === 'pending_price') {
-        iconWrap.className = 'w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-2';
-        icon.className = 'fas fa-tag text-amber-600 text-2xl';
-        title.className = 'text-base font-bold text-amber-600 mb-1';
-        title.textContent = '待开价';
-        desc.textContent = '已过磅称重，请补充单价完成开单';
-        return;
-    }
-
-    if (state.status === 'pending_client') {
-        iconWrap.className = 'w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-2';
-        icon.className = 'fas fa-user-clock text-blue-600 text-2xl';
-        title.className = 'text-base font-bold text-blue-600 mb-1';
-        title.textContent = '待客户付款';
-        desc.textContent = state.clientName ? ('已转给 ' + state.clientName + '，等待对方付款') : '已转交客户，等待付款';
-        return;
-    }
-
-    if (state.status === 'unpaid') {
-        iconWrap.className = 'w-14 h-14 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-2';
-        icon.className = 'fas fa-clock text-amber-600 text-2xl';
-        title.className = 'text-base font-bold text-amber-600 mb-1';
-        title.textContent = '待结算';
-        desc.textContent = '订单已开价，请尽快完成付款';
-        return;
-    }
-
     if (state.status === 'pending') {
         iconWrap.className = 'w-14 h-14 rounded-full bg-yellow-50 flex items-center justify-center mx-auto mb-2';
         icon.className = 'fas fa-clock text-yellow-500 text-2xl';
         title.className = 'text-base font-bold text-yellow-600 mb-1';
         title.textContent = '待支付';
         desc.innerHTML = '请在30分钟内完成支付，剩余 <span class="text-red-500 font-semibold" id="statusCountdown">' + getCountdownText() + '</span>';
-        return;
-    }
-
-    if (state.status === 'processing' || state.status === 'paying') {
-        iconWrap.className = 'w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-2';
-        icon.className = 'fas fa-spinner text-blue-500 text-2xl';
-        title.className = 'text-base font-bold text-blue-600 mb-1';
-        title.textContent = '支付中';
-        desc.textContent = '银行处理中，请稍候刷新订单状态';
         return;
     }
 
@@ -640,65 +640,32 @@ function renderStatus() {
     // desc.textContent = '款项已到达收款方银行卡';
 }
 
-function renderItems() {
-    const list = document.getElementById('productCardList');
-    const items = state.items.length ? state.items : [{}];
-    list.innerHTML = items.map(function(item) {
-        const productName = formatText(item.name || state.productName, '-');
-        const unit = item.unit || state.unit || '斤';
-        const qty = Number(item.qty || item.netWeight || state.netWeight || 0);
-        const price = Number(item.price || item.unitPrice || state.unitPrice || 0);
-        const grossWeight = item.grossWeight !== undefined ? item.grossWeight : state.grossWeight;
-        const tareWeight = item.tareWeight !== undefined ? item.tareWeight : state.tareWeight;
-        const tareWeightRaw = item.tareWeightRaw !== undefined ? item.tareWeightRaw : state.tareWeightRaw;
-        const deduction = item.deduction !== undefined ? item.deduction : state.deduction;
-        const deductRatioRaw = item.deductRatioRaw !== undefined ? item.deductRatioRaw : state.deductRatioRaw;
-        const remark = formatText(item.remark !== undefined ? item.remark : state.remark, '-');
-        return `
-            <div class="product-info-card">
-                <div class="product-info-header">
-                    <div class="product-info-title">商品名称</div>
-                    <div class="product-info-name">${productName}</div>
-                </div>
-                <div class="product-field-row">
-                    <span class="product-field-label">毛重</span>
-                    <span class="product-field-value">${formatWeight(grossWeight, unit, grossWeight, false)}</span>
-                </div>
-                <div class="product-field-row">
-                    <span class="product-field-label">皮重</span>
-                    <span class="product-field-value">${formatWeight(tareWeight, unit, tareWeightRaw, true)}</span>
-                </div>
-                <div class="product-field-row">
-                    <span class="product-field-label">扣减比例</span>
-                    <span class="product-field-value">${formatPercent(deductRatioRaw, deduction, grossWeight, tareWeight)}</span>
-                </div>
-                <div class="product-field-row">
-                    <span class="product-field-label">净重</span>
-                    <span class="product-field-value">${formatWeight(qty, unit, qty, true)}</span>
-                </div>
-                <div class="product-field-row">
-                    <span class="product-field-label">单价</span>
-                    <span class="product-field-value">${formatUnitPrice(price, unit)}</span>
-                </div>
-                <div class="product-field-row remark-row">
-                    <span class="product-field-label">备注</span>
-                    <span class="product-field-value remark-value">${remark}</span>
-                </div>
-            </div>
-        `;
-    }).join('');
+function renderFieldShell(text, unit, isPrimary, placeholder) {
+    return `<div class="field-shell">
+        <span class="field-display ${isPrimary ? 'text-primary' : ''} ${placeholder ? 'placeholder' : ''}">${text}</span>
+        ${unit ? `<span class="field-unit">${unit}</span>` : ''}
+    </div>`;
+}
 
-    const total = state.items.reduce((sum, item) => {
-        const subtotal = Number(item.subtotal || (Number(item.qty || 0) * Number(item.price || 0)));
-        return sum + subtotal;
-    }, 0);
-    const fallbackItem = items[0] || {};
-    const fallbackQty = Number(fallbackItem.qty || fallbackItem.netWeight || state.netWeight || 0);
-    const fallbackPrice = Number(fallbackItem.price || fallbackItem.unitPrice || state.unitPrice || 0);
-    const fallbackTotal = Number(fallbackItem.subtotal || state.amount || fallbackQty * fallbackPrice || 0);
-    const finalTotal = total > 0 ? total : fallbackTotal;
-    document.getElementById('itemCountText').textContent = '合计（' + Math.max(state.items.length, 1) + '项商品）';
-    document.getElementById('itemTotalText').textContent = formatMoney(finalTotal);
+function renderItems() {
+    const firstItem = state.items[0] || {};
+    const productName = formatText(state.productName || firstItem.name, '--');
+    const unit = state.unit || firstItem.unit || '斤';
+    const grossWeight = formatWeight(state.grossWeight, unit, state.grossWeight, false);
+    const tareWeight = formatWeight(state.tareWeight, unit, state.tareWeightRaw, true);
+    const deduction = formatWeight(state.deduction, unit, state.deductRatioRaw, true);
+    const netWeight = formatWeight(state.netWeight || firstItem.qty, unit, state.netWeight || firstItem.qty, true);
+    const unitPrice = state.unitPrice > 0 ? '¥' + Number(state.unitPrice).toFixed(2) : '--';
+    const remark = formatText(state.remark, '');
+
+    document.getElementById('productNameText').textContent = productName;
+    document.getElementById('grossWeightWrap').innerHTML = renderFieldShell(grossWeight === '未填写' ? '--' : grossWeight.replace(' ' + unit, '').replace(unit, ''), unit, false, grossWeight === '未填写');
+    document.getElementById('tareWeightWrap').innerHTML = renderFieldShell(tareWeight === '未填写' ? '--' : tareWeight.replace(' ' + unit, '').replace(unit, ''), unit, false, tareWeight === '未填写');
+    document.getElementById('deductionWrap').innerHTML = renderFieldShell(deduction === '未填写' ? '--' : deduction.replace(' ' + unit, '').replace(unit, ''), unit, false, deduction === '未填写');
+    document.getElementById('netWeightWrap').innerHTML = renderFieldShell(netWeight === '未填写' ? '--' : netWeight.replace(' ' + unit, '').replace(unit, ''), unit, true, false);
+    document.getElementById('unitPriceWrap').innerHTML = renderFieldShell(unitPrice, state.unitPrice > 0 ? '/' + unit : '', false, state.unitPrice <= 0);
+    document.getElementById('remarkWrap').innerHTML = `<div class="textarea-display ${remark ? '' : 'placeholder'}">${remark || '未填写'}</div>`;
+    document.getElementById('itemTotalText').textContent = formatMoney(Number(state.amount || 0));
 }
 
 function renderInfo() {
@@ -753,7 +720,18 @@ function buildCashierHref(isRetry) {
         summary: state.summary,
         createdAt: createdAt,
         mode: 'detail',
-        items: JSON.stringify(state.items)
+        items: JSON.stringify(state.items),
+        productName: state.productName || '',
+        grossWeight: String(state.grossWeight || 0),
+        tareWeight: String(state.tareWeight || 0),
+        tareWeightRaw: state.tareWeightRaw || '',
+        deduction: String(state.deduction || 0),
+        deductRatioRaw: state.deductRatioRaw || '',
+        netWeight: String(state.netWeight || 0),
+        unitPrice: String(state.unitPrice || 0),
+        unit: state.unit || '斤',
+        remark: state.remark || '',
+        photos: JSON.stringify(state.photos || [])
     });
     return 'buyer-cashier.html?' + p.toString();
 }
@@ -803,19 +781,7 @@ function renderBottomActions() {
         return;
     }
 
-    if (state.status === 'unpaid') {
-        box.innerHTML = `
-            <div class="flex gap-3 mt-2">
-                <button class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold text-sm rounded-2xl active:scale-[0.98] transition-transform" onclick="cancelOrder()">取消订单</button>
-                <a href="${buildCashierHref(false)}" class="flex-1 py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow active:scale-[0.98] transition-transform text-center no-underline" style="text-decoration:none;">
-                    继续支付
-                </a>
-            </div>
-        `;
-        return;
-    }
-
-    if (state.status === 'pending' || state.status === 'paying' || state.status === 'processing') {
+    if (state.status === 'pending') {
         box.innerHTML = `
             <div class="flex gap-3 mt-2">
                 <button class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold text-sm rounded-2xl active:scale-[0.98] transition-transform" onclick="cancelOrder()">取消订单</button>
@@ -863,7 +829,7 @@ function showToast(msg) {
 function cancelOrder() {
     const previousStatus = state.status;
     state.status = 'canceled';
-    state.cancelSource = (previousStatus === 'paying' || previousStatus === 'processing') ? 'paying' : 'unpaid';
+    state.cancelSource = previousStatus === 'pending' ? 'unpaid' : 'unpaid';
     state.failReason = '收购商主动取消订单';
     syncStateToStore();
     renderAll();
@@ -895,7 +861,7 @@ function renderPhotos() {
     card.style.display = '';
     document.getElementById('photosTitle').textContent = '拍照留存（' + state.photos.length + '张）';
     document.getElementById('photoGrid').innerHTML = state.photos.map((p, i) =>
-        `<img src="${p.url || p}" alt="照片${i+1}" onclick="openLightbox('${p.url || p}')">`
+        `<img src="${escapeHtml(p.url || p)}" alt="照片${i+1}" onclick="openLightbox('${escapeHtml(p.url || p)}')">`
     ).join('');
 }
 
@@ -910,7 +876,7 @@ function closeLightbox() {
 // === Phase 3: Transfer card ===
 function renderTransferCard() {
     const card = document.getElementById('transferCard');
-    if (state.status !== 'pending_client' || !state.clientName) { card.style.display = 'none'; return; }
+    if (!state.clientName || !state.transferredAt) { card.style.display = 'none'; return; }
     card.style.display = '';
     const timeStr = state.transferredAt ? formatTime(state.transferredAt) : '';
     document.getElementById('transferInfo').innerHTML = `
@@ -922,6 +888,15 @@ function renderTransferCard() {
             </div>
         </div>
     `;
+}
+
+function escapeHtml(str) {
+    return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 </script>

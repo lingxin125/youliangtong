@@ -504,7 +504,7 @@ function goSelfPay(account) {
     const renderedRemark = getSelectedRemarkText(payerName);
     if (mockStore && typeof mockStore.upsertOrder === 'function') {
         mockStore.upsertOrder(Object.assign({}, order, {
-            status: 'paying',
+            status: 'pending',
             payMethod: 'industry',
             paymentOrderNo: order.paymentOrderNo || ('ZF' + String(Date.now()).slice(-10) + String(order.id || '').slice(-4)),
             bankFlowNo: order.bankFlowNo || ('YH' + String(Date.now()).slice(-10) + String(order.id || '').slice(-4)),
@@ -519,7 +519,7 @@ function goSelfPay(account) {
         source: 'billing',
         orderNo: order.id,
         grainOrderNo: order.id,
-        status: 'paying',
+        status: 'pending',
         amount: Number(order.amount || 0).toFixed(2),
         payeeName: order.payeeName || '',
         payeeMobile: order.payeeMobile || '',

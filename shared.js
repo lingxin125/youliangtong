@@ -533,13 +533,52 @@ if (typeof window !== "undefined") {
     };
   }
 
+  function buildPendingClientOrder() {
+    return {
+      id: "DD20260421105836",
+      status: "pending_client",
+      payeeName: "李大姐",
+      payeeMobile: "138****2233",
+      payeeBank: "邮储银行烟台支行",
+      payeeCard: "尾号 2233",
+      summary: "玉米 x 18000斤",
+      amount: 23400,
+      createdAt: isoMinusMinutes(110),
+      payMethod: "",
+      items: [{ name: "玉米", qty: 18000, unit: "斤", price: 1.3, subtotal: 23400 }],
+      orderType: "normal",
+      operatorId: "op01",
+      operatorName: "张老板",
+      clientId: "cli01",
+      clientName: "保定粮油公司",
+      clientMobile: "131****6688",
+      transferredAt: isoMinusMinutes(100),
+      productName: "玉米",
+      categoryPrimary: "粮油",
+      categorySecondary: "玉米",
+      grossWeight: 18600,
+      tareWeight: 400,
+      deduction: 200,
+      netWeight: 18000,
+      unitPrice: 1.3,
+      unit: "斤",
+      photos: [{ url: "https://placeholder.co/400x300", takenAt: isoMinusMinutes(112) }],
+    };
+  }
+
   function ensureSpecialMockOrders(orders) {
     var list = Array.isArray(orders) ? orders.slice() : [];
     var hasFromClientUnpaid = list.some(function (order) {
       return order && order.status === "unpaid" && order.fromClientName;
     });
+    var hasPendingClient = list.some(function (order) {
+      return order && order.status === "pending_client" && order.clientName;
+    });
     if (!hasFromClientUnpaid) {
       list.push(ensureOrderFields(buildFromClientUnpaidOrder()));
+    }
+    if (!hasPendingClient) {
+      list.push(ensureOrderFields(buildPendingClientOrder()));
     }
     return list;
   }
@@ -1006,36 +1045,7 @@ if (typeof window !== "undefined") {
     };
 
     // Phase 3: 待客户付款（pending_client）
-    var orderW = {
-      id: buildOrderNo(new Date(Date.now() - 110 * 60 * 1000)),
-      status: "pending_client",
-      payeeName: "李大姐",
-      payeeMobile: "138****2233",
-      payeeBank: "邮储银行烟台支行",
-      payeeCard: "尾号 2233",
-      summary: "玉米 x 18000斤",
-      amount: 23400,
-      createdAt: isoMinusMinutes(110),
-      payMethod: "",
-      items: [{ name: "玉米", qty: 18000, unit: "斤", price: 1.3, subtotal: 23400 }],
-      orderType: "normal",
-      operatorId: "op01",
-      operatorName: "张老板",
-      clientId: "cli01",
-      clientName: "保定粮油公司",
-      clientMobile: "131****6688",
-      transferredAt: isoMinusMinutes(100),
-      productName: "玉米",
-      categoryPrimary: "粮油",
-      categorySecondary: "玉米",
-      grossWeight: 18600,
-      tareWeight: 400,
-      deduction: 200,
-      netWeight: 18000,
-      unitPrice: 1.3,
-      unit: "斤",
-      photos: [{ url: "https://placeholder.co/400x300", takenAt: isoMinusMinutes(112) }],
-    };
+    var orderW = buildPendingClientOrder();
 
     return [
       orderA,
@@ -3276,6 +3286,10 @@ function _toggleFab() {
     return (mobile || "").replace(/\s/g, "");
   }
 
+  function _normalizeTeamRole(role) {
+    return role === "owner" ? "owner" : "operator";
+  }
+
   function _readDisplayProfiles() {
     return _readJson(DISPLAY_PROFILE_KEY) || {};
   }
@@ -3330,6 +3344,13 @@ function _toggleFab() {
       : (Array.isArray(base.roles) ? base.roles.slice() : []);
     var defaultRole = session.defaultRole || base.defaultRole || (roles[0] || null);
     var teams = _getTeamsByMobile(clean, session.teams && session.teams.length ? session.teams : base.teams);
+    teams = teams.map(function (item) {
+      return {
+        teamId: item.teamId,
+        teamName: item.teamName,
+        role: _normalizeTeamRole(item.role)
+      };
+    });
     var currentTeamId = session.currentTeamId != null ? session.currentTeamId : (base.currentTeamId || null);
     var currentTeam = null;
     var i;
@@ -3368,7 +3389,7 @@ function _toggleFab() {
   // 预置 Mock 用户池（模拟后端数据）
   var MOCK_USERS = {
     "13700005555": { userId: "U001", name: "王老板", roles: ["buyer", "farmer"], defaultRole: "farmer", merchantId: "YLT202603001", teams: [{ teamId: "T001", teamName: "张老板收购站", role: "owner" }], currentTeamId: "T001" },
-    "13800008888": { userId: "U002", name: "张老板", roles: ["buyer"], defaultRole: "buyer", merchantId: "YLT202603002", teams: [{ teamId: "T001", teamName: "张老板收购站", role: "manager" }], currentTeamId: "T001" },
+    "13800008888": { userId: "U002", name: "张老板", roles: ["buyer"], defaultRole: "buyer", merchantId: "YLT202603002", teams: [{ teamId: "T001", teamName: "张老板收购站", role: "operator" }], currentTeamId: "T001" },
     "13900006666": { userId: "U005", name: "李大姐", roles: ["farmer"], defaultRole: "farmer", merchantId: "YLT202603003", teams: [], currentTeamId: null },
     "13600001234": { userId: "U006", name: "赵师傅", roles: ["farmer"], defaultRole: "farmer", merchantId: "YLT202603004", teams: [], currentTeamId: null },
     "13500009876": { userId: "U007", name: "刘哥", roles: ["buyer", "farmer"], defaultRole: "farmer", merchantId: "YLT202603005", teams: [], currentTeamId: null },
@@ -3577,8 +3598,14 @@ function _toggleFab() {
 
   var TEAM_ROLES = {
     owner: { label: '超管', color: 'green', canManage: true, canPay: true, canSwitchRole: true },
-    manager: { label: '负责人', color: 'blue', canManage: true, canPay: true, canSwitchRole: false },
-    operator: { label: '开单员', color: 'gray', canManage: false, canPay: false, canSwitchRole: false },
+    operator: { label: '业务员', color: 'gray', canManage: false, canPay: false, canSwitchRole: false },
+  };
+
+  var DEFAULT_BILLING_PERMISSIONS = {
+    wechat: false,
+    alipay: false,
+    unionpay: false,
+    psbcApp: false
   };
 
   var DEFAULT_TEAMS = [
@@ -3586,13 +3613,37 @@ function _toggleFab() {
       teamId: 'T001',
       teamName: '张老板收购站',
       ownerId: 'U001',
-      ownerName: '张老板',
+      ownerName: '王老板',
       ownerMobile: '13700005555',
       createdAt: '2026-03-01',
       members: [
-        { userId: 'U001', name: '张老板', mobile: '13700005555', role: 'owner', joinedAt: '2026-03-01', lastActiveAt: '2026-04-14' },
-        { userId: 'U003', name: '小王', mobile: '13600001111', role: 'operator', joinedAt: '2026-04-01', lastActiveAt: '2026-04-13' },
-        { userId: 'U004', name: '老李', mobile: '13600002222', role: 'manager', joinedAt: '2026-04-05', lastActiveAt: '2026-04-12' },
+        {
+          userId: 'U001',
+          name: '王老板',
+          mobile: '13700005555',
+          role: 'owner',
+          joinedAt: '2026-03-01',
+          lastActiveAt: '2026-04-14',
+          billingPermissions: { wechat: true, alipay: true, unionpay: true, psbcApp: true }
+        },
+        {
+          userId: 'U002',
+          name: '张老板',
+          mobile: '13800008888',
+          role: 'operator',
+          joinedAt: '2026-04-03',
+          lastActiveAt: '2026-04-13',
+          billingPermissions: { wechat: true, alipay: false, unionpay: false, psbcApp: true }
+        },
+        {
+          userId: 'U003',
+          name: '小王',
+          mobile: '13600001111',
+          role: 'operator',
+          joinedAt: '2026-04-01',
+          lastActiveAt: '2026-04-13',
+          billingPermissions: { wechat: false, alipay: false, unionpay: false, psbcApp: false }
+        },
       ]
     },
     {
@@ -3603,7 +3654,15 @@ function _toggleFab() {
       ownerMobile: '13600001111',
       createdAt: '2026-03-15',
       members: [
-        { userId: 'U003', name: '小王', mobile: '13600001111', role: 'owner', joinedAt: '2026-03-15', lastActiveAt: '2026-04-14' },
+        {
+          userId: 'U003',
+          name: '小王',
+          mobile: '13600001111',
+          role: 'owner',
+          joinedAt: '2026-03-15',
+          lastActiveAt: '2026-04-14',
+          billingPermissions: { wechat: true, alipay: true, unionpay: true, psbcApp: true }
+        },
       ]
     }
   ];
@@ -3617,14 +3676,67 @@ function _toggleFab() {
     return JSON.parse(JSON.stringify(obj));
   }
 
+  function buildBillingPermissions(seed) {
+    var source = seed || {};
+    return {
+      wechat: !!source.wechat,
+      alipay: !!source.alipay,
+      unionpay: !!source.unionpay,
+      psbcApp: !!source.psbcApp
+    };
+  }
+
+  function normalizeRole(role) {
+    return role === 'owner' ? 'owner' : 'operator';
+  }
+
+  function normalizeMember(member) {
+    var item = cloneData(member || {});
+    item.role = normalizeRole(item.role);
+    item.billingPermissions = buildBillingPermissions(item.billingPermissions);
+    return item;
+  }
+
+  function normalizeTeam(team) {
+    var item = cloneData(team || {});
+    var members = Array.isArray(item.members) ? item.members.map(normalizeMember) : [];
+    var ownerMember = null;
+    for (var i = 0; i < members.length; i++) {
+      if (members[i].role === 'owner') {
+        ownerMember = members[i];
+        break;
+      }
+    }
+    item.members = members;
+    if (ownerMember) {
+      item.ownerId = ownerMember.userId || item.ownerId || '';
+      item.ownerName = ownerMember.name || item.ownerName || '';
+      item.ownerMobile = ownerMember.mobile || item.ownerMobile || '';
+    }
+    return item;
+  }
+
+  function normalizeTeams(teams) {
+    var list = Array.isArray(teams) ? teams : [];
+    return list.map(normalizeTeam);
+  }
+
   function readTeams() {
+    var raw = null;
+    var parsed = null;
     try {
-      var raw = _storage().getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
+      raw = _storage().getItem(STORAGE_KEY);
+      if (raw) parsed = JSON.parse(raw);
     } catch (e) { /* ignore */ }
-    var init = cloneData(DEFAULT_TEAMS);
-    _storage().setItem(STORAGE_KEY, JSON.stringify(init));
-    return init;
+    var init = parsed || cloneData(DEFAULT_TEAMS);
+    var normalized = normalizeTeams(init);
+    try {
+      var nextRaw = JSON.stringify(normalized);
+      if (!raw || raw !== nextRaw) {
+        _storage().setItem(STORAGE_KEY, nextRaw);
+      }
+    } catch (e) { /* ignore */ }
+    return normalized;
   }
 
   function writeTeams(teams) {
@@ -3715,9 +3827,10 @@ function _toggleFab() {
       var teams = readTeams();
       var idx = findTeamIndex(teams, teamId);
       if (idx < 0) return false;
-      var mIdx = findMemberIndex(teams[idx].members, member.userId);
+      var nextMember = normalizeMember(member);
+      var mIdx = findMemberIndex(teams[idx].members, nextMember.userId);
       if (mIdx >= 0) return false; // already exists
-      teams[idx].members.push(member);
+      teams[idx].members.push(nextMember);
       writeTeams(teams);
       return true;
     },
@@ -3747,10 +3860,36 @@ function _toggleFab() {
       return true;
     },
 
+    getBillingPermissions: function (teamId, userId) {
+      var team = this.getTeam(teamId);
+      if (!team) return buildBillingPermissions(DEFAULT_BILLING_PERMISSIONS);
+      var members = Array.isArray(team.members) ? team.members : [];
+      for (var i = 0; i < members.length; i++) {
+        if (members[i] && members[i].userId === userId) {
+          return buildBillingPermissions(members[i].billingPermissions);
+        }
+      }
+      return buildBillingPermissions(DEFAULT_BILLING_PERMISSIONS);
+    },
+
+    updateMemberBillingPermission: function (teamId, userId, channel, enabled) {
+      if (!Object.prototype.hasOwnProperty.call(DEFAULT_BILLING_PERMISSIONS, channel)) return false;
+      var teams = readTeams();
+      var idx = findTeamIndex(teams, teamId);
+      if (idx < 0) return false;
+      var mIdx = findMemberIndex(teams[idx].members, userId);
+      if (mIdx < 0) return false;
+      var current = teams[idx].members[mIdx];
+      current.billingPermissions = buildBillingPermissions(current.billingPermissions);
+      current.billingPermissions[channel] = !!enabled;
+      writeTeams(teams);
+      return true;
+    },
+
     // Utilities
     isOwnerOrManager: function () {
       var role = this.getCurrentRole();
-      return role === 'owner' || role === 'manager';
+      return role === 'owner';
     },
 
     canSelfPay: function () {
@@ -3778,9 +3917,9 @@ function _toggleFab() {
   }
 
   var DEFAULT_TEMPLATES = [
-    { id: 'rt01', name: '标准货款', template: '{商品名称}{重量}货款', isDefault: true, type: 'preset' },
+    { id: 'rt01', name: '标准货款', template: '{商品名称}{净重}货款', isDefault: true, type: 'preset' },
     { id: 'rt02', name: '带付款方', template: '{付款方}{商品名称}货款', isDefault: false, type: 'preset' },
-    { id: 'rt03', name: '带日期', template: '{日期}{商品名称}{重量}', isDefault: false, type: 'preset' },
+    { id: 'rt03', name: '带日期', template: '{日期}{商品名称}{净重}', isDefault: false, type: 'preset' },
   ];
 
   var DEFAULT_CUSTOM = [
@@ -3860,7 +3999,7 @@ function _toggleFab() {
       var mm = String(now.getMonth() + 1).padStart(2, '0');
       var dd = String(now.getDate()).padStart(2, '0');
       tpl = tpl.replace(/\{商品名称\}/g, o.productName || '');
-      tpl = tpl.replace(/\{重量\}/g, (o.netWeight || 0) + (o.unit || '斤'));
+      tpl = tpl.replace(/\{净重\}/g, (o.netWeight || 0) + (o.unit || '斤'));
       tpl = tpl.replace(/\{付款方\}/g, payerName || o.clientName || '');
       tpl = tpl.replace(/\{日期\}/g, mm + '-' + dd);
       tpl = tpl.replace(/\{金额\}/g, String(o.amount || 0));

@@ -219,7 +219,7 @@ const grainOrderNo = params.get('grainOrderNo') || params.get('orderNo') || 'SL'
 
 const state = {
     source: params.get('source') || 'billing',
-    status: params.get('status') || 'paying',
+    status: params.get('status') || 'pending',
     orderNo: grainOrderNo,
     amount: parseFloat(params.get('amount')) || 38500.00,
     payeeName: params.get('payeeName') || '李大姐',
@@ -407,7 +407,18 @@ function ensureOrderInStore() {
         paymentOrderNo: state.paymentOrderNo,
         bankFlowNo: state.bankFlowNo,
         cancelSource: state.cancelSource || '',
-        items: state.items
+        items: state.items,
+        productName: params.get('productName') || '',
+        grossWeight: parseFloat(params.get('grossWeight')) || 0,
+        tareWeight: parseFloat(params.get('tareWeight')) || 0,
+        tareWeightRaw: params.get('tareWeightRaw') !== null ? String(params.get('tareWeightRaw') || '') : '',
+        deduction: parseFloat(params.get('deduction')) || 0,
+        deductRatioRaw: params.get('deductRatioRaw') !== null ? String(params.get('deductRatioRaw') || '') : '',
+        netWeight: parseFloat(params.get('netWeight')) || 0,
+        unitPrice: parseFloat(params.get('unitPrice')) || 0,
+        unit: params.get('unit') || '斤',
+        remark: params.get('remark') || '',
+        photos: parseItems(params.get('photos'))
     });
 }
 

@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="shared.js"></script>
+    <script src="shared.js?v=20260424-team-permission-v2"></script>
     <style>
         .billing-sheet-overlay {
             position: absolute;
@@ -32,7 +32,7 @@
             border-radius: 24px 24px 0 0;
             transform: translateY(100%);
             transition: transform 0.26s ease;
-            max-height: 78%;
+            max-height: 82%;
             overflow-y: auto;
             box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.18);
         }
@@ -76,16 +76,104 @@
         .hide-scrollbar::-webkit-scrollbar {
             display: none;
         }
-        .member-swipe-wrapper { position: relative; overflow: hidden; border-radius: 16px; }
+        .member-swipe-wrapper { position: relative; overflow: hidden; border-radius: 18px; }
         .member-swipe-content { position: relative; z-index: 1; background: transparent; transition: transform 0.2s ease; }
         .member-swipe-delete {
-            position: absolute; right: 0; top: 0; bottom: 0; width: 72px;
-            background: #EF4444; display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 13px; font-weight: 600; cursor: pointer;
-            transform: translateX(100%); transition: transform 0.2s ease;
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 72px;
+            background: #EF4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transform: translateX(100%);
+            transition: transform 0.2s ease;
         }
         .member-swipe-wrapper.swiped .member-swipe-delete { transform: translateX(0); }
         .member-swipe-wrapper.swiped .member-swipe-content { transform: translateX(-72px); }
+        .permission-summary-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+            padding: 11px 12px;
+            border-radius: 16px;
+            border: 1px solid #edf1f5;
+            background: linear-gradient(180deg, #fbfcfd 0%, #f7fafb 100%);
+            transition: all 0.18s ease;
+        }
+        .permission-summary-row:active {
+            transform: scale(0.985);
+        }
+        .permission-icons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+        .permission-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        .permission-icon.is-off {
+            background: #f3f4f6;
+            color: #c0c4cc;
+            border-color: #eceff3;
+        }
+        .permission-icon.is-on.wechat {
+            background: #eafbf1;
+            color: #07c160;
+            border-color: rgba(7, 193, 96, 0.14);
+        }
+        .permission-icon.is-on.alipay {
+            background: #ecf5ff;
+            color: #1677ff;
+            border-color: rgba(22, 119, 255, 0.14);
+        }
+        .permission-icon.is-on.unionpay {
+            background: #eef3ff;
+            color: #3a63ff;
+            border-color: rgba(58, 99, 255, 0.14);
+        }
+        .permission-icon.is-on.psbcApp {
+            background: #eefaf3;
+            color: #1e9f55;
+            border-color: rgba(30, 159, 85, 0.14);
+        }
+        .permission-drill-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            color: #9ca3af;
+            flex-shrink: 0;
+            transition: all 0.18s ease;
+        }
+        .permission-drill-btn:active {
+            transform: scale(0.94);
+            background: #f9fafb;
+        }
     </style>
 </head>
 <body>
@@ -103,13 +191,12 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1">
                         <h2 class="text-[18px] font-bold text-gray-800 truncate" id="teamName">张老板收购站的团队</h2>
-                        <button class="w-6 h-6 rounded-md bg-gray-50 flex items-center justify-center text-gray-400 active:scale-95 transition-transform" onclick="openEditTeamNameSheet()">
+                        <button id="editTeamNameBtn" class="w-6 h-6 rounded-md bg-gray-50 flex items-center justify-center text-gray-400 active:scale-95 transition-transform" onclick="openEditTeamNameSheet()">
                             <i class="fas fa-pen text-[10px]"></i>
                         </button>
                     </div>
                     <div class="flex items-center gap-2 flex-wrap">
-                        <span class="shrink-0 px-2 py-0.5 bg-green-50 border border-green-100 text-green-600 text-[10px] font-bold rounded-full" id="teamRoleBadge">超管</span>
-                        <span class="text-[12px] text-gray-400">业务员 <span class="font-poppins font-semibold text-gray-700" id="teamCountNum">0</span> 人</span>
+                        <span class="text-[12px] text-gray-400">共 <span class="font-poppins font-semibold text-gray-700" id="teamCountNum">0</span> 人</span>
                     </div>
                 </div>
             </div>
@@ -131,6 +218,14 @@
             <div class="text-[15px] font-medium text-gray-700">暂无业务员</div>
             <div class="text-[12px] text-gray-400 mt-2">可点击下方按钮添加业务员加入当前团队</div>
         </div>
+
+        <div id="noAccessState" class="hidden px-5 pt-16 text-center">
+            <div class="w-16 h-16 mx-auto rounded-full bg-[#FFF7ED] flex items-center justify-center mb-4">
+                <i class="fas fa-lock text-[#F59E0B] text-[22px]"></i>
+            </div>
+            <div class="text-[15px] font-medium text-gray-700">暂无团队管理权限</div>
+            <div class="text-[12px] text-gray-400 mt-2 leading-5">当前仅超管可查看团队成员并管理开单权限，请联系超管处理。</div>
+        </div>
     </div>
 
     <div id="teamManageActionBar" class="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-white/40 px-5 py-4 z-40 pb-safe">
@@ -145,7 +240,7 @@
         <div class="px-5 pb-6">
             <div class="flex items-center justify-between mb-5">
                 <h3 class="text-[16px] font-bold text-gray-800">添加业务员</h3>
-                <button onclick="closeAddMemberSheet()" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-600 active:scale-95 transition-transform">
+                <button onclick="closeAddMemberSheet()" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 active:scale-95 transition-transform">
                     <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
@@ -225,12 +320,19 @@ document.getElementById('navBar').innerHTML = renderHeader('团队管理', 'buye
 var store = window.TeamMockStore || null;
 var ROLES = store ? store.TEAM_ROLES : {
     owner: { label: '超管', canManage: true },
-    manager: { label: '负责人', canManage: true },
-    operator: { label: '开单员', canManage: false }
+    operator: { label: '业务员', canManage: false }
 };
+var BILLING_CHANNELS = [
+    { key: 'wechat', label: '微信', icon: 'fab fa-weixin', glyph: '微', className: 'wechat' },
+    { key: 'alipay', label: '支付宝', icon: 'fab fa-alipay', glyph: '支', className: 'alipay' },
+    { key: 'unionpay', label: '云闪付', icon: '', glyph: '云', className: 'unionpay' },
+    { key: 'psbcApp', label: '邮储银行 App', icon: '', glyph: '邮', className: 'psbcApp' }
+];
+
 var managingUserId = null;
 
 (function initTeam() {
+    if (!store) return;
     var team = store.getCurrentTeam();
     if (!team) {
         var allTeams = store.getAllTeams();
@@ -241,7 +343,7 @@ var managingUserId = null;
 })();
 
 function getTeam() {
-    return store.getCurrentTeam();
+    return store ? store.getCurrentTeam() : null;
 }
 
 function getMembers() {
@@ -249,9 +351,23 @@ function getMembers() {
     return team ? store.getMembers(team.teamId) : [];
 }
 
+function getCurrentUserSafe() {
+    return window.UserIdentityStore && typeof UserIdentityStore.getCurrentUser === 'function'
+        ? UserIdentityStore.getCurrentUser()
+        : null;
+}
+
+function isOwnerRole(role) {
+    return role === 'owner';
+}
+
+function canManageTeamPage() {
+    return isOwnerRole(getCurrentRoleSafe());
+}
+
 function roleBadgeClass(role) {
     if (role === 'owner') return 'bg-green-50 text-primary border-green-100';
-    return 'bg-blue-50 text-blue-600 border-blue-100';
+    return 'bg-gray-100 text-gray-600 border-gray-200';
 }
 
 function maskMobile(mobile) {
@@ -280,16 +396,97 @@ function showToast(msg) {
 
 function getCurrentRoleSafe() {
     if (!store || typeof store.getCurrentRole !== 'function') return 'owner';
-    var role = store.getCurrentRole();
-    if (role) return role;
-    return 'owner';
+    return store.getCurrentRole() || 'owner';
 }
 
 function getRoleInfoSafe(role) {
     if (store && typeof store.getRoleInfo === 'function') {
-        return store.getRoleInfo(role) || { label: role || '成员', canManage: role === 'owner' || role === 'manager' };
+        return store.getRoleInfo(role) || { label: role || '成员', canManage: role === 'owner' };
     }
-    return ROLES[role] || { label: role || '成员', canManage: role === 'owner' || role === 'manager' };
+    return ROLES[role] || { label: role || '成员', canManage: role === 'owner' };
+}
+
+function getMemberById(userId) {
+    var members = getMembers();
+    for (var i = 0; i < members.length; i++) {
+        if (members[i] && members[i].userId === userId) return members[i];
+    }
+    return null;
+}
+
+function getMemberPermissions(member) {
+    if (!member) {
+        return { wechat: false, alipay: false, unionpay: false, psbcApp: false };
+    }
+    if (store && typeof store.getBillingPermissions === 'function') {
+        var team = getTeam();
+        if (team && team.teamId) return store.getBillingPermissions(team.teamId, member.userId);
+    }
+    var raw = member.billingPermissions || {};
+    return {
+        wechat: !!raw.wechat,
+        alipay: !!raw.alipay,
+        unionpay: !!raw.unionpay,
+        psbcApp: !!raw.psbcApp
+    };
+}
+
+function persistTeams(nextTeams) {
+    try {
+        window.localStorage.setItem('ylt_teams_v1', JSON.stringify(nextTeams || []));
+        return true;
+    } catch (e) {
+        try {
+            window.sessionStorage.setItem('ylt_teams_v1', JSON.stringify(nextTeams || []));
+            return true;
+        } catch (err) {
+            return false;
+        }
+    }
+}
+
+function updateMemberBillingPermissionSafe(teamId, userId, channelKey, enabled) {
+    if (store && typeof store.updateMemberBillingPermission === 'function') {
+        return store.updateMemberBillingPermission(teamId, userId, channelKey, enabled);
+    }
+    if (!teamId || !userId || !channelKey) return false;
+    var teams = store && typeof store.getAllTeams === 'function' ? store.getAllTeams() : [];
+    var teamIndex = teams.findIndex(function (item) { return item.teamId === teamId; });
+    if (teamIndex < 0) return false;
+    var members = Array.isArray(teams[teamIndex].members) ? teams[teamIndex].members : [];
+    var memberIndex = members.findIndex(function (item) { return item.userId === userId; });
+    if (memberIndex < 0) return false;
+    var current = members[memberIndex];
+    var nextPermissions = {
+        wechat: !!(current.billingPermissions && current.billingPermissions.wechat),
+        alipay: !!(current.billingPermissions && current.billingPermissions.alipay),
+        unionpay: !!(current.billingPermissions && current.billingPermissions.unionpay),
+        psbcApp: !!(current.billingPermissions && current.billingPermissions.psbcApp)
+    };
+    nextPermissions[channelKey] = !!enabled;
+    members[memberIndex].billingPermissions = nextPermissions;
+    return persistTeams(teams);
+}
+
+function getEnabledPermissionCount(permissions) {
+    var count = 0;
+    BILLING_CHANNELS.forEach(function (channel) {
+        if (permissions[channel.key]) count += 1;
+    });
+    return count;
+}
+
+function renderPermissionIcon(channel, enabled) {
+    var iconHtml = channel.icon
+        ? '<i class="' + channel.icon + '"></i>'
+        : '<span class="text-[12px] font-bold">' + channel.glyph + '</span>';
+    return '<span class="permission-icon ' + (enabled ? 'is-on ' + channel.className : 'is-off') + '">' + iconHtml + '</span>';
+}
+
+function buildPermissionSummaryIcons(permissions) {
+    return BILLING_CHANNELS.map(function (channel) {
+        return renderPermissionIcon(channel, !!permissions[channel.key]);
+    }).join('');
 }
 
 function memberCardHTML(member) {
@@ -297,31 +494,48 @@ function memberCardHTML(member) {
         ? { label: '超管' }
         : { label: '业务员' };
     var isOwner = member.role === 'owner';
-    var currentRoleInfo = getRoleInfoSafe(getCurrentRoleSafe()) || {};
-    var canManageTeam = !!currentRoleInfo.canManage;
-    var selfTag = member.role === 'owner'
+    var currentUser = getCurrentUserSafe();
+    var canManageTeam = canManageTeamPage();
+    var selfTag = currentUser && member.mobile === currentUser.mobile
         ? '<span class="text-[10px] text-gray-400 ml-1 bg-gray-50 px-1.5 py-0.5 rounded-md">(自己)</span>'
         : '';
     var canSwipeDelete = !isOwner && canManageTeam;
+    var permissions = getMemberPermissions(member);
+    var enabledCount = getEnabledPermissionCount(permissions);
+
     return (
         '<div class="member-swipe-wrapper' + (managingUserId === member.userId ? ' swiped' : '') + '" id="member-swipe-' + escapeText(member.userId) + '">' +
             '<div class="member-swipe-content">' +
-                '<div class="glass-card rounded-[16px] p-4 flex items-center gap-3.5">' +
-                    '<div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center shrink-0 border border-green-100/60">' +
-                        '<i class="fas fa-user text-[#11A64A] text-[17px]"></i>' +
-                    '</div>' +
-                    '<div class="flex-1 min-w-0">' +
-                        '<div class="flex items-center gap-2 mb-1 flex-wrap">' +
-                            '<span class="text-[15px] font-bold text-gray-800">' + escapeText(member.name) + '</span>' +
-                            '<span class="text-[10px] px-2 py-0.5 rounded-full border font-medium ' + roleBadgeClass(member.role) + '">' + escapeText(info.label) + '</span>' +
-                            selfTag +
+                '<div class="glass-card rounded-[18px] p-4">' +
+                    '<div class="flex items-center gap-3.5">' +
+                        '<div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center shrink-0 border border-green-100/60">' +
+                            '<i class="fas fa-user text-[#11A64A] text-[17px]"></i>' +
                         '</div>' +
-                        '<div class="text-[13px] text-gray-500 font-poppins tracking-wide">' + escapeText(maskMobile(member.mobile)) + '</div>' +
-                        '<div class="text-[11px] text-gray-400 mt-0.5">加入于 ' + escapeText(member.joinedAt || '--') + '</div>' +
+                        '<div class="flex-1 min-w-0">' +
+                            '<div class="flex items-center gap-2 mb-1 flex-wrap">' +
+                                '<span class="text-[15px] font-bold text-gray-800">' + escapeText(member.name) + '</span>' +
+                                '<span class="text-[10px] px-2 py-0.5 rounded-full border font-medium ' + roleBadgeClass(member.role) + '">' + escapeText(info.label) + '</span>' +
+                                selfTag +
+                            '</div>' +
+                            '<div class="text-[13px] text-gray-500 font-poppins tracking-wide">' + escapeText(maskMobile(member.mobile)) + '</div>' +
+                            '<div class="flex items-center justify-between gap-2 mt-0.5">' +
+                                '<div class="text-[11px] text-gray-400">加入于 ' + escapeText(member.joinedAt || '--') + '</div>' +
+                                '<button type="button" class="permission-drill-btn" onclick="event.stopPropagation(); goPermissionManagePage(\'' + escapeText(member.userId) + '\')">' +
+                                    '<i class="fas fa-chevron-right text-[11px]"></i>' +
+                                '</button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="mt-3">' +
+                        '<div class="permission-summary-row">' +
+                            '<span class="text-[12px] text-gray-500 shrink-0">开单权限</span>' +
+                            '<span class="permission-icons">' + buildPermissionSummaryIcons(permissions) + '</span>' +
+                            '<span class="text-[12px] font-semibold text-gray-700 shrink-0">' + enabledCount + '/4</span>' +
+                        '</div>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
-            (canSwipeDelete ? '<div class="member-swipe-delete" onclick="confirmRemoveMember(\'' + escapeText(member.userId) + '\')"><i class="fas fa-user-minus mr-1"></i>移除</div>' : '') +
+            (canSwipeDelete ? '<div class="member-swipe-delete" onclick="openRemoveMemberSheet(\'' + escapeText(member.userId) + '\')"><i class="fas fa-user-minus mr-1"></i>移除</div>' : '') +
         '</div>'
     );
 }
@@ -329,47 +543,48 @@ function memberCardHTML(member) {
 function render() {
     var team = getTeam();
     var members = getMembers().slice();
-    var salesMembers = members.filter(function (member) {
-        return member.role !== 'owner';
-    });
-    var teamRole = getCurrentRoleSafe();
-    var roleInfo = getRoleInfoSafe(teamRole) || { label: '成员' };
-    var currentUser = window.UserIdentityStore ? UserIdentityStore.getCurrentUser() : null;
-    var canManageTeam = !!roleInfo.canManage;
+    var canManage = canManageTeamPage();
     var addBtnWrap = document.getElementById('teamManageActionBar');
+    var list = document.getElementById('memberList');
+    var empty = document.getElementById('emptyState');
+    var noAccess = document.getElementById('noAccessState');
+    var editBtn = document.getElementById('editTeamNameBtn');
 
     var teamName = team ? team.teamName : '—';
     if (!teamName || teamName === '张老板收购站') {
         teamName = '张老板收购站的团队';
     }
     document.getElementById('teamName').textContent = teamName;
-    document.getElementById('teamRoleBadge').textContent = roleInfo.label;
-    document.getElementById('teamCountNum').textContent = salesMembers.length;
-    if (addBtnWrap) {
-        addBtnWrap.classList.toggle('hidden', !canManageTeam);
+    document.getElementById('teamCountNum').textContent = members.length;
+
+    if (addBtnWrap) addBtnWrap.classList.toggle('hidden', !canManage);
+    if (editBtn) editBtn.classList.toggle('hidden', !canManage);
+
+    if (!canManage) {
+        list.innerHTML = '';
+        empty.classList.add('hidden');
+        noAccess.classList.remove('hidden');
+        return;
     }
 
-    var list = document.getElementById('memberList');
-    var empty = document.getElementById('emptyState');
-
-    if (!salesMembers.length) {
+    noAccess.classList.add('hidden');
+    if (!members.length) {
         list.innerHTML = '';
         empty.classList.remove('hidden');
         return;
     }
 
     empty.classList.add('hidden');
-    var order = { owner: 0, manager: 1, operator: 2 };
-    salesMembers.sort(function (a, b) {
+    var order = { owner: 0, operator: 1 };
+    members.sort(function (a, b) {
         return (order[a.role] || 9) - (order[b.role] || 9);
     });
-    list.innerHTML = salesMembers.map(memberCardHTML).join('');
+    list.innerHTML = members.map(memberCardHTML).join('');
 }
 
 function openAddMemberSheet() {
-    var roleInfo = getRoleInfoSafe(getCurrentRoleSafe()) || {};
-    if (!roleInfo.canManage) {
-        showToast('当前团队角色暂无管理权限');
+    if (!canManageTeamPage()) {
+        showToast('仅超管可添加业务员');
         return;
     }
     document.getElementById('addMemberName').value = '';
@@ -392,7 +607,6 @@ function confirmAddMember() {
 
     var name = document.getElementById('addMemberName').value.trim();
     var mobile = document.getElementById('addMemberMobile').value.trim();
-    var role = 'operator';
 
     if (!name) {
         showToast('请输入业务员姓名');
@@ -418,9 +632,10 @@ function confirmAddMember() {
         userId: 'U' + Date.now(),
         name: name,
         mobile: mobile,
-        role: role,
+        role: 'operator',
         joinedAt: joinedAt,
-        lastActiveAt: joinedAt
+        lastActiveAt: joinedAt,
+        billingPermissions: { wechat: false, alipay: false, unionpay: false, psbcApp: false }
     });
 
     closeAddMemberSheet();
@@ -429,23 +644,32 @@ function confirmAddMember() {
 }
 
 function openEditTeamNameSheet() {
+    if (!canManageTeamPage()) {
+        showToast('仅超管可编辑团队名称');
+        return;
+    }
     var team = getTeam();
     if (!team) return;
     document.getElementById('teamNameInput').value = team.teamName || '';
     document.getElementById('editTeamNameOverlay').classList.add('show');
     document.getElementById('editTeamNameSheet').classList.add('show');
 }
+
 function closeEditTeamNameSheet() {
     document.getElementById('editTeamNameOverlay').classList.remove('show');
     document.getElementById('editTeamNameSheet').classList.remove('show');
 }
+
 function saveTeamName() {
     var team = getTeam();
     var val = document.getElementById('teamNameInput').value.trim();
     if (!team) return;
-    if (!val) { showToast('请输入团队名称'); return; }
+    if (!val) {
+        showToast('请输入团队名称');
+        return;
+    }
     var teams = store.getAllTeams();
-    var idx = teams.findIndex(function(t){ return t.teamId === team.teamId; });
+    var idx = teams.findIndex(function (item) { return item.teamId === team.teamId; });
     if (idx < 0) return;
     teams[idx].teamName = val;
     window.localStorage.setItem('ylt_teams_v1', JSON.stringify(teams));
@@ -454,18 +678,19 @@ function saveTeamName() {
     showToast('已更新团队名称');
 }
 
-function openMemberManageSheet(userId) { managingUserId = userId; }
-function closeMemberManageSheet() { managingUserId = null; }
-
 function openRemoveMemberSheet(userId) {
-    var members = getMembers();
-    var member = members.find(function (item) { return item.userId === userId; });
+    if (!canManageTeamPage()) {
+        showToast('仅超管可移除业务员');
+        return;
+    }
+    var member = getMemberById(userId);
     if (!member) return;
     managingUserId = userId;
     document.getElementById('removeMemberDesc').textContent = '确定移除业务员“' + member.name + '”吗？移除后不可恢复。';
     document.getElementById('removeMemberOverlay').classList.add('show');
     document.getElementById('removeMemberSheet').classList.add('show');
 }
+
 function closeRemoveMemberSheet() {
     managingUserId = null;
     document.getElementById('removeMemberOverlay').classList.remove('show');
@@ -489,33 +714,60 @@ function confirmRemoveMember(userId) {
     showToast('已移除该业务员');
 }
 
-// 鼠标/触摸左滑删除
-let swipeStartX = 0, swipeStartY = 0, swipeTarget = null;
+function goPermissionManagePage(userId) {
+    if (!canManageTeamPage()) {
+        showToast('仅超管可管理开单权限');
+        return;
+    }
+    window.location.href = 'buyer-team-permission.html?memberId=' + encodeURIComponent(userId);
+}
+
+let swipeStartX = 0;
+let swipeStartY = 0;
+let swipeTarget = null;
+
 function memberSwipeStart(x, y, e) {
-    const card = e.target.closest('.member-swipe-wrapper');
+    if (!canManageTeamPage()) return;
+    var card = e.target.closest('.member-swipe-wrapper');
     if (!card) return;
     swipeTarget = card;
     swipeStartX = x;
     swipeStartY = y;
 }
+
 function memberSwipeMove(x, y, e) {
-    if (!swipeTarget) return;
-    const dx = x - swipeStartX;
-    const dy = y - swipeStartY;
+    if (!swipeTarget || !canManageTeamPage()) return;
+    var dx = x - swipeStartX;
+    var dy = y - swipeStartY;
     if (Math.abs(dx) > Math.abs(dy) && dx < -30) {
         if (e.preventDefault) e.preventDefault();
-        const id = swipeTarget.id.replace('member-swipe-','');
-        if (managingUserId !== id) { managingUserId = id; render(); }
+        var id = swipeTarget.id.replace('member-swipe-', '');
+        if (managingUserId !== id) {
+            managingUserId = id;
+            render();
+        }
     }
 }
-function memberSwipeEnd() { swipeTarget = null; }
-document.addEventListener('touchstart', function(e){ memberSwipeStart(e.touches[0].clientX, e.touches[0].clientY, e); }, { passive: true });
-document.addEventListener('touchmove', function(e){ memberSwipeMove(e.touches[0].clientX, e.touches[0].clientY, e); }, { passive: false });
+
+function memberSwipeEnd() {
+    swipeTarget = null;
+}
+
+document.addEventListener('touchstart', function (e) {
+    memberSwipeStart(e.touches[0].clientX, e.touches[0].clientY, e);
+}, { passive: true });
+
+document.addEventListener('touchmove', function (e) {
+    memberSwipeMove(e.touches[0].clientX, e.touches[0].clientY, e);
+}, { passive: false });
+
 document.addEventListener('touchend', memberSwipeEnd, { passive: true });
-document.addEventListener('mousedown', function(e){ memberSwipeStart(e.clientX, e.clientY, e); });
-document.addEventListener('mousemove', function(e){ if (swipeTarget) memberSwipeMove(e.clientX, e.clientY, e); });
+document.addEventListener('mousedown', function (e) { memberSwipeStart(e.clientX, e.clientY, e); });
+document.addEventListener('mousemove', function (e) {
+    if (swipeTarget) memberSwipeMove(e.clientX, e.clientY, e);
+});
 document.addEventListener('mouseup', memberSwipeEnd);
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     if (!e.target.closest('.member-swipe-delete') && !e.target.closest('.member-swipe-content') && managingUserId) {
         managingUserId = null;
         render();

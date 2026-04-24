@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 开单权限</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js?v=20260424-team-permission-v2"></script>
+    <style>
+        .sheet-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.42);
+            z-index: 90;
+            opacity: 0;
+            visibility: hidden;
+            transition: all .22s ease;
+        }
+        .sheet-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .sheet-panel {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+            background: #fff;
+            border-radius: 24px 24px 0 0;
+            transform: translateY(100%);
+            transition: transform .26s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, .18);
+        }
+        .sheet-panel.show {
+            transform: translateY(0);
+        }
+        .sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: #d1d5db;
+            border-radius: 999px;
+            margin: 12px auto;
+        }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .toast-msg {
+            position: absolute;
+            left: 50%;
+            bottom: 108px;
+            transform: translateX(-50%);
+            padding: 10px 16px;
+            background: rgba(17,24,39,.88);
+            color: #fff;
+            border-radius: 12px;
+            font-size: 12px;
+            z-index: 130;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s ease, transform .25s ease;
+            white-space: nowrap;
+        }
+        .toast-msg.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .permission-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            flex-shrink: 0;
+        }
+        .permission-icon.is-off { background: #f3f4f6; color: #c0c4cc; border-color: #eceff3; }
+        .permission-icon.is-on.wechat { background: #eafbf1; color: #07c160; border-color: rgba(7,193,96,.14); }
+        .permission-icon.is-on.alipay { background: #ecf5ff; color: #1677ff; border-color: rgba(22,119,255,.14); }
+        .permission-icon.is-on.unionpay { background: #eef3ff; color: #3a63ff; border-color: rgba(58,99,255,.14); }
+        .permission-icon.is-on.psbcApp { background: #eefaf3; color: #1e9f55; border-color: rgba(30,159,85,.14); }
+        .channel-action-btn {
+            min-width: 92px;
+            height: 36px;
+            padding: 0 15px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all .18s ease;
+        }
+        .channel-action-btn:active {
+            transform: scale(.96);
+        }
+        .qr-wrap {
+            width: 224px;
+            height: 224px;
+            margin: 0 auto;
+            padding: 16px;
+            border-radius: 28px;
+            background: linear-gradient(180deg, #f8fbfc 0%, #ffffff 100%);
+            border: 1px solid #edf2f7;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.84), 0 14px 32px rgba(15,23,42,.05);
+        }
+        .qr-wrap img {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            display: block;
+            object-fit: cover;
+        }
+        .channel-pill {
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all .18s ease;
+        }
+        .channel-pill.active {
+            background: #edf9f1;
+            border-color: rgba(17,166,74,.36);
+            color: #11A64A;
+            box-shadow: 0 6px 14px rgba(17,166,74,.08);
+        }
+        .channel-pill:active {
+            transform: scale(.97);
+        }
+        .security-note {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #9ca3af;
+            font-size: 12px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container bg-[#F7F8FA] relative">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto hide-scrollbar px-4 pt-4 pb-6">
+        <div id="toastBar" class="hidden mb-3 rounded-[16px] border border-[#D9F0E2] bg-[#F2FBF5] px-4 py-3 text-[12px] text-[#138A43]"></div>
+        <div id="memberCard"></div>
+        <div class="mt-4 space-y-3" id="permissionList"></div>
+    </div>
+
+    <div class="sheet-overlay" id="qrOverlay" onclick="closeQrSheet()"></div>
+    <div class="sheet-panel" id="qrSheet">
+        <div class="sheet-handle"></div>
+        <div class="px-5 pb-6">
+            <div class="flex items-center justify-between mb-4">
+                <button type="button" onclick="closeQrSheet()" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 active:scale-95 transition-transform">
+                    <i class="fas fa-chevron-left text-sm"></i>
+                </button>
+                <h3 class="text-[16px] font-bold text-gray-800">扫码开通</h3>
+                <button type="button" onclick="closeQrSheet()" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 active:scale-95 transition-transform">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+
+            <div id="sheetMemberCard" class="rounded-[18px] border border-[#EEF2F6] bg-[#F8FAFC] px-4 py-4"></div>
+
+            <div class="mt-5 qr-wrap">
+                <img src="mock-qr.svg" alt="开通二维码">
+            </div>
+
+            <div class="text-center text-[12px] text-gray-400 mt-4" id="qrHintText">请使用微信扫一扫完成授权开通</div>
+
+            <div class="mt-5">
+                <div class="text-[12px] text-gray-500 mb-2.5">选择开通渠道</div>
+                <div id="sheetChannelList" class="flex gap-2 overflow-x-auto hide-scrollbar pb-1"></div>
+            </div>
+
+            <button type="button" onclick="confirmOpenPermission()" class="w-full h-12 mt-6 bg-gradient-to-r from-[#11A64A] to-[#388E3C] text-white font-bold text-[15px] rounded-xl shadow-[0_8px_20px_rgba(17,166,74,0.2)] active:scale-[0.98] transition-all">
+                确认开通
+            </button>
+
+            <div class="flex justify-center mt-4">
+                <div class="security-note">
+                    <i class="fas fa-shield-alt text-[#63C98A]"></i>
+                    <span>信息安全保障中</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastMsg" class="toast-msg"></div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('开单权限', 'buyer-team.html');
+
+var store = window.TeamMockStore || null;
+var BILLING_CHANNELS = [
+    { key: 'wechat', label: '微信', icon: 'fab fa-weixin', glyph: '微', className: 'wechat', desc: '支持微信扫码开单' },
+    { key: 'alipay', label: '支付宝', icon: 'fab fa-alipay', glyph: '支', className: 'alipay', desc: '支持支付宝扫码开单' },
+    { key: 'unionpay', label: '云闪付', icon: '', glyph: '云', className: 'unionpay', desc: '支持云闪付扫码开单' },
+    { key: 'psbcApp', label: '邮储银行 App', icon: '', glyph: '邮', className: 'psbcApp', desc: '支持邮储银行 App 扫码开单' }
+];
+var currentMember = null;
+var currentPermissions = null;
+var selectedChannelKey = 'wechat';
+
+function getQuery(name) {
+    var params = new URLSearchParams(window.location.search);
+    return params.get(name) || '';
+}
+
+function getTeam() {
+    return store ? store.getCurrentTeam() : null;
+}
+
+function getMemberById(userId) {
+    var team = getTeam();
+    var members = team && Array.isArray(team.members) ? team.members : [];
+    for (var index = 0; index < members.length; index += 1) {
+        if (members[index] && members[index].userId === userId) return members[index];
+    }
+    return null;
+}
+
+function maskMobile(mobile) {
+    if (!mobile || mobile.length < 7) return mobile || '';
+    return mobile.slice(0, 3) + '****' + mobile.slice(7);
+}
+
+function getPermissions(member) {
+    if (!member) return { wechat: false, alipay: false, unionpay: false, psbcApp: false };
+    if (store && typeof store.getBillingPermissions === 'function') {
+        var team = getTeam();
+        if (team && team.teamId) return store.getBillingPermissions(team.teamId, member.userId);
+    }
+    return member.billingPermissions || { wechat: false, alipay: false, unionpay: false, psbcApp: false };
+}
+
+function renderPermissionIcon(channel, enabled) {
+    var iconHtml = channel.icon
+        ? '<i class="' + channel.icon + '"></i>'
+        : '<span class="text-[13px] font-bold">' + channel.glyph + '</span>';
+    return '<span class="permission-icon ' + (enabled ? 'is-on ' + channel.className : 'is-off') + '">' + iconHtml + '</span>';
+}
+
+function getEnabledCount(permissions) {
+    var count = 0;
+    BILLING_CHANNELS.forEach(function (channel) {
+        if (permissions[channel.key]) count += 1;
+    });
+    return count;
+}
+
+function showToast(msg) {
+    var toast = document.getElementById('toastMsg');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function () {
+        toast.classList.remove('show');
+    }, 1600);
+}
+
+function maskMobile(mobile) {
+    if (!mobile || mobile.length < 7) return mobile || '';
+    return mobile.slice(0, 3) + '****' + mobile.slice(7);
+}
+
+function openQrSheet(channelKey) {
+    selectedChannelKey = channelKey || 'wechat';
+    renderQrSheet();
+    document.getElementById('qrOverlay').classList.add('show');
+    document.getElementById('qrSheet').classList.add('show');
+}
+
+function closeQrSheet() {
+    document.getElementById('qrOverlay').classList.remove('show');
+    document.getElementById('qrSheet').classList.remove('show');
+}
+
+function selectChannel(channelKey) {
+    selectedChannelKey = channelKey;
+    renderQrSheet();
+}
+
+function renderQrSheet() {
+    if (!currentMember) return;
+    var channel = BILLING_CHANNELS.find(function (item) { return item.key === selectedChannelKey; }) || BILLING_CHANNELS[0];
+    document.getElementById('sheetMemberCard').innerHTML =
+        '<div class="flex items-center gap-3.5">' +
+            '<div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-50 to-green-100 border border-green-100/70 flex items-center justify-center shrink-0">' +
+                '<i class="fas fa-user text-[#11A64A] text-[18px]"></i>' +
+            '</div>' +
+            '<div class="flex-1 min-w-0">' +
+                '<div class="flex items-center gap-2 flex-wrap">' +
+                    '<span class="text-[16px] font-bold text-gray-800">' + currentMember.name + '</span>' +
+                    '<span class="text-[10px] px-2 py-0.5 rounded-full border border-[#D8E8FF] bg-[#EEF5FF] text-[#4C88FF]">业务员</span>' +
+                '</div>' +
+                '<div class="text-[13px] text-gray-500 font-poppins mt-1">' + maskMobile(currentMember.mobile) + '</div>' +
+            '</div>' +
+        '</div>';
+
+    document.getElementById('qrHintText').textContent = '请使用' + channel.label + '扫一扫完成授权开通';
+    document.getElementById('sheetChannelList').innerHTML = BILLING_CHANNELS.map(function (item) {
+        var active = item.key === selectedChannelKey;
+        return (
+            '<button type="button" class="channel-pill ' + (active ? 'active' : '') + '" onclick="selectChannel(\'' + item.key + '\')">' +
+                renderPermissionIcon(item, active) +
+                '<span>' + item.label + '</span>' +
+            '</button>'
+        );
+    }).join('');
+}
+
+function confirmOpenPermission() {
+    var team = getTeam();
+    var memberId = getQuery('memberId');
+    if (!team || !memberId || !selectedChannelKey) return;
+    var success = store && typeof store.updateMemberBillingPermission === 'function'
+        ? store.updateMemberBillingPermission(team.teamId, memberId, selectedChannelKey, true)
+        : false;
+    if (!success) {
+        showToast('开通失败');
+        return;
+    }
+    currentPermissions = getPermissions(currentMember);
+    closeQrSheet();
+    renderList();
+    renderSummary();
+    var currentChannel = BILLING_CHANNELS.find(function (item) { return item.key === selectedChannelKey; });
+    var toastBar = document.getElementById('toastBar');
+    toastBar.textContent = (currentChannel ? currentChannel.label : '当前渠道') + '开单权限已开通';
+    toastBar.classList.remove('hidden');
+    showToast((currentChannel ? currentChannel.label : '当前渠道') + '已开通');
+}
+
+function renderSummary() {
+    var enabledCount = getEnabledCount(currentPermissions);
+    document.getElementById('memberCard').innerHTML =
+        '<div class="glass-card rounded-[22px] p-4">' +
+            '<div class="flex items-center gap-3.5">' +
+                '<div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-50 to-green-100 border border-green-100/70 flex items-center justify-center shrink-0">' +
+                    '<i class="fas fa-user text-[#11A64A] text-[18px]"></i>' +
+                '</div>' +
+                '<div class="flex-1 min-w-0">' +
+                    '<div class="flex items-center gap-2 flex-wrap">' +
+                        '<span class="text-[16px] font-bold text-gray-800">' + currentMember.name + '</span>' +
+                        '<span class="text-[10px] px-2 py-0.5 rounded-full border border-gray-200 bg-gray-50 text-gray-500">业务员</span>' +
+                    '</div>' +
+                    '<div class="text-[13px] text-gray-500 font-poppins mt-1">' + maskMobile(currentMember.mobile) + '</div>' +
+                    '<div class="text-[11px] text-gray-400 mt-1">加入于 ' + (currentMember.joinedAt || '--') + '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+}
+
+function renderList() {
+    document.getElementById('permissionList').innerHTML = BILLING_CHANNELS.map(function (channel) {
+        var enabled = !!currentPermissions[channel.key];
+        return (
+            '<div class="w-full glass-card rounded-[20px] p-4 flex items-center gap-3.5">' +
+                renderPermissionIcon(channel, enabled) +
+                '<div class="flex-1 min-w-0">' +
+                    '<div class="flex items-center gap-2">' +
+                        '<span class="text-[15px] font-semibold text-gray-800">' + channel.label + '</span>' +
+                        '<span class="text-[11px] px-2 py-0.5 rounded-full ' + (enabled ? 'bg-[#EAF7EF] text-[#11A64A]' : 'bg-gray-100 text-gray-400') + '">' + (enabled ? '已开通' : '未开通') + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<button type="button" class="channel-action-btn ' + (enabled ? 'bg-[#11A64A] text-white shadow-[0_8px_18px_rgba(17,166,74,0.16)]' : 'bg-white border border-gray-200 text-gray-600') + '" onclick="openQrSheet(\'' + channel.key + '\')">扫码开通</button>' +
+            '</div>'
+        );
+    }).join('');
+}
+
+function render() {
+    if (!store || !store.isOwnerOrManager || !store.isOwnerOrManager()) {
+        window.location.href = 'buyer-team.html';
+        return;
+    }
+    currentMember = getMemberById(getQuery('memberId'));
+    if (!currentMember) {
+        document.getElementById('memberCard').innerHTML = '<div class="glass-card rounded-[20px] p-5 text-center text-[14px] text-gray-500">未找到该业务员信息</div>';
+        document.getElementById('permissionList').innerHTML = '';
+        return;
+    }
+
+    currentPermissions = getPermissions(currentMember);
+    var toastBar = document.getElementById('toastBar');
+    toastBar.classList.add('hidden');
+    renderSummary();
+    renderList();
+}
+
+render();
+</script>
+</body>
+</html>
