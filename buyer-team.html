@@ -142,16 +142,6 @@
             color: #07c160;
             border-color: rgba(7, 193, 96, 0.14);
         }
-        .permission-icon.is-on.alipay {
-            background: #ecf5ff;
-            color: #1677ff;
-            border-color: rgba(22, 119, 255, 0.14);
-        }
-        .permission-icon.is-on.unionpay {
-            background: #eef3ff;
-            color: #3a63ff;
-            border-color: rgba(58, 99, 255, 0.14);
-        }
         .permission-icon.is-on.psbcApp {
             background: #eefaf3;
             color: #1e9f55;
@@ -322,8 +312,6 @@ var ROLES = store ? store.TEAM_ROLES : {
 };
 var BILLING_CHANNELS = [
     { key: 'wechat', label: '微信', icon: 'fab fa-weixin', glyph: '微', className: 'wechat' },
-    { key: 'alipay', label: '支付宝', icon: 'fab fa-alipay', glyph: '支', className: 'alipay' },
-    { key: 'unionpay', label: '云闪付', icon: '', glyph: '云', className: 'unionpay' },
     { key: 'psbcApp', label: '邮储银行 App', icon: '', glyph: '邮', className: 'psbcApp' }
 ];
 
@@ -414,7 +402,7 @@ function getMemberById(userId) {
 
 function getMemberPermissions(member) {
     if (!member) {
-        return { wechat: false, alipay: false, unionpay: false, psbcApp: false };
+        return { wechat: false, psbcApp: false };
     }
     if (store && typeof store.getBillingPermissions === 'function') {
         var team = getTeam();
@@ -423,8 +411,6 @@ function getMemberPermissions(member) {
     var raw = member.billingPermissions || {};
     return {
         wechat: !!raw.wechat,
-        alipay: !!raw.alipay,
-        unionpay: !!raw.unionpay,
         psbcApp: !!raw.psbcApp
     };
 }
@@ -457,8 +443,6 @@ function updateMemberBillingPermissionSafe(teamId, userId, channelKey, enabled) 
     var current = members[memberIndex];
     var nextPermissions = {
         wechat: !!(current.billingPermissions && current.billingPermissions.wechat),
-        alipay: !!(current.billingPermissions && current.billingPermissions.alipay),
-        unionpay: !!(current.billingPermissions && current.billingPermissions.unionpay),
         psbcApp: !!(current.billingPermissions && current.billingPermissions.psbcApp)
     };
     nextPermissions[channelKey] = !!enabled;
@@ -523,7 +507,7 @@ function memberCardHTML(member) {
                         '<div class="permission-summary-row">' +
                             '<span class="text-[12px] text-gray-500 shrink-0">开单权限</span>' +
                             '<span class="permission-icons">' + buildPermissionSummaryIcons(permissions) + '</span>' +
-                            '<span class="text-[12px] font-semibold text-gray-700 shrink-0">' + enabledCount + '/4</span>' +
+                            '<span class="text-[12px] font-semibold text-gray-700 shrink-0">' + enabledCount + '/2</span>' +
                             '<button type="button" class="permission-drill-btn" onclick="event.stopPropagation(); goPermissionManagePage(\'' + escapeText(member.userId) + '\')">' +
                                 '<i class="fas fa-chevron-right text-[11px]"></i>' +
                             '</button>' +
@@ -631,7 +615,7 @@ function confirmAddMember() {
         role: 'operator',
         joinedAt: joinedAt,
         lastActiveAt: joinedAt,
-        billingPermissions: { wechat: false, alipay: false, unionpay: false, psbcApp: false }
+        billingPermissions: { wechat: false, psbcApp: false }
     });
 
     closeAddMemberSheet();

@@ -55,15 +55,9 @@
             <span id="summaryPay" class="text-sm font-bold text-gray-500" style="font-family:Poppins;">¥0</span>
         </div>
 
-        <!-- 快捷入口（4列网格，卡片包裹） -->
+        <!-- 快捷入口（市场/需求相关功能暂隐藏） -->
         <div class="glass-panel rounded-2xl py-4 px-2">
             <div class="grid grid-cols-4">
-                <a href="unified-publish.html?source=home" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
-                    <div class="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
-                        <i class="fas fa-bullhorn text-primary text-base"></i>
-                    </div>
-                    <span class="text-[10px] text-gray-600 font-medium">发布需求</span>
-                </a>
                 <a href="unified-collection.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
                     <div class="w-11 h-11 rounded-full bg-emerald-500/10 flex items-center justify-center">
                         <i class="fas fa-qrcode text-emerald-600 text-base"></i>
@@ -82,11 +76,18 @@
                     </div>
                     <span class="text-[10px] text-gray-600 font-medium">合作农户</span>
                 </a>
+                <button type="button" class="flex flex-col items-center gap-1.5 relative" style="text-decoration:none;">
+                    <div class="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
+                        <i class="fas fa-bell text-primary text-base"></i>
+                        <span class="absolute top-1 right-2 min-w-[16px] h-4 bg-red-500 rounded-full text-white text-[10px] font-medium flex items-center justify-center px-1">3</span>
+                    </div>
+                    <span class="text-[10px] text-gray-600 font-medium">消息通知</span>
+                </button>
             </div>
         </div>
 
-        <!-- 我发布的需求 -->
-        <div>
+        <!-- 我发布的需求（市场功能暂隐藏） -->
+        <div class="hidden">
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-1.5">
                     <div class="w-[3px] h-[14px] rounded-sm bg-primary"></div>
@@ -243,7 +244,6 @@ function renderPublishedDemands() {
 document.addEventListener('DOMContentLoaded', function() {
     fillHero();
     fillSummary();
-    renderPublishedDemands();
 });
 </script>
 </body>

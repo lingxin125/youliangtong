@@ -36,11 +36,43 @@
             transition: all 0.3s ease;
         }
         .tab-item.active .tab-badge { background: #EBF7F0; color: #11A64A; }
+        .sub-tab-row {
+            display: flex; align-items: center; gap: 8px;
+            padding: 9px 16px 8px;
+            background: #FFFFFF;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            overflow-x: auto;
+        }
+        .sub-tab-row::-webkit-scrollbar { display: none; }
+        .sub-tab-btn {
+            height: 28px; padding: 0 12px; border-radius: 999px;
+            display: inline-flex; align-items: center; gap: 5px;
+            flex-shrink: 0;
+            background: #FFFFFF; color: #6B7280;
+            border: 1px solid #E5E7EB;
+            font-size: 12px; font-weight: 600;
+            transition: all 0.15s ease;
+        }
+        .sub-tab-btn.active {
+            background: #FFFFFF; color: #11A64A;
+            border-color: rgba(17,166,74,0.55);
+        }
+        .sub-tab-count {
+            min-width: 16px; height: 16px; line-height: 16px;
+            border-radius: 8px; padding: 0 4px;
+            text-align: center; font-size: 10px;
+            background: #F3F4F6;
+        }
+        .sub-tab-btn.active .sub-tab-count {
+            background: #EBF7F0;
+            color: #11A64A;
+        }
 
         /* ========== 搜索栏 ========== */
         .search-row {
             display: flex; align-items: center; gap: 8px;
             padding: 10px 16px 10px; background: white;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
         }
         .sort-row {
             position: relative;
@@ -405,7 +437,7 @@
         .swipe-wrapper { position: relative; overflow: hidden; border-radius: 12px; }
         .swipe-delete {
             position: absolute; right: 0; top: 0; bottom: 0; width: 72px;
-            background: #EF4444; display: flex; align-items: center; justify-content: center;
+            background: #F59E0B; display: flex; align-items: center; justify-content: center;
             color: white; font-size: 13px; font-weight: 500; cursor: pointer;
             transform: translateX(100%); transition: transform 0.2s ease;
         }
@@ -419,6 +451,75 @@
             transition: all 0.2s ease; cursor: pointer;
         }
         .filter-option.active { background: #F0FDF4; border-color: #11A64A; color: #11A64A; font-weight: 500; }
+        .result-status-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 8px; border-radius: 999px;
+            font-size: 10px; font-weight: 600; white-space: nowrap;
+        }
+        .result-status-tag.success { background:#ECFDF5; color:#059669; }
+        .result-status-tag.failed { background:#FEF2F2; color:#DC2626; }
+        .result-status-tag.canceled { background:#F3F4F6; color:#6B7280; }
+        .result-status-tag.paying { background:#EFF6FF; color:#2563EB; }
+        .done-card-title-line,
+        .done-card-payee-line {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+        }
+        .done-card-title-line i,
+        .done-card-payee-line i {
+            width: 14px;
+            margin-right: 6px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .done-card-title-line i {
+            color: #D1D5DB;
+            font-size: 13px;
+        }
+        .done-card-payee-line i {
+            color: #D1D5DB;
+            font-size: 11px;
+        }
+        .done-card-title {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1F2937;
+            line-height: 1.35;
+        }
+        .done-card-payee {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6B7280;
+            line-height: 1.35;
+        }
+        .done-card-enter {
+            width: 16px;
+            min-width: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9CA3AF;
+            font-size: 15px;
+        }
+        .result-card-meta {
+            width: 72px;
+            min-width: 72px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: space-between;
+            text-align: right;
+            transform: translateX(14px);
+        }
         .date-input {
             flex: 1; height: 36px; padding: 0 12px; border: 1px solid #E5E7EB;
             border-radius: 8px; font-size: 12px; color: #374151; background: white;
@@ -433,24 +534,23 @@
     <!-- Tab 切换 -->
     <div class="shrink-0 sticky top-0 z-40 bg-white">
         <div class="tab-container relative">
-            <div class="tab-item active" id="tabDraft" onclick="switchTab('draft')">挂单 <span class="tab-badge" id="countDraft">0</span></div>
-            <div class="tab-item" id="tabPendingPrice" onclick="switchTab('pending_price')">待开价 <span class="tab-badge" id="countPendingPrice">0</span></div>
-            <div class="tab-item" id="tabUnpaid" onclick="switchTab('unpaid')">待结算 <span class="tab-badge" id="countUnpaid">0</span></div>
+            <div class="tab-item active" id="stageTodo" onclick="switchStage('todo')">待处理 <span class="tab-badge" id="countTodo">0</span></div>
+            <div class="tab-item" id="stagePaying" onclick="switchStage('paying')">付款中 <span class="tab-badge" id="countPaying">0</span></div>
+            <div class="tab-item" id="stageDone" onclick="switchStage('done')">已结束 <span class="tab-badge" id="countDone">0</span></div>
             <div class="tab-indicator" id="tabIndicator">
                 <div class="mx-auto w-10 h-full bg-[#11A64A] rounded-t-md"></div>
             </div>
         </div>
-    </div>
-
-    <!-- 搜索栏 -->
-    <div class="search-row shrink-0">
-        <div class="glass-card rounded-xl px-3 py-2.5 flex items-center gap-2 border border-gray-100 flex-1">
-            <i class="fas fa-search text-gray-400 text-sm"></i>
-            <input id="searchInput" type="text" placeholder="搜索商品或收款人" class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
+        <div class="search-row shrink-0">
+            <div class="glass-card rounded-xl px-3 py-2.5 flex items-center gap-2 border border-gray-100 flex-1">
+                <i class="fas fa-search text-gray-400 text-sm"></i>
+                <input id="searchInput" type="text" placeholder="搜索农产品或收款人" class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400">
+            </div>
+            <button id="filterBtn" class="toolbar-icon-btn" onclick="FilterPanel.open()">
+                <i class="fas fa-filter text-gray-500 text-sm"></i>
+            </button>
         </div>
-        <button id="filterBtn" class="toolbar-icon-btn" onclick="FilterPanel.open()">
-            <i class="fas fa-filter text-gray-500 text-sm"></i>
-        </button>
+        <div id="subTabBar" class="sub-tab-row"></div>
     </div>
 
     <div class="sort-row shrink-0">
@@ -587,6 +687,23 @@
                     <input type="date" id="endDate" class="date-input">
                 </div>
             </div>
+            <div id="cancelSourceFilter" style="display:none;">
+                <div class="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 mb-2"><i class="fas fa-ban text-gray-400 text-sm"></i><span>取消来源</span></div>
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-option active" data-type="cancel" data-value="all">全部取消</button>
+                    <button class="filter-option" data-type="cancel" data-value="before_pay">结算前取消</button>
+                    <button class="filter-option" data-type="cancel" data-value="paying">付款中取消</button>
+                </div>
+            </div>
+            <div id="doneStatusFilter" style="display:none;">
+                <div class="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 mb-2"><i class="fas fa-circle-check text-gray-400 text-sm"></i><span>结果状态</span></div>
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-option active" data-type="done-status" data-value="all">全部</button>
+                    <button class="filter-option" data-type="done-status" data-value="success">付款成功</button>
+                    <button class="filter-option" data-type="done-status" data-value="failed">付款失败</button>
+                    <button class="filter-option" data-type="done-status" data-value="canceled">已取消</button>
+                </div>
+            </div>
         </div>
         <div class="px-4 py-3 border-t border-gray-100 flex gap-3 shrink-0">
             <button class="flex-1 h-10 rounded-2xl border border-gray-200 text-[13px] font-medium text-gray-600 bg-white" onclick="FilterPanel.reset()">重置</button>
@@ -601,17 +718,38 @@
 const mockStore = window.BuyerMockStore || null;
 const clientStore = window.ClientMockStore || null;
 const urlQs = new URLSearchParams(window.location.search);
+const TODO_TABS = ['draft', 'pending_price', 'unpaid'];
+const DONE_TABS = ['all', 'success', 'failed', 'canceled'];
+const PAYING_STATUSES = ['pending', 'paying', 'processing'];
+const DONE_STATUSES = ['success', 'failed', 'canceled'];
 const state = {
-    currentTab: urlQs.get('tab') || 'draft',
+    currentStage: normalizeInitialStage(urlQs.get('stage'), urlQs.get('tab')),
+    currentTab: normalizeInitialTab(urlQs.get('tab')),
     selectedIds: new Set(),
     searchKeyword: '',
     filterTimeRange: 'all',
     filterStartDate: null,
     filterEndDate: null,
+    filterCancelSource: 'all',
+    filterDoneStatus: 'all',
     sortOrder: 'created_desc',
     selectedClientId: null,
     swipedId: null,
 };
+
+function normalizeInitialStage(stage, tab) {
+    if (stage === 'todo' || stage === 'paying' || stage === 'done') return stage;
+    if (tab === 'paying' || tab === 'pending' || tab === 'processing') return 'paying';
+    if (DONE_TABS.includes(tab)) return 'done';
+    return 'todo';
+}
+
+function normalizeInitialTab(tab) {
+    if (TODO_TABS.includes(tab)) return tab;
+    if (DONE_TABS.includes(tab)) return tab;
+    if (tab === 'paying' || tab === 'pending' || tab === 'processing') return 'paying';
+    return 'draft';
+}
 
 // ==================== 初始化 ====================
 document.getElementById('statusBar').innerHTML = renderStatusBar();
@@ -622,67 +760,130 @@ document.getElementById('navBar').innerHTML = `
         </div>
         <div class="absolute left-1/2 transform -translate-x-1/2 text-gray-800 font-medium text-[16px]" style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;">订单管理</div>
         <div class="w-[120px] flex justify-end">
-            <a href="buyer-recycle.html" class="relative h-9 px-1 no-underline flex items-center gap-1.5 active:opacity-80" style="text-decoration:none;">
-                <i class="fas fa-trash-can text-gray-500 text-[12px]"></i>
-                <span class="text-[12px] text-gray-600 font-medium">回收站</span>
-                <span id="recycleBadge" class="absolute -top-1 -right-1 w-[16px] h-[16px] bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white" style="font-family:Poppins;display:none;">0</span>
-            </a>
+            <div class="w-[87px] h-[32px] bg-white rounded-full border border-gray-200/50 flex items-center justify-between px-3 shadow-sm">
+                <div class="flex-1 flex items-center justify-center"><i class="fas fa-ellipsis-h text-gray-800 text-xs"></i></div>
+                <div class="w-[1px] h-[18px] bg-gray-300"></div>
+                <div class="flex-1 flex items-center justify-center"><i class="far fa-dot-circle text-gray-800 text-sm"></i></div>
+            </div>
         </div>
     </div>`;
-function updateRecycleBadge() {
-    var badge = document.getElementById('recycleBadge');
-    if (!badge || !mockStore || !mockStore.getRecycleCount) return;
-    var count = mockStore.getRecycleCount();
-    if (count > 0) { badge.textContent = count > 99 ? '99+' : count; badge.style.display = 'flex'; }
-    else { badge.style.display = 'none'; }
-}
-updateRecycleBadge();
 document.getElementById('searchInput').addEventListener('input', function() {
     state.searchKeyword = this.value.trim();
     renderCurrentTab();
 });
 renderSortState();
 
-// 初始化 tab
-if (['draft','pending_price','unpaid'].includes(state.currentTab)) {
-    switchTab(state.currentTab);
-} else {
-    switchTab('draft');
+// 初始化阶段
+switchStage(state.currentStage, state.currentTab);
+
+// ==================== 阶段 / 状态切换 ====================
+function switchStage(stage, preferredTab) {
+    state.currentStage = stage;
+    if (stage === 'todo') {
+        state.currentTab = TODO_TABS.includes(preferredTab) ? preferredTab : getDefaultTodoTab();
+    } else if (stage === 'done') {
+        state.currentTab = DONE_TABS.includes(preferredTab) ? preferredTab : 'all';
+    } else {
+        state.currentTab = 'paying';
+    }
+    state.selectedIds.clear();
+    state.swipedId = null;
+    document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+    document.getElementById({ todo: 'stageTodo', paying: 'stagePaying', done: 'stageDone' }[stage]).classList.add('active');
+
+    const indicator = document.getElementById('tabIndicator');
+    if (stage === 'todo') indicator.style.transform = 'translateX(0)';
+    else if (stage === 'paying') indicator.style.transform = 'translateX(100%)';
+    else indicator.style.transform = 'translateX(200%)';
+
+    updateCounts();
+    renderSubTabs();
+    renderCurrentTab();
+    updateBatchBar();
 }
 
-// ==================== Tab 切换 ====================
 function switchTab(tab) {
     state.currentTab = tab;
     state.selectedIds.clear();
     state.swipedId = null;
-    document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-    document.getElementById({ draft: 'tabDraft', pending_price: 'tabPendingPrice', unpaid: 'tabUnpaid' }[tab]).classList.add('active');
-    
-    // 移动指示器
-    const indicator = document.getElementById('tabIndicator');
-    if (tab === 'draft') indicator.style.transform = 'translateX(0)';
-    else if (tab === 'pending_price') indicator.style.transform = 'translateX(100%)';
-    else if (tab === 'unpaid') indicator.style.transform = 'translateX(200%)';
-    
     updateCounts();
+    renderSubTabs();
     renderCurrentTab();
     updateBatchBar();
+}
+
+function getDefaultTodoTab() {
+    if (!mockStore) return 'draft';
+    const counts = mockStore.getOrderCounts();
+    return TODO_TABS.find(function(tab) {
+        if (tab === 'unpaid') return (counts.unpaid || 0) + (counts.pending_client || 0) > 0;
+        return (counts[tab] || 0) > 0;
+    }) || 'draft';
 }
 
 function updateCounts() {
     if (!mockStore) return;
     const counts = mockStore.getOrderCounts();
-    document.getElementById('countDraft').textContent = counts.draft || 0;
-    document.getElementById('countPendingPrice').textContent = counts.pending_price || 0;
-    document.getElementById('countUnpaid').textContent = (counts.unpaid || 0) + (counts.pending_client || 0);
+    const todo = (counts.draft || 0) + (counts.pending_price || 0) + (counts.unpaid || 0) + (counts.pending_client || 0);
+    const paying = (counts.pending || 0) + (counts.paying || 0) + (counts.processing || 0);
+    const done = (counts.success || 0) + (counts.failed || 0) + (counts.canceled || 0);
+    document.getElementById('countTodo').textContent = todo;
+    document.getElementById('countPaying').textContent = paying;
+    document.getElementById('countDone').textContent = done;
+}
+
+function getCountForTab(tab) {
+    if (!mockStore) return 0;
+    const counts = mockStore.getOrderCounts();
+    if (tab === 'unpaid') return (counts.unpaid || 0) + (counts.pending_client || 0);
+    if (tab === 'paying') return PAYING_STATUSES.reduce(function(sum, s) { return sum + (counts[s] || 0); }, 0);
+    if (tab === 'all') return DONE_STATUSES.reduce(function(sum, s) { return sum + (counts[s] || 0); }, 0);
+    return counts[tab] || 0;
+}
+
+function renderSubTabs() {
+    const bar = document.getElementById('subTabBar');
+    const cancelFilter = document.getElementById('cancelSourceFilter');
+    const doneStatusFilter = document.getElementById('doneStatusFilter');
+    const showDoneFilters = state.currentStage === 'done';
+    if (cancelFilter) cancelFilter.style.display = showDoneFilters && (state.currentTab === 'canceled' || state.filterDoneStatus === 'canceled') ? '' : 'none';
+    if (doneStatusFilter) doneStatusFilter.style.display = showDoneFilters ? '' : 'none';
+    if (state.currentStage === 'paying') {
+        bar.innerHTML = '';
+        bar.style.display = 'none';
+        return;
+    }
+    bar.style.display = 'flex';
+    const tabs = state.currentStage === 'todo'
+        ? [
+            { id: 'draft', label: '挂单' },
+            { id: 'pending_price', label: '待开价' },
+            { id: 'unpaid', label: '待结算' },
+        ]
+        : [
+            { id: 'all', label: '全部' },
+            { id: 'success', label: '付款成功' },
+            { id: 'failed', label: '付款失败' },
+            { id: 'canceled', label: '已取消' },
+        ];
+    bar.innerHTML = tabs.map(function(tab) {
+        return '<button class="sub-tab-btn ' + (state.currentTab === tab.id ? 'active' : '') + '" type="button" onclick="switchTab(\'' + tab.id + '\')">'
+            + tab.label + ' <span class="sub-tab-count">' + getCountForTab(tab.id) + '</span></button>';
+    }).join('');
 }
 
 // ==================== 数据获取 ====================
 function getTabOrders() {
     if (!mockStore) return [];
     let orders = [];
-    if (state.currentTab === 'unpaid') {
+    if (state.currentStage === 'todo' && state.currentTab === 'unpaid') {
         orders = [...mockStore.getOrdersByStatus('unpaid'), ...mockStore.getOrdersByStatus('pending_client')];
+    } else if (state.currentStage === 'todo') {
+        orders = mockStore.getOrdersByStatus(state.currentTab);
+    } else if (state.currentStage === 'paying') {
+        orders = mockStore.getOrders().filter(function(o) { return PAYING_STATUSES.includes(o.status); });
+    } else if (state.currentTab === 'all') {
+        orders = mockStore.getOrders().filter(function(o) { return DONE_STATUSES.includes(o.status); });
     } else {
         orders = mockStore.getOrdersByStatus(state.currentTab);
     }
@@ -697,6 +898,8 @@ function getTabOrders() {
     }
     // 时间过滤
     orders = applyTimeFilter(orders);
+    orders = applyDoneStatusFilter(orders);
+    orders = applyCancelSourceFilter(orders);
     orders.sort((a, b) => {
         const diff = new Date(b.createdAt) - new Date(a.createdAt);
         return state.sortOrder === 'created_asc' ? -diff : diff;
@@ -723,13 +926,38 @@ function applyTimeFilter(orders) {
     });
 }
 
+function normalizeCancelSourceForList(order) {
+    const source = String(order && order.cancelSource || '').trim();
+    const reason = String(order && order.failReason || '');
+    const hasPayInfo = !!(order && (order.paymentOrderNo || order.bankFlowNo || order.payMethod));
+    if (source === 'paying' || source === 'bank') return 'paying';
+    if (source === 'unpaid' || source === 'pending' || source === 'before_pay') return 'before_pay';
+    if (reason.indexOf('支付中') > -1 || hasPayInfo) return 'paying';
+    return 'before_pay';
+}
+
+function getCancelSourceLabel(order) {
+    return normalizeCancelSourceForList(order) === 'paying' ? '付款中取消' : '结算前取消';
+}
+
+function applyCancelSourceFilter(orders) {
+    const filteringCanceled = state.currentTab === 'canceled' || state.filterDoneStatus === 'canceled';
+    if (state.currentStage !== 'done' || !filteringCanceled || state.filterCancelSource === 'all') return orders;
+    return orders.filter(function(order) { return normalizeCancelSourceForList(order) === state.filterCancelSource; });
+}
+
+function applyDoneStatusFilter(orders) {
+    if (state.currentStage !== 'done' || state.currentTab !== 'all' || state.filterDoneStatus === 'all') return orders;
+    return orders.filter(function(order) { return order.status === state.filterDoneStatus; });
+}
+
 function getCurrentSelectableIds() {
     return getTabOrders().map(function(order) { return order.id; });
 }
 
 function isAllSelected() {
     const ids = getCurrentSelectableIds();
-    if (!ids.length || state.currentTab === 'draft') return false;
+    if (!ids.length || state.currentStage !== 'todo' || state.currentTab === 'draft') return false;
     return ids.every(function(id) { return state.selectedIds.has(id); });
 }
 
@@ -793,9 +1021,11 @@ function renderCurrentTab() {
         updateBatchBar();
         return;
     }
-    if (state.currentTab === 'draft') area.innerHTML = orders.map(renderDraftCard).join('');
-    else if (state.currentTab === 'pending_price') area.innerHTML = orders.map(renderPriceCard).join('');
-    else area.innerHTML = orders.map(renderUnpaidCard).join('');
+    if (state.currentStage === 'todo' && state.currentTab === 'draft') area.innerHTML = orders.map(renderDraftCard).join('');
+    else if (state.currentStage === 'todo' && state.currentTab === 'pending_price') area.innerHTML = orders.map(renderPriceCard).join('');
+    else if (state.currentStage === 'todo') area.innerHTML = orders.map(renderUnpaidCard).join('');
+    else if (state.currentStage === 'paying') area.innerHTML = orders.map(renderPayingCard).join('');
+    else area.innerHTML = orders.map(renderDoneCard).join('');
     syncSelectedIdsToVisibleOrders();
     updateBatchBar();
 }
@@ -805,7 +1035,12 @@ function renderEmpty() {
         draft: { title: '暂无挂单', desc: '开单时选择「挂单」可暂存未完成的单据' },
         pending_price: { title: '暂无待开价订单', desc: '价格未定时选择「待开价」，后续统一定价' },
         unpaid: { title: '暂无待结算订单', desc: '稍后结算和客户转来的订单会出现在这里' },
-    }[state.currentTab];
+        paying: { title: '暂无付款中订单', desc: '发起付款后，未完成的订单会出现在这里' },
+        all: { title: '暂无已结束订单', desc: '付款成功、失败或取消后的订单会出现在这里' },
+        success: { title: '暂无付款成功订单', desc: '完成付款的订单会出现在这里' },
+        failed: { title: '暂无付款失败订单', desc: '付款失败的订单可从这里重新处理' },
+        canceled: { title: '暂无已取消订单', desc: '结算前取消或付款中取消的订单会出现在这里' },
+    }[state.currentTab] || { title: '暂无订单', desc: '当前筛选条件下没有订单' };
     return `<div class="text-center pt-20">
         <div class="w-12 h-1.5 rounded-full bg-gray-200/80 mx-auto mb-5"></div>
         <div class="text-[14px] text-gray-500 font-medium">${cfg.title}</div>
@@ -813,9 +1048,72 @@ function renderEmpty() {
     </div>`;
 }
 
+function getOrderName(o) {
+    return o.productName || (o.items && o.items[0] && o.items[0].name) || '农产品';
+}
+
+function goPayingDetail(orderId) {
+    window.location.href = 'buyer-order-detail.html?source=manage&orderNo=' + encodeURIComponent(orderId);
+}
+
+function renderResultLikeCard(o, info) {
+    const name = getOrderName(o);
+    const payee = o.payeeName || '未选择';
+    const time = info.time || o.paidAt || o.updatedAt || o.createdAt;
+    return `<div class="order-card mb-3" onclick="goPayingDetail('${o.id}')">
+        <div class="py-3 px-3.5 flex items-stretch gap-0">
+            <div class="min-w-0 flex-1">
+                <div class="min-h-[76px]">
+                    <div class="done-card-title-line">
+                        <i class="fas fa-box"></i>
+                        <div class="done-card-title">${name}</div>
+                    </div>
+                    <div class="done-card-payee-line mt-1">
+                        <i class="fas fa-user-circle"></i>
+                        <div class="done-card-payee">付给 ${payee}</div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="text-[18px] leading-none font-bold ${info.amountClass} font-poppins">¥${fmt(o.amount)}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="result-card-meta">
+                <span class="result-status-tag ${info.cls}">${info.label}</span>
+                <span class="text-[11px] text-gray-400 shrink-0">${smartTime(time)}</span>
+            </div>
+            <div class="done-card-enter"><i class="fas fa-chevron-right"></i></div>
+        </div>
+    </div>`;
+}
+
+function renderPayingCard(o) {
+    const statusText = o.status === 'processing' ? '支付中' : '付款中';
+    return renderResultLikeCard(o, {
+        cls: 'paying',
+        icon: 'fa-clock',
+        label: statusText,
+        amountClass: 'text-primary',
+        time: o.updatedAt || o.createdAt
+    });
+}
+
+function renderDoneCard(o) {
+    const statusMap = {
+        success: { cls: 'success', icon: 'fa-circle-check', label: '付款成功', amountClass: 'text-primary' },
+        failed: { cls: 'failed', icon: 'fa-circle-xmark', label: '付款失败', amountClass: 'text-red-500' },
+        canceled: { cls: 'canceled', icon: 'fa-ban', label: '已取消', amountClass: 'text-gray-400' },
+    };
+    const info = statusMap[o.status] || statusMap.canceled;
+    if (o.status === 'canceled') {
+        info.label = getCancelSourceLabel(o);
+    }
+    const time = o.paidAt || o.updatedAt || o.createdAt;
+    return renderResultLikeCard(o, Object.assign({}, info, { time }));
+}
+
 // ---- 挂单卡片 ----
 function renderDraftCard(o) {
-    const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '商品';
+    const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '农产品';
     const payee = o.payeeName || '未填写';
     const tareText = Number(o.tareWeight || 0) > 0 ? fmtQty(o.tareWeight || 0, o.unit) : '-';
     const swiped = state.swipedId === o.id;
@@ -824,15 +1122,15 @@ function renderDraftCard(o) {
             <div class="py-2.5 px-3.5 relative">
                 <div class="flex items-center justify-between mb-1">
                     <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                        <i class="fas fa-user-circle text-gray-300 text-[14px] shrink-0"></i>
-                        <span class="text-[14px] font-bold text-gray-800 truncate">${payee}</span>
+                        <i class="fas fa-box text-gray-300 text-[13px] shrink-0"></i>
+                        <span class="text-[14px] font-bold text-gray-800 truncate">${name}</span>
                     </div>
                     <span class="px-2 py-0.5 rounded-full bg-orange-50 text-orange-500 text-[10px] font-medium shrink-0 ml-2">待补皮重</span>
                 </div>
                 
                 <div class="text-[12px] text-gray-500 font-medium mb-1.5 flex items-center gap-1.5">
-                    <i class="fas fa-box text-gray-300 text-[11px]"></i>
-                    ${name}
+                    <i class="fas fa-user-circle text-gray-300 text-[11px]"></i>
+                    付给 ${payee}
                 </div>
                 
                 <div class="flex items-stretch gap-3">
@@ -856,13 +1154,13 @@ function renderDraftCard(o) {
                 </div>
             </div>
         </div>
-        <div class="swipe-delete" onclick="event.stopPropagation();deleteOrder('${o.id}')"><i class="fas fa-trash-can mr-1"></i>删除</div>
+        <div class="swipe-delete" onclick="event.stopPropagation();cancelPrePayOrder('${o.id}')"><i class="fas fa-ban mr-1"></i>取消</div>
     </div>`;
 }
 
 // ---- 待开价卡片 ----
 function renderPriceCard(o) {
-    const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '商品';
+    const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '农产品';
     const payee = o.payeeName || '未选择';
     const checked = state.selectedIds.has(o.id);
     const swiped = state.swipedId === o.id;
@@ -873,15 +1171,15 @@ function renderPriceCard(o) {
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-1">
                         <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                            <i class="fas fa-user-circle text-gray-300 text-[14px] shrink-0"></i>
-                            <span class="text-[14px] font-bold text-gray-800 truncate">${payee}</span>
+                            <i class="fas fa-box text-gray-300 text-[13px] shrink-0"></i>
+                            <span class="text-[14px] font-bold text-gray-800 truncate">${name}</span>
                         </div>
                         <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-500 text-[10px] font-medium shrink-0 ml-2">待开单价</span>
                     </div>
                     
                     <div class="text-[12px] text-gray-500 font-medium mb-1.5 flex items-center gap-1.5">
-                        <i class="fas fa-box text-gray-300 text-[11px]"></i>
-                        ${name}
+                        <i class="fas fa-user-circle text-gray-300 text-[11px]"></i>
+                        付给 ${payee}
                     </div>
                     
                     <div class="flex items-stretch gap-3">
@@ -906,7 +1204,7 @@ function renderPriceCard(o) {
                 </div>
             </div>
         </div>
-        <div class="swipe-delete" onclick="event.stopPropagation();deleteOrder('${o.id}')"><i class="fas fa-trash-can mr-1"></i>删除</div>
+        <div class="swipe-delete" onclick="event.stopPropagation();cancelPrePayOrder('${o.id}')"><i class="fas fa-ban mr-1"></i>取消</div>
     </div>`;
 }
 
@@ -937,17 +1235,17 @@ function renderUnpaidFlow(o) {
 
 // ---- 待结算卡片 ----
 function renderUnpaidCard(o) {
-    const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '商品';
+    const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '农产品';
     const payee = o.payeeName || '未选择';
     const checked = state.selectedIds.has(o.id);
     const isPendingClient = o.status === 'pending_client';
     const swiped = state.swipedId === o.id;
     const flow = renderUnpaidFlow(o);
 
-    // pending_client 不能直接删除（需先撤回）
+    // pending_client 需要先撤回，避免客户侧仍看到已转单
     const canDelete = !isPendingClient;
     const deleteBtn = canDelete
-        ? `<div class="swipe-delete" onclick="event.stopPropagation();deleteOrder('${o.id}')"><i class="fas fa-trash-can mr-1"></i>删除</div>`
+        ? `<div class="swipe-delete" onclick="event.stopPropagation();cancelPrePayOrder('${o.id}')"><i class="fas fa-ban mr-1"></i>取消</div>`
         : `<div class="swipe-delete" style="background:#6B7280;" onclick="event.stopPropagation();showToast('请先撤回再删除')"><i class="fas fa-ban mr-1"></i>需撤回</div>`;
 
     return `<div class="swipe-wrapper ${swiped?'swiped':''} mb-3" id="swipe-${o.id}">
@@ -957,15 +1255,15 @@ function renderUnpaidCard(o) {
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-1">
                         <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                            <i class="fas fa-user-circle text-gray-300 text-[14px] shrink-0"></i>
-                            <span class="text-[14px] font-bold text-gray-800 truncate">${payee}</span>
+                            <i class="fas fa-box text-gray-300 text-[13px] shrink-0"></i>
+                            <span class="text-[14px] font-bold text-gray-800 truncate">${name}</span>
                         </div>
                         <span class="text-[16px] font-bold text-primary font-poppins shrink-0 ml-2">¥${fmt(o.amount)}</span>
                     </div>
                     
                     <div class="text-[12px] text-gray-500 font-medium mb-1.5 flex items-center gap-1.5">
-                        <i class="fas fa-box text-gray-300 text-[11px]"></i>
-                        ${name}
+                        <i class="fas fa-user-circle text-gray-300 text-[11px]"></i>
+                        付给 ${payee}
                     </div>
                     
                     <div class="flex items-stretch gap-3">
@@ -998,6 +1296,10 @@ function renderUnpaidCard(o) {
 
 // ==================== 选择 & 批量操作 ====================
 function toggleSelect(id) {
+    if (state.currentStage !== 'todo') {
+        goPayingDetail(id);
+        return;
+    }
     if (state.selectedIds.has(id)) state.selectedIds.delete(id);
     else state.selectedIds.add(id);
     renderCurrentTab();
@@ -1005,7 +1307,7 @@ function toggleSelect(id) {
 }
 
 function toggleSelectAll() {
-    if (state.currentTab === 'draft') return;
+    if (state.currentStage !== 'todo' || state.currentTab === 'draft') return;
     const ids = getCurrentSelectableIds();
     if (!ids.length) return;
     const shouldSelectAll = !isAllSelected();
@@ -1029,7 +1331,7 @@ function updateBatchBar() {
     const selectBox = document.getElementById('batchSelectBox');
     const count = state.selectedIds.size;
     const currentOrders = getTabOrders();
-    if (state.currentTab === 'draft' || currentOrders.length === 0) {
+    if (state.currentStage !== 'todo' || state.currentTab === 'draft' || currentOrders.length === 0) {
         bar.classList.remove('show');
         selectBox.classList.remove('checked');
         return;
@@ -1077,7 +1379,7 @@ function confirmBatchPrice() {
     closePriceModal();
     showToast(`${ids.length} 笔订单已开价`);
     state.selectedIds.clear();
-    setTimeout(() => switchTab('unpaid'), 400);
+    setTimeout(() => switchStage('todo', 'unpaid'), 400);
 }
 
 // ==================== 客户选择面板 ====================
@@ -1152,24 +1454,27 @@ function doWithdraw(orderId) {
 }
 function closeConfirmModal() { document.getElementById('confirmModalOverlay').classList.remove('show'); }
 
-// ==================== 删除挂单 ====================
-function deleteDraft(orderId) { deleteOrder(orderId); }
-function deleteOrder(orderId) {
-    document.getElementById('confirmTitle').textContent = '删除订单';
-    document.getElementById('confirmMsg').textContent = '删除后将移入回收站（30天内可恢复），确定删除吗？';
+// ==================== 取消 / 删除 ====================
+function deleteDraft(orderId) { cancelPrePayOrder(orderId); }
+function cancelPrePayOrder(orderId) {
+    document.getElementById('confirmTitle').textContent = '取消订单';
+    document.getElementById('confirmMsg').textContent = '取消后订单会进入「已结束-已取消」，确定取消吗？';
     document.getElementById('confirmOkBtn').onclick = function() {
-        if (mockStore && mockStore.softDeleteOrder) mockStore.softDeleteOrder(orderId);
+        if (mockStore && mockStore.updateOrder) {
+            mockStore.updateOrder(orderId, {
+                status: 'canceled',
+                cancelSource: 'before_pay',
+                failReason: '结算前取消'
+            });
+        }
         closeConfirmModal();
         state.swipedId = null;
         state.selectedIds.delete(orderId);
-        showToast('已移入回收站');
-        updateCounts();
-        renderCurrentTab();
-        updateRecycleBadge();
+        showToast('订单已取消');
+        switchStage('done', 'canceled');
     };
     document.getElementById('confirmModalOverlay').classList.add('show');
 }
-
 // ==================== 滑动删除（兼容触摸+鼠标） ====================
 let touchStartX = 0, touchStartY = 0, touchTarget = null, isDragging = false;
 
@@ -1216,13 +1521,13 @@ document.addEventListener('click', function(e) {
 // ==================== 导航 ====================
 function goEditOrder(orderId, backTab) {
     const back = backTab || 'draft';
-    window.location.href = `buyer-order-edit.html?orderNo=${orderId}&back=${encodeURIComponent('buyer-order-manage.html?tab=' + back)}`;
+    window.location.href = `buyer-order-edit.html?orderNo=${orderId}&back=${encodeURIComponent('buyer-order-manage.html?stage=todo&tab=' + back)}`;
 }
 function goEditDraft(orderId) { goEditOrder(orderId, 'draft'); }
 function goOrderDetail(orderId, mode) {
     let back = 'unpaid';
     if (mode === 'price') back = 'pending_price';
-    window.location.href = `buyer-order-edit.html?orderNo=${orderId}&back=${encodeURIComponent('buyer-order-manage.html?tab=' + back)}`;
+    window.location.href = `buyer-order-edit.html?orderNo=${orderId}&back=${encodeURIComponent('buyer-order-manage.html?stage=todo&tab=' + back)}`;
 }
 function goMergePay() {
     const ids = [...state.selectedIds];
@@ -1247,10 +1552,13 @@ const FilterPanel = {
         state.filterTimeRange = 'all';
         state.filterStartDate = null;
         state.filterEndDate = null;
+        state.filterCancelSource = 'all';
+        state.filterDoneStatus = 'all';
         document.querySelectorAll('#filterSheet .filter-option').forEach(b => b.classList.toggle('active', b.dataset.value === 'all'));
         document.getElementById('customDateRange').classList.add('hidden');
         document.getElementById('startDate').value = '';
         document.getElementById('endDate').value = '';
+        renderSubTabs();
     },
     confirm() {
         if (state.filterTimeRange === 'custom') {
@@ -1305,8 +1613,17 @@ document.querySelectorAll('#filterSheet .filter-option').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll(`#filterSheet [data-type="${this.dataset.type}"]`).forEach(b => b.classList.remove('active'));
         this.classList.add('active');
-        state.filterTimeRange = this.dataset.value;
-        document.getElementById('customDateRange').classList.toggle('hidden', this.dataset.value !== 'custom');
+        if (this.dataset.type === 'time') {
+            state.filterTimeRange = this.dataset.value;
+            document.getElementById('customDateRange').classList.toggle('hidden', this.dataset.value !== 'custom');
+        }
+        if (this.dataset.type === 'cancel') {
+            state.filterCancelSource = this.dataset.value;
+        }
+        if (this.dataset.type === 'done-status') {
+            state.filterDoneStatus = this.dataset.value;
+            document.getElementById('cancelSourceFilter').style.display = this.dataset.value === 'canceled' ? '' : 'none';
+        }
     });
 });
 

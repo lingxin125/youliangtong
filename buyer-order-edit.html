@@ -348,7 +348,7 @@
             <div class="section-title">
                 <div class="section-title-main">
                     <div class="section-dot"></div>
-                    <span class="section-title-text">开单商品</span>
+                    <span class="section-title-text">开单品类</span>
                 </div>
             </div>
             <div class="product-name-box">
@@ -356,7 +356,7 @@
                     <i class="fas fa-box text-[15px]"></i>
                 </div>
                 <div class="min-w-0 flex-1">
-                    <div class="product-title">商品名称</div>
+                    <div class="product-title">当前品类</div>
                     <div id="productNameText" class="product-value truncate">--</div>
                 </div>
             </div>
@@ -370,6 +370,10 @@
                 </div>
             </div>
             <div class="billing-grid">
+                <div class="billing-field col-span-2">
+                    <label class="field-label">农产品名称</label>
+                    <div id="productNameWrap"></div>
+                </div>
                 <div class="billing-field">
                     <label class="field-label">毛重 <span class="text-red-400">*</span></label>
                     <div id="grossWeightWrap"></div>
@@ -387,7 +391,7 @@
                     <div id="netWeightWrap"></div>
                 </div>
                 <div class="billing-field col-span-2">
-                    <label class="field-label">单价</label>
+                    <div id="priceLabelArea" class="mb-1"></div>
                     <div id="unitPriceWrap"></div>
                 </div>
                 <div class="billing-field col-span-2">
@@ -476,6 +480,7 @@ let order = null;
 let state = {
     status: '',
     selectedClientId: null,
+    productName: '',
     grossWeight: 0,
     tareWeight: 0,
     deduction: 0,
@@ -499,10 +504,12 @@ if (!order) {
 
 function initState() {
     state.status = order.status || 'draft';
+    state.productName = order.productName || order.categorySecondary || '';
     state.grossWeight = Number(order.grossWeight || 0);
     state.tareWeight = Number(order.tareWeight || 0);
     state.deduction = Number(order.deduction || 0);
     state.unitPrice = Number(order.unitPrice || 0);
+    state.priceMode = order.priceMode || 'unit';
     state.remark = order.remark || '';
 }
 
@@ -525,6 +532,9 @@ function calcNetWeight() {
 }
 
 function calcAmount() {
+    if (state.priceMode === 'fixed') {
+        return Number(state.unitPrice || 0); // 一口价：金额直接等于输入值
+    }
     return Math.round(calcNetWeight() * Number(state.unitPrice || 0) * 100) / 100;
 }
 
@@ -562,6 +572,13 @@ function renderInputField(value, unit, handler) {
     return renderFieldShell(
         `<input type="number" value="${value || ''}" class="field-input" placeholder="0" step="0.01" oninput="${handler}(this.value)">
          <span class="field-unit">${unit}</span>`,
+        true
+    );
+}
+
+function renderTextInputField(value, placeholder, handler) {
+    return renderFieldShell(
+        `<input type="text" value="${escapeHtml(value || '')}" class="field-input" placeholder="${placeholder}" oninput="${handler}(this.value)">`,
         true
     );
 }
@@ -631,11 +648,14 @@ function renderStatus() {
 }
 
 function renderProduct() {
-    document.getElementById('productNameText').textContent = order.productName || '--';
+    document.getElementById('productNameText').textContent = order.categorySecondary || order.productName || '--';
 }
 
 function renderBilling() {
     const editable = canEditBilling();
+    document.getElementById('productNameWrap').innerHTML = editable
+        ? renderTextInputField(state.productName, '请输入农产品名称', 'onProductNameChange')
+        : renderDisplayField(state.productName || '--', '', false, !state.productName);
     document.getElementById('grossWeightWrap').innerHTML = editable
         ? renderInputField(state.grossWeight, getUnit(), 'onGrossWeightChange')
         : renderDisplayField(fmtNumber(state.grossWeight, false), getUnit(), false, Number(state.grossWeight || 0) <= 0);
@@ -646,9 +666,28 @@ function renderBilling() {
         ? renderInputField(state.deduction, getUnit(), 'onDeductionChange')
         : renderDisplayField(fmtNumber(state.deduction, false), getUnit(), false, Number(state.deduction || 0) <= 0);
     document.getElementById('netWeightWrap').innerHTML = renderDisplayField(fmtNumber(calcNetWeight(), true), getUnit(), true, false);
+
+    // 价格标签区：可编辑时显示分段器，只读时显示文字标签
+    var priceLabelArea = document.getElementById('priceLabelArea');
+    if (editable) {
+        var isUnit = state.priceMode === 'unit';
+        priceLabelArea.innerHTML = '<div class="flex items-center bg-gray-100 rounded-lg p-0.5" style="width:fit-content;">' +
+            '<button type="button" onclick="setPriceMode(\'unit\')" id="priceModeUnit" class="px-3 py-1 rounded-md text-[12px] font-medium ' + (isUnit ? 'bg-white text-primary shadow-sm' : 'text-gray-500') + '">单价</button>' +
+            '<button type="button" onclick="setPriceMode(\'fixed\')" id="priceModeFixed" class="px-3 py-1 rounded-md text-[12px] font-medium ' + (!isUnit ? 'bg-white text-primary shadow-sm' : 'text-gray-500') + '">一口价</button>' +
+            '</div>';
+    } else {
+        priceLabelArea.innerHTML = '<label class="field-label" style="margin-bottom:0;">' + (state.priceMode === 'fixed' ? '一口价' : '单价') + '</label>';
+    }
+
+    var priceUnit = state.priceMode === 'fixed' ? '元' : ('元/' + getUnit());
+    var priceDisplay = state.priceMode === 'fixed'
+        ? (state.unitPrice > 0 ? '¥' + Number(state.unitPrice).toFixed(2) : '--')
+        : (state.unitPrice > 0 ? '¥' + Number(state.unitPrice).toFixed(2) : '--');
+    var priceDisplaySuffix = state.priceMode === 'fixed' ? '' : (state.unitPrice > 0 ? '/' + getUnit() : '');
+
     document.getElementById('unitPriceWrap').innerHTML = editable
-        ? renderInputField(state.unitPrice, '元', 'onPriceChange')
-        : renderDisplayField(state.unitPrice > 0 ? '¥' + Number(state.unitPrice).toFixed(2) : '--', state.unitPrice > 0 ? '/' + getUnit() : '', false, Number(state.unitPrice || 0) <= 0);
+        ? renderInputField(state.unitPrice, priceUnit, 'onPriceChange')
+        : renderDisplayField(priceDisplay, priceDisplaySuffix, false, Number(state.unitPrice || 0) <= 0);
     document.getElementById('remarkWrap').innerHTML = editable ? renderTextareaField(state.remark) : renderTextareaDisplay(state.remark);
 }
 
@@ -704,6 +743,10 @@ function onGrossWeightChange(value) {
     renderPage();
 }
 
+function onProductNameChange(value) {
+    state.productName = String(value || '').trim();
+}
+
 function onTareChange(value) {
     state.tareWeight = Number(value || 0);
     renderPage();
@@ -716,6 +759,11 @@ function onDeductionChange(value) {
 
 function onPriceChange(value) {
     state.unitPrice = Number(value || 0);
+    renderPage();
+}
+
+function setPriceMode(mode) {
+    state.priceMode = mode === 'fixed' ? 'fixed' : 'unit';
     renderPage();
 }
 
@@ -741,7 +789,7 @@ function validateBilling(requirePrice) {
         return false;
     }
     if (requirePrice && Number(state.unitPrice || 0) <= 0) {
-        showToast('请填写单价');
+        showToast(state.priceMode === 'fixed' ? '请填写一口价' : '请填写单价');
         return false;
     }
     return true;
@@ -757,18 +805,21 @@ function buildPatchByCurrentState() {
     const netWeight = calcNetWeight();
     const amount = calcAmount();
     const status = getNextStatus();
+    const productName = state.productName || order.productName || order.categorySecondary || '';
     return {
+        productName: productName,
         grossWeight: Number(state.grossWeight || 0),
         tareWeight: Number(state.tareWeight || 0),
         deduction: Number(state.deduction || 0),
         netWeight: netWeight,
         unitPrice: Number(state.unitPrice || 0),
+        priceMode: state.priceMode || 'unit',
         amount: amount,
         remark: String(state.remark || '').trim(),
         status: status,
-        summary: (order.productName || '商品') + ' x ' + fmtNumber(netWeight, true) + (getUnit() || '斤'),
+        summary: (productName || '农产品') + ' x ' + fmtNumber(netWeight, true) + (getUnit() || '斤'),
         items: [{
-            name: order.productName || '商品',
+            name: productName || '农产品',
             qty: netWeight,
             unit: getUnit(),
             price: Number(state.unitPrice || 0),

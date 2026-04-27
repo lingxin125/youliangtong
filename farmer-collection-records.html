@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>丰收云 - 收款记录</title>
+    <title>丰收云 - 订单管理</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -64,47 +64,97 @@
             background: white;
         }
 
-        /* ========== 日期分组 ========== */
-        .date-group-card {
-            background: linear-gradient(145deg, rgba(17, 166, 74, 0.06) 0%, #FFFFFF 100%) !important;
-            border: 1px solid rgba(17, 166, 74, 0.12);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+        .stage-tabs {
+            display: flex;
+            align-items: center;
+            background: #FFFFFF;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            position: relative;
         }
-
-        .record-list {
-            max-height: 0; overflow: hidden;
-            transition: max-height 0.3s ease;
-            padding: 0;
+        .stage-tab {
+            flex: 1;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: #6B7280;
+            font-size: 14px;
+            font-weight: 600;
+            position: relative;
         }
-        .record-list.expanded {
-            max-height: 2000px;
+        .stage-tab.active { color: #11A64A; }
+        .stage-tab.active::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            width: 34px;
+            height: 3px;
+            border-radius: 3px 3px 0 0;
+            background: #11A64A;
+            transform: translateX(-50%);
         }
-
-        .expand-icon {
-            transition: transform 0.2s ease;
-        }
-
-        /* ========== 记录项 ========== */
-        .record-item {
-            background: white;
-            border-radius: 10px;
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        }
-        .record-item + .record-item {
-            margin-top: 8px;
-        }
-
-        .method-icon {
-            width: 32px; height: 32px;
+        .stage-count {
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
             border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px; flex-shrink: 0;
+            background: #F3F4F6;
+            color: #6B7280;
+            font-size: 10px;
+            line-height: 16px;
+            text-align: center;
         }
-        .method-industry { background: #E0F2FE; color: #0284C7; }
-        .method-guarantee { background: #F3E8FF; color: #9333EA; }
+        .stage-tab.active .stage-count { background: #EBF7F0; color: #11A64A; }
+        .sub-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 9px 16px 8px;
+            background: #FFFFFF;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .sub-tabs::-webkit-scrollbar { display: none; }
+        .sub-tab {
+            height: 28px;
+            padding: 0 12px;
+            border-radius: 999px;
+            border: 1px solid #E5E7EB;
+            background: #FFFFFF;
+            color: #6B7280;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .sub-tab.active {
+            color: #11A64A;
+            border-color: rgba(17,166,74,0.55);
+            background: #FFFFFF;
+        }
+        .order-card {
+            background: #FFFFFF;
+            border: 1px solid rgba(17, 24, 39, 0.05);
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+        }
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .status-draft { background:#F3F4F6; color:#6B7280; }
+        .status-pending-price { background:#EFF6FF; color:#2563EB; }
+        .status-unpaid { background:#FEF3C7; color:#D97706; }
+        .status-paying { background:#EEF2FF; color:#4F46E5; }
+        .status-failed { background:#FEF2F2; color:#DC2626; }
+        .status-success { background:#ECFDF5; color:#059669; }
+        .status-canceled { background:#F3F4F6; color:#6B7280; }
 
         /* ========== Toast提示 ========== */
         .toast-tip {
@@ -135,15 +185,30 @@
     <div id="statusBar"></div>
     <div id="navBar"></div>
 
-    <!-- 统计栏 -->
-    <div class="px-4 mb-3 shrink-0 flex items-center justify-between">
-        <div class="text-[13px] text-gray-500">
-            共 <span class="text-primary font-semibold" id="recordCount">0</span> 条收款
+    <div class="stage-tabs shrink-0">
+        <button class="stage-tab active" id="stagePending" onclick="App.switchStage('pending')">待收款 <span class="stage-count" id="countPending">0</span></button>
+        <button class="stage-tab" id="stagePaid" onclick="App.switchStage('paid')">已收款 <span class="stage-count" id="countPaid">0</span></button>
+        <button class="stage-tab" id="stageCanceled" onclick="App.switchStage('canceled')">已取消 <span class="stage-count" id="countCanceled">0</span></button>
+    </div>
+    <div id="subTabs" class="sub-tabs shrink-0"></div>
+
+    <!-- 搜索与筛选 -->
+    <div class="px-4 py-2.5 shrink-0 flex items-center gap-2 bg-white border-b border-gray-100">
+        <div class="flex-1 h-9 px-3 rounded-xl bg-gray-50 border border-gray-100 flex items-center gap-2">
+            <i class="fas fa-search text-gray-400 text-xs"></i>
+            <input id="searchInput" type="text" placeholder="搜索农产品或收购商" class="flex-1 bg-transparent outline-none text-[13px] text-gray-700 placeholder-gray-400">
         </div>
-        <button id="filterBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 active:bg-gray-100" onclick="FilterPanel.open()">
-            <i class="fas fa-filter text-gray-600 text-xs"></i>
-            <span class="text-[12px] text-gray-600">筛选</span>
+        <button id="filterBtn" class="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center active:bg-gray-100" onclick="FilterPanel.open()">
+            <i class="fas fa-filter text-gray-500 text-xs"></i>
         </button>
+    </div>
+
+    <!-- 统计栏 -->
+    <div class="px-4 my-3 shrink-0 flex items-center justify-between">
+        <div class="text-[13px] text-gray-500">
+            共 <span class="text-primary font-semibold" id="recordCount">0</span> 笔订单
+        </div>
+        <div id="amountSummary" class="text-[12px] text-gray-500"></div>
     </div>
 
     <!-- 筛选结果汇总（仅筛选时显示） -->
@@ -174,12 +239,12 @@
             <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-wallet text-gray-300 text-2xl"></i>
             </div>
-            <div class="text-[15px] font-medium text-gray-600">暂无收款记录</div>
-            <div class="text-[12px] text-gray-400 mt-2">收购商完成支付后会自动展示在这里</div>
+            <div class="text-[15px] font-medium text-gray-600">暂无订单</div>
+            <div class="text-[12px] text-gray-400 mt-2">收购商给您开单后会展示在这里</div>
         </div>
     </div>
 
-    <!-- 收款列表 -->
+    <!-- 订单列表 -->
     <div id="recordList" class="flex-1 overflow-y-auto no-scrollbar px-4 space-y-3" style="padding-bottom:80px;"></div>
 
     <!-- Toast提示 -->
@@ -196,7 +261,7 @@
         </div>
         <div class="px-4 py-3 border-b border-gray-100 flex-shrink-0">
             <div class="flex items-center justify-between">
-                <h3 class="text-[15px] font-semibold text-gray-800">筛选收款记录</h3>
+                <h3 class="text-[15px] font-semibold text-gray-800">筛选订单</h3>
                 <button class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="FilterPanel.close()">
                     <i class="fas fa-times text-gray-400 text-sm"></i>
                 </button>
@@ -233,16 +298,43 @@
 </div>
 
 <script>
+const FARMER_NAME = '李大姐';
+const STAGE_STATUS_MAP = {
+    pending: ['draft', 'pending_price', 'unpaid', 'pending_client', 'pending', 'paying', 'processing', 'failed'],
+    paid: ['success'],
+    canceled: ['canceled']
+};
+const PENDING_SUB_TABS = [
+    { id: 'all', label: '全部' },
+    { id: 'draft', label: '挂单' },
+    { id: 'pending_price', label: '待开价' },
+    { id: 'unpaid', label: '待结算' },
+    { id: 'paying', label: '付款中' },
+    { id: 'failed', label: '付款失败' }
+];
+const STATUS_CONFIG = {
+    draft: { label: '挂单', cls: 'status-draft', sub: 'draft', stage: 'pending', rank: 5 },
+    pending_price: { label: '待开价', cls: 'status-pending-price', sub: 'pending_price', stage: 'pending', rank: 4 },
+    unpaid: { label: '待结算', cls: 'status-unpaid', sub: 'unpaid', stage: 'pending', rank: 3 },
+    pending_client: { label: '待结算', cls: 'status-unpaid', sub: 'unpaid', stage: 'pending', rank: 3 },
+    pending: { label: '付款中', cls: 'status-paying', sub: 'paying', stage: 'pending', rank: 2 },
+    paying: { label: '付款中', cls: 'status-paying', sub: 'paying', stage: 'pending', rank: 2 },
+    processing: { label: '付款中', cls: 'status-paying', sub: 'paying', stage: 'pending', rank: 2 },
+    failed: { label: '付款失败', cls: 'status-failed', sub: 'failed', stage: 'pending', rank: 1 },
+    success: { label: '付款成功', cls: 'status-success', sub: 'success', stage: 'paid', rank: 9 },
+    canceled: { label: '已取消', cls: 'status-canceled', sub: 'canceled', stage: 'canceled', rank: 10 }
+};
+const AMOUNT_KNOWN_STATUSES = ['unpaid', 'pending_client', 'pending', 'paying', 'processing', 'failed', 'success', 'canceled'];
+
 // ==================== 数据服务层 ====================
 const RecordService = {
     mockStore: window.BuyerMockStore || null,
-    farmerName: '李大姐',
 
     getRecords() {
-        if (this.mockStore?.getOrders) {
-            const orders = this.mockStore.getOrders();
-            // 筛选出当前农户的收款记录（作为收款方）
-            return orders.filter(order => order.payeeName === this.farmerName);
+        if (this.mockStore && typeof this.mockStore.getOrders === 'function') {
+            return this.mockStore.getOrders().filter(function(order) {
+                return order.payeeName === FARMER_NAME;
+            });
         }
         return this.getFallbackRecords();
     },
@@ -252,12 +344,10 @@ const RecordService = {
             {
                 id: 'SL20260212142210',
                 payerName: '张老板',
-                payerMobile: '139****6666',
-                payeeName: '李大姐',
-                summary: '东北大米 x 1000斤',
+                payeeName: FARMER_NAME,
+                productName: '东北大米',
                 amount: 3200,
                 status: 'success',
-                payMethod: 'guarantee',
                 createdAt: '2026-02-12T14:22:10+08:00',
                 paidAt: '2026-02-12T14:23:08+08:00',
                 items: [{ name: '东北大米', qty: 1000, unit: '斤', price: 3.2, subtotal: 3200 }]
@@ -265,47 +355,42 @@ const RecordService = {
             {
                 id: 'SL20260211103322',
                 payerName: '李经理',
-                payerMobile: '138****5566',
-                payeeName: '李大姐',
-                summary: '有机西红柿 x 500斤',
-                amount: 1450,
-                status: 'success',
-                payMethod: 'industry',
+                payeeName: FARMER_NAME,
+                productName: '有机西红柿',
+                amount: 0,
+                status: 'pending_price',
                 createdAt: '2026-02-11T10:33:22+08:00',
-                paidAt: '2026-02-11T10:34:00+08:00',
-                items: [{ name: '有机西红柿', qty: 500, unit: '斤', price: 2.9, subtotal: 1450 }]
-            },
-            {
-                id: 'SL20260210091530',
-                payerName: '王收购',
-                payerMobile: '137****7788',
-                payeeName: '李大姐',
-                summary: '苹果 x 200斤',
-                amount: 1200,
-                status: 'success',
-                payMethod: 'guarantee',
-                createdAt: '2026-02-10T09:15:30+08:00',
-                items: [{ name: '苹果', qty: 200, unit: '斤', price: 6, subtotal: 1200 }]
-            },
-            {
-                id: 'SL20260209160000',
-                payerName: '赵老板',
-                payerMobile: '136****9999',
-                payeeName: '李大姐',
-                summary: '黄瓜 x 300斤',
-                amount: 900,
-                status: 'success',
-                payMethod: 'industry',
-                createdAt: '2026-02-09T16:00:00+08:00',
-                items: [{ name: '黄瓜', qty: 300, unit: '斤', price: 3, subtotal: 900 }]
+                items: [{ name: '有机西红柿', qty: 500, unit: '斤', price: 0, subtotal: 0 }]
             }
         ];
     },
 
     findById(recordId) {
-        return this.getRecords().find(r => r.id === recordId);
+        return this.getRecords().find(function(item) { return item.id === recordId; });
     }
 };
+
+function getStage(order) {
+    const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.draft;
+    return cfg.stage;
+}
+
+function getSubStatus(order) {
+    const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.draft;
+    return cfg.sub;
+}
+
+function getProductName(order) {
+    return order.productName || (order.items && order.items[0] && order.items[0].name) || '农产品';
+}
+
+function getPayerName(order) {
+    return order.payerCompany || order.payerOrg || order.operatorName || order.payerName || '收购商';
+}
+
+function hasKnownAmount(order) {
+    return AMOUNT_KNOWN_STATUSES.includes(order.status) && Number(order.amount || 0) > 0;
+}
 
 // ==================== 筛选服务层 ====================
 const FilterService = {
@@ -313,17 +398,20 @@ const FilterService = {
         timeRange: 'all',
         startDate: null,
         endDate: null,
+        keyword: ''
     },
 
     isActive() {
-        return this.state.timeRange !== 'all';
+        return this.state.timeRange !== 'all' || !!this.state.keyword;
     },
 
     setTimeRange(value) {
         this.state.timeRange = value;
     },
 
-
+    setKeyword(value) {
+        this.state.keyword = String(value || '').trim().toLowerCase();
+    },
 
     setCustomDates(start, end) {
         this.state.startDate = start;
@@ -331,193 +419,91 @@ const FilterService = {
     },
 
     reset() {
-        this.state = {
-            timeRange: 'all',
-            startDate: null,
-            endDate: null,
-        };
+        this.state = { timeRange: 'all', startDate: null, endDate: null, keyword: this.state.keyword };
     },
 
     apply(records) {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const { timeRange, startDate, endDate, keyword } = this.state;
 
-        return records.filter(record => {
+        return records.filter(function(record) {
             const recordDate = new Date(record.createdAt);
             const recordDay = new Date(recordDate.getFullYear(), recordDate.getMonth(), recordDate.getDate());
-
-            // 时间筛选
             let timeMatch = true;
-            const { timeRange, startDate, endDate } = this.state;
-
             if (timeRange === 'today') {
                 timeMatch = recordDay.getTime() === today.getTime();
             } else if (timeRange === 'week') {
-                const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-                timeMatch = recordDay >= weekAgo;
+                timeMatch = recordDay >= new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
             } else if (timeRange === 'month') {
-                const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-                timeMatch = recordDay >= monthAgo;
+                timeMatch = recordDay >= new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
             } else if (timeRange === 'custom' && startDate && endDate) {
                 const start = new Date(startDate);
                 const end = new Date(endDate);
                 end.setHours(23, 59, 59, 999);
                 timeMatch = recordDay >= start && recordDay <= end;
             }
-
-            return timeMatch;
-        }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }
-};
-
-// ==================== 分组服务层 ====================
-const GroupService = {
-    expanded: {},
-
-    group(records) {
-        const groups = {};
-
-        records.forEach(record => {
-            const date = new Date(record.createdAt);
-            const dateKey = this.formatDateKey(date);
-            const displayDate = this.formatDisplayDate(date);
-
-            if (!groups[dateKey]) {
-                groups[dateKey] = {
-                    dateKey,
-                    displayDate,
-                    records: [],
-                    totalAmount: 0
-                };
-            }
-            groups[dateKey].records.push(record);
-            groups[dateKey].totalAmount += record.amount;
+            if (!timeMatch) return false;
+            if (!keyword) return true;
+            const haystack = [getProductName(record), getPayerName(record), record.summary || ''].join(' ').toLowerCase();
+            return haystack.indexOf(keyword) > -1;
         });
-
-        return Object.values(groups).sort((a, b) => b.dateKey.localeCompare(a.dateKey));
-    },
-
-    formatDateKey(date) {
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    },
-
-    formatDisplayDate(date) {
-        return `${date.getFullYear()}年${String(date.getMonth() + 1).padStart(2, '0')}月${String(date.getDate()).padStart(2, '0')}日`;
-    },
-
-    isExpanded(dateKey) {
-        // 默认收起所有分组
-        return this.expanded[dateKey] === true;
-    },
-
-    toggle(dateKey) {
-        this.expanded[dateKey] = !this.isExpanded(dateKey);
-        return this.expanded[dateKey];
     }
 };
 
 // ==================== 格式化服务层 ====================
 const FormatService = {
-    // 智能时间格式：今天/昨天/前天/MM-DD/YYYY-MM-DD HH:MM:SS
     smartTime(iso) {
+        const date = new Date(iso || '');
+        if (Number.isNaN(date.getTime())) return '--';
         const now = new Date();
-        const date = new Date(iso);
-        const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-        const diffYears = now.getFullYear() - date.getFullYear();
-
-        const h = String(date.getHours()).padStart(2, '0');
-        const m = String(date.getMinutes()).padStart(2, '0');
-        const s = String(date.getSeconds()).padStart(2, '0');
-        const mo = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
-        const y = date.getFullYear();
-
-        if (diffDays === 0) return `${h}:${m}:${s}`;
-        if (diffDays === 1) return `昨天 ${h}:${m}:${s}`;
-        if (diffDays === 2) return `前天 ${h}:${m}:${s}`;
-        if (diffYears === 0) return `${mo}-${d} ${h}:${m}:${s}`;
-        return `${y}-${mo}-${d} ${h}:${m}:${s}`;
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+        if (minutes < 1) return '刚刚';
+        if (minutes < 60) return minutes + '分钟前';
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return hours + '小时前';
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return month + '-' + day;
     },
 
     amount(value) {
-        return value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-};
-
-// ==================== 状态映射 ====================
-const StatusMap = {
-    success: { class: 'status-success', text: '支付成功', amountClass: 'amount-received' }
-};
-
-const MethodMap = {
-    industry: { icon: 'fa-building-columns', text: '行业支付', class: 'method-industry' },
-    guarantee: { icon: 'fa-file-invoice-dollar', text: '订单付', class: 'method-guarantee' },
-    '': { icon: 'fa-clock', text: '未支付', class: '' }
 };
 
 // ==================== UI 渲染层 ====================
 const RenderService = {
-    renderRecordItem(record, isLast) {
-        const status = StatusMap.success;
-        const method = MethodMap[record.payMethod] || MethodMap[''];
-        const timeStr = FormatService.smartTime(record.createdAt);
-
-        const methodHtml = method.class
-            ? `<div class="method-icon ${method.class}"><i class="fas ${method.icon}"></i></div>`
-            : `<div class="method-icon" style="background:#F3F4F6;color:#9CA3AF;"><i class="fas ${method.icon}"></i></div>`;
-
-        const borderClass = isLast ? '' : 'border-b border-gray-100';
-
-        return `
-            <div class="p-3 ${borderClass} cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors" onclick="Actions.goDetail('${record.id}')">
-                <div class="flex items-center gap-3">
-                    ${methodHtml}
-                    <div class="flex-1 min-w-0">
-                        <div class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100">
-                            <span class="text-[12px] font-semibold text-gray-700">${timeStr}</span>
-                        </div>
-                        <div class="text-[14px] text-gray-500 mt-1">来自 ${record.payerName}</div>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <span class="text-[18px] font-bold ${status.amountClass}" style="font-family:Poppins;">+¥${FormatService.amount(record.amount)}</span>
-                        <span class="status-tag ${status.class} mt-1 text-[11px] px-2 py-0.5 rounded-full font-medium">${status.text}</span>
-                    </div>
-                </div>
-            </div>
-        `;
+    renderSubTabs() {
+        const el = document.getElementById('subTabs');
+        if (App.state.stage !== 'pending') {
+            el.style.display = 'none';
+            el.innerHTML = '';
+            return;
+        }
+        el.style.display = 'flex';
+        el.innerHTML = PENDING_SUB_TABS.map(function(tab) {
+            const active = App.state.subStatus === tab.id;
+            return `<button class="sub-tab ${active ? 'active' : ''}" onclick="App.switchSubStatus('${tab.id}')">${tab.label}</button>`;
+        }).join('');
     },
 
-    renderRecordItemsWithDividers(records) {
-        return records.map((r, index) => this.renderRecordItem(r, index === records.length - 1)).join('');
-    },
-
-    renderDateGroup(group, isExpanded) {
-        const arrowIcon = isExpanded ? 'fa-chevron-up' : 'fa-chevron-down';
-
-        return `
-            <div class="date-group-card" id="group-${group.dateKey}">
-                <div class="px-4 py-3 cursor-pointer" onclick="Actions.toggleGroup('${group.dateKey}')">
-                    <div class="flex items-center justify-between">
-                        <div class="flex flex-col gap-1">
-                            <span class="text-[15px] font-semibold text-gray-800">${group.displayDate}</span>
-                            <div class="flex items-center gap-1 text-[13px] text-gray-600">
-                                <span>收款：</span>
-                                <span class="font-bold text-gray-900" style="font-family:Poppins;">${FormatService.amount(group.totalAmount)}</span>
-                                <span>元，共</span>
-                                <span class="font-bold text-gray-900">${group.records.length}</span>
-                                <span>笔</span>
-                            </div>
-                        </div>
-                        <i id="icon-${group.dateKey}" class="fas ${arrowIcon} text-gray-400 text-sm expand-icon"></i>
-                    </div>
-                </div>
-                <div id="list-${group.dateKey}" class="record-list ${isExpanded ? 'expanded' : ''}">
-                    <div class="bg-white px-3 pb-3 rounded-b-xl">
-                        ${this.renderRecordItemsWithDividers(group.records)}
-                    </div>
-                </div>
-            </div>
-        `;
+    renderStageTabs(allOrders) {
+        const counts = { pending: 0, paid: 0, canceled: 0 };
+        allOrders.forEach(function(order) {
+            const stage = getStage(order);
+            counts[stage] = (counts[stage] || 0) + 1;
+        });
+        document.getElementById('countPending').textContent = counts.pending || 0;
+        document.getElementById('countPaid').textContent = counts.paid || 0;
+        document.getElementById('countCanceled').textContent = counts.canceled || 0;
+        ['Pending', 'Paid', 'Canceled'].forEach(function(name) {
+            document.getElementById('stage' + name).classList.remove('active');
+        });
+        const id = App.state.stage === 'paid' ? 'stagePaid' : (App.state.stage === 'canceled' ? 'stageCanceled' : 'stagePending');
+        document.getElementById(id).classList.add('active');
+        this.renderSubTabs();
     },
 
     renderEmpty() {
@@ -525,42 +511,42 @@ const RenderService = {
         document.getElementById('emptyState').classList.remove('hidden');
         document.getElementById('filterResult').classList.add('hidden');
         document.getElementById('recordCount').textContent = '0';
+        document.getElementById('amountSummary').textContent = '';
     },
 
-    renderList(groups) {
+    renderList(records) {
         document.getElementById('emptyState').classList.add('hidden');
         document.getElementById('filterResult').classList.add('hidden');
-
-        const totalCount = groups.reduce((sum, g) => sum + g.records.length, 0);
-        document.getElementById('recordCount').textContent = totalCount;
-
-        const html = groups.map((group) => {
-            const isExpanded = GroupService.isExpanded(group.dateKey);
-            return this.renderDateGroup(group, isExpanded);
-        }).join('');
-
-        document.getElementById('recordList').innerHTML = html;
+        document.getElementById('recordCount').textContent = records.length;
+        const knownTotal = records.reduce(function(sum, order) {
+            return hasKnownAmount(order) ? sum + Number(order.amount || 0) : sum;
+        }, 0);
+        document.getElementById('amountSummary').textContent = knownTotal > 0 ? ('合计 ¥' + FormatService.amount(knownTotal)) : '';
+        document.getElementById('recordList').innerHTML = records.map(this.renderOrderCard).join('');
     },
 
-    renderFlatList(records) {
-        document.getElementById('emptyState').classList.add('hidden');
-        document.getElementById('filterResult').classList.remove('hidden');
-
-        const totalCount = records.length;
-        const totalAmount = records.reduce((sum, r) => sum + r.amount, 0);
-
-        document.getElementById('recordCount').textContent = totalCount;
-        document.getElementById('filterTotalAmount').textContent = FormatService.amount(totalAmount);
-        document.getElementById('filterRecordCount').textContent = totalCount;
-
-        // 平铺展示也使用统一卡片+分割线样式
-        document.getElementById('recordList').innerHTML = `
-            <div class="glass-card rounded-2xl overflow-hidden">
-                <div class="bg-white px-3 pb-3 rounded-b-xl">
-                    ${this.renderRecordItemsWithDividers(records)}
+    renderOrderCard(order) {
+        const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.draft;
+        const amountText = hasKnownAmount(order) ? ('¥' + FormatService.amount(order.amount)) : '--';
+        const amountClass = order.status === 'canceled' ? 'text-gray-400' : (order.status === 'failed' ? 'text-red-500' : 'text-primary');
+        return `<div class="order-card p-3.5 cursor-pointer active:bg-gray-50" onclick="Actions.goDetail('${order.id}')">
+            <div class="flex items-stretch gap-2">
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="text-[15px] font-bold text-gray-800 truncate">${getProductName(order)}</div>
+                        <span class="status-tag ${cfg.cls}">${cfg.label}</span>
+                    </div>
+                    <div class="text-[12px] text-gray-500 mt-1 truncate">收购商 ${getPayerName(order)}</div>
+                    <div class="mt-3 flex items-end justify-between gap-3">
+                        <div class="text-[18px] leading-none font-bold ${amountClass}" style="font-family:Poppins;">${amountText}</div>
+                        <div class="text-[11px] text-gray-400">${FormatService.smartTime(order.updatedAt || order.paidAt || order.createdAt)}</div>
+                    </div>
+                </div>
+                <div class="w-4 flex items-center justify-center text-gray-300">
+                    <i class="fas fa-chevron-right text-sm"></i>
                 </div>
             </div>
-        `;
+        </div>`;
     }
 };
 
@@ -620,75 +606,72 @@ const FilterPanel = {
 
 // ==================== 用户操作 ====================
 const Actions = {
-    toggleGroup(dateKey) {
-        const isExpanded = GroupService.toggle(dateKey);
-        const listEl = document.getElementById(`list-${dateKey}`);
-        const iconEl = document.getElementById(`icon-${dateKey}`);
-
-        listEl.classList.toggle('expanded', isExpanded);
-        iconEl.className = `fas fa-chevron-${isExpanded ? 'up' : 'down'} text-gray-400 text-sm expand-icon`;
-    },
-
     goDetail(recordId) {
-        const record = RecordService.findById(recordId);
-        if (!record) return;
-
-        const params = new URLSearchParams({
-            source: 'records',
-            status: record.status,
-            orderNo: record.id,
-            amount: record.amount.toFixed(2),
-            payerName: record.payerName,
-            payerMobile: record.payerMobile || '',
-            summary: record.summary || '',
-            createdAt: record.createdAt,
-            payMethod: record.payMethod || '',
-            paidAt: record.paidAt || '',
-            items: JSON.stringify(record.items || [])
-        });
-
-        window.location.href = 'farmer-collection-detail.html?' + params.toString();
+        window.location.href = 'farmer-collection-detail.html?source=records&orderNo=' + encodeURIComponent(recordId);
     }
 };
 
 // ==================== 应用主控 ====================
 const App = {
+    state: {
+        stage: 'pending',
+        subStatus: 'all'
+    },
+
     init() {
-        // 读取来源参数
         const urlParams = new URLSearchParams(window.location.search);
         const sourcePage = urlParams.get('source') || 'my';
         const backLink = sourcePage === 'home' ? 'farmer-home.html' : 'farmer-my.html';
+        const stageParam = urlParams.get('stage');
+        if (stageParam === 'paid' || stageParam === 'canceled' || stageParam === 'pending') {
+            this.state.stage = stageParam;
+        }
+        const subParam = urlParams.get('sub');
+        if (subParam) this.state.subStatus = subParam;
 
-        // 初始化UI组件
         document.getElementById('statusBar').innerHTML = renderStatusBar();
-        document.getElementById('navBar').innerHTML = renderHeader('收款记录', backLink);
+        document.getElementById('navBar').innerHTML = renderHeader('订单管理', backLink);
         document.getElementById('tabBar').innerHTML = renderFarmerTabBar('mine');
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            FilterService.setKeyword(e.target.value);
+            App.refresh();
+        });
 
-        // 初始化筛选面板
         FilterPanel.init();
+        this.refresh();
+    },
 
-        // 首次渲染
+    switchStage(stage) {
+        if (!STAGE_STATUS_MAP[stage]) return;
+        this.state.stage = stage;
+        this.state.subStatus = 'all';
+        this.refresh();
+    },
+
+    switchSubStatus(sub) {
+        this.state.subStatus = sub || 'all';
         this.refresh();
     },
 
     refresh() {
-        // 获取并筛选记录
-        const records = RecordService.getRecords();
-        const filtered = FilterService.apply(records);
+        const allOrders = RecordService.getRecords();
+        RenderService.renderStageTabs(allOrders);
+        let filtered = FilterService.apply(allOrders).filter(order => getStage(order) === this.state.stage);
+        if (this.state.stage === 'pending' && this.state.subStatus !== 'all') {
+            filtered = filtered.filter(order => getSubStatus(order) === this.state.subStatus);
+        }
+        filtered.sort(function(a, b) {
+            const ar = (STATUS_CONFIG[a.status] || STATUS_CONFIG.draft).rank;
+            const br = (STATUS_CONFIG[b.status] || STATUS_CONFIG.draft).rank;
+            if (App.state.stage === 'pending' && ar !== br) return ar - br;
+            return new Date(b.updatedAt || b.paidAt || b.createdAt || 0) - new Date(a.updatedAt || a.paidAt || a.createdAt || 0);
+        });
 
-        // 空状态处理
         if (filtered.length === 0) {
             RenderService.renderEmpty();
             return;
         }
-
-        // 有筛选条件时平铺展示，无筛选时按天分组展示
-        if (FilterService.isActive()) {
-            RenderService.renderFlatList(filtered);
-        } else {
-            const groups = GroupService.group(filtered);
-            RenderService.renderList(groups);
-        }
+        RenderService.renderList(filtered);
     },
 
     showToast(msg) {

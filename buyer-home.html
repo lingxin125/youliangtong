@@ -112,15 +112,9 @@
             </div>
         </div>
 
-        <!-- 快捷入口（4列网格，卡片包裹） -->
+        <!-- 快捷入口（市场/需求相关功能暂隐藏） -->
         <div class="bg-white rounded-2xl py-4 px-2 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100/80 mb-3">
             <div class="grid grid-cols-4 gap-y-4">
-                <a href="buyer-publish.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
-                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
-                        <i class="fas fa-bullhorn text-[#11A64A] text-[18px]"></i>
-                    </div>
-                    <span class="text-[11px] text-gray-600 font-medium">发布需求</span>
-                </a>
                 <a href="buyer-contacts.html" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
                     <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
                         <i class="fas fa-users text-[#11A64A] text-[18px]"></i>
@@ -133,12 +127,19 @@
                     </div>
                     <span class="text-[11px] text-gray-600 font-medium">我的客户</span>
                 </a>
-                <a href="buyer-orders.html?source=home" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
+                <a href="buyer-order-manage.html?stage=done&tab=all" class="flex flex-col items-center gap-1.5 no-underline" style="text-decoration:none;">
                     <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
                         <i class="fas fa-file-invoice-dollar text-[#11A64A] text-[18px]"></i>
                     </div>
-                    <span class="text-[11px] text-gray-600 font-medium">付款记录</span>
+                    <span class="text-[11px] text-gray-600 font-medium">订单管理</span>
                 </a>
+                <button type="button" class="flex flex-col items-center gap-1.5 relative" style="text-decoration:none;">
+                    <div class="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] flex items-center justify-center border border-[#11A64A]/10 transition-transform active:scale-95">
+                        <i class="fas fa-bell text-[#11A64A] text-[18px]"></i>
+                        <span class="absolute top-1 right-2 min-w-[16px] h-4 bg-red-500 rounded-full text-white text-[10px] font-medium flex items-center justify-center px-1">3</span>
+                    </div>
+                    <span class="text-[11px] text-gray-600 font-medium">消息通知</span>
+                </button>
             </div>
         </div>
 
@@ -232,14 +233,14 @@
                     <div class="w-[3px] h-[14px] rounded-sm bg-primary"></div>
                     <span class="text-sm font-medium text-gray-700">我关注的销售需求</span>
                 </div>
-                <a href="buyer-market.html" class="text-[10px] text-primary no-underline" style="text-decoration:none;">查看更多 <i class="fas fa-chevron-right text-[8px]"></i></a>
+                <a href="javascript:void(0)" class="text-[10px] text-primary no-underline" style="text-decoration:none;">查看更多 <i class="fas fa-chevron-right text-[8px]"></i></a>
             </div>
             <div id="followedDemandsContainer">
                 <!-- 动态内容由 renderFollowedDemands() 渲染 -->
             </div>
         </div>
-        <!-- 我发布的需求 -->
-        <div>
+        <!-- 我发布的需求（市场功能暂隐藏） -->
+        <div class="hidden">
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
                     <div class="w-1.5 h-4 rounded-full bg-gradient-to-b from-[#11A64A] to-[#388E3C]"></div>
@@ -652,8 +653,6 @@ function clearUnreadCount() {
 
 // 页面加载时渲染
 document.addEventListener('DOMContentLoaded', function() {
-    renderFollowedDemands();
-    renderPublishedDemands();
     updateMessageBadges();
 
     // Update pending item counts

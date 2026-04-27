@@ -1718,20 +1718,20 @@
                     </div>
                 </section>
 
-                <!-- 商品明细模块暂时隐藏
+                <!-- 农产品明细模块暂时隐藏
                 <section class="panel">
-                    <h2 class="panel-title">商品明细</h2>
+                    <h2 class="panel-title">农产品明细</h2>
                     <div id="itemsSingleWrap" class="items-wrap">
                         <table class="items-table">
                             <thead>
                                 <tr>
-                                    <th>商品名称</th>
+                                    <th>农产品名称</th>
                                     <th>单价</th>
                                     <th>数量</th>
                                 </tr>
                             </thead>
                             <tbody id="orderItemsBody">
-                                <tr><td colspan="3" class="items-empty">暂无商品明细</td></tr>
+                                <tr><td colspan="3" class="items-empty">暂无农产品明细</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1919,7 +1919,7 @@
             createTime: formatTimeForView(new Date().toISOString()),
             paidAt: '',
             timeout: 864000,
-            summary: '小麦、玉米等 3 项商品',
+            summary: '小麦、玉米等 3 项农产品',
             returnUrl: '',
             seller: {
                 name: '李大姐',
@@ -1955,7 +1955,7 @@
                 paymentOrderNo: 'ZF202602240001',
                 timeout: 864000,
                 amount: 2580.00,
-                summary: '小麦、玉米等 3 项商品',
+                summary: '小麦、玉米等 3 项农产品',
                 seller: {
                     name: '李大姐',
                     company: '李大姐农户',
@@ -1975,7 +1975,7 @@
                 paymentOrderNo: 'ZF202602240088',
                 timeout: 864000,
                 amount: 128600.00,
-                summary: '秋粮大宗订单 4 项商品',
+                summary: '秋粮大宗订单 4 项农产品',
                 seller: {
                     name: '赵师傅',
                     company: '赵师傅粮贸',
@@ -2061,7 +2061,7 @@
                 paymentOrderNo: 'ZF202602240156',
                 timeout: 900,
                 amount: 9620.00,
-                summary: '果蔬混采订单 3 项商品',
+                summary: '果蔬混采订单 3 项农产品',
                 seller: {
                     name: '王大哥',
                     company: '王大哥果蔬合作社',
@@ -2274,14 +2274,14 @@
                     subtotal = 0;
                 }
                 const unit = item.unit || '';
-                const name = String(item.name || ('商品' + (index + 1)));
+                const name = String(item.name || ('农产品' + (index + 1)));
                 if (item.spec && (!qty || !price)) {
                     return { name, qty: item.spec, unit: '', price: null, subtotal };
                 }
                 return { name, qty, unit, price, subtotal };
             }
             return {
-                name: '商品' + (index + 1),
+                name: '农产品' + (index + 1),
                 qty: 1,
                 unit: '单',
                 price: 0,
@@ -2357,7 +2357,7 @@
 
             if (!Array.isArray(Config.items) || Config.items.length === 0) {
                 Config.items = [{
-                    name: Config.summary || '订单商品',
+                    name: Config.summary || '订单农产品',
                     qty: 1,
                     unit: '单',
                     price: Number(Config.amount.toFixed(2)),
@@ -2682,11 +2682,11 @@
             if (paymentHeaderBox) paymentHeaderBox.style.marginBottom = '0';
             if (!body) return;
             if (!Array.isArray(Config.items) || Config.items.length === 0) {
-                body.innerHTML = '<tr><td colspan="3" class="items-empty">暂无商品明细</td></tr>';
+                body.innerHTML = '<tr><td colspan="3" class="items-empty">暂无农产品明细</td></tr>';
                 return;
             }
             body.innerHTML = Config.items.map((item, index) => {
-                const name = escapeHtml(String((item && item.name) || ('商品' + (index + 1))));
+                const name = escapeHtml(String((item && item.name) || ('农产品' + (index + 1))));
                 return '<tr>'
                     + '<td>' + name + '</td>'
                     + '<td>' + formatItemPrice(item) + '</td>'

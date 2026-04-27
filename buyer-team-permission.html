@@ -5,26 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>丰收云 - 开单权限</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;800&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="shared.js?v=20260424-team-permission-v2"></script>
+    <script src="shared.js?v=20260425-team-permission-v4"></script>
     <style>
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .sheet-overlay {
+        .toast-msg {
+            position: absolute;
+            left: 50%;
+            bottom: 110px;
+            transform: translateX(-50%);
+            padding: 10px 16px;
+            background: rgba(17, 24, 39, 0.88);
+            color: #fff;
+            border-radius: 12px;
+            font-size: 12px;
+            z-index: 130;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            white-space: nowrap;
+        }
+        .toast-msg.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .billing-sheet-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(15, 23, 42, 0.42);
+            background: rgba(15, 23, 42, 0.45);
             z-index: 90;
             opacity: 0;
             visibility: hidden;
-            transition: all .22s ease;
+            transition: all 0.22s ease;
         }
-        .sheet-overlay.show {
+        .billing-sheet-overlay.show {
             opacity: 1;
             visibility: visible;
         }
-        .sheet-panel {
+        .billing-sheet {
             position: absolute;
             left: 0;
             right: 0;
@@ -33,152 +53,196 @@
             background: #fff;
             border-radius: 24px 24px 0 0;
             transform: translateY(100%);
-            transition: transform .26s ease;
-            box-shadow: 0 -12px 30px rgba(15, 23, 42, .18);
+            transition: transform 0.26s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.18);
         }
-        .sheet-panel.show {
+        .billing-sheet.show {
             transform: translateY(0);
         }
-        .sheet-handle {
+        .billing-sheet-handle {
             width: 40px;
             height: 4px;
             background: #d1d5db;
             border-radius: 999px;
             margin: 12px auto;
         }
-        .toast-msg {
-            position: absolute;
-            left: 50%;
-            bottom: 108px;
-            transform: translateX(-50%);
-            padding: 10px 16px;
-            background: rgba(17,24,39,.88);
-            color: #fff;
-            border-radius: 12px;
-            font-size: 12px;
-            z-index: 130;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .25s ease, transform .25s ease;
-            white-space: nowrap;
+        .permission-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        .toast-msg.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
+        .channel-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 6px 22px rgba(15, 23, 42, 0.045);
         }
-        .channel-icon {
+        .channel-logo {
             width: 40px;
             height: 40px;
-            border-radius: 14px;
+            border-radius: 13px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            color: #fff;
             font-size: 18px;
-            font-weight: 700;
-            border: 1px solid transparent;
+            font-weight: 800;
             flex-shrink: 0;
         }
-        .channel-icon.wechat {
-            background: #eafbf1;
-            color: #07c160;
-            border-color: rgba(7,193,96,.14);
+        .channel-logo.wechat {
+            background: #e8f8ef;
+            color: #09b95a;
+            border: 1px solid rgba(9, 185, 90, 0.16);
         }
-        .channel-icon.alipay {
-            background: #ecf5ff;
-            color: #1677ff;
-            border-color: rgba(22,119,255,.14);
-        }
-        .channel-icon.unionpay {
-            background: #eef3ff;
-            color: #3a63ff;
-            border-color: rgba(58,99,255,.14);
-        }
-        .channel-icon.psbcApp {
-            background: #eefaf3;
+        .channel-logo.psbcApp {
+            background: #edf8f1;
             color: #1e9f55;
-            border-color: rgba(30,159,85,.14);
+            border: 1px solid rgba(30, 159, 85, 0.14);
         }
         .channel-action-btn {
-            min-width: 96px;
-            height: 38px;
-            padding: 0 16px;
+            min-width: 92px;
+            height: 32px;
+            padding: 0 12px;
             border-radius: 999px;
+            border: 1px solid rgba(17, 166, 74, 0.2);
+            background: #f2fbf6;
+            color: #11a64a;
             font-size: 13px;
             font-weight: 700;
-            border: 1px solid rgba(17,166,74,.18);
-            background: #f2fbf5;
-            color: #11A64A;
-            transition: all .18s ease;
         }
         .channel-action-btn:active {
-            transform: scale(.96);
+            transform: scale(0.97);
         }
         .channel-opened {
-            min-width: 96px;
+            min-width: 92px;
+            height: 32px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #11A64A;
-            font-size: 13px;
+            color: #11a64a;
+            font-size: 12px;
             font-weight: 700;
         }
-        .qr-wrap {
-            width: 232px;
-            height: 232px;
+        .permission-tip {
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, #fff8f1 0%, #fff2e4 100%);
+            border: 1px solid rgba(245, 158, 11, 0.14);
+            color: #c46a16;
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.06);
+        }
+        .permission-tip-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(245, 158, 11, 0.12);
+            color: #f59e0b;
+            flex-shrink: 0;
+        }
+        .qr-preview {
+            width: 220px;
+            height: 220px;
             margin: 0 auto;
-            padding: 16px;
-            border-radius: 28px;
-            background: linear-gradient(180deg, #f8fbfc 0%, #ffffff 100%);
-            border: 1px solid #edf2f7;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.84), 0 14px 32px rgba(15,23,42,.05);
+            padding: 14px;
+            border-radius: 24px;
+            background: linear-gradient(180deg, #fafcfd 0%, #ffffff 100%);
+            border: 1px solid #edf1f5;
+            box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
             cursor: pointer;
         }
-        .qr-wrap img {
+        .qr-preview img {
             width: 100%;
             height: 100%;
-            border-radius: 20px;
+            border-radius: 16px;
             object-fit: cover;
             display: block;
+        }
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+        .qr-save-btn {
+            width: 100%;
+            height: 42px;
+            margin-top: 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(27, 182, 85, 0.18);
+            background: #1bb655;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(27, 182, 85, 0.2);
         }
     </style>
 </head>
 <body>
-<div class="mobile-container bg-[#F7F8FA] relative">
+<div class="mobile-container bg-[#F7F8FA] relative overflow-hidden">
     <div id="statusBar"></div>
     <div id="navBar"></div>
 
-    <div class="flex-1 overflow-y-auto hide-scrollbar px-4 pt-4 pb-6">
-        <div class="space-y-3" id="permissionList"></div>
-        <button
-            type="button"
-            onclick="refreshPermissionStatus()"
-            class="w-full h-12 mt-5 bg-[#13b15a] text-white text-[15px] font-bold rounded-xl shadow-[0_6px_20px_rgba(19,177,90,0.25)] active:scale-[0.97] transition-all"
-        >
-            刷新状态
-        </button>
+    <div class="flex-1 overflow-y-auto hide-scrollbar px-4 pt-3 pb-8">
+        <div id="emptyState" class="hidden rounded-[20px] bg-white px-5 py-6 text-center text-[14px] text-gray-500 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+            未找到该业务员信息
+        </div>
+
+        <div id="permissionContent" class="space-y-4">
+            <div id="permissionList" class="permission-list"></div>
+
+            <div class="permission-tip flex gap-2.5">
+                <span class="permission-tip-icon">
+                    <i class="fas fa-circle-info text-[11px]"></i>
+                </span>
+                <div class="text-[11px] leading-5">
+                    本页面用于开通业务员扫码开单权限。开通后，业务员可直接使用微信或邮储银行 App 扫描农户出示的二维码进行开单，全程无需登录丰收云，操作更快捷。
+                </div>
+            </div>
+
+            <button
+                type="button"
+                onclick="refreshPermissionStatus()"
+                class="w-full h-[46px] bg-[#1bb655] text-white text-[14px] font-bold rounded-[14px] shadow-[0_8px_18px_rgba(27,182,85,0.2)] active:scale-[0.97] transition-all"
+            >
+                刷新状态
+            </button>
+        </div>
     </div>
 
-    <div class="sheet-overlay" id="qrOverlay" onclick="closeQrSheet()"></div>
-    <div class="sheet-panel" id="qrSheet">
-        <div class="sheet-handle"></div>
-        <div class="px-5 pb-6">
+    <div id="qrOverlay" class="billing-sheet-overlay" onclick="closeQrSheet()"></div>
+    <div id="qrSheet" class="billing-sheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-5 pb-6 pb-safe">
             <div class="flex items-center justify-between mb-4">
-                <button type="button" onclick="closeQrSheet()" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 active:scale-95 transition-transform">
-                    <i class="fas fa-chevron-left text-sm"></i>
-                </button>
-                <h3 class="text-[16px] font-bold text-gray-800">扫码开通</h3>
-                <button type="button" onclick="closeQrSheet()" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 active:scale-95 transition-transform">
+                <div>
+                    <div id="qrSheetTitle" class="text-[16px] font-bold text-gray-800">扫码开通</div>
+                    <div class="text-[12px] text-gray-400 mt-1">请由业务员本人扫码完成授权</div>
+                </div>
+                <button
+                    type="button"
+                    onclick="closeQrSheet()"
+                    class="w-8 h-8 rounded-full bg-gray-50 text-gray-400 active:scale-95 transition-transform"
+                >
                     <i class="fas fa-times text-sm"></i>
                 </button>
             </div>
 
-            <div class="qr-wrap" onclick="openMockScanH5()">
+            <div class="qr-preview" onclick="openMockScanH5()">
                 <img src="mock-qr.svg" alt="开通二维码">
             </div>
 
-            <div class="text-center text-[12px] text-gray-400 mt-4" id="qrHintText">点击二维码可模拟扫码进入授权页</div>
+            <button type="button" onclick="saveQrCode()" class="qr-save-btn">
+                <i class="fas fa-download mr-1.5"></i>保存二维码
+            </button>
 
-            <button type="button" onclick="openMockScanH5()" class="w-full h-12 mt-6 bg-[#F6F7F9] text-gray-500 font-bold text-[15px] rounded-xl border border-[#E5E7EB] active:scale-[0.98] transition-all">
+            <button
+                type="button"
+                onclick="closeQrSheet()"
+                class="w-full h-11 mt-5 rounded-xl bg-white border border-gray-200 text-gray-700 text-[15px] font-bold shadow-[0_8px_20px_rgba(15,23,42,0.04)] active:scale-[0.98] transition-all"
+            >
                 取消
             </button>
         </div>
@@ -194,12 +258,10 @@ document.getElementById('navBar').innerHTML = renderHeader('开单权限', 'buye
 var store = window.TeamMockStore || null;
 var BILLING_CHANNELS = [
     { key: 'wechat', label: '微信', icon: 'fab fa-weixin', glyph: '微', className: 'wechat' },
-    { key: 'alipay', label: '支付宝', icon: 'fab fa-alipay', glyph: '支', className: 'alipay' },
-    { key: 'unionpay', label: '云闪付', icon: '', glyph: '云', className: 'unionpay' },
     { key: 'psbcApp', label: '邮储银行 App', icon: '', glyph: '邮', className: 'psbcApp' }
 ];
 var currentMember = null;
-var currentPermissions = null;
+var currentPermissions = { wechat: false, psbcApp: false };
 var selectedChannelKey = 'wechat';
 
 function getQuery(name) {
@@ -221,19 +283,14 @@ function getMemberById(userId) {
 }
 
 function getPermissions(member) {
-    if (!member) return { wechat: false, alipay: false, unionpay: false, psbcApp: false };
+    if (!member) return { wechat: false, psbcApp: false };
     if (store && typeof store.getBillingPermissions === 'function') {
         var team = getTeam();
-        if (team && team.teamId) return store.getBillingPermissions(team.teamId, member.userId);
+        if (team && team.teamId) {
+            return store.getBillingPermissions(team.teamId, member.userId);
+        }
     }
-    return member.billingPermissions || { wechat: false, alipay: false, unionpay: false, psbcApp: false };
-}
-
-function renderChannelIcon(channel) {
-    var iconHtml = channel.icon
-        ? '<i class="' + channel.icon + '"></i>'
-        : '<span class="text-[15px] font-bold">' + channel.glyph + '</span>';
-    return '<span class="channel-icon ' + channel.className + '">' + iconHtml + '</span>';
+    return member.billingPermissions || { wechat: false, psbcApp: false };
 }
 
 function showToast(msg) {
@@ -246,10 +303,36 @@ function showToast(msg) {
     }, 1600);
 }
 
+function renderChannelIcon(channel) {
+    var iconHtml = channel.icon
+        ? '<i class="' + channel.icon + '"></i>'
+        : '<span class="text-[15px] font-bold">' + channel.glyph + '</span>';
+    return '<span class="channel-logo ' + channel.className + '">' + iconHtml + '</span>';
+}
+
+function renderList() {
+    var list = document.getElementById('permissionList');
+    list.innerHTML = BILLING_CHANNELS.map(function (channel) {
+        var opened = !!currentPermissions[channel.key];
+        return (
+            '<div class="channel-card">' +
+                renderChannelIcon(channel) +
+                '<div class="flex-1 min-w-0">' +
+                    '<div class="text-[15px] font-bold text-[#1F2937]">' + channel.label + '</div>' +
+                '</div>' +
+                (
+                    opened
+                        ? '<div class="channel-opened">已开通</div>'
+                        : '<button type="button" class="channel-action-btn" onclick="openQrSheet(\'' + channel.key + '\')">扫码开通</button>'
+                ) +
+            '</div>'
+        );
+    }).join('');
+}
+
 function openQrSheet(channelKey) {
     selectedChannelKey = channelKey || 'wechat';
-    var channel = BILLING_CHANNELS.find(function (item) { return item.key === selectedChannelKey; }) || BILLING_CHANNELS[0];
-    document.getElementById('qrHintText').textContent = '请使用' + channel.label + '扫一扫完成授权开通';
+    document.getElementById('qrSheetTitle').textContent = '扫码开通';
     document.getElementById('qrOverlay').classList.add('show');
     document.getElementById('qrSheet').classList.add('show');
 }
@@ -264,29 +347,23 @@ function openMockScanH5() {
     window.location.href = 'buyer-team-permission-h5.html?memberId=' + encodeURIComponent(memberId) + '&channel=' + encodeURIComponent(selectedChannelKey);
 }
 
-function renderList() {
-    document.getElementById('permissionList').innerHTML = BILLING_CHANNELS.map(function (channel) {
-        var enabled = !!currentPermissions[channel.key];
-        return (
-            '<div class="w-full glass-card rounded-[20px] p-4 flex items-center gap-3.5">' +
-                renderChannelIcon(channel) +
-                '<div class="flex-1 min-w-0">' +
-                    '<span class="text-[16px] font-semibold text-gray-800">' + channel.label + '</span>' +
-                '</div>' +
-                (enabled
-                    ? '<span class="channel-opened">已开通</span>'
-                    : '<button type="button" class="channel-action-btn" onclick="openQrSheet(\'' + channel.key + '\')">扫码开通</button>'
-                ) +
-            '</div>'
-        );
-    }).join('');
+function saveQrCode() {
+    var link = document.createElement('a');
+    link.href = 'mock-qr.svg';
+    link.download = '开单权限二维码.svg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('二维码已开始保存');
 }
 
-function refreshPermissionStatus() {
+function refreshPermissionStatus(showMsg) {
     currentMember = getMemberById(getQuery('memberId'));
     currentPermissions = getPermissions(currentMember);
     renderList();
-    showToast('状态已刷新');
+    if (showMsg !== false) {
+        showToast('状态已刷新');
+    }
 }
 
 function render() {
@@ -297,12 +374,17 @@ function render() {
 
     currentMember = getMemberById(getQuery('memberId'));
     if (!currentMember) {
-        document.getElementById('permissionList').innerHTML = '<div class="glass-card rounded-[20px] p-5 text-center text-[14px] text-gray-500">未找到该业务员信息</div>';
+        document.getElementById('emptyState').classList.remove('hidden');
+        document.getElementById('permissionContent').classList.add('hidden');
         return;
     }
 
-    currentPermissions = getPermissions(currentMember);
-    renderList();
+    refreshPermissionStatus(false);
+
+    var openedChannel = getQuery('opened');
+    if (openedChannel) {
+        showToast('开通状态已更新');
+    }
 }
 
 render();

@@ -162,7 +162,7 @@
                 <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-2">
                         <div class="w-1 h-4 bg-primary rounded-full"></div>
-                        <span class="text-sm font-medium text-gray-800">开单商品 <span class="text-gray-400 text-xs font-normal ml-1">请选择商品</span></span>
+                        <span class="text-sm font-medium text-gray-800">开单品类 <span class="text-gray-400 text-xs font-normal ml-1">请选择开单品类</span></span>
                     </div>
                     <a href="buyer-category-manage.html" class="text-gray-400 p-1 flex items-center gap-1 active:bg-gray-100 rounded-md cursor-pointer transition-colors no-underline">
                         <i class="fas fa-sliders-h text-xs"></i>
@@ -193,6 +193,12 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2">
+                        <label class="block text-[12px] text-gray-500 mb-1">农产品名称</label>
+                        <div class="flex items-center border border-gray-200 rounded-xl bg-gray-50 focus-within:border-primary focus-within:bg-white transition-all overflow-hidden">
+                            <input type="text" id="productNameInput" placeholder="请输入农产品名称" class="w-full h-10 px-3 text-sm font-semibold text-gray-800 outline-none bg-transparent" oninput="syncProductName(this.value)">
+                        </div>
+                    </div>
                     <!-- 毛重 | 皮重 -->
                     <div>
                         <label class="block text-[12px] text-gray-500 mb-1">毛重 <span class="text-red-400">*</span></label>
@@ -223,9 +229,12 @@
                             <span id="netUnit" class="text-[12px] text-gray-400 pr-3">斤</span>
                         </div>
                     </div>
-                    <!-- 单价 -->
+                    <!-- 单价/一口价 -->
                     <div class="col-span-2">
-                        <label class="block text-[12px] text-gray-500 mb-1">单价</label>
+                        <div class="flex items-center bg-gray-100 rounded-lg p-0.5 mb-1" style="width:fit-content;">
+                            <button type="button" id="priceModeUnit" onclick="setPriceMode('unit')" class="px-3 py-1 rounded-md text-[12px] font-medium bg-white text-primary shadow-sm">单价</button>
+                            <button type="button" id="priceModeFixed" onclick="setPriceMode('fixed')" class="px-3 py-1 rounded-md text-[12px] font-medium text-gray-500">一口价</button>
+                        </div>
                         <div class="flex items-center border border-gray-200 rounded-xl bg-gray-50 focus-within:border-primary focus-within:bg-white transition-all overflow-hidden">
                             <input type="number" id="unitPriceInput" placeholder="0" step="0.001" class="flex-1 h-10 px-3 text-sm font-semibold text-gray-800 outline-none bg-transparent" oninput="calcWeights()">
                             <span id="priceUnit" class="text-[12px] text-gray-400 pr-3">元/斤</span>
@@ -413,6 +422,7 @@ Object.keys(SECONDARY_CATEGORIES).forEach(function(primary) {
 const state = {
     currentCategory: null,
     currentSubCategory: null,
+    productName: '',
     currentUnit: '斤',
     payee: null,
     photos: [],
@@ -439,9 +449,32 @@ function renderCategoryTags() {
 }
 
 function selectCategory(cat) {
+    var previousCategory = state.currentSubCategory || state.currentCategory || '';
     state.currentSubCategory = cat;
     state.currentCategory = cat;
+    if (!state.productName || state.productName === previousCategory) {
+        state.productName = cat;
+        var productNameInput = document.getElementById('productNameInput');
+        if (productNameInput) productNameInput.value = cat;
+    }
     renderCategoryTags();
+}
+
+function syncProductName(value) {
+    state.productName = String(value || '').trim();
+}
+
+// ==================== 单价/一口价模式 ====================
+var currentPriceMode = 'unit'; // 'unit' or 'fixed'
+
+function setPriceMode(mode) {
+    currentPriceMode = mode;
+    var isUnit = mode === 'unit';
+    document.getElementById('priceModeUnit').className = 'px-3 py-1 rounded-md text-[12px] font-medium ' + (isUnit ? 'bg-white text-primary shadow-sm' : 'text-gray-500');
+    document.getElementById('priceModeFixed').className = 'px-3 py-1 rounded-md text-[12px] font-medium ' + (!isUnit ? 'bg-white text-primary shadow-sm' : 'text-gray-500');
+    document.getElementById('priceUnit').textContent = isUnit ? ('元/' + (state.currentUnit || '斤')) : '元';
+    document.getElementById('unitPriceInput').placeholder = isUnit ? '0' : '请输入总价';
+    calcWeights();
 }
 
 // ==================== 称重计价 ====================
@@ -451,7 +484,12 @@ function calcWeights() {
     var deduct = parseFloat(document.getElementById('deductionInput').value) || 0;
     var price = parseFloat(document.getElementById('unitPriceInput').value) || 0;
     var net = Math.max(gross - tare - deduct, 0);
-    var amount = Math.round(net * price * 100) / 100;
+    var amount;
+    if (currentPriceMode === 'fixed') {
+        amount = price; // 一口价：金额直接等于输入值
+    } else {
+        amount = Math.round(net * price * 100) / 100; // 单价：金额 = 净重 × 单价
+    }
     document.getElementById('netWeightDisplay').textContent = net.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('totalAmount').textContent = amount.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('remarkInput'); // touch to keep reference
@@ -466,26 +504,36 @@ function setUnit(unit) {
     ['grossUnit','tareUnit','deductUnit','netUnit'].forEach(function(id) {
         document.getElementById(id).textContent = unit;
     });
-    document.getElementById('priceUnit').textContent = '元/' + unit;
+    document.getElementById('priceUnit').textContent = currentPriceMode === 'fixed' ? '元' : ('元/' + unit);
     calcWeights();
 }
 
 function showFormulaToast() { showToast('净重 = 毛重 - 皮重 - 扣杂'); }
 
 function getProductFromForm() {
+    var productNameInput = document.getElementById('productNameInput');
+    var productName = productNameInput ? productNameInput.value.trim() : '';
+    if (!productName) productName = state.productName || state.currentSubCategory || state.currentCategory || '';
+    state.productName = productName;
     var gross = parseFloat(document.getElementById('grossWeightInput').value) || 0;
     var tare = parseFloat(document.getElementById('tareWeightInput').value) || 0;
     var deduct = parseFloat(document.getElementById('deductionInput').value) || 0;
     var price = parseFloat(document.getElementById('unitPriceInput').value) || 0;
     var net = Math.max(gross - tare - deduct, 0);
-    var amount = Math.round(net * price * 100) / 100;
+    var amount;
+    if (currentPriceMode === 'fixed') {
+        amount = price;
+    } else {
+        amount = Math.round(net * price * 100) / 100;
+    }
     return {
-        name: state.currentSubCategory || state.currentCategory || '',
+        name: productName,
         grossWeight: gross,
         tareWeight: tare,
         deduction: deduct,
         netWeight: net,
-        unitPrice: price,
+        unitPrice: currentPriceMode === 'unit' ? price : 0,
+        priceMode: currentPriceMode,
         unit: state.currentUnit || '斤',
         amount: amount,
         remark: document.getElementById('remarkInput') ? document.getElementById('remarkInput').value : '',
@@ -614,7 +662,7 @@ function saveOrderByStatus(status) {
 function handleTempSave() {
     if (!state.payee) { showToast('请先选择收款对象'); return; }
     var p = getProductFromForm();
-    if (!state.currentCategory) { showToast('请先选择品类'); return; }
+    if (!state.currentCategory) { showToast('请先选择开单品类'); return; }
     if (p.grossWeight <= 0) { showToast('请至少填写毛重'); return; }
     if (p.tareWeight < 0 || p.deduction < 0) { showToast('皮重和扣杂不能为负数'); return; }
     if (p.tareWeight + p.deduction > p.grossWeight) { showToast('皮重和扣杂不能大于毛重'); return; }
@@ -630,7 +678,7 @@ function buildOrderData(status) {
         id: orderNo, status: status,
         productName: p.name || '', categoryPrimary: state.currentCategory || '', categorySecondary: state.currentSubCategory || '',
         grossWeight: p.grossWeight, tareWeight: p.tareWeight, deduction: p.deduction,
-        netWeight: p.netWeight, unitPrice: p.unitPrice, unit: p.unit,
+        netWeight: p.netWeight, unitPrice: p.unitPrice, priceMode: p.priceMode || 'unit', unit: p.unit,
         amount: Number(p.amount.toFixed(2)),
         summary: p.name ? (p.name + ' × ' + p.netWeight.toLocaleString() + p.unit) : '',
         payeeName: state.payee ? state.payee.name : '', payeeMobile: state.payee ? state.payee.mobile : '',
@@ -649,7 +697,11 @@ function confirmBilling() {
     if (p.grossWeight <= 0) { showToast('请填写毛重'); return; }
     if (p.tareWeight < 0 || p.deduction < 0) { showToast('皮重和扣杂不能为负数'); return; }
     if (p.tareWeight + p.deduction > p.grossWeight) { showToast('皮重和扣杂不能大于毛重'); return; }
-    if (!p.unitPrice || p.unitPrice <= 0) { showToast('请填写单价'); return; }
+    if (currentPriceMode === 'fixed') {
+        if (!p.amount || p.amount <= 0) { showToast('请填写一口价'); return; }
+    } else {
+        if (!p.unitPrice || p.unitPrice <= 0) { showToast('请填写单价'); return; }
+    }
     if (!state.payee) { showToast('请选择收款农户'); return; }
     var order = buildOrderData('unpaid');
     if (state.editingOrderId && mockStore && typeof mockStore.findOrderById === 'function') {
@@ -673,12 +725,13 @@ function showAppModal(opts) {
 function closeAppModal() { document.getElementById('appModalOverlay').classList.remove('show'); }
 function resetBillingForm() {
     state.payee = null; state.photos = []; state.editingOrderId = '';
-    state.currentCategory = null; state.currentSubCategory = null;
+    state.currentCategory = null; state.currentSubCategory = null; state.productName = '';
     document.getElementById('grossWeightInput').value = '';
     document.getElementById('tareWeightInput').value = '';
     document.getElementById('deductionInput').value = '';
     document.getElementById('unitPriceInput').value = '';
     document.getElementById('remarkInput').value = '';
+    document.getElementById('productNameInput').value = '';
     document.getElementById('netWeightDisplay').textContent = '0';
     document.getElementById('totalAmount').textContent = '0.00';
     setUnit('斤');
@@ -698,12 +751,14 @@ function hydrateFromQuery() {
             state.editingOrderId = editOrderId;
             state.currentCategory = order.categoryPrimary || order.category || null;
             state.currentSubCategory = order.categorySecondary || null;
+            state.productName = order.productName || order.categorySecondary || '';
             // Populate inline fields
             document.getElementById('grossWeightInput').value = order.grossWeight || '';
             document.getElementById('tareWeightInput').value = order.tareWeight || '';
             document.getElementById('deductionInput').value = order.deduction || '';
             document.getElementById('unitPriceInput').value = order.unitPrice || '';
             document.getElementById('remarkInput').value = order.remark || '';
+            document.getElementById('productNameInput').value = state.productName;
             if (order.unit) setUnit(order.unit);
             calcWeights();
             state.photos = Array.isArray(order.photos)

@@ -81,6 +81,31 @@
             color: #9CA3AF;
             font-weight: 500;
         }
+        .price-mode-readonly {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 2px;
+            border-radius: 10px;
+            background: #F3F4F6;
+        }
+        .price-mode-readonly span {
+            min-width: 48px;
+            height: 24px;
+            padding: 0 10px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #6B7280;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .price-mode-readonly span.active {
+            background: #FFFFFF;
+            color: #11A64A;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
         .field-unit {
             flex-shrink: 0;
             min-width: 30px;
@@ -162,6 +187,9 @@
 
         .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .photo-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; cursor: pointer; }
+        .photos-card-gap {
+            margin-top: 12px;
+        }
 
         .lightbox-overlay {
             position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.85);
@@ -200,7 +228,7 @@
             </div>
         </div>
 
-        <!-- 卡片2：订单信息 + 收款方 + 付款方 + 商品信息 -->
+        <!-- 卡片2：订单信息 + 收款方 + 付款方 + 农产品信息 -->
         <div class="glass-panel rounded-2xl p-4">
             <!-- 订单信息 -->
             <div class="section-title" style="padding-top:0;border-top:none;">
@@ -260,18 +288,15 @@
                 <span id="payerCardText" class="info-value"></span>
             </div>
 
-            <!-- 商品信息 -->
+            <!-- 农产品信息 -->
             <div class="section-title" style="margin-top:16px;">
                 <div class="section-dot"></div>
-                <span>商品信息</span>
+                <span>农产品信息</span>
             </div>
-            <div class="product-name-box">
-                <div class="product-icon">
-                    <i class="fas fa-box text-[15px]"></i>
-                </div>
-                <div class="min-w-0 flex-1">
-                    <div class="product-title">商品名称</div>
-                    <div id="productNameText" class="product-value truncate">--</div>
+            <div class="billing-grid mb-3">
+                <div class="billing-field col-span-2">
+                    <label class="field-label">农产品名称</label>
+                    <div id="productNameWrap"></div>
                 </div>
             </div>
             <div class="billing-grid">
@@ -292,7 +317,7 @@
                     <div id="netWeightWrap"></div>
                 </div>
                 <div class="billing-field col-span-2">
-                    <label class="field-label">单价</label>
+                    <div id="priceModeReadonly" class="mb-1.5"></div>
                     <div id="unitPriceWrap"></div>
                 </div>
                 <div class="billing-field col-span-2">
@@ -307,12 +332,13 @@
         </div>
 
         <!-- 卡片3：拍照留存 -->
-        <div id="photosCard" class="glass-panel rounded-2xl p-4 mb-3" style="display:none;">
+        <div id="photosCard" class="glass-panel rounded-2xl p-4 mb-3 photos-card-gap" style="display:none;">
             <div class="section-title" style="padding-top:0;border-top:none;">
                 <div class="section-dot"></div>
                 <span id="photosTitle">拍照留存</span>
             </div>
             <div id="photoGrid" class="photo-grid"></div>
+            <div id="photoEmpty" class="text-center py-6 text-[12px] text-gray-400" style="display:none;">暂无照片</div>
         </div>
 
         <!-- 转交信息 -->
@@ -370,9 +396,9 @@ const state = {
     photosFromQuery: parseItems(params.get('photos')),
     source: params.get('source') || 'orders',
     // Phase 3 new fields
-    productName: params.get('productName') || (orderFromStore && orderFromStore.productName) || '',
-    categoryPrimary: (orderFromStore && orderFromStore.categoryPrimary) || '',
-    categorySecondary: (orderFromStore && orderFromStore.categorySecondary) || '',
+    productName: params.get('productName') || (orderFromStore && (orderFromStore.productName || orderFromStore.categorySecondary)) || '',
+    categoryPrimary: params.get('categoryPrimary') || (orderFromStore && orderFromStore.categoryPrimary) || '',
+    categorySecondary: params.get('categorySecondary') || (orderFromStore && orderFromStore.categorySecondary) || '',
     grossWeight: parseFloat(params.get('grossWeight')) || parseFloat(orderFromStore && orderFromStore.grossWeight) || 0,
     tareWeight: parseFloat(params.get('tareWeight')) || parseFloat(orderFromStore && orderFromStore.tareWeight) || 0,
     tareWeightRaw: params.get('tareWeightRaw') !== null ? String(params.get('tareWeightRaw') || '') : (orderFromStore && orderFromStore.tareWeightRaw !== undefined ? String(orderFromStore.tareWeightRaw ?? '') : ''),
@@ -381,6 +407,7 @@ const state = {
     netWeight: parseFloat(params.get('netWeight')) || parseFloat(orderFromStore && orderFromStore.netWeight) || 0,
     unitPrice: parseFloat(params.get('unitPrice')) || parseFloat(orderFromStore && orderFromStore.unitPrice) || 0,
     unitPriceRaw: params.get('unitPriceRaw') !== null ? String(params.get('unitPriceRaw') || '') : (orderFromStore && orderFromStore.unitPriceRaw !== undefined ? String(orderFromStore.unitPriceRaw ?? '') : ''),
+    priceMode: params.get('priceMode') || (orderFromStore && orderFromStore.priceMode) || 'unit',
     unit: params.get('unit') || (orderFromStore && orderFromStore.unit) || '斤',
     photos: (orderFromStore && orderFromStore.photos) || [],
     clientId: (orderFromStore && orderFromStore.clientId) || '',
@@ -394,7 +421,7 @@ state.paymentOrderNo = state.paymentOrderNo || buildPaymentOrderNo(state.grainOr
 state.bankFlowNo = state.bankFlowNo || buildBankFlowNo(state.grainOrderNo);
 state.cancelSource = normalizeCancelSource(state.cancelSource) || inferCancelSource(state.status, state.failReason, state.payMethod);
 
-const backLink = state.source === 'orders' ? 'buyer-orders.html' : 'buyer-home.html';
+const backLink = (state.source === 'orders' || state.source === 'manage' || state.source === 'cashier') ? getOrderManageBackLink() : 'buyer-home.html';
 
 if (state.status === 'unpaid' || state.status === 'paying' || state.status === 'processing') {
     state.status = 'pending';
@@ -509,7 +536,7 @@ if (Array.isArray(state.photosFromQuery) && state.photosFromQuery.length) {
 function ensureItems() {
     if (state.items.length > 0) return;
     state.items = [{
-        name: state.productName || state.summary || '订单商品',
+        name: state.productName || state.categorySecondary || state.summary || '订单农产品',
         qty: Number(state.netWeight || 0),
         unit: state.unit || '斤',
         price: Number(state.unitPrice || 0),
@@ -548,6 +575,16 @@ function formatUnitPrice(price, unit) {
     const cleanPrice = Number.isInteger(num) ? String(num) : String(Number(num.toFixed(2)));
     const cleanUnit = String(unit || '').trim();
     return '¥' + cleanPrice + (cleanUnit ? '/' + cleanUnit : '');
+}
+
+function getOrderManageBackLink() {
+    if (state.status === 'success' || state.status === 'failed' || state.status === 'canceled') {
+        return 'buyer-order-manage.html?stage=done&tab=' + encodeURIComponent(state.status);
+    }
+    if (state.status === 'pending' || state.status === 'paying' || state.status === 'processing') {
+        return 'buyer-order-manage.html?stage=paying';
+    }
+    return 'buyer-order-manage.html?stage=todo&tab=unpaid';
 }
 
 function formatQtyOnly(qty) {
@@ -610,8 +647,8 @@ function renderStatus() {
         iconWrap.className = 'w-14 h-14 rounded-full bg-yellow-50 flex items-center justify-center mx-auto mb-2';
         icon.className = 'fas fa-clock text-yellow-500 text-2xl';
         title.className = 'text-base font-bold text-yellow-600 mb-1';
-        title.textContent = '待支付';
-        desc.innerHTML = '请在30分钟内完成支付，剩余 <span class="text-red-500 font-semibold" id="statusCountdown">' + getCountdownText() + '</span>';
+        title.textContent = '付款中';
+        desc.innerHTML = '付款尚未完成，可继续支付或取消订单，剩余 <span class="text-red-500 font-semibold" id="statusCountdown">' + getCountdownText() + '</span>';
         return;
     }
 
@@ -649,21 +686,26 @@ function renderFieldShell(text, unit, isPrimary, placeholder) {
 
 function renderItems() {
     const firstItem = state.items[0] || {};
-    const productName = formatText(state.productName || firstItem.name, '--');
+    const productName = formatText(state.productName || state.categorySecondary || firstItem.name, '--');
     const unit = state.unit || firstItem.unit || '斤';
     const grossWeight = formatWeight(state.grossWeight, unit, state.grossWeight, false);
     const tareWeight = formatWeight(state.tareWeight, unit, state.tareWeightRaw, true);
     const deduction = formatWeight(state.deduction, unit, state.deductRatioRaw, true);
     const netWeight = formatWeight(state.netWeight || firstItem.qty, unit, state.netWeight || firstItem.qty, true);
+    const isFixedPrice = state.priceMode === 'fixed';
     const unitPrice = state.unitPrice > 0 ? '¥' + Number(state.unitPrice).toFixed(2) : '--';
     const remark = formatText(state.remark, '');
 
-    document.getElementById('productNameText').textContent = productName;
+    document.getElementById('productNameWrap').innerHTML = renderFieldShell(productName, '', false, productName === '--');
     document.getElementById('grossWeightWrap').innerHTML = renderFieldShell(grossWeight === '未填写' ? '--' : grossWeight.replace(' ' + unit, '').replace(unit, ''), unit, false, grossWeight === '未填写');
     document.getElementById('tareWeightWrap').innerHTML = renderFieldShell(tareWeight === '未填写' ? '--' : tareWeight.replace(' ' + unit, '').replace(unit, ''), unit, false, tareWeight === '未填写');
     document.getElementById('deductionWrap').innerHTML = renderFieldShell(deduction === '未填写' ? '--' : deduction.replace(' ' + unit, '').replace(unit, ''), unit, false, deduction === '未填写');
     document.getElementById('netWeightWrap').innerHTML = renderFieldShell(netWeight === '未填写' ? '--' : netWeight.replace(' ' + unit, '').replace(unit, ''), unit, true, false);
-    document.getElementById('unitPriceWrap').innerHTML = renderFieldShell(unitPrice, state.unitPrice > 0 ? '/' + unit : '', false, state.unitPrice <= 0);
+    document.getElementById('priceModeReadonly').innerHTML = `<div class="price-mode-readonly">
+        <span class="${!isFixedPrice ? 'active' : ''}">单价</span>
+        <span class="${isFixedPrice ? 'active' : ''}">一口价</span>
+    </div>`;
+    document.getElementById('unitPriceWrap').innerHTML = renderFieldShell(unitPrice, isFixedPrice ? '元' : (state.unitPrice > 0 ? '/' + unit : ''), false, state.unitPrice <= 0);
     document.getElementById('remarkWrap').innerHTML = `<div class="textarea-display ${remark ? '' : 'placeholder'}">${remark || '未填写'}</div>`;
     document.getElementById('itemTotalText').textContent = formatMoney(Number(state.amount || 0));
 }
@@ -729,6 +771,7 @@ function buildCashierHref(isRetry) {
         deductRatioRaw: state.deductRatioRaw || '',
         netWeight: String(state.netWeight || 0),
         unitPrice: String(state.unitPrice || 0),
+        priceMode: state.priceMode || 'unit',
         unit: state.unit || '斤',
         remark: state.remark || '',
         photos: JSON.stringify(state.photos || [])
@@ -755,6 +798,9 @@ function syncStateToStore() {
         bankFlowNo: state.bankFlowNo,
         cancelSource: state.cancelSource || '',
         items: state.items,
+        productName: state.productName,
+        categoryPrimary: state.categoryPrimary,
+        categorySecondary: state.categorySecondary,
         grossWeight: state.grossWeight,
         tareWeight: state.tareWeight,
         tareWeightRaw: state.tareWeightRaw,
@@ -763,6 +809,7 @@ function syncStateToStore() {
         netWeight: state.netWeight,
         unitPrice: state.unitPrice,
         unitPriceRaw: state.unitPriceRaw,
+        priceMode: state.priceMode || 'unit',
         unit: state.unit,
         photos: state.photos,
         remark: state.remark
@@ -829,8 +876,8 @@ function showToast(msg) {
 function cancelOrder() {
     const previousStatus = state.status;
     state.status = 'canceled';
-    state.cancelSource = previousStatus === 'pending' ? 'unpaid' : 'unpaid';
-    state.failReason = '收购商主动取消订单';
+    state.cancelSource = previousStatus === 'pending' ? 'paying' : 'before_pay';
+    state.failReason = previousStatus === 'pending' ? '付款中取消' : '结算前取消';
     syncStateToStore();
     renderAll();
     showToast('订单已取消');
@@ -857,10 +904,11 @@ function startPendingTimer() {
 // === Phase 3: Photos ===
 function renderPhotos() {
     const card = document.getElementById('photosCard');
-    if (!state.photos || !state.photos.length) { card.style.display = 'none'; return; }
+    const photos = state.photos || [];
     card.style.display = '';
-    document.getElementById('photosTitle').textContent = '拍照留存（' + state.photos.length + '张）';
-    document.getElementById('photoGrid').innerHTML = state.photos.map((p, i) =>
+    document.getElementById('photosTitle').textContent = photos.length ? ('拍照留存（' + photos.length + '张）') : '拍照留存';
+    document.getElementById('photoEmpty').style.display = photos.length ? 'none' : '';
+    document.getElementById('photoGrid').innerHTML = photos.map((p, i) =>
         `<img src="${escapeHtml(p.url || p)}" alt="照片${i+1}" onclick="openLightbox('${escapeHtml(p.url || p)}')">`
     ).join('');
 }

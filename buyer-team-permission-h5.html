@@ -27,14 +27,6 @@
             background: linear-gradient(135deg, #18c964 0%, #07c160 100%);
             color: #fff;
         }
-        .channel-logo.alipay {
-            background: linear-gradient(135deg, #36a5ff 0%, #1677ff 100%);
-            color: #fff;
-        }
-        .channel-logo.unionpay {
-            background: linear-gradient(135deg, #5d7bff 0%, #3a63ff 100%);
-            color: #fff;
-        }
         .channel-logo.psbcApp {
             background: linear-gradient(135deg, #34c56f 0%, #1e9f55 100%);
             color: #fff;
@@ -100,8 +92,6 @@ document.getElementById('navBar').innerHTML = renderHeader('开通权限', 'buye
 var store = window.TeamMockStore || null;
 var BILLING_CHANNELS = {
     wechat: { key: 'wechat', label: '微信', icon: 'fab fa-weixin', glyph: '微', className: 'wechat' },
-    alipay: { key: 'alipay', label: '支付宝', icon: 'fab fa-alipay', glyph: '支', className: 'alipay' },
-    unionpay: { key: 'unionpay', icon: '', label: '云闪付', glyph: '云', className: 'unionpay' },
     psbcApp: { key: 'psbcApp', label: '邮储银行 App', icon: '', glyph: '邮', className: 'psbcApp' }
 };
 
@@ -147,7 +137,7 @@ function render() {
 
     document.getElementById('channelLogo').innerHTML = renderChannelLogo(channel);
     document.getElementById('descLine1').textContent = '您正在申请开通' + channel.label + '扫码开单权限。';
-    document.getElementById('descLine2').textContent = '开通后，将用于' + channel.label + '扫码开单等业务场景，请确保当前操作环境安全。';
+    document.getElementById('descLine2').textContent = '开通后，可直接使用' + channel.label + '扫描农户出示的二维码进行开单，无需登录丰收云，操作更快捷。';
     document.getElementById('descHighlight').textContent = '请确认是否由您本人操作，继续开通。';
 }
 

@@ -121,12 +121,6 @@ function renderBuyerTabBar(active) {
     [
       { id: "home", icon: "fa-home", label: "首页", href: "buyer-home.html" },
       {
-        id: "market",
-        icon: "fa-store",
-        label: "市场",
-        href: "buyer-market.html",
-      },
-      {
         id: "billing",
         icon: "fa-file-invoice",
         label: "开单",
@@ -142,12 +136,6 @@ function renderFarmerTabBar(active) {
   return _tabBar(
     [
       { id: "home", icon: "fa-home", label: "首页", href: "farmer-home.html" },
-      {
-        id: "market",
-        icon: "fa-store",
-        label: "市场",
-        href: "farmer-market.html",
-      },
       {
         id: "collection",
         icon: "fa-qrcode",
@@ -306,7 +294,7 @@ if (typeof window !== "undefined") {
 // ==================== 收购商模拟数据中心（跨页面共享） ====================
 (function () {
   var ORDER_STORAGE_KEY = "ylt_buyer_orders_mock_v1";
-  var ORDER_DATA_VERSION = "v5"; // Phase 3 v5: 挂单收款人兼容修复、订单管理排序交互优化
+  var ORDER_DATA_VERSION = "v9"; // Phase 3 v9: 付款中样例强制补回
   var ORDER_VERSION_KEY = "ylt_buyer_orders_version";
 
   // Phase 3: 订单状态常量表（label / color class / icon）
@@ -454,6 +442,7 @@ if (typeof window !== "undefined") {
     deduction: 0,
     netWeight: 0,
     unitPrice: 0,
+    priceMode: "unit",
     unit: "斤",
     productName: "",
     categoryPrimary: "",
@@ -468,6 +457,25 @@ if (typeof window !== "undefined") {
         order[key] = Array.isArray(ORDER_FIELD_DEFAULTS[key])
           ? []
           : ORDER_FIELD_DEFAULTS[key];
+      }
+    }
+    var inferredProductName = "";
+    if (typeof order.productName === "string" && order.productName.trim()) {
+      inferredProductName = order.productName.trim();
+    } else if (typeof order.categorySecondary === "string" && order.categorySecondary.trim()) {
+      inferredProductName = order.categorySecondary.trim();
+    } else if (order.items && order.items[0] && typeof order.items[0].name === "string" && order.items[0].name.trim()) {
+      inferredProductName = order.items[0].name.trim();
+    }
+    if (inferredProductName) {
+      if (!(typeof order.productName === "string" && order.productName.trim())) {
+        order.productName = inferredProductName;
+      }
+      if (!(typeof order.categorySecondary === "string" && order.categorySecondary.trim())) {
+        order.categorySecondary = inferredProductName;
+      }
+      if (order.items && order.items[0] && !(typeof order.items[0].name === "string" && order.items[0].name.trim())) {
+        order.items[0].name = inferredProductName;
       }
     }
     if (order.status === "draft") {
@@ -580,6 +588,24 @@ if (typeof window !== "undefined") {
     if (!hasPendingClient) {
       list.push(ensureOrderFields(buildPendingClientOrder()));
     }
+    var payingSamples = buildBaseOrders().filter(function(order) {
+      return order && order.keepPayingSample;
+    }).map(ensureOrderFields);
+    payingSamples.forEach(function(sample) {
+      var idx = list.findIndex(function(order) { return order && order.id === sample.id; });
+      if (idx >= 0) {
+        var currentStatus = list[idx].status;
+        var shouldRestorePayingSample = list[idx].keepPayingSample || currentStatus === "success" || currentStatus === "failed" || currentStatus === "canceled";
+        if (shouldRestorePayingSample || currentStatus === "pending" || currentStatus === "paying" || currentStatus === "processing") {
+          list[idx] = Object.assign({}, sample, {
+            createdAt: sample.createdAt,
+            updatedAt: new Date().toISOString()
+          });
+        }
+      } else {
+        list.push(sample);
+      }
+    });
     return list;
   }
 
@@ -615,6 +641,62 @@ if (typeof window !== "undefined") {
       items: [
         { name: "冬储土豆", qty: 500, unit: "斤", price: 4.6, subtotal: 2300 },
       ],
+    };
+
+    var orderB2 = {
+      id: "SL20260426102618",
+      status: "pending",
+      payeeName: "高师傅",
+      payeeMobile: "136****2818",
+      payeeBank: "邮储银行济南支行",
+      payeeCard: "尾号 2818",
+      summary: "小麦 x 16000斤",
+      amount: 22400,
+      createdAt: isoMinusMinutes(26),
+      payMethod: "industry",
+      paymentOrderNo: "ZF202604261026180001",
+      bankFlowNo: "YH202604261026180001",
+      items: [{ name: "小麦", qty: 16000, unit: "斤", price: 1.4, subtotal: 22400 }],
+      productName: "小麦",
+      categoryPrimary: "粮油",
+      categorySecondary: "小麦",
+      grossWeight: 16800,
+      tareWeight: 600,
+      deduction: 200,
+      netWeight: 16000,
+      unitPrice: 1.4,
+      priceMode: "unit",
+      unit: "斤",
+      photos: [],
+      keepPayingSample: true,
+    };
+
+    var orderB3 = {
+      id: "SL20260426104136",
+      status: "paying",
+      payeeName: "韩大姐",
+      payeeMobile: "139****4136",
+      payeeBank: "邮储银行潍坊支行",
+      payeeCard: "尾号 4136",
+      summary: "玉米 x 22000斤",
+      amount: 28600,
+      createdAt: isoMinusMinutes(12),
+      payMethod: "guarantee",
+      paymentOrderNo: "ZF202604261041360001",
+      bankFlowNo: "YH202604261041360001",
+      items: [{ name: "玉米", qty: 22000, unit: "斤", price: 1.3, subtotal: 28600 }],
+      productName: "玉米",
+      categoryPrimary: "粮油",
+      categorySecondary: "玉米",
+      grossWeight: 22800,
+      tareWeight: 500,
+      deduction: 300,
+      netWeight: 22000,
+      unitPrice: 1.3,
+      priceMode: "unit",
+      unit: "斤",
+      photos: [],
+      keepPayingSample: true,
     };
 
     var orderC = {
@@ -1050,6 +1132,8 @@ if (typeof window !== "undefined") {
     return [
       orderA,
       orderB,
+      orderB2,
+      orderB3,
       orderC,
       orderD,
       orderE,
@@ -1121,6 +1205,7 @@ if (typeof window !== "undefined") {
     var list = loadOrdersRaw();
     list.forEach(function (order) {
       if (
+        !order.keepPayingSample &&
         (order.status === "pending" || order.status === "paying") &&
         getOrderRemainingMs(order, timeoutMinutes) <= 0
       ) {
@@ -1137,7 +1222,9 @@ if (typeof window !== "undefined") {
 
   function getOrders() {
     markExpiredOrders(30);
-    return cloneData(loadOrdersRaw());
+    var list = ensureSpecialMockOrders(loadOrdersRaw().map(ensureOrderFields));
+    saveOrdersRaw(list);
+    return cloneData(list);
   }
 
   function findOrderById(orderId) {
@@ -1354,13 +1441,14 @@ if (typeof window !== "undefined") {
     if (idx < 0) return null;
     var order = list[idx];
     order.unitPrice = unitPrice;
+    order.priceMode = "unit";
     order.netWeight = order.netWeight || 0;
     order.amount = Math.round(order.netWeight * unitPrice * 100) / 100;
     if (order.items && order.items.length > 0) {
       order.items[0].price = unitPrice;
       order.items[0].subtotal = order.amount;
     }
-    order.summary = (order.productName || (order.items && order.items[0] && order.items[0].name) || "商品") + " x " + order.netWeight + (order.unit || "斤");
+    order.summary = (order.productName || (order.items && order.items[0] && order.items[0].name) || "农产品") + " x " + order.netWeight + (order.unit || "斤");
     if (order.status === "pending_price") {
       order.status = "unpaid";
     }
@@ -3022,17 +3110,15 @@ function renderTodoList(todos) {
     `;
 }
 
-// ==================== 统一端底部导航栏（凸起+号模式） ====================
+// ==================== 统一端底部导航栏 ====================
 function renderUnifiedTabBar(active) {
   active = active || "home";
   var tabs = [
     { id: "home", icon: "fa-home", label: "首页", href: "unified-home.html" },
-    { id: "market", icon: "fa-store", label: "市场", href: "unified-market.html" },
     { id: "stats", icon: "fa-chart-pie", label: "报表", href: "unified-stats.html" },
     { id: "mine", icon: "fa-user", label: "我的", href: "unified-my.html" },
   ];
 
-  // 左侧2个Tab + 中间凸起 + 右侧2个Tab
   function _tabItem(t) {
     var on = t.id === active;
     var c = on ? "text-primary" : "text-gray-400";
@@ -3046,81 +3132,13 @@ function renderUnifiedTabBar(active) {
     );
   }
 
-  var leftTabs = _tabItem(tabs[0]) + _tabItem(tabs[1]);
-  var rightTabs = _tabItem(tabs[2]) + _tabItem(tabs[3]);
-
-  // 凸起+号按钮
-  var fabBtn =
-    '<div class="flex flex-col items-center justify-center" style="flex:1;position:relative;">' +
-    '<div id="unifiedFabBtn" onclick="_toggleFab()" class="flex items-center justify-center cursor-pointer" ' +
-    'style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#11A64A,#0a7532);box-shadow:0 4px 16px rgba(17,166,74,0.35);margin-top:-22px;transition:transform .3s cubic-bezier(.4,0,.2,1);">' +
-    '<i id="fabIcon" class="fas fa-plus text-white text-xl" style="transition:transform .3s cubic-bezier(.4,0,.2,1)"></i>' +
-    "</div>" +
-    '<span class="text-[10px] font-medium text-gray-400 mt-0.5"></span>' +
-    "</div>";
-
-  // 扩散出来的两个操作按钮
-  var fabActions =
-    '<div id="fabOverlay" class="fixed inset-0 bg-black/40 z-[80] hidden" onclick="_toggleFab()" style="transition:opacity .25s"></div>' +
-    '<div id="fabActions" class="fixed z-[85] hidden" style="bottom:80px;left:50%;transform:translateX(-50%);max-width:375px;">' +
-    // 开单按钮（左上方）
-    '<a href="unified-billing.html" class="no-underline" style="text-decoration:none;position:absolute;bottom:12px;left:-58px;opacity:0;transform:scale(0.3) translateY(20px);transition:all .3s cubic-bezier(.34,1.56,.64,1);" id="fabAction1">' +
-    '<div class="flex flex-col items-center gap-1.5">' +
-    '<div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,#11A64A,#0a7532);box-shadow:0 4px 16px rgba(17,166,74,0.3);">' +
-    '<i class="fas fa-file-invoice text-white text-xl"></i>' +
-    "</div>" +
-    '<span class="text-xs font-medium text-white bg-black/60 px-2 py-0.5 rounded-full whitespace-nowrap">开单</span>' +
-    "</div></a>" +
-    // 收款按钮（右上方）
-    '<a href="unified-collection.html" class="no-underline" style="text-decoration:none;position:absolute;bottom:12px;right:-58px;opacity:0;transform:scale(0.3) translateY(20px);transition:all .35s cubic-bezier(.34,1.56,.64,1);" id="fabAction2">' +
-    '<div class="flex flex-col items-center gap-1.5">' +
-    '<div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8);box-shadow:0 4px 16px rgba(59,130,246,0.3);">' +
-    '<i class="fas fa-qrcode text-white text-xl"></i>' +
-    "</div>" +
-    '<span class="text-xs font-medium text-white bg-black/60 px-2 py-0.5 rounded-full whitespace-nowrap">收款</span>' +
-    "</div></a>" +
-    "</div>";
+  var items = tabs.map(_tabItem).join("");
 
   return (
     '<div class="h-[72px] bg-white border-t border-gray-200 flex items-start shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-[51] relative shrink-0">' +
-    leftTabs + fabBtn + rightTabs +
-    "</div>" +
-    fabActions
+    items +
+    "</div>"
   );
-}
-
-var _fabOpen = false;
-function _toggleFab() {
-  _fabOpen = !_fabOpen;
-  var overlay = document.getElementById("fabOverlay");
-  var actions = document.getElementById("fabActions");
-  var icon = document.getElementById("fabIcon");
-  var btn = document.getElementById("unifiedFabBtn");
-  var a1 = document.getElementById("fabAction1");
-  var a2 = document.getElementById("fabAction2");
-  if (!overlay || !actions) return;
-
-  if (_fabOpen) {
-    overlay.classList.remove("hidden");
-    actions.classList.remove("hidden");
-    if (icon) icon.style.transform = "rotate(45deg)";
-    if (btn) btn.style.transform = "scale(1.1)";
-    requestAnimationFrame(function () {
-      if (a1) { a1.style.opacity = "1"; a1.style.transform = "scale(1) translateY(0)"; }
-      setTimeout(function () {
-        if (a2) { a2.style.opacity = "1"; a2.style.transform = "scale(1) translateY(0)"; }
-      }, 60);
-    });
-  } else {
-    if (a1) { a1.style.opacity = "0"; a1.style.transform = "scale(0.3) translateY(20px)"; }
-    if (a2) { a2.style.opacity = "0"; a2.style.transform = "scale(0.3) translateY(20px)"; }
-    if (icon) icon.style.transform = "rotate(0deg)";
-    if (btn) btn.style.transform = "scale(1)";
-    setTimeout(function () {
-      overlay.classList.add("hidden");
-      actions.classList.add("hidden");
-    }, 300);
-  }
 }
 
 // ==================== 统一端模拟数据中心 ====================
@@ -3603,8 +3621,6 @@ function _toggleFab() {
 
   var DEFAULT_BILLING_PERMISSIONS = {
     wechat: false,
-    alipay: false,
-    unionpay: false,
     psbcApp: false
   };
 
@@ -3624,7 +3640,7 @@ function _toggleFab() {
           role: 'owner',
           joinedAt: '2026-03-01',
           lastActiveAt: '2026-04-14',
-          billingPermissions: { wechat: true, alipay: true, unionpay: true, psbcApp: true }
+          billingPermissions: { wechat: true, psbcApp: true }
         },
         {
           userId: 'U002',
@@ -3633,7 +3649,7 @@ function _toggleFab() {
           role: 'operator',
           joinedAt: '2026-04-03',
           lastActiveAt: '2026-04-13',
-          billingPermissions: { wechat: true, alipay: false, unionpay: false, psbcApp: true }
+          billingPermissions: { wechat: true, psbcApp: false }
         },
         {
           userId: 'U003',
@@ -3642,7 +3658,7 @@ function _toggleFab() {
           role: 'operator',
           joinedAt: '2026-04-01',
           lastActiveAt: '2026-04-13',
-          billingPermissions: { wechat: false, alipay: false, unionpay: false, psbcApp: false }
+          billingPermissions: { wechat: false, psbcApp: false }
         },
       ]
     },
@@ -3661,7 +3677,7 @@ function _toggleFab() {
           role: 'owner',
           joinedAt: '2026-03-15',
           lastActiveAt: '2026-04-14',
-          billingPermissions: { wechat: true, alipay: true, unionpay: true, psbcApp: true }
+          billingPermissions: { wechat: true, psbcApp: true }
         },
       ]
     }
@@ -3680,8 +3696,6 @@ function _toggleFab() {
     var source = seed || {};
     return {
       wechat: !!source.wechat,
-      alipay: !!source.alipay,
-      unionpay: !!source.unionpay,
       psbcApp: !!source.psbcApp
     };
   }
@@ -3917,9 +3931,9 @@ function _toggleFab() {
   }
 
   var DEFAULT_TEMPLATES = [
-    { id: 'rt01', name: '标准货款', template: '{商品名称}{净重}货款', isDefault: true, type: 'preset' },
-    { id: 'rt02', name: '带付款方', template: '{付款方}{商品名称}货款', isDefault: false, type: 'preset' },
-    { id: 'rt03', name: '带日期', template: '{日期}{商品名称}{净重}', isDefault: false, type: 'preset' },
+    { id: 'rt01', name: '标准货款', template: '{农产品名称}{净重}货款', isDefault: true, type: 'preset' },
+    { id: 'rt02', name: '带付款方', template: '{付款方}{农产品名称}货款', isDefault: false, type: 'preset' },
+    { id: 'rt03', name: '带日期', template: '{日期}{农产品名称}{净重}', isDefault: false, type: 'preset' },
   ];
 
   var DEFAULT_CUSTOM = [
@@ -3998,7 +4012,7 @@ function _toggleFab() {
       var now = new Date();
       var mm = String(now.getMonth() + 1).padStart(2, '0');
       var dd = String(now.getDate()).padStart(2, '0');
-      tpl = tpl.replace(/\{商品名称\}/g, o.productName || '');
+      tpl = tpl.replace(/\{农产品名称\}|\{商品名称\}/g, o.productName || '');
       tpl = tpl.replace(/\{净重\}/g, (o.netWeight || 0) + (o.unit || '斤'));
       tpl = tpl.replace(/\{付款方\}/g, payerName || o.clientName || '');
       tpl = tpl.replace(/\{日期\}/g, mm + '-' + dd);

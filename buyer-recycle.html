@@ -144,7 +144,7 @@ function renderList() {
     emptyState.style.display = 'none';
 
     listWrap.innerHTML = orders.map(function(o) {
-        const name = (o.items && o.items[0] && o.items[0].name) || o.productName || '未命名商品';
+        const name = (o.items && o.items[0] && o.items[0].name) || o.productName || '未命名农产品';
         const payee = (o.contact && o.contact.name) || o.payeeName || '—';
         const amount = formatAmount(o.totalAmount || (o.items && o.items[0] && o.items[0].amount));
         const badge = statusBadge(o._originalStatus);
