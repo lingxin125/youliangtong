@@ -211,6 +211,115 @@
             opacity: 1;
             transform: translateY(0);
         }
+        .billing-readonly .info-card {
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 16px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .billing-readonly .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .billing-readonly .summary-box {
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-top: 10px;
+            border: 1px solid rgba(17, 166, 74, 0.12);
+        }
+        .billing-readonly .summary-label {
+            font-size: 11px;
+            color: #6B7280;
+        }
+        .billing-readonly .summary-amount {
+            margin-top: 4px;
+            font-family: Poppins, sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #11A64A;
+            line-height: 1.1;
+        }
+        .billing-readonly .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-top: 0;
+            border-top: none;
+        }
+        .billing-readonly .section-title-main {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+        .billing-readonly .section-title-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .billing-readonly .product-name-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #FCFDFD 0%, #F7F8FA 100%);
+            border: 1px solid #EEF1F4;
+        }
+        .billing-readonly .product-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: #EBF7F0;
+            color: #11A64A;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .billing-readonly .product-title {
+            font-size: 12px;
+            color: #9CA3AF;
+            line-height: 1.2;
+        }
+        .billing-readonly .product-value {
+            margin-top: 3px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1F2937;
+            line-height: 1.3;
+        }
+        .billing-readonly .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .billing-readonly .photo-grid img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .billing-readonly .payee-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: linear-gradient(to bottom right, #EBF7F0, #F4FBF6);
+            border: 1px solid rgba(17, 166, 74, 0.15);
+            border-radius: 16px;
+        }
     </style>
 </head>
 <body>
@@ -254,6 +363,10 @@
             <div class="info-row">
                 <span class="info-label">下单时间</span>
                 <span id="infoCreatedAt" class="info-value"></span>
+            </div>
+            <div id="operatorRow" class="info-row">
+                <span class="info-label">业务员</span>
+                <span id="infoOperatorName" class="info-value"></span>
             </div>
             <div id="paidAtRow" class="info-row">
                 <span class="info-label">收款时间</span>
@@ -369,6 +482,7 @@ const state = {
     orderNo: queryGrainOrderNo || (orderFromStore && orderFromStore.id) || 'SL' + fallbackNow.toISOString().replace(/[-:TZ.]/g, '').slice(0, 14),
     amount: params.get('amount') !== null ? (parseFloat(params.get('amount')) || 0) : (orderFromStore && orderFromStore.amount !== undefined ? Number(orderFromStore.amount || 0) : 5000),
     payerName: params.get('payerName') || (orderFromStore && (orderFromStore.payerName || orderFromStore.operatorName)) || '张老板',
+    operatorName: params.get('operatorName') || (orderFromStore && orderFromStore.operatorName) || params.get('payerName') || (orderFromStore && orderFromStore.payerName) || '张老板',
     payerMobile: params.get('payerMobile') || (orderFromStore && orderFromStore.payerMobile) || '139****6666',
     payerOrg: params.get('payerOrg') || (orderFromStore && orderFromStore.payerOrg) || '保定收购站',
     payeeName: params.get('payeeName') || (orderFromStore && orderFromStore.payeeName) || '李大姐',
@@ -401,6 +515,7 @@ const state = {
     photos: (orderFromStore && orderFromStore.photos) || [],
     remark: params.get('remark') || (orderFromStore && orderFromStore.remark) || ''
 };
+const isBillingReadonlyMode = params.get('mode') === 'billing' || ['draft', 'pending_price', 'unpaid', 'pending_client'].includes(state.status);
 state.paymentOrderNo = state.paymentOrderNo || buildPaymentOrderNo(state.orderNo);
 state.bankFlowNo = state.bankFlowNo || buildBankFlowNo(state.orderNo);
 
@@ -426,7 +541,7 @@ function normalizeStatus(status) {
         paying: 'paying',
         processing: 'processing',
         success: 'success',
-        failed: 'failed',
+        failed: 'pending',
         canceled: 'canceled'
     };
     return map[status] || '';
@@ -436,6 +551,10 @@ function getBackLink() {
     if (state.status === 'success') return 'farmer-collection-records.html?stage=paid';
     if (state.status === 'canceled') return 'farmer-collection-records.html?stage=canceled';
     return 'farmer-collection-records.html?stage=pending';
+}
+
+function shouldShowOperatorName() {
+    return ['pending', 'paying', 'processing', 'success', 'canceled'].includes(state.status);
 }
 
 function parseItems(raw) {
@@ -463,6 +582,10 @@ function formatMoney(amount) {
     const num = Number(amount || 0);
     if (!Number.isFinite(num) || num <= 0) return '--';
     return '¥ ' + num.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatBillingMoney(amount) {
+    return '¥ ' + Number(amount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function formatTime(iso) {
@@ -551,6 +674,39 @@ function formatText(value, fallback) {
     return text || (fallback || '-');
 }
 
+function calcNetWeight() {
+    return Math.max(Number(state.grossWeight || 0) - Number(state.tareWeight || 0) - Number(state.deduction || 0), 0);
+}
+
+function getBillingAmount() {
+    if (Number(state.amount || 0) > 0) return Number(state.amount || 0);
+    if (state.priceMode === 'fixed') return Number(state.unitPrice || 0);
+    return Math.round(calcNetWeight() * Number(state.unitPrice || 0) * 100) / 100;
+}
+
+function formatNumber(value, keepZero) {
+    const num = Number(value || 0);
+    if (!keepZero && num <= 0) return '--';
+    return Number.isInteger(num) ? String(num) : num.toFixed(2).replace(/\.?0+$/, '');
+}
+
+function renderBillingDisplayField(text, unit, isPrimary, placeholder) {
+    return `<div class="field-shell">
+        <span class="field-display ${isPrimary ? 'text-primary' : ''} ${placeholder ? 'placeholder' : ''}">${text}</span>
+        ${unit ? `<span class="field-unit">${unit}</span>` : ''}
+    </div>`;
+}
+
+function getBillingStatusMeta() {
+    const map = {
+        draft: { title: '挂单', desc: '收购商已记录订单，等待补全皮重等信息', cls: 'bg-gray-100 text-gray-600', icon: 'fa-file-pen' },
+        pending_price: { title: '待开价', desc: '订单已称重，等待收购商补充单价', cls: 'bg-blue-50 text-blue-600', icon: 'fa-tag' },
+        unpaid: { title: '待付款', desc: '订单金额已确定，等待收购商付款', cls: 'bg-amber-50 text-amber-600', icon: 'fa-file-invoice' },
+        pending_client: { title: '待付款', desc: '订单金额已确定，等待付款方结算', cls: 'bg-amber-50 text-amber-600', icon: 'fa-file-invoice' }
+    };
+    return map[state.status] || map.unpaid;
+}
+
 function renderStatus() {
     const iconWrap = document.getElementById('statusIconWrap');
     const icon = document.getElementById('statusIcon');
@@ -559,12 +715,11 @@ function renderStatus() {
     const map = {
         draft: { title: '挂单', desc: '收购商已记录订单，等待补全皮重等信息', bg: 'bg-gray-100', color: 'text-gray-600', icon: 'fa-file-pen' },
         pending_price: { title: '待开价', desc: '订单已称重，等待收购商补充单价', bg: 'bg-blue-50', color: 'text-blue-600', icon: 'fa-tag' },
-        unpaid: { title: '待结算', desc: '订单金额已确定，等待收购商付款', bg: 'bg-amber-50', color: 'text-amber-600', icon: 'fa-clock' },
-        pending_client: { title: '待结算', desc: '订单金额已确定，等待付款方结算', bg: 'bg-amber-50', color: 'text-amber-600', icon: 'fa-clock' },
+        unpaid: { title: '待付款', desc: '订单金额已确定，等待收购商付款', bg: 'bg-amber-50', color: 'text-amber-600', icon: 'fa-clock' },
+        pending_client: { title: '待付款', desc: '订单金额已确定，等待付款方结算', bg: 'bg-amber-50', color: 'text-amber-600', icon: 'fa-clock' },
         pending: { title: '付款中', desc: '收购商正在付款，请等待到账', bg: 'bg-indigo-50', color: 'text-indigo-600', icon: 'fa-spinner' },
         paying: { title: '付款中', desc: '收购商正在付款，请等待到账', bg: 'bg-indigo-50', color: 'text-indigo-600', icon: 'fa-spinner' },
         processing: { title: '付款中', desc: '收购商正在付款，请等待到账', bg: 'bg-indigo-50', color: 'text-indigo-600', icon: 'fa-spinner' },
-        failed: { title: '付款失败', desc: '本次付款未成功，请等待收购商重新处理', bg: 'bg-red-50', color: 'text-red-500', icon: 'fa-circle-xmark' },
         success: { title: '付款成功', desc: '款项已转入您的银行卡', bg: 'bg-green-50', color: 'text-primary', icon: 'fa-check-circle' },
         canceled: { title: '已取消', desc: '该订单已取消，不会继续付款', bg: 'bg-gray-100', color: 'text-gray-500', icon: 'fa-ban' }
     };
@@ -618,6 +773,8 @@ function renderInfo() {
     document.getElementById('infoGrainOrderNo').textContent = state.orderNo;
     document.getElementById('infoPaymentOrderNo').textContent = state.paymentOrderNo;
     document.getElementById('infoCreatedAt').textContent = formatTime(state.createdAt);
+    document.getElementById('operatorRow').style.display = shouldShowOperatorName() ? 'flex' : 'none';
+    document.getElementById('infoOperatorName').textContent = state.operatorName || state.payerName || '-';
     const paidAtRow = document.getElementById('paidAtRow');
 
     if (state.status === 'success') {
@@ -653,11 +810,132 @@ function renderPhotos() {
 }
 
 function renderAll() {
+    if (isBillingReadonlyMode) {
+        renderBillingReadonlyPage();
+        renderBottomActions();
+        return;
+    }
     renderStatus();
     renderItems();
     renderInfo();
     renderPhotos();
     renderBottomActions();
+}
+
+function renderBillingReadonlyPage() {
+    const content = document.querySelector('.flex-1.overflow-y-auto');
+    if (!content) return;
+    const firstItem = state.items[0] || {};
+    const unit = state.unit || firstItem.unit || '斤';
+    const productName = formatText(state.productName || firstItem.name, '--');
+    const meta = getBillingStatusMeta();
+    const isFixedPrice = state.priceMode === 'fixed';
+    const price = Number(state.unitPrice || firstItem.price || 0);
+    const photos = state.photos || [];
+    content.classList.add('billing-readonly');
+    content.innerHTML = `
+        <div class="info-card text-center">
+            <div class="status-chip mx-auto w-fit ${meta.cls}">
+                <i class="fas ${meta.icon}"></i>
+                <span>${meta.title}</span>
+            </div>
+            <div class="text-[11px] text-gray-400 mt-2">${meta.desc}</div>
+            <div class="summary-box">
+                <div class="summary-label">订单金额</div>
+                <div class="summary-amount">${formatBillingMoney(getBillingAmount())}</div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="section-title">
+                <div class="section-title-main">
+                    <div class="section-dot"></div>
+                    <span class="section-title-text">开单品类</span>
+                </div>
+            </div>
+            <div class="product-name-box">
+                <div class="product-icon">
+                    <i class="fas fa-box text-[15px]"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="product-title">当前品类</div>
+                    <div class="product-value truncate">${formatText(orderFromStore && (orderFromStore.categorySecondary || orderFromStore.productName) || productName, '--')}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="section-title">
+                <div class="section-title-main">
+                    <div class="section-dot"></div>
+                    <span class="section-title-text">称重计价</span>
+                </div>
+            </div>
+            <div class="billing-grid">
+                <div class="billing-field col-span-2">
+                    <label class="field-label">农产品名称</label>
+                    ${renderBillingDisplayField(productName, '', false, productName === '--')}
+                </div>
+                <div class="billing-field">
+                    <label class="field-label">毛重</label>
+                    ${renderBillingDisplayField(formatNumber(state.grossWeight, false), unit, false, Number(state.grossWeight || 0) <= 0)}
+                </div>
+                <div class="billing-field">
+                    <label class="field-label">皮重</label>
+                    ${renderBillingDisplayField(formatNumber(state.tareWeight, false), unit, false, Number(state.tareWeight || 0) <= 0)}
+                </div>
+                <div class="billing-field">
+                    <label class="field-label">扣杂</label>
+                    ${renderBillingDisplayField(formatNumber(state.deduction, false), unit, false, Number(state.deduction || 0) <= 0)}
+                </div>
+                <div class="billing-field">
+                    <label class="field-label">净重</label>
+                    ${renderBillingDisplayField(formatNumber(state.netWeight || calcNetWeight(), true), unit, true, false)}
+                </div>
+                <div class="billing-field col-span-2">
+                    <label class="field-label">${isFixedPrice ? '一口价' : '单价'}</label>
+                    ${renderBillingDisplayField(price > 0 ? '¥' + price.toFixed(2) : '--', isFixedPrice ? '' : (price > 0 ? '/' + unit : ''), false, price <= 0)}
+                </div>
+                <div class="billing-field col-span-2">
+                    <label class="field-label">备注</label>
+                    <div class="textarea-display ${state.remark ? '' : 'placeholder'}">${state.remark || '未填写'}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="section-title">
+                <div class="section-title-main">
+                    <div class="section-dot"></div>
+                    <span class="section-title-text">照片留存</span>
+                </div>
+                <span class="text-[11px] text-gray-400">(${photos.length}/9)</span>
+            </div>
+            <div class="photo-grid">${photos.map(function(p, i) {
+                const src = (p && typeof p === 'object') ? (p.url || '') : String(p || '');
+                return '<img src="' + src + '" alt="照片' + (i + 1) + '">';
+            }).join('')}</div>
+            <div class="text-center py-6 text-[12px] text-gray-400" style="${photos.length ? 'display:none;' : ''}">暂无照片</div>
+        </div>
+
+        <div class="info-card">
+            <div class="section-title">
+                <div class="section-title-main">
+                    <div class="section-dot"></div>
+                    <span class="section-title-text">收款方信息</span>
+                </div>
+            </div>
+            <div class="payee-card">
+                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm border border-[#11A64A]/10">
+                    <i class="fas fa-user-check text-[#11A64A]"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="text-sm font-semibold text-gray-800 truncate">${state.payeeName || '--'}</div>
+                    <div class="text-[11px] text-gray-500 mt-0.5 truncate">${[state.payeeBank, state.payeeCard].filter(Boolean).join(' · ') || '--'}</div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 function showToast(msg) {

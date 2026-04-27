@@ -129,8 +129,8 @@ document.getElementById('tabBar').innerHTML = renderFarmerTabBar('home');
 
 const farmerOrderStore = window.BuyerMockStore || null;
 const farmerName = '李大姐';
-const farmerPendingStatuses = ['draft', 'pending_price', 'unpaid', 'pending_client', 'pending', 'paying', 'processing', 'failed'];
-const farmerKnownAmountStatuses = ['unpaid', 'pending_client', 'pending', 'paying', 'processing', 'failed'];
+const farmerPendingStatuses = ['draft', 'pending_price', 'unpaid', 'pending_client', 'pending', 'paying', 'processing'];
+const farmerKnownAmountStatuses = ['unpaid', 'pending_client', 'pending', 'paying', 'processing'];
 
 function getFarmerOrders() {
     if (farmerOrderStore && typeof farmerOrderStore.getOrders === 'function') {
@@ -148,6 +148,7 @@ function formatHomeMoney(amount) {
 function renderPendingDashboard() {
     const wrap = document.getElementById('pendingDashboard');
     if (!wrap) return;
+    const allFarmerOrders = getFarmerOrders();
     const pendingOrders = getFarmerOrders().filter(function(order) {
         return farmerPendingStatuses.includes(order.status);
     });
@@ -160,42 +161,51 @@ function renderPendingDashboard() {
         pending_price: pendingOrders.filter(function(o) { return o.status === 'pending_price'; }).length,
         unpaid: pendingOrders.filter(function(o) { return o.status === 'unpaid' || o.status === 'pending_client'; }).length,
         paying: pendingOrders.filter(function(o) { return ['pending', 'paying', 'processing'].includes(o.status); }).length,
-        failed: pendingOrders.filter(function(o) { return o.status === 'failed'; }).length
+        canceled: allFarmerOrders.filter(function(o) { return o.status === 'canceled'; }).length
     };
 
     wrap.innerHTML = `
-        <div class="bg-white rounded-2xl p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100/80">
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-1.5">
-                    <div class="w-[3px] h-[14px] rounded-sm bg-primary"></div>
-                    <span class="text-sm font-semibold text-gray-800">待收款总览</span>
-                </div>
-                <a href="farmer-collection-records.html?source=home&stage=pending" class="text-[11px] text-primary no-underline" style="text-decoration:none;">查看全部 <i class="fas fa-chevron-right text-[8px]"></i></a>
+        <div class="rounded-[24px] bg-gradient-to-b from-[#F5FDF8] to-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-5 border border-white relative">
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-[15px] font-semibold text-gray-800">待收款总览</span>
+                <a href="farmer-collection-records.html?source=home&stage=pending" class="text-[11px] text-gray-400 hover:text-gray-500 no-underline transition-colors" style="text-decoration:none;">全部订单 <i class="fas fa-chevron-right text-[9px] ml-0.5"></i></a>
             </div>
-            <div class="rounded-2xl p-3.5 bg-gradient-to-r from-[#F0FDF4] to-white border border-[#11A64A]/10 mb-3">
-                <div class="text-[11px] text-gray-500 mb-1">待到账金额</div>
-                <div class="text-[24px] leading-none font-bold text-gray-900" style="font-family:Poppins;">¥${formatHomeMoney(knownTotal)}</div>
+            
+            <div class="mb-5">
+                <div class="text-[12px] text-gray-500 mb-1.5 font-medium">待到账金额</div>
+                <div class="text-[28px] leading-none font-bold text-primary tracking-tight" style="font-family:Poppins;">¥${formatHomeMoney(knownTotal)}</div>
             </div>
-            <div class="grid grid-cols-5 gap-1.5">
-                ${renderStatusStat('挂单', countMap.draft, 'draft')}
-                ${renderStatusStat('待开价', countMap.pending_price, 'pending_price')}
-                ${renderStatusStat('待结算', countMap.unpaid, 'unpaid')}
-                ${renderStatusStat('付款中', countMap.paying, 'paying')}
-                ${renderStatusStat('付款失败', countMap.failed, 'failed')}
+            
+            <div class="flex justify-between items-center px-0.5">
+                ${renderStatusStat('挂单', countMap.draft, 'pending', 'draft')}
+                ${renderStatusStat('待开价', countMap.pending_price, 'pending', 'pending_price')}
+                ${renderStatusStat('待付款', countMap.unpaid, 'pending', 'unpaid')}
+                ${renderStatusStat('付款中', countMap.paying, 'pending', 'paying')}
+                ${renderStatusStat('已取消', countMap.canceled, 'canceled')}
             </div>
         </div>
     `;
 }
 
-function renderStatusStat(label, count, subStatus) {
-    const isFailed = subStatus === 'failed';
-    const cls = isFailed
-        ? 'bg-red-50 text-red-500 border-red-200'
-        : 'bg-[#F0FDF4] text-[#0F9F4A] border-[#B7E4C7]';
-    const href = 'farmer-collection-records.html?source=home&stage=pending&sub=' + encodeURIComponent(subStatus);
-    return `<a href="${href}" class="rounded-xl ${cls} border px-1.5 py-2 text-center no-underline active:scale-[0.98] transition-transform" style="text-decoration:none;">
-        <div class="text-[10px] whitespace-nowrap">${label}</div>
-        <div class="text-[15px] font-bold mt-0.5" style="font-family:Poppins;">${count}</div>
+function renderStatusStat(label, count, stage, subStatus) {
+    const isCanceled = stage === 'canceled';
+    const hasCount = count > 0;
+    
+    // 基础样式
+    const bgClass = isCanceled ? 'bg-gray-50' : 'bg-[#F4FCF7]';
+    const borderClass = isCanceled ? 'border border-gray-100' : 'border border-[#C2EACF]';
+    
+    // 字体颜色区分（除了已取消，其他无论有没有数值都保持同一种绿色）
+    const numClass = isCanceled ? (hasCount ? 'text-gray-500' : 'text-gray-400') : 'text-primary';
+    const labelClass = isCanceled ? 'text-gray-400' : 'text-primary/90';
+    
+    const href = isCanceled
+        ? 'farmer-collection-records.html?source=home&stage=canceled'
+        : 'farmer-collection-records.html?source=home&stage=pending&sub=' + encodeURIComponent(subStatus);
+        
+    return `<a href="${href}" class="flex flex-col items-center justify-center flex-1 min-w-[50px] py-2 px-0.5 rounded-[12px] ${bgClass} ${borderClass} no-underline active:scale-[0.95] transition-all mx-0.5" style="text-decoration:none;">
+        <div class="text-[18px] font-bold leading-none mb-1 ${numClass}" style="font-family:Poppins;">${count}</div>
+        <div class="text-[10px] font-medium ${labelClass} whitespace-nowrap">${label}</div>
     </a>`;
 }
 

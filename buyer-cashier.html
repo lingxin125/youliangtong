@@ -194,11 +194,10 @@
         <div class="bg-white rounded-t-[24px] p-6 w-full transform translate-y-full transition-transform duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]" id="bankModalContent">
             <div class="w-12 h-1.5 rounded-full bg-gray-200 mx-auto mb-5"></div>
             <div class="text-[17px] font-semibold text-gray-900 mb-1 text-center">支付状态模拟获取</div>
-            <div class="text-[12px] text-gray-500 mb-6 text-center">原型演示：请手动选择最终获取到的支付结果</div>
+            <div class="text-[12px] text-gray-500 mb-6 text-center">原型演示：请手动选择支付结果；未完成会继续停留在付款中</div>
             <div class="space-y-3">
                 <button class="w-full py-3.5 bg-[#13b15a] text-white rounded-[14px] text-[15px] font-semibold shadow-[0_4px_12px_rgba(19,177,90,0.2)] active:scale-95 transition-all" onclick="finishPay('success')">支付成功</button>
-                <button class="w-full py-3.5 bg-red-50 text-red-500 rounded-[14px] text-[15px] font-semibold border border-red-100 active:scale-95 transition-all" onclick="finishPay('failed')">支付失败</button>
-                <button class="w-full py-3.5 bg-gray-100/80 text-gray-600 rounded-[14px] text-[15px] font-medium active:scale-95 transition-all" onclick="closeModal()">暂未支付 (退出弹窗)</button>
+                <button class="w-full py-3.5 bg-gray-100/80 text-gray-600 rounded-[14px] text-[15px] font-medium active:scale-95 transition-all" onclick="finishPay('pending')">暂未完成，保持付款中</button>
             </div>
         </div>
     </div>
@@ -231,6 +230,7 @@ const state = {
     mode: params.get('mode') || 'detail',
     items: parseItems(params.get('items')),
     payerName: params.get('payerName') || payerProfile.name || '张老板',
+    operatorName: params.get('operatorName') || params.get('payerName') || payerProfile.name || '张老板',
     payerOrg: params.get('payerOrg') || params.get('payerCompany') || payerProfile.org || '保定收购站',
     payerMobile: params.get('payerMobile') || payerProfile.mobile || '',
     payerBank: params.get('payerBank') || '中国邮政储蓄银行',
@@ -395,6 +395,7 @@ function ensureOrderInStore() {
         amount: Number(state.amount.toFixed(2)),
         createdAt: state.createdAt,
         payerName: state.payerName,
+        operatorName: state.operatorName,
         payerOrg: state.payerOrg,
         payerMobile: state.payerMobile,
         payerBank: state.payerBank,
@@ -468,9 +469,9 @@ function finishPay(result) {
         goOrderDetail('success', { paidAt: paidAt });
         return;
     }
-    if (result === 'failed') {
-        syncOrderToStore('failed', { failReason: '支付遇到问题，请检查账户或渠道' });
-        goOrderDetail('failed', { failReason: '支付遇到问题，请检查账户或渠道' });
+    if (result === 'pending') {
+        syncOrderToStore('paying', { failReason: '' });
+        goOrderDetail('pending');
         return;
     }
 }

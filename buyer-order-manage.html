@@ -221,7 +221,7 @@
         .order-footer-info .time { color: #9CA3AF; font-size: 11px; flex-shrink: 0; }
         .order-footer-info .dot { color: #D1D5DB; font-size: 11px; flex-shrink: 0; }
 
-        /* 转交/来源信息（待结算 Tab） */
+        /* 转交/来源信息（待付款 Tab） */
         .order-status-row {
             display: flex; align-items: center; justify-content: space-between;
             gap: 10px; padding-top: 8px;
@@ -457,7 +457,6 @@
             font-size: 10px; font-weight: 600; white-space: nowrap;
         }
         .result-status-tag.success { background:#ECFDF5; color:#059669; }
-        .result-status-tag.failed { background:#FEF2F2; color:#DC2626; }
         .result-status-tag.canceled { background:#F3F4F6; color:#6B7280; }
         .result-status-tag.paying { background:#EFF6FF; color:#2563EB; }
         .done-card-title-line,
@@ -700,7 +699,6 @@
                 <div class="flex flex-wrap gap-2">
                     <button class="filter-option active" data-type="done-status" data-value="all">全部</button>
                     <button class="filter-option" data-type="done-status" data-value="success">付款成功</button>
-                    <button class="filter-option" data-type="done-status" data-value="failed">付款失败</button>
                     <button class="filter-option" data-type="done-status" data-value="canceled">已取消</button>
                 </div>
             </div>
@@ -719,9 +717,9 @@ const mockStore = window.BuyerMockStore || null;
 const clientStore = window.ClientMockStore || null;
 const urlQs = new URLSearchParams(window.location.search);
 const TODO_TABS = ['draft', 'pending_price', 'unpaid'];
-const DONE_TABS = ['all', 'success', 'failed', 'canceled'];
+const DONE_TABS = ['all', 'success', 'canceled'];
 const PAYING_STATUSES = ['pending', 'paying', 'processing'];
-const DONE_STATUSES = ['success', 'failed', 'canceled'];
+const DONE_STATUSES = ['success', 'canceled'];
 const state = {
     currentStage: normalizeInitialStage(urlQs.get('stage'), urlQs.get('tab')),
     currentTab: normalizeInitialTab(urlQs.get('tab')),
@@ -739,7 +737,7 @@ const state = {
 
 function normalizeInitialStage(stage, tab) {
     if (stage === 'todo' || stage === 'paying' || stage === 'done') return stage;
-    if (tab === 'paying' || tab === 'pending' || tab === 'processing') return 'paying';
+    if (tab === 'paying' || tab === 'pending' || tab === 'processing' || tab === 'failed') return 'paying';
     if (DONE_TABS.includes(tab)) return 'done';
     return 'todo';
 }
@@ -747,7 +745,7 @@ function normalizeInitialStage(stage, tab) {
 function normalizeInitialTab(tab) {
     if (TODO_TABS.includes(tab)) return tab;
     if (DONE_TABS.includes(tab)) return tab;
-    if (tab === 'paying' || tab === 'pending' || tab === 'processing') return 'paying';
+    if (tab === 'paying' || tab === 'pending' || tab === 'processing' || tab === 'failed') return 'paying';
     return 'draft';
 }
 
@@ -826,7 +824,7 @@ function updateCounts() {
     const counts = mockStore.getOrderCounts();
     const todo = (counts.draft || 0) + (counts.pending_price || 0) + (counts.unpaid || 0) + (counts.pending_client || 0);
     const paying = (counts.pending || 0) + (counts.paying || 0) + (counts.processing || 0);
-    const done = (counts.success || 0) + (counts.failed || 0) + (counts.canceled || 0);
+    const done = (counts.success || 0) + (counts.canceled || 0);
     document.getElementById('countTodo').textContent = todo;
     document.getElementById('countPaying').textContent = paying;
     document.getElementById('countDone').textContent = done;
@@ -858,12 +856,11 @@ function renderSubTabs() {
         ? [
             { id: 'draft', label: '挂单' },
             { id: 'pending_price', label: '待开价' },
-            { id: 'unpaid', label: '待结算' },
+            { id: 'unpaid', label: '待付款' },
         ]
         : [
             { id: 'all', label: '全部' },
             { id: 'success', label: '付款成功' },
-            { id: 'failed', label: '付款失败' },
             { id: 'canceled', label: '已取消' },
         ];
     bar.innerHTML = tabs.map(function(tab) {
@@ -1034,11 +1031,10 @@ function renderEmpty() {
     const cfg = {
         draft: { title: '暂无挂单', desc: '开单时选择「挂单」可暂存未完成的单据' },
         pending_price: { title: '暂无待开价订单', desc: '价格未定时选择「待开价」，后续统一定价' },
-        unpaid: { title: '暂无待结算订单', desc: '稍后结算和客户转来的订单会出现在这里' },
+        unpaid: { title: '暂无待付款订单', desc: '稍后结算和客户转来的订单会出现在这里' },
         paying: { title: '暂无付款中订单', desc: '发起付款后，未完成的订单会出现在这里' },
-        all: { title: '暂无已结束订单', desc: '付款成功、失败或取消后的订单会出现在这里' },
+        all: { title: '暂无已结束订单', desc: '付款成功或取消后的订单会出现在这里' },
         success: { title: '暂无付款成功订单', desc: '完成付款的订单会出现在这里' },
-        failed: { title: '暂无付款失败订单', desc: '付款失败的订单可从这里重新处理' },
         canceled: { title: '暂无已取消订单', desc: '结算前取消或付款中取消的订单会出现在这里' },
     }[state.currentTab] || { title: '暂无订单', desc: '当前筛选条件下没有订单' };
     return `<div class="text-center pt-20">
@@ -1100,7 +1096,6 @@ function renderPayingCard(o) {
 function renderDoneCard(o) {
     const statusMap = {
         success: { cls: 'success', icon: 'fa-circle-check', label: '付款成功', amountClass: 'text-primary' },
-        failed: { cls: 'failed', icon: 'fa-circle-xmark', label: '付款失败', amountClass: 'text-red-500' },
         canceled: { cls: 'canceled', icon: 'fa-ban', label: '已取消', amountClass: 'text-gray-400' },
     };
     const info = statusMap[o.status] || statusMap.canceled;
@@ -1228,12 +1223,12 @@ function renderUnpaidFlow(o) {
     return {
         rowClass: '',
         icon: 'fa-clock',
-        text: '待结算',
+        text: '待付款',
         time: getOrderFlowTime(o)
     };
 }
 
-// ---- 待结算卡片 ----
+// ---- 待付款卡片 ----
 function renderUnpaidCard(o) {
     const name = o.productName || (o.items && o.items[0] && o.items[0].name) || '农产品';
     const payee = o.payeeName || '未选择';
@@ -1347,7 +1342,7 @@ function updateBatchBar() {
         amountWrap.classList.add('hidden');
         btnsEl.innerHTML = `<button class="batch-action-btn bg-primary text-white shadow-glow" ${count === 0 ? 'disabled' : ''} onclick="openPriceModal()">批量开价</button>`;
     } else {
-        // 待结算 tab
+        // 待付款 tab
         const orders = getTabOrders().filter(o => state.selectedIds.has(o.id));
         const total = orders.reduce((s,o) => s + (o.amount||0), 0);
         amountWrap.classList.remove('hidden');
@@ -1442,7 +1437,7 @@ function confirmClientTransfer() {
 // ==================== 撤回 ====================
 function doWithdraw(orderId) {
     document.getElementById('confirmTitle').textContent = '撤回确认';
-    document.getElementById('confirmMsg').textContent = '撤回后该订单将回到待结算状态，确定撤回吗？';
+    document.getElementById('confirmMsg').textContent = '撤回后该订单将回到待付款状态，确定撤回吗？';
     document.getElementById('confirmOkBtn').onclick = function() {
         if (mockStore) mockStore.withdrawFromClient(orderId);
         closeConfirmModal();

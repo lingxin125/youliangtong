@@ -294,20 +294,19 @@ if (typeof window !== "undefined") {
 // ==================== 收购商模拟数据中心（跨页面共享） ====================
 (function () {
   var ORDER_STORAGE_KEY = "ylt_buyer_orders_mock_v1";
-  var ORDER_DATA_VERSION = "v9"; // Phase 3 v9: 付款中样例强制补回
+  var ORDER_DATA_VERSION = "v10"; // Phase 3 v10: 去掉付款失败状态，旧失败单归入付款中
   var ORDER_VERSION_KEY = "ylt_buyer_orders_version";
 
   // Phase 3: 订单状态常量表（label / color class / icon）
   var ORDER_STATUS = {
     draft:          { label: "挂单",       color: "text-gray-500",  bg: "bg-gray-100",  icon: "fa-file-pen" },
     pending_price:  { label: "待开价",     color: "text-amber-600", bg: "bg-amber-50",  icon: "fa-tag" },
-    unpaid:         { label: "待结算",     color: "text-amber-600", bg: "bg-amber-50",  icon: "fa-clock" },
+    unpaid:         { label: "待付款",     color: "text-amber-600", bg: "bg-amber-50",  icon: "fa-clock" },
     pending_client: { label: "待客户付款", color: "text-blue-600",  bg: "bg-blue-50",   icon: "fa-user-clock" },
     pending:        { label: "待支付",     color: "text-amber-600", bg: "bg-amber-50",  icon: "fa-hourglass-half" },
     paying:         { label: "支付中",     color: "text-blue-600",  bg: "bg-blue-50",   icon: "fa-spinner" },
     processing:     { label: "支付中",     color: "text-blue-600",  bg: "bg-blue-50",   icon: "fa-spinner" },
     success:        { label: "已完成",     color: "text-green-600", bg: "bg-green-50",  icon: "fa-circle-check" },
-    failed:         { label: "支付失败",   color: "text-red-600",   bg: "bg-red-50",    icon: "fa-circle-xmark" },
     canceled:       { label: "已取消",     color: "text-gray-500",  bg: "bg-gray-100",  icon: "fa-ban" },
   };
   var CONTACTS = [
@@ -451,6 +450,15 @@ if (typeof window !== "undefined") {
 
   function ensureOrderFields(order) {
     if (!order) return order;
+    if (order.status === "failed") {
+      if (String(order.failReason || "").indexOf("超时") > -1) {
+        order.status = "canceled";
+        order.cancelSource = order.cancelSource || "paying";
+      } else {
+        order.status = "paying";
+        order.failReason = "";
+      }
+    }
     var key;
     for (key in ORDER_FIELD_DEFAULTS) {
       if (ORDER_FIELD_DEFAULTS.hasOwnProperty(key) && order[key] === undefined) {
@@ -595,7 +603,7 @@ if (typeof window !== "undefined") {
       var idx = list.findIndex(function(order) { return order && order.id === sample.id; });
       if (idx >= 0) {
         var currentStatus = list[idx].status;
-        var shouldRestorePayingSample = list[idx].keepPayingSample || currentStatus === "success" || currentStatus === "failed" || currentStatus === "canceled";
+        var shouldRestorePayingSample = list[idx].keepPayingSample || currentStatus === "success" || currentStatus === "canceled";
         if (shouldRestorePayingSample || currentStatus === "pending" || currentStatus === "paying" || currentStatus === "processing") {
           list[idx] = Object.assign({}, sample, {
             createdAt: sample.createdAt,
@@ -724,7 +732,7 @@ if (typeof window !== "undefined") {
 
     var orderD = {
       id: "SL20260211104833",
-      status: "failed",
+      status: "paying",
       payeeName: "孙阿姨",
       payeeMobile: "137****3326",
       payeeBank: "农商银行德州支行",
@@ -733,7 +741,7 @@ if (typeof window !== "undefined") {
       amount: 1890,
       createdAt: "2026-02-11T10:48:33+08:00",
       payMethod: "industry",
-      failReason: "银行返回失败，请重试",
+      failReason: "",
       items: [
         {
           name: "有机西红柿",
@@ -869,7 +877,7 @@ if (typeof window !== "undefined") {
 
     var orderL = {
       id: buildOrderNo(new Date(Date.now() - 240 * 60 * 1000)),
-      status: "failed",
+      status: "paying",
       payeeName: "郑大姐",
       payeeMobile: "137****7777",
       payeeBank: "工商银行洛阳支行",
@@ -878,7 +886,7 @@ if (typeof window !== "undefined") {
       amount: 2400,
       createdAt: isoMinusMinutes(240),
       payMethod: "industry",
-      failReason: "余额不足，支付失败",
+      failReason: "",
       items: [
         { name: "白萝卜", qty: 800, unit: "斤", price: 3, subtotal: 2400 },
       ],
@@ -1071,7 +1079,7 @@ if (typeof window !== "undefined") {
       photos: [{ url: "https://placeholder.co/400x300", takenAt: isoMinusMinutes(66) }],
     };
 
-    // Phase 3: 待结算（unpaid）— 已开价，完整信息
+    // Phase 3: 待付款（unpaid）— 已开价，完整信息
     var orderU = {
       id: buildOrderNo(new Date(Date.now() - 80 * 60 * 1000)),
       status: "unpaid",
@@ -1274,17 +1282,17 @@ if (typeof window !== "undefined") {
       paying: "paying",
       processing: "processing",
       success: "success",
-      failed: "failed",
+      failed: "paying",
       canceled: "canceled",
       挂单: "draft",
       待开价: "pending_price",
-      待结算: "unpaid",
+      待付款: "unpaid",
       待客户付款: "pending_client",
       待支付: "pending",
       支付中: "processing",
       支付成功: "success",
       已完成: "success",
-      支付失败: "failed",
+      支付失败: "paying",
       已取消: "canceled",
     };
     return map[input] || "";
@@ -1296,7 +1304,6 @@ if (typeof window !== "undefined") {
       pending: "待支付",
       processing: "支付中",
       success: "已完成",
-      failed: "支付失败",
       canceled: "已撤销",
     };
     return map[status] || "未知状态";
@@ -1483,7 +1490,7 @@ if (typeof window !== "undefined") {
     return cloneData(order);
   }
 
-  // Phase 3: 撤回（从客户付款状态撤回到待结算）
+  // Phase 3: 撤回（从客户付款状态撤回到待付款）
   function withdrawFromClient(orderId) {
     if (!orderId) return null;
     var list = loadOrdersRaw();

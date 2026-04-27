@@ -247,6 +247,10 @@
                 <span class="info-label">下单时间</span>
                 <span id="infoCreatedAt" class="info-value"></span>
             </div>
+            <div id="operatorRow" class="info-row">
+                <span class="info-label">业务员</span>
+                <span id="infoOperatorName" class="info-value"></span>
+            </div>
             <div id="paidAtRow" class="info-row">
                 <span class="info-label">支付时间</span>
                 <span id="infoPaidAt" class="info-value"></span>
@@ -381,6 +385,7 @@ const state = {
     payeeBank: params.get('payeeBank') || (orderFromStore && orderFromStore.payeeBank) || '中国邮政储蓄银行',
     payeeCard: params.get('payeeCard') || (orderFromStore && orderFromStore.payeeCard) || '尾号 8888',
     payerName: params.get('payerName') || (orderFromStore && orderFromStore.payerName) || payerProfile.name,
+    operatorName: params.get('operatorName') || (orderFromStore && orderFromStore.operatorName) || params.get('payerName') || (orderFromStore && orderFromStore.payerName) || payerProfile.name,
     payerCompany: params.get('payerCompany') || params.get('payerOrg') || (orderFromStore && (orderFromStore.payerCompany || orderFromStore.payerOrg)) || payerProfile.org,
     payerBank: params.get('payerBank') || (orderFromStore && orderFromStore.payerBank) || '中国农业银行',
     payerCard: params.get('payerCard') || (orderFromStore && orderFromStore.payerCard) || '尾号 5678',
@@ -426,7 +431,11 @@ const backLink = (state.source === 'orders' || state.source === 'manage' || stat
 if (state.status === 'unpaid' || state.status === 'paying' || state.status === 'processing') {
     state.status = 'pending';
 }
-if (state.status !== 'pending' && state.status !== 'success' && state.status !== 'failed' && state.status !== 'canceled') {
+if (state.status === 'failed') {
+    state.status = 'pending';
+    state.failReason = '';
+}
+if (state.status !== 'pending' && state.status !== 'success' && state.status !== 'canceled') {
     state.status = 'pending';
 }
 
@@ -452,12 +461,12 @@ function normalizeStatus(status) {
         paying: 'pending',
         processing: 'pending',
         success: 'success',
-        failed: 'failed',
+        failed: 'pending',
         canceled: 'canceled',
         '待支付': 'pending',
         '支付中': 'pending',
         '支付成功': 'success',
-        '支付失败': 'failed',
+        '支付失败': 'pending',
         '已取消': 'canceled'
     };
     return map[status] || '';
@@ -510,13 +519,17 @@ function buildBankFlowNo(grainOrderNo) {
 }
 
 function shouldShowPaymentOrderNo() {
-    if (state.status === 'success' || state.status === 'failed') {
+    if (state.status === 'success') {
         return true;
     }
     if (state.status === 'canceled') {
         return state.cancelSource === 'paying' || state.cancelSource === 'bank';
     }
     return false;
+}
+
+function shouldShowOperatorName() {
+    return state.status === 'pending' || state.status === 'success' || state.status === 'canceled';
 }
 
 function parseItems(raw) {
@@ -578,7 +591,7 @@ function formatUnitPrice(price, unit) {
 }
 
 function getOrderManageBackLink() {
-    if (state.status === 'success' || state.status === 'failed' || state.status === 'canceled') {
+    if (state.status === 'success' || state.status === 'canceled') {
         return 'buyer-order-manage.html?stage=done&tab=' + encodeURIComponent(state.status);
     }
     if (state.status === 'pending' || state.status === 'paying' || state.status === 'processing') {
@@ -652,15 +665,6 @@ function renderStatus() {
         return;
     }
 
-    if (state.status === 'failed') {
-        iconWrap.className = 'w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-2';
-        icon.className = 'fas fa-circle-xmark text-red-500 text-2xl';
-        title.className = 'text-base font-bold text-red-500 mb-1';
-        title.textContent = '支付失败';
-        desc.textContent = state.failReason || '支付失败，请重试';
-        return;
-    }
-
     if (state.status === 'canceled') {
         iconWrap.className = 'w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2';
         icon.className = 'fas fa-ban text-gray-500 text-2xl';
@@ -729,6 +733,8 @@ function renderInfo() {
     document.getElementById('infoPaymentOrderNo').textContent = state.paymentOrderNo;
     document.getElementById('infoCreatedAt').textContent = formatTime(state.createdAt);
     document.getElementById('paymentOrderRow').style.display = shouldShowPaymentOrderNo() ? 'flex' : 'none';
+    document.getElementById('operatorRow').style.display = shouldShowOperatorName() ? 'flex' : 'none';
+    document.getElementById('infoOperatorName').textContent = state.operatorName || state.payerName || '-';
     
     document.getElementById('payerNameText').textContent = state.payerName;
     document.getElementById('payerBankText').textContent = state.payerBank;
@@ -836,15 +842,6 @@ function renderBottomActions() {
                     继续支付
                 </a>
             </div>
-        `;
-        return;
-    }
-
-    if (state.status === 'failed') {
-        box.innerHTML = `
-            <a href="${backLink}" class="block w-full py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow text-center no-underline" style="text-decoration:none;">
-                返回列表
-            </a>
         `;
         return;
     }

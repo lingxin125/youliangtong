@@ -306,7 +306,6 @@
             <div class="btn-grid">
                 <button class="btn-primary" onclick="injectOrder('pending')">注入待支付订单</button>
                 <button class="btn-soft" onclick="injectOrder('success')">注入支付成功订单</button>
-                <button class="btn-soft" onclick="injectOrder('failed')">注入支付失败订单</button>
                 <button class="btn-warn" onclick="cancelAllPending()">所有待支付改为已取消</button>
                 <button onclick="markAllProcessing()">将待支付改为支付中</button>
                 <button class="btn-warn" onclick="resetData()">重置为系统默认样例</button>
@@ -379,7 +378,7 @@ function statusLabel(status) {
         pending: '待支付',
         processing: '支付中',
         success: '支付成功',
-        failed: '支付失败',
+        failed: '付款中',
         canceled: '已取消'
     };
     return map[status] || '未知状态';
@@ -412,6 +411,7 @@ function resetData() {
 }
 
 function injectOrder(status) {
+    if (status === 'failed') status = 'paying';
     const orders = readOrders();
     const contact = contactPool[Math.floor(Math.random() * contactPool.length)];
     const qty = 100 + Math.floor(Math.random() * 900);
@@ -428,9 +428,9 @@ function injectOrder(status) {
         summary: `${contact.product} x ${qty}斤`,
         amount: subtotal,
         createdAt: createdAt,
-        payMethod: status === 'success' ? 'industry' : (status === 'failed' ? 'industry' : ''),
+        payMethod: status === 'success' ? 'industry' : '',
         paidAt: status === 'success' ? createdAt : '',
-        failReason: status === 'failed' ? '银行返回失败，请重试' : '',
+        failReason: '',
         items: [{ name: contact.product, qty: qty, unit: '斤', price: price, subtotal: subtotal }]
     };
     orders.unshift(order);
