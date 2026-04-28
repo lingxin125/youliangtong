@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 新增钱包账户</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+</head>
+<body class="bg-[#F7F8FA]">
+<div class="mobile-container relative bg-[#F7F8FA]">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pt-4 pb-28">
+        <div class="rounded-2xl bg-emerald-50/70 border border-emerald-100 px-3 py-2.5 text-[12px] leading-5 text-emerald-700 mb-3">
+            <i class="fas fa-circle-info mr-1"></i>
+            添加数币钱包账户前需确认已在手机银行数币专区添加数币钱包，且钱包等级为 III 类及以上。
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 border border-black/[0.04] shadow-elevation-1 mb-3 space-y-3">
+            <div class="flex items-center gap-2 pb-1">
+                <div class="w-1 h-3.5 bg-primary rounded-full"></div>
+                <span class="text-[15px] font-semibold text-gray-800">数字人民币钱包</span>
+            </div>
+            <div>
+                <label class="block text-[12px] text-gray-500 mb-1.5">姓名</label>
+                <input id="holderNameInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="请输入姓名">
+            </div>
+            <div>
+                <label class="block text-[12px] text-gray-500 mb-1.5">手机号</label>
+                <input id="mobileInput" type="tel" maxlength="11" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="请输入手机号" inputmode="tel">
+            </div>
+            <div>
+                <label class="block text-[12px] text-gray-500 mb-1.5">钱包ID</label>
+                <input id="walletIdInput" oninput="clearWalletError()" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="请输入钱包ID" inputmode="numeric" style="font-family:Poppins,monospace;">
+                <div id="walletIdError" class="hidden mt-1.5 text-[11px] leading-4 text-red-500"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="absolute bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-[#F7F8FA] border-t border-black/[0.04]">
+        <button id="submitBtn" onclick="submitWalletForm()" class="w-full h-12 rounded-2xl bg-primary text-white text-[15px] font-semibold shadow-glow active:scale-[0.98] transition-transform">
+            确认新增
+        </button>
+    </div>
+
+    <div id="toastTip" class="hidden absolute left-1/2 -translate-x-1/2 bottom-24 px-4 py-2 bg-black/80 text-white text-xs rounded-lg z-[90] opacity-0 pointer-events-none transition-all duration-200"></div>
+</div>
+
+<script>
+    var q = new URLSearchParams(window.location.search);
+    var sourceParam = q.get('source') || 'buyer-my.html';
+    var storageKey = 'ylt_buyer_payment_accounts';
+
+    document.getElementById('statusBar').innerHTML = renderStatusBar();
+    document.getElementById('navBar').innerHTML = renderHeader('新增钱包账户', buildBackUrl());
+
+    function buildBackUrl() {
+        return 'account-security.html?source=' + encodeURIComponent(sourceParam);
+    }
+
+    function normalizeWalletId(value) {
+        return (value || '').replace(/\s+/g, '');
+    }
+
+    function verifyWallet(holder, mobile, walletId) {
+        if (walletId === '008188889012' || walletId === '008188887777') {
+            return { success: true, walletLevel: 'III类钱包', bank: '中国邮政储蓄银行' };
+        }
+        if (walletId === '008188885678') {
+            return { success: false, message: '当前钱包为非实名钱包，请先升级为实名钱包' };
+        }
+        return { success: false, message: '请先到手机银行数字人民币专区添加数字钱包' };
+    }
+
+    function showWalletError(message) {
+        var input = document.getElementById('walletIdInput');
+        var error = document.getElementById('walletIdError');
+        input.classList.remove('border-gray-200', 'focus:border-primary');
+        input.classList.add('border-red-300', 'focus:border-red-400');
+        error.textContent = message;
+        error.classList.remove('hidden');
+    }
+
+    function clearWalletError() {
+        var input = document.getElementById('walletIdInput');
+        var error = document.getElementById('walletIdError');
+        input.classList.remove('border-red-300', 'focus:border-red-400');
+        input.classList.add('border-gray-200', 'focus:border-primary');
+        error.textContent = '';
+        error.classList.add('hidden');
+    }
+
+    function loadAccounts() {
+        try {
+            var stored = localStorage.getItem(storageKey);
+            if (stored) return JSON.parse(stored);
+        } catch (e) {}
+        return [
+            { id: 'buyer-1', type: 'public', bank: '中国邮政储蓄银行', branch: '烟台市芝罘区支行', cardNo: '6221888800002233', holder: '张三的粮站', accountName: '张三的粮站', isDefault: true },
+            { id: 'buyer-2', type: 'self_private', bank: '中国农业银行', branch: '烟台市开发区支行', cardNo: '6228480100098012', holder: '张三', idNo: '370602198608126219', isDefault: false },
+            { id: 'buyer-wallet-1', type: 'ecny_wallet', bank: '中国邮政储蓄银行', walletId: '008188889012', walletLevel: 'III类钱包', holder: '张三', mobile: '13700005555', verifyStatus: 'verified', isDefault: false }
+        ];
+    }
+
+    function saveAccounts(accounts) {
+        try {
+            localStorage.setItem(storageKey, JSON.stringify(accounts));
+        } catch (e) {}
+    }
+
+    function submitWalletForm() {
+        clearWalletError();
+        var holder = document.getElementById('holderNameInput').value.trim();
+        var mobile = document.getElementById('mobileInput').value.trim();
+        var walletId = normalizeWalletId(document.getElementById('walletIdInput').value);
+        if (!holder || !mobile || !walletId) {
+            showToast('请完整填写钱包账户信息');
+            return;
+        }
+        if (!/^1\d{10}$/.test(mobile)) {
+            showToast('请输入正确的手机号');
+            return;
+        }
+
+        var result = verifyWallet(holder, mobile, walletId);
+        if (!result.success) {
+            showWalletError(result.message);
+            return;
+        }
+
+        var accounts = loadAccounts();
+        if (accounts.some(function(item) { return item.type === 'ecny_wallet' && item.walletId === walletId; })) {
+            showWalletError('该钱包账户已存在');
+            return;
+        }
+        accounts.push({
+            id: 'wallet-' + Date.now(),
+            type: 'ecny_wallet',
+            bank: result.bank,
+            walletId: walletId,
+            walletLevel: result.walletLevel,
+            holder: holder,
+            mobile: mobile,
+            verifyStatus: 'verified',
+            isDefault: false
+        });
+        saveAccounts(accounts);
+        showToast('钱包账户已新增');
+        setTimeout(function() {
+            window.location.href = buildBackUrl();
+        }, 800);
+    }
+
+    function showToast(text) {
+        var tip = document.getElementById('toastTip');
+        tip.textContent = text;
+        tip.classList.remove('hidden');
+        tip.classList.remove('opacity-0');
+        tip.style.transform = 'translate(-50%, 0)';
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(function() {
+            tip.classList.add('opacity-0');
+            setTimeout(function() {
+                tip.classList.add('hidden');
+            }, 200);
+        }, 1800);
+    }
+</script>
+</body>
+</html>

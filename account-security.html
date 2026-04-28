@@ -38,9 +38,12 @@
             <div id="emptyStateDesc" class="text-[12px] text-gray-400 mt-1">可新增一张新的账户卡作为备用账户。</div>
         </div>
 
-        <div class="mt-5">
+        <div class="mt-5 space-y-3">
             <button id="addAccountBtn" onclick="goAddAccount()" class="w-full h-12 rounded-2xl bg-primary text-white text-[15px] font-semibold shadow-glow active:scale-[0.98] transition-transform">
                 新增账户
+            </button>
+            <button id="addWalletBtn" onclick="goAddWalletAccount()" class="hidden w-full h-12 rounded-2xl border border-emerald-100 bg-white text-primary text-[15px] font-semibold active:scale-[0.98] transition-transform">
+                新增钱包账户
             </button>
         </div>
     </div>
@@ -177,14 +180,15 @@
             defaultTitle: '默认付款账户',
             listTitle: '其他付款账户',
             emptyText: '可新增一张新的付款账户卡作为备用账户。',
-            addText: '新增付款账户',
+            addText: '新增银行卡账户',
             deleteText: '删除后该付款账户将无法用于付款。',
             defaultConfirmText: '确认将该付款账户设为默认账户吗？',
             badge: '默认付款',
             storageKey: 'ylt_buyer_payment_accounts',
             seedAccounts: [
                 { id: 'buyer-1', type: 'public', bank: '中国邮政储蓄银行', branch: '烟台市芝罘区支行', cardNo: '6221888800002233', holder: '张三的粮站', accountName: '张三的粮站', isDefault: true },
-                { id: 'buyer-2', type: 'self_private', bank: '中国农业银行', branch: '烟台市开发区支行', cardNo: '6228480100098012', holder: '张三', idNo: '370602198608126219', isDefault: false }
+                { id: 'buyer-2', type: 'self_private', bank: '中国农业银行', branch: '烟台市开发区支行', cardNo: '6228480100098012', holder: '张三', idNo: '370602198608126219', isDefault: false },
+                { id: 'buyer-wallet-1', type: 'ecny_wallet', bank: '中国邮政储蓄银行', walletId: '008188889012', walletLevel: 'III类钱包', holder: '张三', mobile: '13700005555', verifyStatus: 'verified', isDefault: false }
             ]
         };
 
@@ -216,6 +220,7 @@
     document.getElementById('listSectionTitle').textContent = pageConfig.listTitle;
     document.getElementById('emptyStateDesc').textContent = pageConfig.emptyText;
     document.getElementById('addAccountBtn').textContent = pageConfig.addText;
+    document.getElementById('addWalletBtn').style.display = isFarmerPage ? 'none' : 'block';
     document.getElementById('accountModalTitle').textContent = pageConfig.addText;
     initializeAccountForm();
 
@@ -278,11 +283,24 @@
         return clean.slice(0, 6) + '********' + clean.slice(-4);
     }
 
+    function maskMobile(mobile) {
+        var clean = (mobile || '').replace(/\s+/g, '');
+        if (clean.length !== 11) return clean || '-';
+        return clean.slice(0, 3) + '****' + clean.slice(-4);
+    }
+
+    function maskWalletId(walletId) {
+        var clean = (walletId || '').replace(/\s+/g, '');
+        if (clean.length <= 8) return clean || '-';
+        return clean.slice(0, 4) + ' **** ' + clean.slice(-4);
+    }
+
     function getAccountTypeMeta(type) {
         var map = {
             self_private: { text: '本人银行卡', chip: '本人', cls: 'bg-emerald-50 text-emerald-600', icon: 'fa-user-check' },
             other_private: { text: '非本人银行卡', chip: '非本人', cls: 'bg-amber-50 text-amber-600', icon: 'fa-user-shield' },
-            public: { text: '对公账户', chip: '对公', cls: 'bg-blue-50 text-blue-600', icon: 'fa-building' }
+            public: { text: '对公账户', chip: '对公', cls: 'bg-blue-50 text-blue-600', icon: 'fa-building' },
+            ecny_wallet: { text: '数字人民币钱包', chip: '钱包', cls: 'bg-teal-50 text-teal-600', icon: 'fa-wallet' }
         };
         return map[type] || map.self_private;
     }
@@ -395,11 +413,11 @@
         var listWrap = document.getElementById('accountList');
         var emptyWrap = document.getElementById('emptyState');
         var otherAccounts = accounts.filter(function(item) { return !item.isDefault; });
+        var bankAccounts = otherAccounts.filter(function(item) { return item.type !== 'ecny_wallet'; });
+        var walletAccounts = otherAccounts.filter(function(item) { return item.type === 'ecny_wallet'; });
 
         defaultWrap.innerHTML = defaultAccount ? renderAccountCard(defaultAccount, true) : '';
-        listWrap.innerHTML = otherAccounts.map(function(item) {
-            return renderAccountCard(item, false);
-        }).join('');
+        listWrap.innerHTML = renderGroupedAccounts(bankAccounts, walletAccounts);
         emptyWrap.style.display = otherAccounts.length ? 'none' : 'block';
     }
 
@@ -413,6 +431,9 @@
     }
 
     function renderAccountCard(account, isDefault) {
+        if ((account.type || '') === 'ecny_wallet') {
+            return renderWalletCard(account, isDefault);
+        }
         var type = account.type || 'self_private';
         var meta = getAccountTypeMeta(type);
         var cardLabel = type === 'public' ? '银行账号' : '银行卡号';
@@ -462,11 +483,89 @@
             '</div>';
     }
 
+    function renderGroupedAccounts(bankAccounts, walletAccounts) {
+        var html = '';
+        if (bankAccounts.length) {
+            html += renderAccountGroup('银行卡账户', bankAccounts);
+        }
+        if (walletAccounts.length) {
+            html += renderAccountGroup('数币钱包账户', walletAccounts);
+        }
+        return html;
+    }
+
+    function renderAccountGroup(title, items) {
+        return '' +
+            '<div class="space-y-2.5">' +
+                '<div class="text-[12px] font-semibold text-gray-500 px-1">' + title + '</div>' +
+                items.map(function(item) { return renderAccountCard(item, false); }).join('') +
+            '</div>';
+    }
+
+    function renderWalletCard(account, isDefault) {
+        var meta = getAccountTypeMeta('ecny_wallet');
+        var verified = account.verifyStatus === 'verified';
+        var actionHtml = isDefault
+            ? ''
+            : '<div class="flex gap-2.5 mt-4 pt-1">' +
+                '<button onclick="promptSetDefaultAccount(\'' + account.id + '\')" class="flex-1 h-10 rounded-2xl border border-emerald-100 bg-emerald-50/80 text-emerald-600 text-[12px] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] active:scale-[0.98] transition-transform">设为默认</button>' +
+                '<button onclick="promptDeleteAccount(\'' + account.id + '\')" class="w-[88px] h-10 rounded-2xl border border-red-100 bg-white text-red-500 text-[12px] font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] active:scale-[0.98] transition-transform">删除</button>' +
+              '</div>';
+
+        return '' +
+            '<div class="bg-white rounded-2xl p-4 border border-emerald-100/70 shadow-[0_2px_8px_rgba(15,23,42,0.04)] overflow-hidden relative">' +
+                '<div class="absolute right-0 top-0 w-24 h-24 rounded-bl-full bg-emerald-50/70"></div>' +
+                '<div class="relative flex items-center justify-between gap-3 mb-4">' +
+                    '<div class="flex items-center gap-3 min-w-0 flex-1">' +
+                        '<div class="w-10 h-10 rounded-full bg-[#11A64A]/10 flex items-center justify-center shrink-0">' +
+                            '<i class="fas ' + meta.icon + ' text-[#11A64A] text-lg"></i>' +
+                        '</div>' +
+                        '<div class="min-w-0 flex-1">' +
+                            '<div class="flex items-center gap-2 min-w-0">' +
+                                '<div class="text-sm font-semibold text-gray-800 truncate">数字人民币钱包</div>' +
+                                '<span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ' + meta.cls + '">' + meta.chip + '</span>' +
+                            '</div>' +
+                            '<div class="text-xs text-gray-400 mt-0.5 truncate">' + (account.bank || '中国邮政储蓄银行') + ' · ' + (account.walletLevel || 'III类钱包') + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    (isDefault ? '<div class="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-600 px-2.5 py-1 text-[11px] font-medium"><i class="fas fa-circle-check text-[10px]"></i>' + pageConfig.badge + '</div>' : '') +
+                '</div>' +
+                '<div class="relative h-px bg-gray-100 mb-3"></div>' +
+                '<div class="relative space-y-2">' +
+                    '<div class="flex items-center justify-between gap-3">' +
+                        '<span class="text-xs text-gray-400">钱包ID</span>' +
+                        '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskWalletId(account.walletId) + '</span>' +
+                    '</div>' +
+                    '<div class="flex items-center justify-between gap-3">' +
+                        '<span class="text-xs text-gray-400">姓名</span>' +
+                        '<span class="text-sm font-medium text-gray-800 text-right">' + (account.holder || '-') + '</span>' +
+                    '</div>' +
+                    '<div class="flex items-center justify-between gap-3">' +
+                        '<span class="text-xs text-gray-400">手机号</span>' +
+                        '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskMobile(account.mobile) + '</span>' +
+                    '</div>' +
+                    '<div class="flex items-center justify-between gap-3">' +
+                        '<span class="text-xs text-gray-400">校验状态</span>' +
+                        '<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ' + (verified ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600') + '">' +
+                            '<i class="fas ' + (verified ? 'fa-circle-check' : 'fa-circle-exclamation') + ' text-[10px]"></i>' + (verified ? '校验通过' : '待校验') +
+                        '</span>' +
+                    '</div>' +
+                '</div>' +
+                actionHtml +
+            '</div>';
+    }
+
     function goAddAccount() {
         var role = isFarmerPage ? 'farmer' : 'buyer';
         var backSource = encodeURIComponent(sourcePage);
         window.location.href = 'account-add.html?role=' + role + '&source=' + backSource;
     }
+
+    function goAddWalletAccount() {
+        var backSource = encodeURIComponent(sourcePage);
+        window.location.href = 'account-wallet-add.html?source=' + backSource;
+    }
+
 
     function openAccountForm() {
         initializeAccountForm();
