@@ -690,7 +690,7 @@
                 <div class="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 mb-2"><i class="fas fa-ban text-gray-400 text-sm"></i><span>取消来源</span></div>
                 <div class="flex flex-wrap gap-2">
                     <button class="filter-option active" data-type="cancel" data-value="all">全部取消</button>
-                    <button class="filter-option" data-type="cancel" data-value="before_pay">结算前取消</button>
+                    <button class="filter-option" data-type="cancel" data-value="before_pay">付款前取消</button>
                     <button class="filter-option" data-type="cancel" data-value="paying">付款中取消</button>
                 </div>
             </div>
@@ -934,7 +934,7 @@ function normalizeCancelSourceForList(order) {
 }
 
 function getCancelSourceLabel(order) {
-    return normalizeCancelSourceForList(order) === 'paying' ? '付款中取消' : '结算前取消';
+    return normalizeCancelSourceForList(order) === 'paying' ? '付款中取消' : '付款前取消';
 }
 
 function applyCancelSourceFilter(orders) {
@@ -1035,7 +1035,7 @@ function renderEmpty() {
         paying: { title: '暂无付款中订单', desc: '发起付款后，未完成的订单会出现在这里' },
         all: { title: '暂无已结束订单', desc: '付款成功或取消后的订单会出现在这里' },
         success: { title: '暂无付款成功订单', desc: '完成付款的订单会出现在这里' },
-        canceled: { title: '暂无已取消订单', desc: '结算前取消或付款中取消的订单会出现在这里' },
+        canceled: { title: '暂无已取消订单', desc: '付款前取消或付款中取消的订单会出现在这里' },
     }[state.currentTab] || { title: '暂无订单', desc: '当前筛选条件下没有订单' };
     return `<div class="text-center pt-20">
         <div class="w-12 h-1.5 rounded-full bg-gray-200/80 mx-auto mb-5"></div>
@@ -1459,7 +1459,7 @@ function cancelPrePayOrder(orderId) {
             mockStore.updateOrder(orderId, {
                 status: 'canceled',
                 cancelSource: 'before_pay',
-                failReason: '结算前取消'
+                failReason: '付款前取消'
             });
         }
         closeConfirmModal();

@@ -165,12 +165,12 @@
         <div class="glass-card rounded-2xl p-4 mb-4">
             <div class="flex items-center gap-2 mb-3 pb-2">
                 <div class="w-1 h-3.5 bg-primary rounded-full"></div>
-                <span class="text-[15px] font-bold text-gray-800">建档信息</span>
+                <span class="text-[15px] font-bold text-gray-800">农户信息</span>
             </div>
 
             <div class="text-[11px] text-gray-400 flex items-center gap-1.5 mb-3">
                 <i class="fas fa-wand-magic-sparkles text-primary/70 text-[10px]"></i>
-                <span id="ocrHintText">上传身份证与银行卡照片，可自动识别并回填信息</span>
+                <span id="ocrHintText">上传身份证照片，可自动识别并回填信息</span>
             </div>
 
             <div class="flex gap-3 mb-2">
@@ -196,29 +196,49 @@
                 <span class="input-label">身份证号</span>
                 <input type="text" id="farmerIdNo" placeholder="请输入身份证号" class="input-value font-mono">
             </div>
+            <div class="input-row">
+                <span class="input-label">农户地址</span>
+                <input type="text" id="farmerAddress" placeholder="请输入农户地址" class="input-value">
+            </div>
+            <div class="input-row">
+                <span class="input-label">种植面积</span>
+                <input type="text" id="plantingArea" placeholder="请输入种植面积" class="input-value">
+            </div>
+        </div>
 
-            <div class="mt-4 pt-4 border-t border-gray-100/80">
-                <div class="settle-row">
-                    <span class="input-label">结算类型</span>
-                    <div class="settle-switch">
-                        <button type="button" id="settlePrivateBtn" class="settle-chip active" onclick="switchSettleType('private')">对私</button>
-                        <button type="button" id="settlePublicBtn" class="settle-chip" onclick="switchSettleType('public')">对公</button>
-                    </div>
-                </div>
-                <div class="upload-box h-24 w-full flex flex-col items-center justify-center gap-2 mb-3" id="uploadBankCard" onclick="simulateUpload('bankCard')">
-                    <i id="bankUploadIcon" class="fas fa-credit-card text-3xl text-primary"></i>
-                    <span id="bankUploadLabel" class="text-[14px] font-medium">上传银行卡照片</span>
-                </div>
-                <div class="input-row hidden-row" id="publicAccountRow">
-                    <span class="input-label">对公账户名称</span>
-                    <input type="text" id="publicAccountName" placeholder="请输入对公账户名称" class="input-value">
-                </div>
-                <div class="input-row !pb-0">
-                    <span id="bankAccountLabel" class="input-label">银行卡号</span>
-                    <input type="text" id="bankCardNo" placeholder="请输入银行卡号" class="input-value font-mono">
-                </div>
+        <div class="glass-card rounded-2xl p-4 mb-4">
+            <div class="flex items-center gap-2 mb-3 pb-2">
+                <div class="w-1 h-3.5 bg-primary rounded-full"></div>
+                <span class="text-[15px] font-bold text-gray-800">结算信息</span>
             </div>
 
+            <div class="settle-row !pt-0">
+                <span class="input-label">结算类型</span>
+                <div class="settle-switch">
+                    <button type="button" id="settlePrivateBtn" class="settle-chip active" onclick="switchSettleType('private')">对私</button>
+                    <button type="button" id="settlePublicBtn" class="settle-chip" onclick="switchSettleType('public')">对公</button>
+                </div>
+            </div>
+            <div class="upload-box h-24 w-full flex flex-col items-center justify-center gap-2 mb-3" id="uploadBankCard" onclick="simulateUpload('bankCard')">
+                <i id="bankUploadIcon" class="fas fa-credit-card text-3xl text-primary"></i>
+                <span id="bankUploadLabel" class="text-[14px] font-medium">上传银行卡照片</span>
+            </div>
+            <div class="input-row hidden-row" id="publicAccountRow">
+                <span class="input-label">对公账户名称</span>
+                <input type="text" id="publicAccountName" placeholder="请输入对公账户名称" class="input-value">
+            </div>
+            <div class="input-row">
+                <span id="bankAccountLabel" class="input-label">银行卡号</span>
+                <input type="text" id="bankCardNo" placeholder="请输入银行卡号" class="input-value font-mono">
+            </div>
+            <div class="input-row">
+                <span class="input-label">开户行</span>
+                <input type="text" id="bankName" placeholder="请输入开户行" class="input-value">
+            </div>
+            <div class="input-row !pb-0">
+                <span class="input-label">开户支行</span>
+                <input type="text" id="bankBranch" placeholder="请输入开户支行" class="input-value">
+            </div>
         </div>
 
         <div class="px-1 pt-1">
@@ -294,24 +314,18 @@ let uploadStatus = {
 function switchSettleType(type) {
     currentSettleType = type;
     const isPublic = type === 'public';
-    const bankUploadBox = document.getElementById('uploadBankCard');
     const ocrHintText = document.getElementById('ocrHintText');
     document.getElementById('settlePrivateBtn').classList.toggle('active', !isPublic);
     document.getElementById('settlePublicBtn').classList.toggle('active', isPublic);
     document.getElementById('publicAccountRow').style.display = isPublic ? 'flex' : 'none';
     document.getElementById('bankAccountLabel').textContent = isPublic ? '银行账号' : '银行卡号';
     document.getElementById('bankCardNo').placeholder = isPublic ? '请输入银行账号' : '请输入银行卡号';
-    document.getElementById('bankUploadLabel').textContent = isPublic ? '上传账户照片' : '上传银行卡照片';
+    document.getElementById('bankUploadLabel').textContent = isPublic ? '上传银行账户照片' : '上传银行卡照片';
     document.getElementById('bankUploadIcon').className = isPublic
         ? 'fas fa-building-columns text-3xl text-primary'
         : 'fas fa-credit-card text-3xl text-primary';
-    if (bankUploadBox) {
-        bankUploadBox.style.display = isPublic ? 'none' : 'flex';
-    }
     if (ocrHintText) {
-        ocrHintText.textContent = isPublic
-            ? '上传身份证照片可自动识别并回填信息，对公账户信息请手动填写'
-            : '上传身份证与银行卡照片，可自动识别并回填信息';
+        ocrHintText.textContent = '上传身份证照片，可自动识别并回填信息';
     }
 }
 
@@ -335,9 +349,13 @@ function simulateUpload(type) {
                 document.getElementById('farmerName').value = '张建国';
             }
             document.getElementById('farmerIdNo').value = '510122198001018888';
+            document.getElementById('farmerAddress').value = '四川省成都市双流区永安镇凤凰村';
+            document.getElementById('plantingArea').value = '128亩';
         }
         if (uploadStatus.bankCard) {
             document.getElementById('bankCardNo').value = '6228 4800 1234 5678';
+            document.getElementById('bankName').value = '中国农业银行';
+            document.getElementById('bankBranch').value = '成都双流永安支行';
         }
         
         showToast('识别成功');
@@ -348,7 +366,11 @@ function submitApplication() {
     const name = document.getElementById('farmerName').value.trim();
     const phone = document.getElementById('farmerMobile').value.trim();
     const idNo = document.getElementById('farmerIdNo').value.trim();
+    const address = document.getElementById('farmerAddress').value.trim();
+    const plantingArea = document.getElementById('plantingArea').value.trim();
     const cardNo = document.getElementById('bankCardNo').value.trim();
+    const bankName = document.getElementById('bankName').value.trim();
+    const bankBranch = document.getElementById('bankBranch').value.trim();
     const publicAccountName = document.getElementById('publicAccountName').value.trim();
     
     if (!name || !phone) {
@@ -357,6 +379,14 @@ function submitApplication() {
     }
     if (!idNo || !cardNo) {
         showToast(currentSettleType === 'public' ? '请完善身份证号和银行账号' : '请完善身份证号和银行卡号');
+        return;
+    }
+    if (!address || !plantingArea) {
+        showToast('请填写农户地址和种植面积');
+        return;
+    }
+    if (!bankName || !bankBranch) {
+        showToast('请填写开户行和开户支行');
         return;
     }
     if (currentSettleType === 'public' && !publicAccountName) {
