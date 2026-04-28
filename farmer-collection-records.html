@@ -224,7 +224,7 @@
             flex: 1;
         }
         .farmer-card-side {
-            min-width: 72px;
+            min-width: 64px;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
@@ -232,6 +232,7 @@
             gap: 8px;
             flex-shrink: 0;
             min-height: 76px;
+            transform: translateX(18px);
         }
         .farmer-card-time {
             color: #9CA3AF;
@@ -278,14 +279,14 @@
         .result-status-tag.canceled { background:#F3F4F6; color:#6B7280; }
         .result-status-tag.paying { background:#EFF6FF; color:#2563EB; }
         .order-side-enter {
-            width: 32px;
-            min-width: 32px;
+            width: 20px;
+            min-width: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #9CA3AF;
             padding: 0;
-            margin-left: 10px;
+            margin-left: 4px;
             flex-shrink: 0;
             align-self: center;
         }
@@ -425,6 +426,13 @@
             font-size: 10px;
             white-space: nowrap;
         }
+        .farmer-todo-amount {
+            font-family: Poppins, sans-serif;
+            font-size: 16px;
+            line-height: 1;
+            font-weight: 700;
+            white-space: nowrap;
+        }
         .farmer-card-shell {
             display: flex;
             align-items: stretch;
@@ -433,6 +441,17 @@
         .farmer-card-body {
             flex: 1;
             min-width: 0;
+        }
+        .farmer-todo-side {
+            min-width: 64px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 8px;
+            flex-shrink: 0;
+            min-height: 76px;
+            transform: translateX(18px);
         }
         .farmer-time-row {
             display: flex;
@@ -655,9 +674,10 @@ const RecordService = {
 
     getRecords() {
         if (this.mockStore && typeof this.mockStore.getOrders === 'function') {
-            return this.mockStore.getOrders().filter(function(order) {
+            const records = this.mockStore.getOrders().filter(function(order) {
                 return order.payeeName === FARMER_NAME;
             });
+            return this.ensureFarmerDemoRecords(records);
         }
         return this.getFallbackRecords();
     },
@@ -673,6 +693,13 @@ const RecordService = {
                 status: 'success',
                 createdAt: '2026-02-12T14:22:10+08:00',
                 paidAt: '2026-02-12T14:23:08+08:00',
+                payerCompany: '张老板收购站',
+                grossWeight: 1035,
+                tareWeight: 20,
+                deduction: 15,
+                netWeight: 1000,
+                unitPrice: 3.2,
+                unit: '斤',
                 items: [{ name: '东北大米', qty: 1000, unit: '斤', price: 3.2, subtotal: 3200 }]
             },
             {
@@ -683,9 +710,189 @@ const RecordService = {
                 amount: 0,
                 status: 'pending_price',
                 createdAt: '2026-02-11T10:33:22+08:00',
+                payerCompany: '盛丰农贸',
+                grossWeight: 535,
+                tareWeight: 15,
+                deduction: 20,
+                netWeight: 500,
+                unitPrice: 0,
+                unit: '斤',
                 items: [{ name: '有机西红柿', qty: 500, unit: '斤', price: 0, subtotal: 0 }]
+            },
+            {
+                id: 'SL20260210100618',
+                payerName: '周老板',
+                payeeName: FARMER_NAME,
+                payerCompany: '丰顺粮行',
+                productName: '小米椒',
+                amount: 0,
+                status: 'draft',
+                createdAt: '2026-02-10T10:06:18+08:00',
+                grossWeight: 420,
+                tareWeight: 0,
+                tareWeightRaw: '',
+                deduction: 0,
+                netWeight: 420,
+                unitPrice: 0,
+                unit: '斤',
+                items: [{ name: '小米椒', qty: 420, unit: '斤', price: 0, subtotal: 0 }]
+            },
+            {
+                id: 'SL20260210123844',
+                payerName: '王站长',
+                payeeName: FARMER_NAME,
+                payerCompany: '利农合作社',
+                productName: '黄桃',
+                amount: 0,
+                status: 'draft',
+                createdAt: '2026-02-10T12:38:44+08:00',
+                grossWeight: 860,
+                tareWeight: 0,
+                tareWeightRaw: '',
+                deduction: 0,
+                netWeight: 860,
+                unitPrice: 0,
+                unit: '斤',
+                items: [{ name: '黄桃', qty: 860, unit: '斤', price: 0, subtotal: 0 }]
+            },
+            {
+                id: 'SL20260211145812',
+                payerName: '赵经理',
+                payeeName: FARMER_NAME,
+                payerCompany: '晨光果业',
+                productName: '蜜薯',
+                amount: 0,
+                status: 'pending_price',
+                createdAt: '2026-02-11T14:58:12+08:00',
+                grossWeight: 980,
+                tareWeight: 40,
+                deduction: 20,
+                netWeight: 920,
+                unitPrice: 0,
+                unit: '斤',
+                items: [{ name: '蜜薯', qty: 920, unit: '斤', price: 0, subtotal: 0 }]
+            },
+            {
+                id: 'SL20260211172206',
+                payerName: '陈老板',
+                payeeName: FARMER_NAME,
+                payerCompany: '北仓粮贸',
+                productName: '糯玉米',
+                amount: 3680,
+                status: 'unpaid',
+                createdAt: '2026-02-11T17:22:06+08:00',
+                grossWeight: 2840,
+                tareWeight: 60,
+                deduction: 20,
+                netWeight: 2760,
+                unitPrice: 1.33,
+                unit: '斤',
+                items: [{ name: '糯玉米', qty: 2760, unit: '斤', price: 1.33, subtotal: 3680 }]
+            },
+            {
+                id: 'SL20260211190836',
+                payerName: '何老板',
+                payeeName: FARMER_NAME,
+                payerCompany: '绿禾市场',
+                productName: '紫皮洋葱',
+                amount: 2240,
+                status: 'pending_client',
+                createdAt: '2026-02-11T19:08:36+08:00',
+                transferredAt: '2026-02-11T19:26:12+08:00',
+                clientName: '安顺食品厂',
+                grossWeight: 1620,
+                tareWeight: 20,
+                deduction: 0,
+                netWeight: 1600,
+                unitPrice: 1.4,
+                unit: '斤',
+                items: [{ name: '紫皮洋葱', qty: 1600, unit: '斤', price: 1.4, subtotal: 2240 }]
+            },
+            {
+                id: 'SL20260212084218',
+                payerName: '高主管',
+                payeeName: FARMER_NAME,
+                payerCompany: '鲁丰农贸',
+                productName: '白萝卜',
+                amount: 1520,
+                status: 'pending',
+                createdAt: '2026-02-12T08:42:18+08:00',
+                updatedAt: '2026-02-12T09:18:08+08:00',
+                grossWeight: 1260,
+                tareWeight: 20,
+                deduction: 0,
+                netWeight: 1240,
+                unitPrice: 1.23,
+                unit: '斤',
+                items: [{ name: '白萝卜', qty: 1240, unit: '斤', price: 1.23, subtotal: 1520 }]
+            },
+            {
+                id: 'SL20260212091408',
+                payerName: '郭经理',
+                payeeName: FARMER_NAME,
+                payerCompany: '新源合作社',
+                productName: '绿豆',
+                amount: 1960,
+                status: 'paying',
+                createdAt: '2026-02-12T09:14:08+08:00',
+                updatedAt: '2026-02-12T09:31:20+08:00',
+                grossWeight: 1500,
+                tareWeight: 20,
+                deduction: 10,
+                netWeight: 1470,
+                unitPrice: 1.33,
+                unit: '斤',
+                items: [{ name: '绿豆', qty: 1470, unit: '斤', price: 1.33, subtotal: 1960 }]
+            },
+            {
+                id: 'SL20260212093652',
+                payerName: '马老板',
+                payeeName: FARMER_NAME,
+                payerCompany: '金禾收购点',
+                productName: '富硒小米',
+                amount: 4860,
+                status: 'success',
+                createdAt: '2026-02-12T09:36:52+08:00',
+                paidAt: '2026-02-12T09:48:15+08:00',
+                grossWeight: 1830,
+                tareWeight: 20,
+                deduction: 10,
+                netWeight: 1800,
+                unitPrice: 2.7,
+                unit: '斤',
+                items: [{ name: '富硒小米', qty: 1800, unit: '斤', price: 2.7, subtotal: 4860 }]
+            },
+            {
+                id: 'SL20260212111839',
+                payerName: '宋经理',
+                payeeName: FARMER_NAME,
+                payerCompany: '田丰合作社',
+                productName: '黑花生',
+                amount: 2750,
+                status: 'canceled',
+                createdAt: '2026-02-12T11:18:39+08:00',
+                updatedAt: '2026-02-12T11:32:21+08:00',
+                grossWeight: 1015,
+                tareWeight: 10,
+                deduction: 5,
+                netWeight: 1000,
+                unitPrice: 2.75,
+                unit: '斤',
+                items: [{ name: '黑花生', qty: 1000, unit: '斤', price: 2.75, subtotal: 2750 }]
             }
         ];
+    },
+
+    ensureFarmerDemoRecords(records) {
+        const list = Array.isArray(records) ? records.slice() : [];
+        const seeds = this.getFallbackRecords();
+        const existingIds = new Set(list.map(function(item) { return item && item.id; }));
+        seeds.forEach(function(seed) {
+            if (!existingIds.has(seed.id)) {
+                list.push(Object.assign({}, seed));
+            }
+        });
+        return list;
     },
 
     findById(recordId) {
@@ -886,7 +1093,7 @@ const RenderService = {
                             </div>
                             <div class="farmer-card-payer-line mt-1">
                                 <i class="fas fa-user-circle"></i>
-                                <div class="farmer-card-payer">来自 ${getPayerName(order)} 开的单</div>
+                                <div class="farmer-card-payer">来自 ${getPayerName(order)}</div>
                             </div>
                             <div class="farmer-card-amount ${amountClass}">${amountText}</div>
                         </div>
@@ -913,11 +1120,10 @@ const RenderService = {
                                 <i class="fas fa-box"></i>
                                 <span class="farmer-todo-name">${getProductName(order)}</span>
                             </div>
-                            <span class="farmer-todo-note bg-orange-50 text-orange-500">待补皮重</span>
                         </div>
                         <div class="farmer-todo-payer">
                             <i class="fas fa-user-circle"></i>
-                            <span>来自 ${getPayerName(order)} 开的单</span>
+                            <span>来自 ${getPayerName(order)}</span>
                         </div>
                         <div class="farmer-todo-metrics-row">
                             <div class="farmer-todo-metrics">
@@ -931,9 +1137,10 @@ const RenderService = {
                                 </div>
                             </div>
                         </div>
-                        <div class="farmer-time-row">
-                            <span class="farmer-todo-time">${FormatService.smartTime(order.createdAt)}</span>
-                        </div>
+                    </div>
+                    <div class="farmer-todo-side">
+                        <span class="farmer-todo-note bg-orange-50 text-orange-500">待补皮重</span>
+                        <span class="farmer-todo-time">${FormatService.smartTime(order.createdAt)}</span>
                     </div>
                     <div class="order-side-enter"><i class="fas fa-chevron-right"></i></div>
                 </div>
@@ -952,11 +1159,10 @@ const RenderService = {
                                 <i class="fas fa-box"></i>
                                 <span class="farmer-todo-name">${getProductName(order)}</span>
                             </div>
-                            <span class="farmer-todo-note bg-blue-50 text-blue-500">待开单价</span>
                         </div>
                         <div class="farmer-todo-payer">
                             <i class="fas fa-user-circle"></i>
-                            <span>来自 ${getPayerName(order)} 开的单</span>
+                            <span>来自 ${getPayerName(order)}</span>
                         </div>
                         <div class="farmer-todo-metrics-row">
                             <div class="farmer-todo-metrics">
@@ -970,9 +1176,10 @@ const RenderService = {
                                 </div>
                             </div>
                         </div>
-                        <div class="farmer-time-row">
-                            <span class="farmer-todo-time">${FormatService.smartTime(order.createdAt)}</span>
-                        </div>
+                    </div>
+                    <div class="farmer-todo-side">
+                        <span class="farmer-todo-note bg-blue-50 text-blue-500">待开单价</span>
+                        <span class="farmer-todo-time">${FormatService.smartTime(order.createdAt)}</span>
                     </div>
                     <div class="order-side-enter"><i class="fas fa-chevron-right"></i></div>
                 </div>
@@ -998,11 +1205,10 @@ const RenderService = {
                                 <i class="fas fa-box"></i>
                                 <span class="farmer-todo-name">${getProductName(order)}</span>
                             </div>
-                            <span class="text-[16px] leading-none font-bold text-primary shrink-0 ml-2" style="font-family:Poppins;">¥${FormatService.amount(order.amount)}</span>
                         </div>
                         <div class="farmer-todo-payer">
                             <i class="fas fa-user-circle"></i>
-                            <span>来自 ${getPayerName(order)} 开的单</span>
+                            <span>来自 ${getPayerName(order)}</span>
                         </div>
                         <div class="farmer-todo-metrics-row">
                             <div class="farmer-todo-metrics">
@@ -1014,8 +1220,11 @@ const RenderService = {
                         </div>
                         <div class="farmer-flow-row">
                             ${flowHtml}
-                            <span class="farmer-todo-time">${flow.time}</span>
                         </div>
+                    </div>
+                    <div class="farmer-todo-side">
+                        <span class="farmer-todo-amount text-primary">¥${FormatService.amount(order.amount)}</span>
+                        <span class="farmer-todo-time">${flow.time}</span>
                     </div>
                     <div class="order-side-enter"><i class="fas fa-chevron-right"></i></div>
                 </div>
