@@ -603,7 +603,7 @@
         <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between shrink-0">
             <div>
                 <div class="text-[16px] font-semibold text-gray-800">批量开价</div>
-                <div class="text-[13px] text-gray-500 mt-1">为选中的 <span id="priceModalCount">0</span> 笔订单统一设置单价</div>
+                <div class="text-[13px] text-gray-500 mt-1">请为选中的订单统一设置单价</div>
             </div>
             <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="closePriceModal()">
                 <i class="fas fa-times text-gray-400 text-sm"></i>
@@ -694,14 +694,14 @@
                     <button class="filter-option" data-type="cancel" data-value="paying">付款中取消</button>
                 </div>
             </div>
-            <div id="doneStatusFilter" style="display:none;">
+            <!-- <div id="doneStatusFilter" style="display:none;">
                 <div class="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 mb-2"><i class="fas fa-circle-check text-gray-400 text-sm"></i><span>结果状态</span></div>
                 <div class="flex flex-wrap gap-2">
                     <button class="filter-option active" data-type="done-status" data-value="all">全部</button>
                     <button class="filter-option" data-type="done-status" data-value="success">付款成功</button>
                     <button class="filter-option" data-type="done-status" data-value="canceled">已取消</button>
                 </div>
-            </div>
+            </div> -->
         </div>
         <div class="px-4 py-3 border-t border-gray-100 flex gap-3 shrink-0">
             <button class="flex-1 h-10 rounded-2xl border border-gray-200 text-[13px] font-medium text-gray-600 bg-white" onclick="FilterPanel.reset()">重置</button>
@@ -1169,7 +1169,7 @@ function renderPriceCard(o) {
                             <i class="fas fa-box text-gray-300 text-[13px] shrink-0"></i>
                             <span class="text-[14px] font-bold text-gray-800 truncate">${name}</span>
                         </div>
-                        <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-500 text-[10px] font-medium shrink-0 ml-2">待开单价</span>
+                        <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-500 text-[10px] font-medium shrink-0 ml-2">待开价</span>
                     </div>
                     
                     <div class="text-[12px] text-gray-500 font-medium mb-1.5 flex items-center gap-1.5">
@@ -1355,7 +1355,7 @@ function updateBatchBar() {
 
 // ==================== 批量开价弹窗 ====================
 function openPriceModal() {
-    document.getElementById('priceModalCount').textContent = state.selectedIds.size;
+    // document.getElementById('priceModalCount').textContent = state.selectedIds.size;
     document.getElementById('priceInput').value = '';
     document.getElementById('priceModalOverlay').classList.add('show');
     document.getElementById('priceSheet').classList.add('show');
