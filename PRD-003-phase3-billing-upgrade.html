@@ -328,9 +328,9 @@ flowchart TD
     D -->|有毛重+皮重+收款人\n缺单价| D2[pending_price 待开价]
     D -->|信息完整| D3[unpaid 欠账]
     C -->|立即付款| G[确认开单 → 开单完成页]
-    D1 --> H[订单管理 → 挂单 Tab]
-    D2 --> I[订单管理 → 待开价 Tab]
-    D3 --> J[订单管理 → 待结算 Tab]
+    D1 --> H[订单管理 → 挂单 Tab<br/>可编辑信息]
+    D2 --> I[订单管理 → 待开价 Tab<br/>可编辑信息]
+    D3 --> J[订单管理 → 待付款 Tab<br/>可编辑信息]
     G --> K1[立即付款]
     G --> K2[选择客户付款]
     K1 --> L[收银台] --> L1{支付结果}
@@ -338,11 +338,12 @@ flowchart TD
     L1 -->|失败| N[付款记录 · failed] -->|重试| L
     K2 --> O[选择客户] --> P[订单同步到客户端]
     P --> J
-    H -->|点击编辑| EDIT[统一订单详情编辑页]
-    I -->|点击补价| EDIT
-    J -->|点击详情| EDIT
-    EDIT -->|暂存| D
-    EDIT -->|确认开单| G
+    H -->|编辑补皮重<br/>仍缺单价| I
+    H -->|编辑补全信息| J
+    H -->|编辑补全并付款| G
+    I -->|编辑补价后暂存| J
+    I -->|编辑补价并付款| G
+    J -->|编辑信息后暂存| J
     J -->|合并付款| L
     J -->|转给客户| O
   </pre>
@@ -350,31 +351,29 @@ flowchart TD
   <h4>1.3.2 订单状态机</h4>
   <pre class="mermaid">
 stateDiagram-v2
-    [*] --> draft: 暂存（有毛重缺皮重）
-    [*] --> pending_price: 暂存（有皮重缺单价）
-    [*] --> unpaid: 暂存（信息完整·欠账）
-    [*] --> pending_client: 确认开单→选客户付
-    [*] --> paying: 确认开单→立即付款
-    draft --> pending_price: 编辑补皮重但无单价
-    draft --> unpaid: 编辑补全所有信息
-    draft --> paying: 编辑→确认开单→立即付款
-    pending_price --> unpaid: 补价后暂存（欠账）
-    pending_price --> paying: 补价→确认开单→立即付款
-    pending_price --> pending_client: 补价→选客户付
-    unpaid --> paying: 自己付款
-    unpaid --> pending_client: 转给客户付款
-    pending_client --> paying: 客户确认付款
-    pending_client --> unpaid: 客户驳回 / 游商撤回
-    paying --> success: 支付成功
-    paying --> failed: 支付失败
-    failed --> paying: 重试付款
-    failed --> unpaid: 回到待结算
-    unpaid --> canceled: 删除（移入回收站）
-    draft --> canceled: 删除（移入回收站）
-    pending_price --> canceled: 删除（移入回收站）
-    pending_client --> canceled: 需先撤回再删除
-    success --> [*]
-    canceled --> [*]
+    [*] --> 挂单: 暂存（有毛重缺皮重）
+    [*] --> 待开价: 暂存（有皮重缺单价）
+    [*] --> 待付款: 暂存（信息完整·欠账）
+    [*] --> 待客户付款: 确认开单→选客户付
+    [*] --> 付款中: 确认开单→立即付款
+    挂单 --> 待开价: 编辑补皮重但无单价
+    挂单 --> 待付款: 编辑补全所有信息
+    挂单 --> 付款中: 编辑→确认开单→立即付款
+    待开价 --> 待付款: 补价后暂存（欠账）
+    待开价 --> 付款中: 补价→确认开单→立即付款
+    待开价 --> 待客户付款: 补价→选客户付
+    待付款 --> 待付款: 编辑待付款信息后暂存
+    待付款 --> 付款中: 自己付款
+    待付款 --> 待客户付款: 转给客户付款
+    待客户付款 --> 付款中: 客户确认付款
+    待客户付款 --> 待付款: 客户驳回 / 游商撤回
+    付款中 --> 付款成功: 支付成功
+    待付款 --> 已取消: 删除（移入回收站）
+    挂单 --> 已取消: 删除（移入回收站）
+    待开价 --> 已取消: 删除（移入回收站）
+    待客户付款 --> 已取消: 需先撤回再删除
+    付款成功 --> [*]
+    已取消 --> [*]
   </pre>
 
   <h4>1.3.3 关键场景时序：游商开单 → 客户付款</h4>
@@ -397,7 +396,7 @@ sequenceDiagram
         SYS-->>YS: 订单状态同步为"已完成"
     else 客户驳回
         KH->>SYS: 驳回订单
-        SYS-->>YS: 订单回到"待结算"状态
+        SYS-->>YS: 订单回到"待付款"状态
         Note over YS: 可重新选客户/自己付/撤销
     end
   </pre>
@@ -407,11 +406,10 @@ sequenceDiagram
     <tr><th>状态</th><th>业务定义</th><th>进入条件</th></tr>
     <tr><td><span class="badge badge-draft">draft 挂单</span></td><td>有毛重但缺皮重</td><td>暂存时皮重未填</td></tr>
     <tr><td><span class="badge badge-pending_price">pending_price 待开价</span></td><td>有毛重+皮重+收款人，缺单价</td><td>暂存时单价未填</td></tr>
-    <tr><td><span class="badge badge-unpaid">unpaid 欠账</span></td><td>信息全部完整，未进入支付</td><td>暂存时信息完整 / 编辑后暂存</td></tr>
-    <tr><td><span class="badge badge-pending_client">pending_client 待客户付</span></td><td>已转给客户等待付款</td><td>选择客户付款 / 转给客户</td></tr>
-    <tr><td><span class="badge badge-paying">paying 付款中</span></td><td>已进入支付流程</td><td>点击立即付款</td></tr>
-    <tr><td><span class="badge badge-success">success 成功</span></td><td>付款完成</td><td>支付成功</td></tr>
-    <tr><td><span class="badge badge-failed">failed 失败</span></td><td>支付失败，可重试</td><td>银行/支付失败</td></tr>
+    <tr><td><span class="badge badge-unpaid">unpaid 待付款</span></td><td>信息全部完整，未进入支付</td><td>暂存时信息完整 / 编辑后暂存</td></tr>
+    <tr><td><span class="badge badge-pending_client">pending_client 待客户付款</span></td><td>已转给客户等待付款</td><td>选择客户付款 / 转给客户</td></tr>
+    <tr><td><span class="badge badge-paying">pending / paying / processing 付款中</span></td><td>已发起付款或支付处理中</td><td>点击立即付款、客户确认付款、银行处理中、支付未完成</td></tr>
+    <tr><td><span class="badge badge-success">success 付款成功</span></td><td>付款完成</td><td>支付成功</td></tr>
     <tr><td><span class="badge badge-canceled">canceled 已取消</span></td><td>订单被删除/取消</td><td>删除（移入回收站）</td></tr>
   </table>
 </div>
@@ -626,7 +624,7 @@ sequenceDiagram
     <div class="sc-title">场景2: 切换附言后选择客户代付</div>
     <p><span class="tag tag-given">GIVEN</span> 我在付款人选择页，点击附言区域切换为"张老板收购站小麦货款"</p>
     <p><span class="tag tag-when">WHEN</span> 我点击「选择客户代付」→ 选择"张老板" → 确认</p>
-    <p><span class="tag tag-then">THEN</span> 附言保存到订单，订单状态变为 pending_client，提示"已发送给张老板"。</p>
+    <p><span class="tag tag-then">THEN</span> 附言保存到订单，订单状态变为待客户付款，提示"已发送给张老板"。</p>
   </div>
   <h4>页面布局线框图</h4>
   <pre class="wireframe">+─────────────────────────────────+
@@ -884,13 +882,13 @@ sequenceDiagram
     <div class="sc-title">场景1: 客户确认付款</div>
     <p><span class="tag tag-given">GIVEN</span> 我（张老板）在待结算 Tab 看到一笔"来自：小王"的订单</p>
     <p><span class="tag tag-when">WHEN</span> 我点击该订单 → 确认付款 → 支付成功</p>
-    <p><span class="tag tag-then">THEN</span> 订单状态变为 success，小王端同步显示"已完成"。</p>
+    <p><span class="tag tag-then">THEN</span> 订单状态变为付款成功，小王端同步显示"已完成"。</p>
   </div>
   <div class="ac-scenario">
     <div class="sc-title">场景2: 客户驳回</div>
     <p><span class="tag tag-given">GIVEN</span> 我在待结算 Tab 看到一笔"来自：小王"的订单</p>
     <p><span class="tag tag-when">WHEN</span> 我点击驳回 → 确认</p>
-    <p><span class="tag tag-then">THEN</span> 订单从我的列表消失，小王端订单回到 unpaid 状态。</p>
+    <p><span class="tag tag-then">THEN</span> 订单从我的列表消失，小王端订单回到待付款状态。</p>
   </div>
 </div>
 
@@ -1062,7 +1060,7 @@ sequenceDiagram
     <div class="sc-title">场景1: 开单员开单</div>
     <p><span class="tag tag-given">GIVEN</span> 我（小王）在"张老板收购站"团队中，角色为开单员</p>
     <p><span class="tag tag-when">WHEN</span> 我完成开单 → 在开单完成页选择客户付款 → 选择张老板</p>
-    <p><span class="tag tag-then">THEN</span> 订单状态为 pending_client，张老板在待结算 Tab 中看到该订单（标注"来自：小王"）。</p>
+    <p><span class="tag tag-then">THEN</span> 订单状态为待客户付款，张老板在待付款 Tab 中看到该订单（标注"来自：小王"）。</p>
   </div>
   <div class="ac-scenario">
     <div class="sc-title">场景2: 开单员欠账</div>

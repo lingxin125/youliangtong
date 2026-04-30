@@ -132,7 +132,7 @@
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="text-[15px] font-semibold text-gray-800">直接付款</div>
-                    <div class="text-[12px] text-gray-400 mt-0.5">默认使用付款账户，进入收银台付款</div>
+                    <div id="directPayAccountText" class="text-[12px] text-gray-400 mt-0.5">默认使用付款账户，进入收银台付款</div>
                 </div>
                 <i class="fas fa-chevron-right text-gray-300 text-sm"></i>
             </div>
@@ -276,6 +276,7 @@ function initPage() {
     renderOrderInfo();
     renderRemarkDisplay();
     renderRemarkList();
+    renderDirectPayAccount();
 }
 
 function formatMoney(amount) {
@@ -320,10 +321,37 @@ function cardTail(cardNo) {
     return clean ? '尾号 ' + clean.slice(-4) : '';
 }
 
+function cardLastFour(cardNo) {
+    const clean = String(cardNo || '').replace(/\D/g, '');
+    return clean ? clean.slice(-4) : '--';
+}
+
+function accountTail(account) {
+    if (!account) return '';
+    if (account.type === 'ecny_wallet') return '钱包 ' + maskWalletId(account.walletId);
+    return cardTail(account.cardNo);
+}
+
+function maskWalletId(walletId) {
+    const clean = String(walletId || '').replace(/\s+/g, '');
+    if (!clean) return '--';
+    if (clean.length <= 8) return clean;
+    return clean.slice(0, 4) + ' **** ' + clean.slice(-4);
+}
+
+function getAccountSummary(account) {
+    if (!account) return '暂无默认付款账户，请先到账户管理添加';
+    if (account.type === 'ecny_wallet') {
+        return '数字人民币钱包 · 尾号 ' + cardLastFour(account.walletId);
+    }
+    return (account.bank || '银行卡账户') + ' · 尾号 ' + cardLastFour(account.cardNo);
+}
+
 function loadPaymentAccounts() {
     const seedAccounts = [
         { id: 'buyer-1', bank: '中国邮政储蓄银行', branch: '烟台市芝罘区支行', cardNo: '6221888800002233', holder: '张三的粮站', isDefault: true },
-        { id: 'buyer-2', bank: '中国农业银行', branch: '烟台市开发区支行', cardNo: '6228480100098012', holder: '张三的粮站', isDefault: false }
+        { id: 'buyer-2', bank: '中国农业银行', branch: '烟台市开发区支行', cardNo: '6228480100098012', holder: '张三的粮站', isDefault: false },
+        { id: 'buyer-wallet-1', type: 'ecny_wallet', bank: '中国邮政储蓄银行', walletId: '008188889012', walletLevel: 'III类钱包', holder: '张三', mobile: '13700005555', idNo: '370602198608126219', isDefault: false }
     ];
     try {
         const stored = localStorage.getItem('ylt_buyer_payment_accounts');
@@ -331,6 +359,14 @@ function loadPaymentAccounts() {
         if (Array.isArray(parsed) && parsed.length) return parsed;
     } catch (e) {}
     return seedAccounts;
+}
+
+function renderDirectPayAccount() {
+    const el = document.getElementById('directPayAccountText');
+    if (!el) return;
+    paymentAccounts = loadPaymentAccounts();
+    const defaultAccount = paymentAccounts.find(function (item) { return item.isDefault; }) || paymentAccounts[0] || null;
+    el.textContent = getAccountSummary(defaultAccount);
 }
 
 function getDisplayCategory() {
@@ -463,17 +499,18 @@ function renderPaymentAccountList() {
     container.innerHTML = paymentAccounts.map(function (account) {
         const selected = account.id === selectedPaymentAccountId;
         const isDefault = !!account.isDefault;
+        const isWallet = account.type === 'ecny_wallet';
         return '<div class="payment-account-item glass-card rounded-2xl p-4 cursor-pointer border border-gray-100 ' + (selected ? 'selected' : '') + '" onclick="pickPaymentAccount(\'' + escapeJs(account.id) + '\')">'
             + '<div class="flex items-center gap-3">'
             + '<div class="w-11 h-11 rounded-2xl bg-green-50 flex items-center justify-center shrink-0 border border-green-100/70">'
-            + '<i class="fas fa-credit-card text-primary text-base"></i>'
+            + '<i class="fas ' + (isWallet ? 'fa-wallet' : 'fa-credit-card') + ' text-primary text-base"></i>'
             + '</div>'
             + '<div class="flex-1 min-w-0">'
             + '<div class="flex items-center gap-2">'
-            + '<span class="text-[15px] font-semibold text-gray-800 truncate">' + escapeHtml(account.bank || '--') + '</span>'
+            + '<span class="text-[15px] font-semibold text-gray-800 truncate">' + escapeHtml(isWallet ? '数字人民币钱包' : (account.bank || '--')) + '</span>'
             + (isDefault ? '<span class="shrink-0 text-[10px] px-2 py-0.5 rounded-full bg-green-50 text-primary border border-green-100/70">默认</span>' : '')
             + '</div>'
-            + '<div class="text-[13px] text-gray-500 mt-1 font-medium" style="font-family:Poppins,monospace;">' + escapeHtml(maskCardNo(account.cardNo)) + '</div>'
+            + '<div class="text-[13px] text-gray-500 mt-1 font-medium" style="font-family:Poppins,monospace;">' + escapeHtml(isWallet ? maskWalletId(account.walletId) : maskCardNo(account.cardNo)) + '</div>'
             + '</div>'
             + (selected ? '<i class="fas fa-check-circle text-primary text-lg shrink-0"></i>' : '<i class="far fa-circle text-gray-200 text-lg shrink-0"></i>')
             + '</div>'
@@ -488,7 +525,7 @@ function pickPaymentAccount(id) {
 
 function confirmSelfPayAccount() {
     if (!selectedPaymentAccountId) {
-        showToast('请选择付款银行卡');
+        showToast('请选择付款账户');
         return;
     }
     const account = paymentAccounts.find(function (item) { return item.id === selectedPaymentAccountId; });
@@ -513,7 +550,7 @@ function goSelfPay(account) {
             payerName: payerName,
             payerOrg: payerProfile.org || '',
             payerBank: account ? account.bank : '',
-            payerCard: account ? cardTail(account.cardNo) : ''
+            payerCard: account ? accountTail(account) : ''
         }));
     }
     const p = new URLSearchParams({
@@ -543,8 +580,8 @@ function goSelfPay(account) {
         payerName: payerName,
         payerOrg: payerProfile.org || '',
         payerBank: account ? account.bank : '',
-        payerCard: account ? cardTail(account.cardNo) : '',
-        payerCardNo: account ? account.cardNo : '',
+        payerCard: account ? accountTail(account) : '',
+        payerCardNo: account ? (account.cardNo || account.walletId || '') : '',
         payerBranch: account ? account.branch : '',
         remark: renderedRemark,
         photos: JSON.stringify(order.photos || [])

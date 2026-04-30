@@ -163,14 +163,15 @@
             defaultTitle: '默认收款账户',
             listTitle: '其他收款账户',
             emptyText: '可新增一张新的收款账户卡作为备用账户。',
-            addText: '新增收款账户',
+            addText: '新增银行卡账户',
             deleteText: '删除后该收款账户将无法用于收款。',
             defaultConfirmText: '确认将该收款账户设为默认账户吗？',
             badge: '默认收款',
             storageKey: 'ylt_farmer_receipt_accounts',
             seedAccounts: [
                 { id: 'farmer-1', type: 'self_private', bank: '中国邮政储蓄银行', branch: '烟台市福山区支行', cardNo: '6228888888888888', holder: '李大姐', idNo: '370611197802146628', isDefault: true },
-                { id: 'farmer-2', type: 'self_private', bank: '烟台农商银行', branch: '福山清洋支行', cardNo: '6215853322334455', holder: '李大姐', idNo: '370611197802146628', isDefault: false }
+                { id: 'farmer-2', type: 'self_private', bank: '烟台农商银行', branch: '福山清洋支行', cardNo: '6215853322334455', holder: '李大姐', idNo: '370611197802146628', isDefault: false },
+                { id: 'farmer-wallet-1', type: 'ecny_wallet', bank: '中国邮政储蓄银行', walletId: '008188887777', walletLevel: 'III类钱包', holder: '李大姐', mobile: '13800006666', idNo: '370611197802146628', isDefault: false }
             ]
         }
         : {
@@ -188,7 +189,7 @@
             seedAccounts: [
                 { id: 'buyer-1', type: 'public', bank: '中国邮政储蓄银行', branch: '烟台市芝罘区支行', cardNo: '6221888800002233', holder: '张三的粮站', accountName: '张三的粮站', isDefault: true },
                 { id: 'buyer-2', type: 'self_private', bank: '中国农业银行', branch: '烟台市开发区支行', cardNo: '6228480100098012', holder: '张三', idNo: '370602198608126219', isDefault: false },
-                { id: 'buyer-wallet-1', type: 'ecny_wallet', bank: '中国邮政储蓄银行', walletId: '008188889012', walletLevel: 'III类钱包', holder: '张三', mobile: '13700005555', verifyStatus: 'verified', isDefault: false }
+                { id: 'buyer-wallet-1', type: 'ecny_wallet', bank: '中国邮政储蓄银行', walletId: '008188889012', walletLevel: 'III类钱包', holder: '张三', mobile: '13700005555', idNo: '370602198608126219', isDefault: false }
             ]
         };
 
@@ -220,7 +221,7 @@
     document.getElementById('listSectionTitle').textContent = pageConfig.listTitle;
     document.getElementById('emptyStateDesc').textContent = pageConfig.emptyText;
     document.getElementById('addAccountBtn').textContent = pageConfig.addText;
-    document.getElementById('addWalletBtn').style.display = isFarmerPage ? 'none' : 'block';
+    document.getElementById('addWalletBtn').style.display = 'block';
     document.getElementById('accountModalTitle').textContent = pageConfig.addText;
     initializeAccountForm();
 
@@ -277,6 +278,11 @@
         return clean.slice(0, 4) + ' **** **** ' + clean.slice(-4);
     }
 
+    function cardLastFour(cardNo) {
+        var clean = (cardNo || '').replace(/\D/g, '');
+        return clean ? clean.slice(-4) : '--';
+    }
+
     function maskIdNo(idNo) {
         var clean = (idNo || '').replace(/\s+/g, '');
         if (clean.length < 10) return clean || '-';
@@ -300,7 +306,7 @@
             self_private: { text: '本人银行卡', chip: '本人', cls: 'bg-emerald-50 text-emerald-600', icon: 'fa-user-check' },
             other_private: { text: '非本人银行卡', chip: '非本人', cls: 'bg-amber-50 text-amber-600', icon: 'fa-user-shield' },
             public: { text: '对公账户', chip: '对公', cls: 'bg-blue-50 text-blue-600', icon: 'fa-building' },
-            ecny_wallet: { text: '数字人民币钱包', chip: '钱包', cls: 'bg-teal-50 text-teal-600', icon: 'fa-wallet' }
+            ecny_wallet: { text: '数字人民币钱包', chip: '', cls: 'bg-teal-50 text-teal-600', icon: 'fa-wallet' }
         };
         return map[type] || map.self_private;
     }
@@ -436,7 +442,7 @@
         }
         var type = account.type || 'self_private';
         var meta = getAccountTypeMeta(type);
-        var cardLabel = type === 'public' ? '银行账号' : '银行卡号';
+        var cardTailText = (account.bank || '银行') + ' · ' + cardLastFour(account.cardNo);
         var holderLabel = type === 'public' ? '账户名称' : '开户人';
         var identityHtml = type === 'public' ? '' :
             '<div class="flex items-center justify-between gap-3">' +
@@ -470,8 +476,8 @@
                 '<div class="h-px bg-gray-100 mb-3"></div>' +
                 '<div class="space-y-2">' +
                     '<div class="flex items-center justify-between gap-3">' +
-                        '<span class="text-xs text-gray-400">' + cardLabel + '</span>' +
-                        '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskCardNo(account.cardNo) + '</span>' +
+                        '<span class="text-xs text-gray-400">' + (isFarmerPage ? '收款账户' : '付款账户') + '</span>' +
+                        '<span class="text-sm font-medium text-gray-800 text-right">' + cardTailText + '</span>' +
                     '</div>' +
                     '<div class="flex items-center justify-between gap-3">' +
                         '<span class="text-xs text-gray-400">' + holderLabel + '</span>' +
@@ -504,7 +510,6 @@
 
     function renderWalletCard(account, isDefault) {
         var meta = getAccountTypeMeta('ecny_wallet');
-        var verified = account.verifyStatus === 'verified';
         var actionHtml = isDefault
             ? ''
             : '<div class="flex gap-2.5 mt-4 pt-1">' +
@@ -545,10 +550,8 @@
                         '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskMobile(account.mobile) + '</span>' +
                     '</div>' +
                     '<div class="flex items-center justify-between gap-3">' +
-                        '<span class="text-xs text-gray-400">校验状态</span>' +
-                        '<span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ' + (verified ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600') + '">' +
-                            '<i class="fas ' + (verified ? 'fa-circle-check' : 'fa-circle-exclamation') + ' text-[10px]"></i>' + (verified ? '校验通过' : '待校验') +
-                        '</span>' +
+                        '<span class="text-xs text-gray-400">身份证号</span>' +
+                        '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskIdNo(account.idNo) + '</span>' +
                     '</div>' +
                 '</div>' +
                 actionHtml +
