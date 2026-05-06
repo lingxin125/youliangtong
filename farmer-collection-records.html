@@ -333,6 +333,9 @@
             white-space: nowrap;
             flex-shrink: 0;
         }
+        .farmer-todo-title-row .farmer-todo-note {
+            transform: translateX(18px);
+        }
         .farmer-todo-payer {
             display: flex;
             align-items: center;
@@ -371,14 +374,16 @@
             white-space: nowrap;
         }
         .farmer-todo-metric-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #9CA3AF;
+            flex-shrink: 0;
         }
         .farmer-todo-metric-value {
             font-family: Poppins, sans-serif;
             font-size: 13px;
             font-weight: 600;
             color: #1F2937;
+            white-space: nowrap;
         }
         .farmer-todo-enter {
             width: 16px;
@@ -392,6 +397,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
+            width: 100%;
             margin-top: 2px;
         }
         .farmer-flow-row {
@@ -400,6 +406,27 @@
             justify-content: space-between;
             gap: 10px;
             margin-top: 2px;
+            width: 100%;
+        }
+        .farmer-flow-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 4px;
+            width: 100%;
+        }
+        .farmer-amount-time-line {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+        }
+        .farmer-amount-flow-line {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0;
         }
         .farmer-flow-info {
             min-width: 0;
@@ -409,6 +436,7 @@
             font-size: 10px;
             font-weight: 500;
             color: #4B5563;
+            align-self: flex-start;
         }
         .farmer-flow-info i {
             font-size: 10px;
@@ -425,6 +453,11 @@
             color: #9CA3AF;
             font-size: 10px;
             white-space: nowrap;
+            margin-left: auto;
+        }
+        .farmer-todo-time-row .farmer-todo-time,
+        .farmer-amount-time-line .farmer-todo-time {
+            transform: translateX(18px);
         }
         .farmer-todo-amount {
             font-family: Poppins, sans-serif;
@@ -443,7 +476,7 @@
             min-width: 0;
         }
         .farmer-todo-side {
-            min-width: 64px;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
@@ -1010,10 +1043,21 @@ const FormatService = {
         return Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     },
 
-    qty(value, unit) {
-        return Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (unit || '斤');
-    }
-};
+        qty(value, unit) {
+            return Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (unit || '斤');
+        },
+
+        unitPrice(value, unit) {
+            if (!Number(value || 0)) return '-';
+            return `¥${Number(value || 0).toFixed(2)}/${unit || '斤'}`;
+        }
+    };
+
+function getOrderUnitPrice(order) {
+    if (order.unitPrice !== undefined && order.unitPrice !== null && order.unitPrice !== '') return order.unitPrice;
+    if (order.items && order.items[0] && order.items[0].price !== undefined) return order.items[0].price;
+    return null;
+}
 
 // ==================== UI 渲染层 ====================
 const RenderService = {
@@ -1082,11 +1126,12 @@ const RenderService = {
         const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.draft;
         const amountText = '¥' + FormatService.amount(order.amount || 0);
         const amountClass = order.status === 'canceled' ? 'text-gray-400' : 'text-primary';
+        const unit = order.unit || '斤';
         return `<div class="order-card cursor-pointer active:bg-gray-50" onclick="Actions.goDetail('${order.id}')">
             <div class="py-3 px-3.5 flex items-stretch gap-0">
                 <div class="farmer-card-main-row">
                     <div class="farmer-card-content">
-                        <div class="min-h-[76px]">
+                        <div class="min-h-[96px]">
                             <div class="farmer-card-title-line">
                                 <i class="fas fa-box"></i>
                                 <div class="farmer-card-title">${getProductName(order)}</div>
@@ -1094,6 +1139,18 @@ const RenderService = {
                             <div class="farmer-card-payer-line mt-1">
                                 <i class="fas fa-user-circle"></i>
                                 <div class="farmer-card-payer">来自 ${getPayerName(order)}</div>
+                            </div>
+                            <div class="farmer-todo-metrics-row mt-2.5">
+                                <div class="farmer-todo-metrics">
+                                    <div class="farmer-todo-metric">
+                                        <span class="farmer-todo-metric-label">净重</span>
+                                        <span class="farmer-todo-metric-value">${FormatService.qty(order.netWeight || 0, unit)}</span>
+                                    </div>
+                                    <div class="farmer-todo-metric">
+                                        <span class="farmer-todo-metric-label">单价</span>
+                                        <span class="farmer-todo-metric-value">${FormatService.unitPrice(getOrderUnitPrice(order), unit)}</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="farmer-card-amount ${amountClass}">${amountText}</div>
                         </div>
@@ -1120,6 +1177,7 @@ const RenderService = {
                                 <i class="fas fa-box"></i>
                                 <span class="farmer-todo-name">${getProductName(order)}</span>
                             </div>
+                            <span class="farmer-todo-note bg-orange-50 text-orange-500">待补皮重</span>
                         </div>
                         <div class="farmer-todo-payer">
                             <i class="fas fa-user-circle"></i>
@@ -1137,10 +1195,9 @@ const RenderService = {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="farmer-todo-side">
-                        <span class="farmer-todo-note bg-orange-50 text-orange-500">待补皮重</span>
-                        <span class="farmer-todo-time">${FormatService.smartTime(order.createdAt)}</span>
+                        <div class="farmer-todo-time-row">
+                            <span class="farmer-todo-time">${FormatService.smartTime(order.createdAt)}</span>
+                        </div>
                     </div>
                     <div class="order-side-enter"><i class="fas fa-chevron-right"></i></div>
                 </div>
@@ -1159,6 +1216,7 @@ const RenderService = {
                                 <i class="fas fa-box"></i>
                                 <span class="farmer-todo-name">${getProductName(order)}</span>
                             </div>
+                            <span class="farmer-todo-note bg-blue-50 text-blue-500">待开单价</span>
                         </div>
                         <div class="farmer-todo-payer">
                             <i class="fas fa-user-circle"></i>
@@ -1176,10 +1234,9 @@ const RenderService = {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="farmer-todo-side">
-                        <span class="farmer-todo-note bg-blue-50 text-blue-500">待开单价</span>
-                        <span class="farmer-todo-time">${FormatService.smartTime(order.createdAt)}</span>
+                        <div class="farmer-todo-time-row">
+                            <span class="farmer-todo-time">${FormatService.smartTime(order.createdAt)}</span>
+                        </div>
                     </div>
                     <div class="order-side-enter"><i class="fas fa-chevron-right"></i></div>
                 </div>
@@ -1205,6 +1262,7 @@ const RenderService = {
                                 <i class="fas fa-box"></i>
                                 <span class="farmer-todo-name">${getProductName(order)}</span>
                             </div>
+                            <span class="farmer-todo-note bg-emerald-50 text-primary">待付款</span>
                         </div>
                         <div class="farmer-todo-payer">
                             <i class="fas fa-user-circle"></i>
@@ -1216,15 +1274,19 @@ const RenderService = {
                                     <span class="farmer-todo-metric-label">净重</span>
                                     <span class="farmer-todo-metric-value">${FormatService.qty(order.netWeight || 0, unit)}</span>
                                 </div>
+                                <div class="farmer-todo-metric">
+                                    <span class="farmer-todo-metric-label">单价</span>
+                                    <span class="farmer-todo-metric-value">${FormatService.unitPrice(getOrderUnitPrice(order), unit)}</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="farmer-flow-row">
-                            ${flowHtml}
+                        <div class="farmer-flow-stack">
+                            <div class="farmer-amount-time-line">
+                                <span class="farmer-todo-amount text-primary">¥${FormatService.amount(order.amount)}</span>
+                                <span class="farmer-todo-time">${flow.time}</span>
+                            </div>
+                            ${flow.rowClass ? flowHtml : ''}
                         </div>
-                    </div>
-                    <div class="farmer-todo-side">
-                        <span class="farmer-todo-amount text-primary">¥${FormatService.amount(order.amount)}</span>
-                        <span class="farmer-todo-time">${flow.time}</span>
                     </div>
                     <div class="order-side-enter"><i class="fas fa-chevron-right"></i></div>
                 </div>

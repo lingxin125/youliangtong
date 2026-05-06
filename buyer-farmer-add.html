@@ -359,8 +359,8 @@ function getInviteUrl() {
         var user = UserIdentityStore.getCurrentUser();
         if (user) merchantNo = user.merchantNo || '';
     }
-    var inviteUrl = new URL('buyer-farmer-add -jiandang.html', window.location.href);
-    inviteUrl.searchParams.set('source', 'scan_invite');
+    var inviteUrl = new URL('buyer-farmer-add%20-jiandang.html', window.location.href);
+    inviteUrl.searchParams.set('source', 'invite');
     inviteUrl.searchParams.set('back', 'buyer-farmer-add.html');
     if (merchantNo) inviteUrl.searchParams.set('inviter', merchantNo);
     return inviteUrl.toString();

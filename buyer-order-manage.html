@@ -686,14 +686,6 @@
                     <input type="date" id="endDate" class="date-input">
                 </div>
             </div>
-            <div id="cancelSourceFilter" style="display:none;">
-                <div class="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 mb-2"><i class="fas fa-ban text-gray-400 text-sm"></i><span>取消来源</span></div>
-                <div class="flex flex-wrap gap-2">
-                    <button class="filter-option active" data-type="cancel" data-value="all">全部取消</button>
-                    <button class="filter-option" data-type="cancel" data-value="before_pay">付款前取消</button>
-                    <button class="filter-option" data-type="cancel" data-value="paying">付款中取消</button>
-                </div>
-            </div>
             <!-- <div id="doneStatusFilter" style="display:none;">
                 <div class="flex items-center gap-1.5 text-[13px] font-medium text-gray-600 mb-2"><i class="fas fa-circle-check text-gray-400 text-sm"></i><span>结果状态</span></div>
                 <div class="flex flex-wrap gap-2">
@@ -728,7 +720,6 @@ const state = {
     filterTimeRange: 'all',
     filterStartDate: null,
     filterEndDate: null,
-    filterCancelSource: 'all',
     filterDoneStatus: 'all',
     sortOrder: 'created_desc',
     selectedClientId: null,
@@ -841,10 +832,8 @@ function getCountForTab(tab) {
 
 function renderSubTabs() {
     const bar = document.getElementById('subTabBar');
-    const cancelFilter = document.getElementById('cancelSourceFilter');
     const doneStatusFilter = document.getElementById('doneStatusFilter');
     const showDoneFilters = state.currentStage === 'done';
-    if (cancelFilter) cancelFilter.style.display = showDoneFilters && (state.currentTab === 'canceled' || state.filterDoneStatus === 'canceled') ? '' : 'none';
     if (doneStatusFilter) doneStatusFilter.style.display = showDoneFilters ? '' : 'none';
     if (state.currentStage === 'paying') {
         bar.innerHTML = '';
@@ -923,24 +912,8 @@ function applyTimeFilter(orders) {
     });
 }
 
-function normalizeCancelSourceForList(order) {
-    const source = String(order && order.cancelSource || '').trim();
-    const reason = String(order && order.failReason || '');
-    const hasPayInfo = !!(order && (order.paymentOrderNo || order.bankFlowNo || order.payMethod));
-    if (source === 'paying' || source === 'bank') return 'paying';
-    if (source === 'unpaid' || source === 'pending' || source === 'before_pay') return 'before_pay';
-    if (reason.indexOf('支付中') > -1 || hasPayInfo) return 'paying';
-    return 'before_pay';
-}
-
-function getCancelSourceLabel(order) {
-    return normalizeCancelSourceForList(order) === 'paying' ? '付款中取消' : '付款前取消';
-}
-
 function applyCancelSourceFilter(orders) {
-    const filteringCanceled = state.currentTab === 'canceled' || state.filterDoneStatus === 'canceled';
-    if (state.currentStage !== 'done' || !filteringCanceled || state.filterCancelSource === 'all') return orders;
-    return orders.filter(function(order) { return normalizeCancelSourceForList(order) === state.filterCancelSource; });
+    return orders;
 }
 
 function applyDoneStatusFilter(orders) {
@@ -976,6 +949,15 @@ function fmtQty(v, unit) { return Number(v||0).toLocaleString('zh-CN',{minimumFr
 function fmtUnitPrice(v, unit) {
     if (!Number(v || 0)) return '未填写';
     return `¥${Number(v || 0).toFixed(2)}/${unit || '斤'}`;
+}
+function fmtUnitPriceShort(v, unit) {
+    if (!Number(v || 0)) return '-';
+    return fmtUnitPrice(v, unit);
+}
+function getOrderUnitPrice(o) {
+    if (o.unitPrice !== undefined && o.unitPrice !== null && o.unitPrice !== '') return o.unitPrice;
+    if (o.items && o.items[0] && o.items[0].price !== undefined) return o.items[0].price;
+    return null;
 }
 function renderMissingValue(text) {
     return `<span class="order-meta-value-missing">${text || '未填写'}</span>`;
@@ -1035,7 +1017,7 @@ function renderEmpty() {
         paying: { title: '暂无付款中订单', desc: '发起付款后，未完成的订单会出现在这里' },
         all: { title: '暂无已结束订单', desc: '付款成功或取消后的订单会出现在这里' },
         success: { title: '暂无付款成功订单', desc: '完成付款的订单会出现在这里' },
-        canceled: { title: '暂无已取消订单', desc: '付款前取消或付款中取消的订单会出现在这里' },
+        canceled: { title: '暂无已取消订单', desc: '已取消的订单会出现在这里' },
     }[state.currentTab] || { title: '暂无订单', desc: '当前筛选条件下没有订单' };
     return `<div class="text-center pt-20">
         <div class="w-12 h-1.5 rounded-full bg-gray-200/80 mx-auto mb-5"></div>
@@ -1056,10 +1038,11 @@ function renderResultLikeCard(o, info) {
     const name = getOrderName(o);
     const payee = o.payeeName || '未选择';
     const time = info.time || o.paidAt || o.updatedAt || o.createdAt;
+    const unit = o.unit || '斤';
     return `<div class="order-card mb-3" onclick="goPayingDetail('${o.id}')">
         <div class="py-3 px-3.5 flex items-stretch gap-0">
             <div class="min-w-0 flex-1">
-                <div class="min-h-[76px]">
+                <div class="min-h-[96px]">
                     <div class="done-card-title-line">
                         <i class="fas fa-box"></i>
                         <div class="done-card-title">${name}</div>
@@ -1067,6 +1050,16 @@ function renderResultLikeCard(o, info) {
                     <div class="done-card-payee-line mt-1">
                         <i class="fas fa-user-circle"></i>
                         <div class="done-card-payee">付给 ${payee}</div>
+                    </div>
+                    <div class="mt-2.5 bg-gray-50/80 rounded-xl py-1.5 px-2.5 flex justify-start gap-5 items-center whitespace-nowrap">
+                        <div class="flex items-center gap-1.5 whitespace-nowrap">
+                            <span class="text-[10px] text-gray-400 shrink-0">净重</span>
+                            <span class="text-[13px] font-semibold text-gray-800 font-poppins whitespace-nowrap">${fmtQty(o.netWeight || 0, unit)}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 whitespace-nowrap">
+                            <span class="text-[10px] text-gray-400 shrink-0">单价</span>
+                            <span class="text-[13px] font-semibold text-gray-800 font-poppins whitespace-nowrap">${fmtUnitPriceShort(getOrderUnitPrice(o), unit)}</span>
+                        </div>
                     </div>
                     <div class="mt-3">
                         <div class="text-[18px] leading-none font-bold ${info.amountClass} font-poppins">¥${fmt(o.amount)}</div>
@@ -1099,9 +1092,6 @@ function renderDoneCard(o) {
         canceled: { cls: 'canceled', icon: 'fa-ban', label: '已取消', amountClass: 'text-gray-400' },
     };
     const info = statusMap[o.status] || statusMap.canceled;
-    if (o.status === 'canceled') {
-        info.label = getCancelSourceLabel(o);
-    }
     const time = o.paidAt || o.updatedAt || o.createdAt;
     return renderResultLikeCard(o, Object.assign({}, info, { time }));
 }
@@ -1253,7 +1243,7 @@ function renderUnpaidCard(o) {
                             <i class="fas fa-box text-gray-300 text-[13px] shrink-0"></i>
                             <span class="text-[14px] font-bold text-gray-800 truncate">${name}</span>
                         </div>
-                        <span class="text-[16px] font-bold text-primary font-poppins shrink-0 ml-2">¥${fmt(o.amount)}</span>
+	                        <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-primary text-[10px] font-medium shrink-0 ml-2">待付款</span>
                     </div>
                     
                     <div class="text-[12px] text-gray-500 font-medium mb-1.5 flex items-center gap-1.5">
@@ -1262,26 +1252,33 @@ function renderUnpaidCard(o) {
                     </div>
                     
                     <div class="flex items-stretch gap-3">
-                        <div class="flex-1 bg-gray-50/80 rounded-xl py-1.5 px-3 flex justify-start gap-8 items-center" onclick="event.stopPropagation();goEditOrder('${o.id}','unpaid')">
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-[11px] text-gray-400">净重</span>
-                                <span class="text-[13px] font-semibold text-gray-800 font-poppins">${fmtQty(o.netWeight || 0, o.unit)}</span>
-                            </div>
-                        </div>
+                        <div class="flex-1 bg-gray-50/80 rounded-xl py-1.5 px-2.5 flex justify-start gap-5 items-center whitespace-nowrap" onclick="event.stopPropagation();goEditOrder('${o.id}','unpaid')">
+		                            <div class="flex items-center gap-1.5 whitespace-nowrap">
+		                                <span class="text-[10px] text-gray-400 shrink-0">净重</span>
+		                                <span class="text-[13px] font-semibold text-gray-800 font-poppins">${fmtQty(o.netWeight || 0, o.unit)}</span>
+		                            </div>
+		                            <div class="flex items-center gap-1.5 whitespace-nowrap">
+		                                <span class="text-[10px] text-gray-400 shrink-0">单价</span>
+		                                <span class="text-[13px] font-semibold text-gray-800 font-poppins">${fmtUnitPrice(getOrderUnitPrice(o), o.unit)}</span>
+		                            </div>
+	                        </div>
                         <div class="flex items-center justify-center shrink-0 w-4" onclick="event.stopPropagation();goEditOrder('${o.id}','unpaid')">
                             <i class="fas fa-chevron-right text-gray-400 text-[15px]"></i>
                         </div>
                     </div>
                     
-                    <div class="flex items-center justify-between mt-0.5">
-                        ${flow.rowClass ? `
-                        <div class="order-flow-info ${flow.rowClass} text-[10px] font-medium">
-                            <i class="fas ${flow.icon} mr-1"></i>
-                            <span class="flow-text">${flow.text}</span>
-                        </div>
-                        ` : `<div></div>`}
-                        <span class="text-[10px] text-gray-400 ml-auto shrink-0">${flow.time}</span>
-                    </div>
+		                    <div class="mt-2">
+		                        <div class="flex items-end justify-between gap-2">
+		                            <span class="text-[16px] font-bold text-primary font-poppins shrink-0">¥${fmt(o.amount)}</span>
+		                            <span class="text-[10px] text-gray-400 shrink-0">${flow.time}</span>
+		                        </div>
+		                        ${flow.rowClass ? `
+		                        <div class="order-flow-info ${flow.rowClass} text-[10px] font-medium min-w-0 mt-1">
+		                            <i class="fas ${flow.icon} mr-1"></i>
+		                            <span class="flow-text">${flow.text}</span>
+		                        </div>
+		                        ` : ``}
+		                    </div>
                 </div>
             </div>
         </div>
@@ -1459,7 +1456,7 @@ function cancelPrePayOrder(orderId) {
             mockStore.updateOrder(orderId, {
                 status: 'canceled',
                 cancelSource: 'before_pay',
-                failReason: '付款前取消'
+                failReason: '已取消'
             });
         }
         closeConfirmModal();
@@ -1547,7 +1544,6 @@ const FilterPanel = {
         state.filterTimeRange = 'all';
         state.filterStartDate = null;
         state.filterEndDate = null;
-        state.filterCancelSource = 'all';
         state.filterDoneStatus = 'all';
         document.querySelectorAll('#filterSheet .filter-option').forEach(b => b.classList.toggle('active', b.dataset.value === 'all'));
         document.getElementById('customDateRange').classList.add('hidden');
@@ -1612,12 +1608,8 @@ document.querySelectorAll('#filterSheet .filter-option').forEach(btn => {
             state.filterTimeRange = this.dataset.value;
             document.getElementById('customDateRange').classList.toggle('hidden', this.dataset.value !== 'custom');
         }
-        if (this.dataset.type === 'cancel') {
-            state.filterCancelSource = this.dataset.value;
-        }
         if (this.dataset.type === 'done-status') {
             state.filterDoneStatus = this.dataset.value;
-            document.getElementById('cancelSourceFilter').style.display = this.dataset.value === 'canceled' ? '' : 'none';
         }
     });
 });

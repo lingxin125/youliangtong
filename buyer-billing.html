@@ -375,8 +375,43 @@
                     </span>
                 </button>
             </div>
+            <button onclick="openInviteQrModal()" class="mt-3 w-full rounded-2xl bg-[#11A64A] text-white px-4 py-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform shadow-[0_8px_18px_-10px_rgba(17,166,74,0.45)]">
+                <span class="w-10 h-10 rounded-xl bg-white/16 flex items-center justify-center shrink-0">
+                    <i class="fas fa-qrcode text-lg"></i>
+                </span>
+                <span class="flex-1 min-w-0 text-left">
+                    <span class="block text-[15px] font-semibold">邀请农户建档</span>
+                    <span class="block text-[11px] text-white/75 mt-0.5">农户微信扫码完成建档并出示账户二维码</span>
+                </span>
+                <i class="fas fa-chevron-right text-white/70 text-xs"></i>
+            </button>
         </div>
         <div id="payeeListContainer" class="px-4 space-y-2 overflow-y-auto" style="max-height:400px;padding-bottom:20px;"></div>
+    </div>
+
+    <!-- 建档二维码弹窗 -->
+    <div class="billing-sheet-overlay" id="inviteQrOverlay" onclick="closeInviteQrModal()"></div>
+    <div class="billing-sheet" id="inviteQrSheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-5 pb-5">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <div class="text-[16px] font-bold text-gray-800">邀请农户建档</div>
+                    <!-- <div class="text-[12px] text-gray-500 mt-1">请农户微信扫码，按提示完成手机号识别。</div> -->
+                </div>
+                <button onclick="closeInviteQrModal()" class="w-8 h-8 flex items-center justify-center text-gray-400">
+                    <i class="fas fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="w-[220px] h-[220px] bg-white rounded-3xl mx-auto flex items-center justify-center border border-gray-100 shadow-sm">
+                <canvas id="inviteQrCanvas" width="188" height="188"></canvas>
+            </div>
+            <!-- <div class="text-[11px] text-gray-400 text-center mt-2">农户完成后，请出示收款二维码供收购商扫码</div> -->
+            <a id="inviteQrQuickLink" href="buyer-farmer-add%20-jiandang.html?source=scan_invite&back=buyer-billing.html" class="mt-4 h-11 rounded-xl bg-[#EBF7F0] text-[#11A64A] text-sm font-semibold flex items-center justify-center gap-2 no-underline" style="text-decoration:none;">
+                <i class="fas fa-arrow-up-right-from-square text-[12px]"></i>
+                打开农户填写页
+            </a>
+        </div>
     </div>
 
     <!-- 应用内弹窗 -->
@@ -598,10 +633,53 @@ function filterPayeeList() {
     var q = (document.getElementById('payeeSearchInput').value || '').trim().toLowerCase();
     renderPayeeList(q ? state.payeePool.filter(function(f) { return (f.name && f.name.toLowerCase().indexOf(q) !== -1) || (f.mobile && f.mobile.indexOf(q) !== -1); }) : state.payeePool);
 }
+function getInviteQrUrl() {
+    var url = new URL('buyer-farmer-add%20-jiandang.html', window.location.href);
+    url.searchParams.set('source', 'scan_invite');
+    url.searchParams.set('back', 'buyer-billing.html');
+    url.searchParams.set('scene', 'billing_payee');
+    return url.toString();
+}
+function openInviteQrModal() {
+    var url = getInviteQrUrl();
+    var link = document.getElementById('inviteQrQuickLink');
+    if (link) link.href = url;
+    drawMockQr(document.getElementById('inviteQrCanvas'), url);
+    document.getElementById('inviteQrOverlay').classList.add('show');
+    document.getElementById('inviteQrSheet').classList.add('show');
+}
+function closeInviteQrModal() {
+    document.getElementById('inviteQrOverlay').classList.remove('show');
+    document.getElementById('inviteQrSheet').classList.remove('show');
+}
+function getLatestFarmerQrPayee() {
+    try {
+        var raw = localStorage.getItem('ylt_latest_farmer_qr_payee');
+        if (!raw) return null;
+        var data = JSON.parse(raw);
+        if (!data || !data.name || !data.mobile) return null;
+        return {
+            id: data.id || ('qr-' + Date.now()),
+            name: data.name,
+            mobile: data.mobile,
+            bank: data.bank || '中国邮政储蓄银行',
+            card: data.card || '尾号 ' + String(data.cardNo || '').replace(/\D/g, '').slice(-4),
+            payCount: data.payCount || 0
+        };
+    } catch (e) {
+        return null;
+    }
+}
+function addPayeeToPool(payee) {
+    if (!payee || !payee.mobile) return;
+    var exists = state.payeePool.some(function(item) { return item.mobile === payee.mobile || item.id === payee.id; });
+    if (!exists) state.payeePool.unshift(payee);
+}
 function simulateScan() {
-    var chosen = mockStore && mockStore.getRandomContact ? mockStore.getRandomContact() : state.payeePool[Math.floor(Math.random() * state.payeePool.length)];
+    var chosen = getLatestFarmerQrPayee() || (mockStore && mockStore.getRandomContact ? mockStore.getRandomContact() : state.payeePool[Math.floor(Math.random() * state.payeePool.length)]);
     if (!chosen) { showToast('暂无合作农户'); return; }
-    setPayee(chosen); closePayeeSheet(); showToast('扫码识别成功');
+    addPayeeToPool(chosen);
+    setPayee(chosen); closePayeeSheet(); showToast('扫码识别成功，已加入合作农户');
 }
 function selectPayee(f) { setPayee(f); closePayeeSheet(); showToast('已选中：' + f.name); }
 function renderPayeeList(list) {
@@ -614,6 +692,55 @@ function renderPayeeList(list) {
         var badge = f.payCount ? '<span class="inline-block text-[10px] px-2 py-0.5 rounded-full bg-[#EBF7F0] text-[#11A64A] font-medium border border-[#11A64A]/20">付款'+f.payCount+'次</span>' : '';
         return '<div onclick="selectPayee('+fj+')" class="bg-white rounded-2xl p-4 flex items-center gap-3.5 cursor-pointer border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] active:scale-[0.98] transition-all"><div class="w-12 h-12 rounded-full bg-[#EBF7F0] flex items-center justify-center shrink-0 border border-[#11A64A]/10"><i class="fas fa-user text-[#11A64A]/80 text-[20px]"></i></div><div class="flex-1 min-w-0 flex flex-col gap-1"><div class="flex items-center flex-wrap gap-2"><span class="text-[16px] font-semibold text-gray-800">'+f.name+'</span>'+badge+'</div><div class="text-[14px] font-medium text-gray-600" style="font-family:Poppins,monospace;">'+mask(f.mobile)+'</div><div class="flex items-center gap-1.5 text-[12px] text-gray-400/90" style="font-family:Poppins,monospace;"><i class="fas fa-building-columns text-[10px] text-gray-400"></i><span>'+(f.bank||'未知银行')+' · '+maskCard(f.card)+'</span></div></div><div class="shrink-0"><div class="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100"><i class="fas fa-check text-gray-300 text-[10px]"></i></div></div></div>';
     }).join('');
+}
+
+function drawMockQr(canvas, content) {
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var size = canvas.width;
+    var modules = 29;
+    var cell = Math.floor(size / modules);
+    var offset = Math.floor((size - cell * modules) / 2);
+    var reserved = [];
+    var x, y;
+    for (y = 0; y < modules; y += 1) {
+        reserved[y] = [];
+        for (x = 0; x < modules; x += 1) reserved[y][x] = false;
+    }
+    function markFinder(startX, startY) {
+        var ix, iy;
+        for (iy = -1; iy <= 7; iy += 1) {
+            for (ix = -1; ix <= 7; ix += 1) {
+                var rx = startX + ix, ry = startY + iy;
+                if (rx >= 0 && rx < modules && ry >= 0 && ry < modules) reserved[ry][rx] = true;
+            }
+        }
+        for (iy = 0; iy < 7; iy += 1) {
+            for (ix = 0; ix < 7; ix += 1) {
+                var isOuter = ix === 0 || ix === 6 || iy === 0 || iy === 6;
+                var isInner = ix >= 2 && ix <= 4 && iy >= 2 && iy <= 4;
+                ctx.fillStyle = (isOuter || isInner) ? '#111827' : '#FFFFFF';
+                ctx.fillRect(offset + (startX + ix) * cell, offset + (startY + iy) * cell, cell, cell);
+            }
+        }
+    }
+    var seed = 0;
+    String(content || '').split('').forEach(function(ch) { seed = (seed * 131 + ch.charCodeAt(0)) % 2147483647; });
+    seed = seed || 97;
+    function random() { seed = (seed * 48271) % 2147483647; return seed / 2147483647; }
+    ctx.clearRect(0, 0, size, size);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, size, size);
+    markFinder(0, 0); markFinder(modules - 7, 0); markFinder(0, modules - 7);
+    for (y = 0; y < modules; y += 1) {
+        for (x = 0; x < modules; x += 1) {
+            if (reserved[y][x]) continue;
+            if (random() > 0.5) {
+                ctx.fillStyle = '#111827';
+                ctx.fillRect(offset + x * cell, offset + y * cell, cell, cell);
+            }
+        }
+    }
 }
 
 // ==================== 暂存与草稿箱 ====================
