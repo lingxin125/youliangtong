@@ -212,7 +212,7 @@
                 <i class="fas fa-lock text-[#F59E0B] text-[22px]"></i>
             </div>
             <div class="text-[15px] font-medium text-gray-700">暂无团队管理权限</div>
-            <div class="text-[12px] text-gray-400 mt-2 leading-5">当前仅超管可查看团队成员并管理开单权限，请联系超管处理。</div>
+            <div class="text-[12px] text-gray-400 mt-2 leading-5">当前仅超管可查看团队成员，请联系超管处理。</div>
         </div>
     </div>
 
@@ -482,8 +482,6 @@ function memberCardHTML(member) {
         ? '<span class="text-[10px] text-gray-400 ml-1 bg-gray-50 px-1.5 py-0.5 rounded-md">(自己)</span>'
         : '';
     var canSwipeDelete = !isOwner && canManageTeam;
-    var permissions = getMemberPermissions(member);
-    var enabledCount = getEnabledPermissionCount(permissions);
 
     return (
         '<div class="member-swipe-wrapper' + (managingUserId === member.userId ? ' swiped' : '') + '" id="member-swipe-' + escapeText(member.userId) + '">' +
@@ -501,16 +499,6 @@ function memberCardHTML(member) {
                             '</div>' +
                             '<div class="text-[13px] text-gray-500 font-poppins tracking-wide">' + escapeText(maskMobile(member.mobile)) + '</div>' +
                             '<div class="text-[11px] text-gray-400 mt-0.5">加入于 ' + escapeText(member.joinedAt || '--') + '</div>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="mt-3">' +
-                        '<div class="permission-summary-row">' +
-                            '<span class="text-[12px] text-gray-500 shrink-0">开单权限</span>' +
-                            '<span class="permission-icons">' + buildPermissionSummaryIcons(permissions) + '</span>' +
-                            '<span class="text-[12px] font-semibold text-gray-700 shrink-0">' + enabledCount + '/2</span>' +
-                            '<button type="button" class="permission-drill-btn" onclick="event.stopPropagation(); goPermissionManagePage(\'' + escapeText(member.userId) + '\')">' +
-                                '<i class="fas fa-chevron-right text-[11px]"></i>' +
-                            '</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
@@ -696,7 +684,7 @@ function confirmRemoveMember(userId) {
 
 function goPermissionManagePage(userId) {
     if (!canManageTeamPage()) {
-        showToast('仅超管可管理开单权限');
+        showToast('暂无权限');
         return;
     }
     window.location.href = 'buyer-team-permission.html?memberId=' + encodeURIComponent(userId);

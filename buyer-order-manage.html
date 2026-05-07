@@ -925,9 +925,14 @@ function getCurrentSelectableIds() {
     return getTabOrders().map(function(order) { return order.id; });
 }
 
+function isBatchSelectableContext() {
+    return state.currentStage === 'paying'
+        || (state.currentStage === 'todo' && state.currentTab !== 'draft');
+}
+
 function isAllSelected() {
     const ids = getCurrentSelectableIds();
-    if (!ids.length || state.currentStage !== 'todo' || state.currentTab === 'draft') return false;
+    if (!ids.length || !isBatchSelectableContext()) return false;
     return ids.every(function(id) { return state.selectedIds.has(id); });
 }
 
@@ -1039,8 +1044,12 @@ function renderResultLikeCard(o, info) {
     const payee = o.payeeName || '未选择';
     const time = info.time || o.paidAt || o.updatedAt || o.createdAt;
     const unit = o.unit || '斤';
-    return `<div class="order-card mb-3" onclick="goPayingDetail('${o.id}')">
+    const selectable = !!info.selectable;
+    const checked = state.selectedIds.has(o.id);
+    const cardClick = selectable ? `toggleSelect('${o.id}')` : `goPayingDetail('${o.id}')`;
+    return `<div class="order-card mb-3 ${checked?'selected':''}" onclick="${cardClick}">
         <div class="py-3 px-3.5 flex items-stretch gap-0">
+            ${selectable ? `<div class="check-box ${checked?'checked':''} mt-0.5 mr-3 shrink-0"><i class="fas fa-check"></i></div>` : ``}
             <div class="min-w-0 flex-1">
                 <div class="min-h-[96px]">
                     <div class="done-card-title-line">
@@ -1070,7 +1079,7 @@ function renderResultLikeCard(o, info) {
                 <span class="result-status-tag ${info.cls}">${info.label}</span>
                 <span class="text-[11px] text-gray-400 shrink-0">${smartTime(time)}</span>
             </div>
-            <div class="done-card-enter"><i class="fas fa-chevron-right"></i></div>
+            <div class="done-card-enter" onclick="event.stopPropagation();goPayingDetail('${o.id}')"><i class="fas fa-chevron-right"></i></div>
         </div>
     </div>`;
 }
@@ -1082,7 +1091,8 @@ function renderPayingCard(o) {
         icon: 'fa-clock',
         label: statusText,
         amountClass: 'text-primary',
-        time: o.updatedAt || o.createdAt
+        time: o.updatedAt || o.createdAt,
+        selectable: true
     });
 }
 
@@ -1288,7 +1298,7 @@ function renderUnpaidCard(o) {
 
 // ==================== 选择 & 批量操作 ====================
 function toggleSelect(id) {
-    if (state.currentStage !== 'todo') {
+    if (!isBatchSelectableContext()) {
         goPayingDetail(id);
         return;
     }
@@ -1299,7 +1309,7 @@ function toggleSelect(id) {
 }
 
 function toggleSelectAll() {
-    if (state.currentStage !== 'todo' || state.currentTab === 'draft') return;
+    if (!isBatchSelectableContext()) return;
     const ids = getCurrentSelectableIds();
     if (!ids.length) return;
     const shouldSelectAll = !isAllSelected();
@@ -1323,7 +1333,7 @@ function updateBatchBar() {
     const selectBox = document.getElementById('batchSelectBox');
     const count = state.selectedIds.size;
     const currentOrders = getTabOrders();
-    if (state.currentStage !== 'todo' || state.currentTab === 'draft' || currentOrders.length === 0) {
+    if (!isBatchSelectableContext() || currentOrders.length === 0) {
         bar.classList.remove('show');
         selectBox.classList.remove('checked');
         return;
@@ -1335,7 +1345,13 @@ function updateBatchBar() {
     const btnsEl = document.getElementById('batchBtns');
     const amountWrap = document.getElementById('batchAmountWrap');
 
-    if (state.currentTab === 'pending_price') {
+    if (state.currentStage === 'paying') {
+        const orders = getTabOrders().filter(o => state.selectedIds.has(o.id));
+        const total = orders.reduce((s,o) => s + (o.amount||0), 0);
+        amountWrap.classList.remove('hidden');
+        document.getElementById('batchAmount').textContent = fmt(total);
+        btnsEl.innerHTML = `<button class="batch-action-btn bg-primary text-white shadow-glow" ${count === 0 ? 'disabled' : ''} onclick="goMergePay()">批量付款</button>`;
+    } else if (state.currentTab === 'pending_price') {
         amountWrap.classList.add('hidden');
         btnsEl.innerHTML = `<button class="batch-action-btn bg-primary text-white shadow-glow" ${count === 0 ? 'disabled' : ''} onclick="openPriceModal()">批量开价</button>`;
     } else {
@@ -1346,7 +1362,7 @@ function updateBatchBar() {
         document.getElementById('batchAmount').textContent = fmt(total);
         btnsEl.innerHTML = `
             <button class="batch-action-btn bg-white border border-primary text-primary" ${count === 0 ? 'disabled' : ''} onclick="openClientSheet()">转给客户</button>
-            <button class="batch-action-btn bg-primary text-white shadow-glow" ${count === 0 ? 'disabled' : ''} onclick="goMergePay()">合并付款</button>`;
+            <button class="batch-action-btn bg-primary text-white shadow-glow" ${count === 0 ? 'disabled' : ''} onclick="goMergePay()">批量付款</button>`;
     }
 }
 
@@ -1525,7 +1541,7 @@ function goMergePay() {
     const ids = [...state.selectedIds];
     if (!ids.length) return;
     // 先跳到付款人选择页，由那边决定自己付还是客户付
-    // 如果只有一笔，直接传 orderNo；多笔时传第一笔（合并付款场景）
+    // 如果只有一笔，直接传 orderNo；多笔时传第一笔（批量付款场景）
     window.location.href = 'buyer-billing-done.html?orderNo=' + encodeURIComponent(ids[0]) + '&mergeIds=' + encodeURIComponent(ids.join(','));
 }
 
