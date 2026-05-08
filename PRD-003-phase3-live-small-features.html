@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三期小迭代功能 PRD - 团队管理、结算信息修改、扫码开单</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.72}
+.layout{display:flex;min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:260px;background:#fff;border-right:1px solid var(--line);padding:22px 0;overflow:auto}.brand{padding:0 22px 18px;border-bottom:1px solid var(--line);margin-bottom:10px}.brand .k{font-size:12px;color:var(--primary);font-weight:800}.brand h1{margin:6px 0 4px;font-size:18px;line-height:1.35}.brand p{margin:0;color:var(--muted);font-size:12px}.side a{display:block;padding:8px 22px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;font-size:13px}.side a:hover{color:var(--primary);background:rgba(17,166,74,.05);border-left-color:var(--primary)}
+.main{margin-left:260px;width:calc(100% - 260px);padding:28px 34px 70px}.hero{background:linear-gradient(135deg,#11a64a,#0e7a38);color:#fff;border-radius:24px;padding:34px 36px;box-shadow:0 18px 40px rgba(17,166,74,.18)}.hero h2{margin:0 0 8px;font-size:30px}.hero p{margin:0;max-width:860px;opacity:.9;font-size:15px}
+.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0 24px}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}.item{padding:14px 16px}.label{font-size:12px;color:var(--muted)}.value{margin-top:2px;font-size:15px;font-weight:800}.card{padding:24px;margin-bottom:18px}.card h3{margin:0 0 14px;font-size:20px}.card h4{margin:18px 0 8px;font-size:16px}.lead{color:var(--muted);font-size:14px;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.box{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fafafa}.box strong{display:block;font-size:17px;margin-bottom:4px}.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;margin:0 6px 6px 0}.green{background:var(--green);color:#047857}.blue{background:var(--blue);color:#2563eb}.amber{background:var(--amber);color:#b45309}.red{background:var(--red);color:#dc2626}
+table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;color:#374151;font-weight:800}ul{margin:8px 0 0;padding-left:20px}li{margin:5px 0}.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.step{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcfb}.step b{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-size:12px;margin-right:6px}.note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f0fdf4;color:#166534;font-size:13px}
+@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.flow{grid-template-columns:1fr}.hero{padding:26px 22px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand"><div class="k">PRD-003 MINI ITERATION</div><h1>三期小迭代功能 PRD</h1><p>技术沟通与测试依据</p></div>
+    <nav>
+      <a href="#overview">概览</a>
+      <a href="#team">团队管理</a>
+      <a href="#settlement">结算信息修改</a>
+      <a href="#scan-billing">扫码开单</a>
+      <a href="#order">订单管理关联</a>
+      <a href="#acceptance">验收口径</a>
+      <a href="#links">原型入口</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <section class="hero">
+      <h2>丰收云三期小迭代功能 PRD</h2>
+      <p>本页用于向技术说明已上线 / 待验收的小版本功能口径，覆盖团队管理、结算信息修改、扫码开单，以及订单管理中的关联验收点。</p>
+    </section>
+
+    <section class="meta" id="overview">
+      <div class="item"><div class="label">版本</div><div class="value">V3 小迭代</div></div>
+      <div class="item"><div class="label">日期</div><div class="value">2026-05-08</div></div>
+      <div class="item"><div class="label">端</div><div class="value">收购商端为主</div></div>
+      <div class="item"><div class="label">状态</div><div class="value">按上线功能验收</div></div>
+    </section>
+
+    <section class="card">
+      <h3>1. 功能范围</h3>
+      <p class="lead">本次小迭代不是重做主链路，而是在现有三期开单、支付、订单体系上补齐运营和现场开单效率能力。</p>
+      <div class="grid">
+        <div class="box"><strong>团队管理</strong><span class="tag green">收购商超管</span><p class="lead">维护团队成员，支持查看团队列表、新增业务员和删除业务员。</p></div>
+        <div class="box"><strong>结算信息修改</strong><span class="tag blue">收购商 / 农户</span><p class="lead">提供四要素或对公账户信息纠错入口，降低付款失败风险。</p></div>
+        <div class="box"><strong>扫码开单</strong><span class="tag amber">微信 / 邮储银行 App</span><p class="lead">扫农户二维码直达开单页，完成暂存或直接付款。</p></div>
+      </div>
+    </section>
+
+    <section class="card" id="team">
+      <h3>2. 团队管理</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>收购商超管可以维护团队成员，便于收购站管理内部业务员。</li>
+        <li>团队管理入口仅面向超管展示，业务员不应具备团队管理能力。</li>
+        <li>团队管理只聚焦团队成员维护，不包含其他授权配置。</li>
+        <li>当前阶段一个手机号只能加入一个收购商团队，暂不支持同一手机号同时加入多个团队。</li>
+      </ul>
+      <h4>功能逻辑</h4>
+      <table>
+        <tr><th>模块</th><th>规则</th><th>说明</th></tr>
+        <tr><td>入口展示</td><td>收购商“我的”页展示团队管理入口，且仅超管可见。</td><td>业务员身份进入时不展示该入口。</td></tr>
+        <tr><td>成员列表</td><td>展示团队成员基础信息、角色、状态等信息。</td><td>角色仅保留超管和业务员。</td></tr>
+        <tr><td>添加业务员</td><td>超管可通过手机号添加业务员。</td><td>同一手机号已在当前团队或其他收购商团队中时，均不允许再次添加。</td></tr>
+        <tr><td>删除业务员</td><td>超管可删除团队中的业务员。</td><td>删除后该业务员不再出现在团队列表中；超管账号不支持被普通删除。</td></tr>
+      </table>
+      <div class="note">提醒：同一手机号跨多个收购商团队复用是后续能力，当前版本需要明确拦截。</div>
+    </section>
+
+    <section class="card" id="settlement">
+      <h3>3. 结算信息修改</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>付款或收款失败常由姓名、手机号、身份证号、银行卡号等要素填写错误导致，需要提供纠错入口。</li>
+        <li>收购商端和农户端均提供“结算信息修改”，但当前按“一人一张银行卡”设计，不从多账户列表选择。</li>
+      </ul>
+      <h4>个人户修改规则</h4>
+      <table>
+        <tr><th>字段</th><th>默认展示</th><th>修改校验</th><th>修改方式</th></tr>
+        <tr><td>姓名</td><td>脱敏</td><td>当前手机号验证码</td><td>校验通过后展示未脱敏原值，再输入新值确认。</td></tr>
+        <tr><td>手机号</td><td>脱敏</td><td>原手机号验证码 + 新手机号验证码</td><td>一步完成双验证码校验后修改。</td></tr>
+        <tr><td>身份证号</td><td>脱敏</td><td>当前手机号验证码</td><td>校验通过后展示未脱敏原值，再输入新值确认。</td></tr>
+        <tr><td>银行卡号</td><td>仅展示脱敏卡号</td><td>当前手机号验证码</td><td>校验通过后展示原银行卡号，输入新卡号并重新选择开户行、开户支行。</td></tr>
+        <tr><td>开户行 / 支行</td><td>明文展示</td><td>不单独修改</td><td>仅在修改银行卡号时同步重选。</td></tr>
+      </table>
+      <h4>对公户修改规则</h4>
+      <ul>
+        <li>展示对公账户名称、手机号、银行账号、开户行、开户支行。</li>
+        <li>仅允许单次修改一个字段：对公账户名称或银行账号。</li>
+        <li>修改任一字段均需要当前手机号验证码；修改银行账号时需要重新选择开户行和开户支行。</li>
+        <li>开户行、开户支行不展示“不可修改”文案，也不提供独立修改按钮。</li>
+      </ul>
+      <div class="note">原型短信验证码固定为 123456；真实系统需接短信验证码、银行四要素校验和操作日志。</div>
+    </section>
+
+    <section class="card" id="scan-billing">
+      <h3>4. 扫码开单</h3>
+      <h4>业务目标</h4>
+      <p class="lead">业务员或收购商超管在现场收粮时，可直接使用微信或邮储银行 App 扫描农户提供的二维码，进入开单页完成开单，减少搜索农户、切换入口的操作成本。</p>
+      <div class="flow">
+        <div class="step"><b>1</b>农户出示二维码</div>
+        <div class="step"><b>2</b>微信 / 邮储银行 App 扫码</div>
+        <div class="step"><b>3</b>首次进入先登录，后续免登</div>
+        <div class="step"><b>4</b>直达开单页，暂存或直接付款</div>
+      </div>
+      <h4>功能逻辑</h4>
+      <table>
+        <tr><th>场景</th><th>规则</th><th>结果</th></tr>
+        <tr><td>微信扫码首次进入</td><td>识别登录态；无登录态时先进入登录流程。</td><td>登录成功后自动进入开单页。</td></tr>
+        <tr><td>微信扫码再次进入</td><td>已有有效登录态时免登。</td><td>直接进入开单页。</td></tr>
+        <tr><td>邮储银行 App 首次扫码</td><td>同样需要完成首次登录。</td><td>登录成功后进入开单页。</td></tr>
+        <tr><td>邮储银行 App 再次扫码</td><td>已有有效登录态时免登。</td><td>直接进入开单页。</td></tr>
+        <tr><td>扫码后页面限制</td><td>扫码开单只进入开单页，不进入其他页面。</td><td>用户只能暂存或直接付款。</td></tr>
+        <tr><td>农户信息带入</td><td>二维码解析出农户身份和默认收款账户。</td><td>开单页收款人信息自动回填。</td></tr>
+      </table>
+      <h4>边界规则</h4>
+      <ul>
+        <li>二维码无效、过期或解析失败时，应提示“二维码无效，请农户重新出示”。</li>
+        <li>农户收款二维码应代表有效农户身份和默认收款账户，扫码进入时默认可带入收款人信息。</li>
+        <li>未加入团队或未开通账号的手机号，在首次登录阶段无法完成登录，不进入开单页。</li>
+        <li>扫码开单完成暂存后，订单进入订单管理的挂单 / 待处理链路；直接付款则进入确认付款和支付链路。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="order">
+      <h3>5. 订单管理关联验收点</h3>
+      <ul>
+        <li>订单管理一级页签为待处理、付款中、已结束。</li>
+        <li>待处理下包含挂单、待开价、待付款；挂单、待开价、待付款均可编辑信息。</li>
+        <li>付款中统一承接 pending / paying / processing 等支付中间态，不再单独展示付款失败状态。</li>
+        <li>付款中支持多选、全选和批量付款，适用于批量付款部分失败后再次发起付款。</li>
+        <li>已结束中的取消订单统一展示为已取消，不区分付款前取消或付款中取消。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="acceptance">
+      <h3>6. 验收口径</h3>
+      <table>
+        <tr><th>功能</th><th>必须满足</th><th>不在本次范围</th></tr>
+        <tr><td>团队管理</td><td>超管可见入口并维护成员；支持新增和删除业务员；手机号不能跨团队重复添加。</td><td>复杂组织架构、审批流、同一手机号加入多个团队。</td></tr>
+        <tr><td>结算信息修改</td><td>敏感字段脱敏、修改前验证码校验、单字段修改、银行卡号重选开户行支行。</td><td>真实短信、真实银行四要素接口。</td></tr>
+        <tr><td>扫码开单</td><td>微信和邮储银行 App 扫码均支持首次登录、后续免登、直达开单页。</td><td>跳转到非开单页面、扫码后进入订单列表。</td></tr>
+        <tr><td>订单管理</td><td>付款中可批量付款，按钮文案统一为批量付款。</td><td>真实批量支付失败明细拆分。</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="links">
+      <h3>7. 原型入口</h3>
+      <table>
+        <tr><th>主题</th><th>入口</th><th>说明</th></tr>
+        <tr><td>团队管理</td><td><a href="buyer-team.html">buyer-team.html</a></td><td>收购商超管团队成员管理。</td></tr>
+        <tr><td>结算信息修改 - 收购商</td><td><a href="settlement-info-edit.html?source=buyer-my.html">settlement-info-edit.html?source=buyer-my.html</a></td><td>收购商付款结算信息纠错。</td></tr>
+        <tr><td>结算信息修改 - 农户</td><td><a href="settlement-info-edit.html?source=farmer-my.html">settlement-info-edit.html?source=farmer-my.html</a></td><td>农户收款结算信息纠错。</td></tr>
+        <tr><td>扫码开单原型参考</td><td><a href="buyer-billing.html">buyer-billing.html</a></td><td>扫码后直达开单页，收款人由二维码带入。</td></tr>
+        <tr><td>订单管理</td><td><a href="buyer-order-manage.html">buyer-order-manage.html</a></td><td>待处理、付款中、已结束及批量付款验收。</td></tr>
+      </table>
+    </section>
+  </main>
+</div>
+</body>
+</html>

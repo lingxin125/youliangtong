@@ -508,6 +508,13 @@
             justify-content: center;
             color: #9CA3AF;
             font-size: 15px;
+            background: transparent;
+            border: 0;
+            padding: 0;
+            cursor: pointer;
+            pointer-events: auto;
+            position: relative;
+            z-index: 1;
         }
         .result-card-meta {
             width: 72px;
@@ -518,6 +525,7 @@
             justify-content: space-between;
             text-align: right;
             transform: translateX(14px);
+            pointer-events: none;
         }
         .date-input {
             flex: 1; height: 36px; padding: 0 12px; border: 1px solid #E5E7EB;
@@ -1047,10 +1055,10 @@ function renderResultLikeCard(o, info) {
     const selectable = !!info.selectable;
     const checked = state.selectedIds.has(o.id);
     const cardClick = selectable ? `toggleSelect('${o.id}')` : `goPayingDetail('${o.id}')`;
-    return `<div class="order-card mb-3 ${checked?'selected':''}" onclick="${cardClick}">
+    return `<div class="order-card mb-3 ${checked?'selected':''}">
         <div class="py-3 px-3.5 flex items-stretch gap-0">
-            ${selectable ? `<div class="check-box ${checked?'checked':''} mt-0.5 mr-3 shrink-0"><i class="fas fa-check"></i></div>` : ``}
-            <div class="min-w-0 flex-1">
+            ${selectable ? `<button type="button" class="check-box ${checked?'checked':''} mt-0.5 mr-3 shrink-0" onclick="event.stopPropagation();toggleSelect('${o.id}')"><i class="fas fa-check"></i></button>` : ``}
+            <div class="min-w-0 flex-1" onclick="${cardClick}">
                 <div class="min-h-[96px]">
                     <div class="done-card-title-line">
                         <i class="fas fa-box"></i>
@@ -1079,7 +1087,9 @@ function renderResultLikeCard(o, info) {
                 <span class="result-status-tag ${info.cls}">${info.label}</span>
                 <span class="text-[11px] text-gray-400 shrink-0">${smartTime(time)}</span>
             </div>
-            <div class="done-card-enter" onclick="event.stopPropagation();goPayingDetail('${o.id}')"><i class="fas fa-chevron-right"></i></div>
+            <button type="button" class="done-card-enter" onclick="event.stopPropagation();goPayingDetail('${o.id}')">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
     </div>`;
 }
