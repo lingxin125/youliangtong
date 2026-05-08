@@ -99,12 +99,18 @@
                     <label class="block text-[12px] text-gray-500 mb-1.5">开户支行</label>
                     <select id="branchNameInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white"></select>
                 </div>
+                <div id="branchNoField" class="mb-3" style="display:none;">
+                    <label class="block text-[12px] text-gray-500 mb-1.5">支行联号</label>
+                    <input id="branchNoInput" readonly
+                        class="w-full h-11 rounded-xl border border-gray-100 bg-gray-50 px-3 text-sm text-gray-500 outline-none"
+                        value="403100000004">
+                </div>
 
                 <div>
                     <label id="cardNoLabel" class="block text-[12px] text-gray-500 mb-1.5">银行卡号</label>
                     <input id="cardNoInput"
                         class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white"
-                        placeholder="可上传银行卡自动识别，也可手动填写" inputmode="numeric">
+                        placeholder="请输入银行卡号" inputmode="numeric">
                 </div>
             </div>
 
@@ -143,11 +149,12 @@
     var currentAccountType = 'self_private';
     var isPostalBank = true;
     var uploadState = { idFront: false, idBack: false, bankCard: false };
+    var POSTAL_BANK_NAME = '中国邮政储蓄银行';
+    var POSTAL_BRANCH_NAME = '中国邮政储蓄银行总行';
+    var POSTAL_BRANCH_NO = '403100000004';
 
     var bankBranchMap = {
-        '中国邮政储蓄银行': isFarmerPage
-            ? ['烟台市福山区支行', '烟台市牟平区支行', '烟台市莱山区支行']
-            : ['烟台市芝罘区支行', '烟台市开发区支行', '烟台市莱山区支行'],
+        '中国邮政储蓄银行': [POSTAL_BRANCH_NAME],
         '中国农业银行': ['烟台市开发区支行', '烟台市莱山区支行', '烟台市福山区支行'],
         '烟台农商银行': ['福山清洋支行', '芝罘幸福支行', '牟平宁海支行'],
         '中国建设银行': ['烟台芝罘支行', '烟台开发区支行', '烟台福山支行']
@@ -190,6 +197,29 @@
             return '<option value="' + branch + '">' + branch + '</option>';
         }).join('');
         branchInput.value = selectedBranch && branches.indexOf(selectedBranch) >= 0 ? selectedBranch : (branches[0] || '');
+        syncBranchNo();
+    }
+
+    function syncBranchNo() {
+        var bankInput = document.getElementById('bankNameInput');
+        var branchInput = document.getElementById('branchNameInput');
+        var branchNoInput = document.getElementById('branchNoInput');
+        if (!branchNoInput) return;
+        branchNoInput.value = bankInput.value === POSTAL_BANK_NAME && branchInput.value === POSTAL_BRANCH_NAME
+            ? POSTAL_BRANCH_NO
+            : '';
+    }
+
+    function setBankSelectorsReadOnly(readOnly) {
+        var bankInput = document.getElementById('bankNameInput');
+        var branchInput = document.getElementById('branchNameInput');
+        [bankInput, branchInput].forEach(function(input) {
+            input.disabled = readOnly;
+            input.classList.toggle('text-gray-500', readOnly);
+            input.classList.toggle('text-gray-800', !readOnly);
+            input.classList.toggle('border-gray-100', readOnly);
+            input.classList.toggle('border-gray-200', !readOnly);
+        });
     }
 
     function setAccountType(type) {
@@ -220,7 +250,7 @@
             document.getElementById('bankSectionTitle').textContent = '银行卡信息';
             document.getElementById('uploadBankCardBox').style.display = 'flex';
             document.getElementById('cardNoLabel').textContent = '银行卡号';
-            document.getElementById('cardNoInput').placeholder = '可上传银行卡自动识别，也可手动填写';
+            document.getElementById('cardNoInput').placeholder = '请输入银行卡号';
         } else {
             // Public account - 隐藏重复的小标题
             document.getElementById('ownerSectionTitle').style.display = 'none';
@@ -257,12 +287,17 @@
     function updateBankModeUI() {
         var bankField = document.getElementById('bankNameField');
         var branchField = document.getElementById('branchNameField');
+        var branchNoField = document.getElementById('branchNoField');
         var toggleLink = document.getElementById('bankToggleLink');
         var toggleWrap = document.getElementById('bankToggleWrap');
 
         if (!isFarmerPage) {
-            bankField.style.display = 'none';
-            branchField.style.display = 'none';
+            renderBankOptions(POSTAL_BANK_NAME);
+            syncBranchOptions(POSTAL_BRANCH_NAME);
+            setBankSelectorsReadOnly(true);
+            bankField.style.display = 'block';
+            branchField.style.display = 'block';
+            branchNoField.style.display = 'block';
             if (toggleWrap) toggleWrap.style.display = 'none';
             return;
         }
@@ -270,12 +305,18 @@
         if (toggleWrap) toggleWrap.style.display = 'block';
 
         if (isPostalBank) {
-            bankField.style.display = 'none';
-            branchField.style.display = 'none';
-            if (toggleLink) toggleLink.textContent = '没有邮储银行卡？使用其他银行 >';
-        } else {
+            renderBankOptions(POSTAL_BANK_NAME);
+            syncBranchOptions(POSTAL_BRANCH_NAME);
+            setBankSelectorsReadOnly(true);
             bankField.style.display = 'block';
             branchField.style.display = 'block';
+            branchNoField.style.display = 'block';
+            if (toggleLink) toggleLink.textContent = '没有邮储银行卡？使用其他银行 >';
+        } else {
+            setBankSelectorsReadOnly(false);
+            bankField.style.display = 'block';
+            branchField.style.display = 'block';
+            branchNoField.style.display = 'none';
             if (toggleLink) toggleLink.textContent = '返回使用邮储银行卡 >';
             renderNonPostalBankOptions();
         }
@@ -333,10 +374,11 @@
             setTimeout(function() {
                 if (!document.getElementById('cardNoInput').value) {
                     document.getElementById('cardNoInput').value = isFarmerPage ? '6215 8533 2233 4455' : '6221 8888 0000 2233';
-                    var bank = isFarmerPage ? '烟台农商银行' : '中国邮政储蓄银行';
-                    var branch = isFarmerPage ? '福山清洋支行' : '烟台市芝罘区支行';
+                    var bank = isFarmerPage && !isPostalBank ? '烟台农商银行' : POSTAL_BANK_NAME;
+                    var branch = isFarmerPage && !isPostalBank ? '福山清洋支行' : POSTAL_BRANCH_NAME;
                     renderBankOptions(bank);
                     syncBranchOptions(branch);
+                    updateBankModeUI();
                     showToast('银行卡号已识别，请核对');
                 }
             }, 500);
@@ -368,9 +410,8 @@
 
         var bank, branch;
         if (!isFarmerPage || isPostalBank) {
-            bank = '中国邮政储蓄银行';
-            var postalBranches = bankBranchMap['中国邮政储蓄银行'] || [];
-            branch = postalBranches[0] || '';
+            bank = POSTAL_BANK_NAME;
+            branch = POSTAL_BRANCH_NAME;
         } else {
             bank = document.getElementById('bankNameInput').value;
             branch = document.getElementById('branchNameInput').value;
@@ -398,6 +439,7 @@
             type: currentAccountType,
             bank: bank,
             branch: branch,
+            branchNo: (!isFarmerPage || isPostalBank) ? POSTAL_BRANCH_NO : '',
             cardNo: cardNo,
             holder: holder,
             accountName: currentAccountType === 'public' ? holder : '',
