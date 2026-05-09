@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>三期小迭代功能 PRD - 团队管理、结算信息修改、扫码开单</title>
+<title>三期小迭代功能 PRD - 团队管理、付款/结算信息修改、扫码开单</title>
 <style>
 :root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.72}
@@ -21,7 +21,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border
     <nav>
       <a href="#overview">概览</a>
       <a href="#team">团队管理</a>
-      <a href="#settlement">结算信息修改</a>
+      <a href="#settlement">付款/结算信息修改</a>
       <a href="#scan-billing">扫码开单</a>
       <a href="#order">订单管理关联</a>
       <a href="#acceptance">验收口径</a>
@@ -31,7 +31,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border
   <main class="main">
     <section class="hero">
       <h2>丰收云三期小迭代功能 PRD</h2>
-      <p>本页用于向技术说明已上线 / 待验收的小版本功能口径，覆盖团队管理、结算信息修改、扫码开单，以及订单管理中的关联验收点。</p>
+      <p>本页用于向技术说明已上线 / 待验收的小版本功能口径，覆盖团队管理、付款/结算信息修改、扫码开单，以及订单管理中的关联验收点。</p>
     </section>
 
     <section class="meta" id="overview">
@@ -46,7 +46,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border
       <p class="lead">本次小迭代不是重做主链路，而是在现有三期开单、支付、订单体系上补齐运营和现场开单效率能力。</p>
       <div class="grid">
         <div class="box"><strong>团队管理</strong><span class="tag green">收购商超管</span><p class="lead">维护团队成员，支持查看团队列表、新增业务员和删除业务员。</p></div>
-        <div class="box"><strong>结算信息修改</strong><span class="tag blue">收购商 / 农户</span><p class="lead">提供四要素或对公账户信息纠错入口，降低付款失败风险。</p></div>
+        <div class="box"><strong>付款/结算信息修改</strong><span class="tag blue">收购商 / 农户</span><p class="lead">收购商维护付款银行信息，农户维护收款结算信息。</p></div>
         <div class="box"><strong>扫码开单</strong><span class="tag amber">微信 / 邮储银行 App</span><p class="lead">扫农户二维码直达开单页，完成暂存或直接付款。</p></div>
       </div>
     </section>
@@ -72,13 +72,15 @@ table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border
     </section>
 
     <section class="card" id="settlement">
-      <h3>3. 结算信息修改</h3>
+      <h3>3. 付款/结算信息修改</h3>
       <h4>业务目标</h4>
       <ul>
         <li>付款或收款失败常由姓名、手机号、身份证号、银行卡号等要素填写错误导致，需要提供纠错入口。</li>
-        <li>收购商端和农户端均提供“结算信息修改”，但当前按“一人一张银行卡”设计，不从多账户列表选择。</li>
+        <li>收购商端入口命名为“付款信息修改”，页面内展示“付款银行信息”。</li>
+        <li>农户端入口仍命名为“结算信息修改”，页面内展示结算信息。</li>
+        <li>当前按“一人一张银行卡”设计，不从多账户列表选择。</li>
       </ul>
-      <h4>个人户修改规则</h4>
+      <h4>收购商个人户付款银行信息规则</h4>
       <table>
         <tr><th>字段</th><th>默认展示</th><th>修改校验</th><th>修改方式</th></tr>
         <tr><td>姓名</td><td>脱敏</td><td>当前手机号验证码</td><td>校验通过后展示未脱敏原值，再输入新值确认。</td></tr>
@@ -87,12 +89,19 @@ table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border
         <tr><td>银行卡号</td><td>仅展示脱敏卡号</td><td>当前手机号验证码</td><td>校验通过后展示原银行卡号，输入新卡号并重新选择开户行、开户支行。</td></tr>
         <tr><td>开户行 / 支行</td><td>明文展示</td><td>不单独修改</td><td>仅在修改银行卡号时同步重选。</td></tr>
       </table>
+      <h4>农户个人户结算信息规则</h4>
+      <table>
+        <tr><th>字段</th><th>默认展示</th><th>修改校验</th><th>修改方式</th></tr>
+        <tr><td>姓名</td><td>脱敏</td><td>不走手机号验证码前置步骤</td><td>点击修改后直接展示未脱敏原值和新值输入页。</td></tr>
+        <tr><td>预留手机号</td><td>脱敏展示</td><td>不支持修改</td><td>仅展示，不提供修改按钮。</td></tr>
+        <tr><td>身份证号</td><td>脱敏</td><td>不走手机号验证码前置步骤</td><td>点击修改后直接展示未脱敏原值和新值输入页。</td></tr>
+        <tr><td>银行卡号</td><td>仅展示脱敏卡号</td><td>不走手机号验证码前置步骤</td><td>点击修改后直接展示原银行卡号，输入新卡号并重新选择开户行、开户支行。</td></tr>
+      </table>
       <h4>对公户修改规则</h4>
       <ul>
         <li>展示对公账户名称、手机号、银行账号、开户行、开户支行。</li>
-        <li>仅允许单次修改一个字段：对公账户名称或银行账号。</li>
-        <li>修改任一字段均需要当前手机号验证码；修改银行账号时需要重新选择开户行和开户支行。</li>
         <li>开户行、开户支行不展示“不可修改”文案，也不提供独立修改按钮。</li>
+        <li>收购商端对公户修改仍需当前手机号验证码；农户端修改直接进入编辑页。</li>
       </ul>
       <div class="note">原型短信验证码固定为 123456；真实系统需接短信验证码、银行四要素校验和操作日志。</div>
     </section>
@@ -142,7 +151,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border
       <table>
         <tr><th>功能</th><th>必须满足</th><th>不在本次范围</th></tr>
         <tr><td>团队管理</td><td>超管可见入口并维护成员；支持新增和删除业务员；手机号不能跨团队重复添加。</td><td>复杂组织架构、审批流、同一手机号加入多个团队。</td></tr>
-        <tr><td>结算信息修改</td><td>敏感字段脱敏、修改前验证码校验、单字段修改、银行卡号重选开户行支行。</td><td>真实短信、真实银行四要素接口。</td></tr>
+        <tr><td>付款/结算信息修改</td><td>收购商按付款银行信息校验修改；农户手机号只展示，姓名、身份证号、银行卡号直接进入修改页。</td><td>真实短信、真实银行四要素接口。</td></tr>
         <tr><td>扫码开单</td><td>微信和邮储银行 App 扫码均支持首次登录、后续免登、直达开单页。</td><td>跳转到非开单页面、扫码后进入订单列表。</td></tr>
         <tr><td>订单管理</td><td>付款中可批量付款，按钮文案统一为批量付款。</td><td>真实批量支付失败明细拆分。</td></tr>
       </table>
@@ -153,7 +162,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border
       <table>
         <tr><th>主题</th><th>入口</th><th>说明</th></tr>
         <tr><td>团队管理</td><td><a href="buyer-team.html">buyer-team.html</a></td><td>收购商超管团队成员管理。</td></tr>
-        <tr><td>结算信息修改 - 收购商</td><td><a href="settlement-info-edit.html?source=buyer-my.html">settlement-info-edit.html?source=buyer-my.html</a></td><td>收购商付款结算信息纠错。</td></tr>
+        <tr><td>付款信息修改 - 收购商</td><td><a href="settlement-info-edit.html?source=buyer-my.html">settlement-info-edit.html?source=buyer-my.html</a></td><td>收购商付款银行信息纠错。</td></tr>
         <tr><td>结算信息修改 - 农户</td><td><a href="settlement-info-edit.html?source=farmer-my.html">settlement-info-edit.html?source=farmer-my.html</a></td><td>农户收款结算信息纠错。</td></tr>
         <tr><td>扫码开单原型参考</td><td><a href="buyer-billing.html">buyer-billing.html</a></td><td>扫码后直达开单页，收款人由二维码带入。</td></tr>
         <tr><td>订单管理</td><td><a href="buyer-order-manage.html">buyer-order-manage.html</a></td><td>待处理、付款中、已结束及批量付款验收。</td></tr>

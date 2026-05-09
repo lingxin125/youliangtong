@@ -170,13 +170,19 @@
                 </span>
             </div>
 
-            <!-- 商户名称（只读） -->
+            <!-- 收购商名称 -->
             <div class="info-row">
-                <span class="info-label"><i class="fas fa-store"></i>名称</span>
+                <span class="info-label"><i class="fas fa-store"></i>归属收购商</span>
                 <span class="info-value">
                     <span id="merchantName">张三的粮站</span>
                     <i class="fas fa-pen edit-trigger" onclick="openNameEditor()" title="编辑名称"></i>
                 </span>
+            </div>
+
+            <!-- 用户姓名 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-user"></i>用户姓名</span>
+                <span class="info-value" id="userName">张老板</span>
             </div>
 
             <!-- 手机号 -->
@@ -190,6 +196,14 @@
                 <span class="info-label"><i class="fas fa-user-tag"></i>当前身份</span>
                 <span class="info-value">
                     <span class="role-tag" id="roleTag">买方</span>
+                </span>
+            </div>
+
+            <!-- 当前角色 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-id-badge"></i>当前角色</span>
+                <span class="info-value">
+                    <span class="role-tag role-admin" id="teamRoleTag">超管</span>
                 </span>
             </div>
 
@@ -211,9 +225,9 @@
 <div id="nameEditorMask" class="name-editor-mask" onclick="closeNameEditor()">
     <div class="name-editor-sheet" onclick="event.stopPropagation()">
         <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-4"></div>
-        <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">编辑名称</div>
-        <div class="text-[12px] text-gray-500 text-center mb-4">修改后，我的页和切换账号会同步展示最新名称</div>
-        <input id="nameEditorInput" class="name-editor-input" type="text" maxlength="20" placeholder="请输入名称">
+        <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">编辑收购商名称</div>
+        <div class="text-[12px] text-gray-500 text-center mb-4">用于展示当前收购商主体或团队名称</div>
+        <input id="nameEditorInput" class="name-editor-input" type="text" maxlength="20" placeholder="请输入收购商名称">
         <div class="grid grid-cols-2 gap-3 mt-4">
             <button class="h-11 rounded-xl bg-gray-100 text-gray-600 text-[14px] font-medium" onclick="closeNameEditor()">取消</button>
             <button class="h-11 rounded-xl bg-[#11A64A] text-white text-[14px] font-medium" onclick="saveDisplayName()">保存</button>
@@ -237,6 +251,16 @@ function getBuyerProfileContext() {
     };
 }
 
+function getTeamRoleLabel(role) {
+    if (window.TeamMockStore && TeamMockStore.getRoleInfo) {
+        var info = TeamMockStore.getRoleInfo(role);
+        if (info && info.label) return info.label;
+    }
+    if (role === 'owner') return '超管';
+    if (role === 'operator') return '业务员';
+    return '--';
+}
+
 function renderProfile() {
     var ctx = getBuyerProfileContext();
     var user = ctx.user;
@@ -244,21 +268,34 @@ function renderProfile() {
 
     var merchantNoEl = document.getElementById('merchantNo');
     var merchantNameEl = document.getElementById('merchantName');
+    var userNameEl = document.getElementById('userName');
     var mobileNoEl = document.getElementById('mobileNo');
     var roleTagEl = document.getElementById('roleTag');
+    var teamRoleTagEl = document.getElementById('teamRoleTag');
     var createdAtEl = document.getElementById('createdAt');
 
     if (merchantNoEl) {
         merchantNoEl.textContent = user && user.merchantId ? user.merchantId : '--';
     }
     if (merchantNameEl) {
-        merchantNameEl.textContent = user && user.name ? user.name : '--';
+        merchantNameEl.textContent = currentTeam && currentTeam.teamName
+            ? currentTeam.teamName
+            : (user && user.name ? user.name : '--');
+    }
+    if (userNameEl) {
+        userNameEl.textContent = user && user.name ? user.name : '--';
     }
     if (mobileNoEl) {
         mobileNoEl.textContent = user && user.mobile ? user.mobile : '--';
     }
     if (roleTagEl) {
         roleTagEl.textContent = ctx.currentRole === 'buyer' ? '买方' : '卖方';
+    }
+    if (teamRoleTagEl) {
+        var role = currentTeam && currentTeam.role ? currentTeam.role : '';
+        var roleLabel = getTeamRoleLabel(role);
+        teamRoleTagEl.textContent = roleLabel;
+        teamRoleTagEl.classList.toggle('role-admin', role === 'owner');
     }
     if (createdAtEl) {
         createdAtEl.textContent = currentTeam && currentTeam.createdAt
@@ -291,22 +328,21 @@ function saveDisplayName() {
     var value = input ? input.value.trim() : '';
     var user = window.UserIdentityStore ? UserIdentityStore.getCurrentUser() : null;
     if (!value) {
-        showToast('请输入名称');
+        showToast('请输入收购商名称');
         return;
     }
-    if (!user || !user.mobile || !window.UserIdentityStore || !UserIdentityStore.setDisplayName) {
-        showToast('保存失败');
-        return;
+    var currentTeam = window.TeamMockStore && TeamMockStore.getCurrentTeam ? TeamMockStore.getCurrentTeam() : null;
+    if (currentTeam && currentTeam.teamId && window.TeamMockStore && TeamMockStore.getAllTeams) {
+        var teams = TeamMockStore.getAllTeams();
+        var idx = teams.findIndex(function(team) { return team.teamId === currentTeam.teamId; });
+        if (idx >= 0) {
+            teams[idx].teamName = value;
+            localStorage.setItem('harvest_teams_v1', JSON.stringify(teams));
+        }
     }
-    var updated = UserIdentityStore.setDisplayName(user.mobile, value);
-    if (window.UnifiedMockStore && UnifiedMockStore.setUserProfile) {
-        UnifiedMockStore.setUserProfile({ name: value });
-    }
-    if (updated && updated.name) {
-        document.getElementById('merchantName').textContent = updated.name;
-    }
+    document.getElementById('merchantName').textContent = value;
     closeNameEditor();
-    showToast('名称已更新');
+    showToast('收购商名称已更新');
 }
 
 function showToast(msg) {

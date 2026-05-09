@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>三期小迭代测试用例 - 团队管理、结算信息修改、扫码开单</title>
+<title>三期小迭代测试用例 - 团队管理、付款/结算信息修改、扫码开单</title>
 <style>
 :root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.62}.wrap{max-width:1180px;margin:0 auto;padding:28px 18px 60px}.hero{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 8px 24px rgba(15,23,42,.05)}h1{margin:0 0 8px;font-size:28px}p{margin:0;color:var(--muted)}.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 18px rgba(15,23,42,.04)}.item{padding:12px 14px}.label{font-size:12px;color:var(--muted)}.value{font-size:15px;font-weight:800;margin-top:2px}.card{padding:20px;margin-top:16px}h2{font-size:20px;margin:0 0 12px}h3{font-size:15px;margin:18px 0 8px}.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.toc a{text-decoration:none;color:#047857;background:var(--green);border:1px solid rgba(17,166,74,.2);border-radius:999px;padding:6px 10px;font-size:13px;font-weight:700}
@@ -14,11 +14,11 @@ table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;ove
 <main class="wrap">
   <section class="hero">
     <h1>三期小迭代测试用例</h1>
-    <p>用于测试团队对团队管理、结算信息修改、扫码开单、订单管理关联点进行功能验收。测试时以真实上线环境为准，原型仅作为交互对照。</p>
+    <p>用于测试团队对团队管理、付款/结算信息修改、扫码开单、订单管理关联点进行功能验收。测试时以真实上线环境为准，原型仅作为交互对照。</p>
     <div class="toc">
       <a href="#env">测试准备</a>
       <a href="#team">团队管理</a>
-      <a href="#settlement">结算信息修改</a>
+      <a href="#settlement">付款/结算信息修改</a>
       <a href="#login-state">多端登录态</a>
       <a href="#scan">扫码开单</a>
       <a href="#order">订单管理</a>
@@ -61,26 +61,35 @@ table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;ove
   </section>
 
   <section class="card" id="settlement">
-    <h2>3. 结算信息修改测试用例</h2>
-    <h3>个人户</h3>
+    <h2>3. 付款/结算信息修改测试用例</h2>
+    <h3>收购商端：付款信息修改</h3>
     <table>
       <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
-      <tr><td>SI-001</td><td class="p0">P0</td><td>入口展示</td><td>分别进入收购商“我的”和农户“我的”。</td><td>均展示“结算信息修改”入口，进入后返回来源正确。</td></tr>
-      <tr><td>SI-002</td><td class="p0">P0</td><td>敏感信息脱敏</td><td>进入个人户结算信息修改页。</td><td>姓名、手机号、身份证号、银行卡号默认脱敏；开户行、支行明文展示。</td></tr>
-      <tr><td>SI-003</td><td class="p0">P0</td><td>修改姓名</td><td>点击姓名修改，输入当前手机号验证码，通过后输入新姓名确认。</td><td>验证码正确才进入下一步；修改成功后页面回显新姓名。</td></tr>
-      <tr><td>SI-004</td><td class="p0">P0</td><td>修改手机号</td><td>点击手机号修改，输入原手机号验证码、新手机号、新手机号验证码。</td><td>两个验证码均通过后修改成功；任一错误则拦截。</td></tr>
-      <tr><td>SI-005</td><td class="p0">P0</td><td>修改身份证号</td><td>点击身份证号修改，先校验当前手机号验证码，再录入新身份证号。</td><td>校验通过后展示未脱敏原身份证号；新身份证号格式错误时拦截。</td></tr>
-      <tr><td>SI-006</td><td class="p0">P0</td><td>修改银行卡号</td><td>点击银行卡号修改，先校验当前手机号验证码，再录入新卡号并选择开户行、支行。</td><td>必须重新选择开户行和开户支行；成功后回显新卡号脱敏信息。</td></tr>
-      <tr><td>SI-007</td><td class="p1">P1</td><td>错误验证码</td><td>任一字段修改时输入非 123456 验证码。</td><td>提示验证码错误，不能进入下一步或提交成功。</td></tr>
-      <tr><td>SI-008</td><td class="p1">P1</td><td>单字段修改限制</td><td>开始修改一个字段后尝试修改另一个字段。</td><td>同一时间只允许一个字段进入修改流程。</td></tr>
+      <tr><td>SI-001</td><td class="p0">P0</td><td>收购商入口展示</td><td>进入收购商“我的”。</td><td>入口展示为“付款信息修改”。</td></tr>
+      <tr><td>SI-002</td><td class="p0">P0</td><td>页面标题</td><td>点击收购商“付款信息修改”。</td><td>页面标题为“付款信息修改”，信息卡片标题为“付款银行信息”。</td></tr>
+      <tr><td>SI-003</td><td class="p0">P0</td><td>敏感信息脱敏</td><td>进入收购商个人户付款银行信息页。</td><td>姓名、手机号、身份证号、银行卡号默认脱敏；开户行、支行明文展示。</td></tr>
+      <tr><td>SI-004</td><td class="p0">P0</td><td>修改姓名</td><td>点击姓名修改，输入当前手机号验证码，通过后输入新姓名确认。</td><td>验证码正确才进入下一步；修改成功后页面回显新姓名。</td></tr>
+      <tr><td>SI-005</td><td class="p0">P0</td><td>修改手机号</td><td>点击手机号修改，输入原手机号验证码、新手机号、新手机号验证码。</td><td>两个验证码均通过后修改成功；任一错误则拦截。</td></tr>
+      <tr><td>SI-006</td><td class="p0">P0</td><td>修改身份证号</td><td>点击身份证号修改，先校验当前手机号验证码，再录入新身份证号。</td><td>校验通过后展示未脱敏原身份证号；新身份证号格式错误时拦截。</td></tr>
+      <tr><td>SI-007</td><td class="p0">P0</td><td>修改银行卡号</td><td>点击银行卡号修改，先校验当前手机号验证码，再录入新卡号并选择开户行、支行。</td><td>必须重新选择开户行和开户支行；成功后回显新卡号脱敏信息。</td></tr>
+      <tr><td>SI-008</td><td class="p1">P1</td><td>错误验证码</td><td>收购商任一需验证码字段修改时输入非 123456 验证码。</td><td>提示验证码错误，不能进入下一步或提交成功。</td></tr>
+    </table>
+    <h3>农户端：结算信息修改</h3>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>SI-101</td><td class="p0">P0</td><td>农户入口展示</td><td>进入农户“我的”。</td><td>入口仍展示为“结算信息修改”。</td></tr>
+      <tr><td>SI-102</td><td class="p0">P0</td><td>预留手机号只读</td><td>进入农户结算信息修改页。</td><td>预留手机号仅脱敏展示，不展示修改按钮。</td></tr>
+      <tr><td>SI-103</td><td class="p0">P0</td><td>农户修改姓名</td><td>点击姓名修改。</td><td>不出现手机号验证码前置步骤，直接展示当前姓名和新值输入页。</td></tr>
+      <tr><td>SI-104</td><td class="p0">P0</td><td>农户修改身份证号</td><td>点击身份证号修改。</td><td>不出现手机号验证码前置步骤，直接展示当前身份证号和新值输入页。</td></tr>
+      <tr><td>SI-105</td><td class="p0">P0</td><td>农户修改银行卡号</td><td>点击银行卡号修改。</td><td>不出现手机号验证码前置步骤，直接展示原银行卡号，并要求填写新卡号、开户行、开户支行。</td></tr>
     </table>
     <h3>对公户</h3>
     <table>
       <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
-      <tr><td>SI-101</td><td class="p1">P1</td><td>对公户展示</td><td>切换到对公户演示形态。</td><td>展示对公账户名称、手机号、银行账号、开户行、开户支行。</td></tr>
-      <tr><td>SI-102</td><td class="p0">P0</td><td>修改对公账户名称</td><td>点击对公账户名称修改，输入当前手机号验证码和新名称。</td><td>验证码正确后修改成功。</td></tr>
-      <tr><td>SI-103</td><td class="p0">P0</td><td>修改对公银行账号</td><td>点击银行账号修改，校验手机号验证码后输入新账号并选择开户行、支行。</td><td>账号、开户行、支行都填写后才可提交成功。</td></tr>
-      <tr><td>SI-104</td><td class="p1">P1</td><td>开户行支行不可单独修改</td><td>查看开户行、开户支行区域。</td><td>不展示独立修改按钮，也不展示“不可修改”文案。</td></tr>
+      <tr><td>SI-201</td><td class="p1">P1</td><td>对公户展示</td><td>切换到对公户演示形态。</td><td>展示对公账户名称、手机号、银行账号、开户行、开户支行。</td></tr>
+      <tr><td>SI-202</td><td class="p0">P0</td><td>修改对公账户名称</td><td>点击对公账户名称修改。</td><td>收购商端需验证码校验；农户端直接进入修改页。</td></tr>
+      <tr><td>SI-203</td><td class="p0">P0</td><td>修改对公银行账号</td><td>点击银行账号修改，输入新账号并选择开户行、支行。</td><td>账号、开户行、支行都填写后才可提交成功。</td></tr>
+      <tr><td>SI-204</td><td class="p1">P1</td><td>开户行支行不可单独修改</td><td>查看开户行、开户支行区域。</td><td>不展示独立修改按钮，也不展示“不可修改”文案。</td></tr>
     </table>
   </section>
 
@@ -140,7 +149,7 @@ table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;ove
       <tr><td>开单</td><td>普通入口开单。</td><td>不受扫码开单影响，仍可手动选择农户、暂存、付款。</td></tr>
       <tr><td>支付</td><td>确认付款、收银台、付款结果。</td><td>直接付款链路正常，状态回写正确。</td></tr>
       <tr><td>权限</td><td>超管和业务员菜单。</td><td>不同角色菜单和操作权限正确。</td></tr>
-      <tr><td>账户</td><td>账户管理与结算信息修改。</td><td>两个入口互不影响，修改结算信息不破坏账户列表展示。</td></tr>
+      <tr><td>账户</td><td>账户管理与付款/结算信息修改。</td><td>两个入口互不影响，修改付款/结算信息不破坏账户列表展示。</td></tr>
     </table>
     <div class="note">建议测试优先级：先跑 SB-001 至 SB-008，再跑 SI-001 至 SI-006，最后跑团队管理和订单管理回归。</div>
   </section>
