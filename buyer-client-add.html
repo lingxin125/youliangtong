@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 新增客户</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .toast-tip {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 98px;
+            padding: 11px 14px;
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 11px;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.45;
+            z-index: 70;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(8px);
+            transition: all 0.2s ease;
+        }
+        .toast-tip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container relative">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="px-4 mt-3 shrink-0">
+        <div class="glass-card rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 border border-gray-100">
+            <i class="fas fa-search text-gray-400 text-sm"></i>
+            <input id="searchInput" type="tel" maxlength="11" placeholder="请输入手机号" class="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400" style="font-family:Poppins,monospace;">
+            <button onclick="searchMerchant()" class="px-4 py-2 bg-primary text-white text-[13px] font-medium rounded-xl active:scale-95 transition-transform shrink-0">搜索</button>
+        </div>
+        <div class="flex items-center gap-1.5 text-[12px] text-gray-400 mt-2.5 px-1">
+            <i class="fas fa-circle-info text-primary/75 text-[12px] shrink-0"></i>
+            <span>通过手机号搜索平台收购商并添加为客户</span>
+        </div>
+    </div>
+
+    <div id="resultContainer" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-5 pb-[100px] flex flex-col items-center"></div>
+
+    <div id="actionBottomBar" class="absolute bottom-0 left-0 right-0 px-4 py-4 bg-gradient-to-t from-[#F3F4F6] via-[#F3F4F6] to-transparent" style="display:none;">
+        <button id="addClientBtn" class="w-full h-11 bg-[#11A64A] text-white rounded-[12px] text-[15px] font-semibold tracking-wide shadow-lg shadow-[#11A64A]/20 active:scale-[0.98] transition-all" onclick="confirmAddClient()">
+            确认添加
+        </button>
+    </div>
+
+    <div id="toastTip" class="toast-tip"></div>
+</div>
+
+<script>
+var store = window.ClientMockStore;
+var query = new URLSearchParams(window.location.search);
+var backHref = (query.get('back') || 'buyer-clients.html').trim() || 'buyer-clients.html';
+var currentFoundMerchant = null;
+
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('新增客户', backHref);
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchMerchant();
+        this.blur();
+    }
+});
+
+renderInitialState();
+
+function showToast(msg) {
+    var tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() {
+        tip.classList.remove('show');
+    }, 1800);
+}
+
+function maskMobile(mobile) {
+    if (!mobile || mobile.length < 7) return mobile || '';
+    return mobile.substring(0, 3) + '****' + mobile.substring(7);
+}
+
+function maskIdCard(idNo) {
+    if (!idNo || idNo.length < 8) return idNo || '--';
+    return idNo.substring(0, 3) + '***********' + idNo.substring(idNo.length - 4);
+}
+
+function maskBankCard(cardNo) {
+    if (!cardNo) return '--';
+    var plain = String(cardNo).replace(/\s/g, '');
+    if (plain.length < 8) return cardNo;
+    return plain.substring(0, 4) + ' **** **** ' + plain.substring(plain.length - 4);
+}
+
+function renderInitialState() {
+    currentFoundMerchant = null;
+    document.getElementById('actionBottomBar').style.display = 'none';
+    document.getElementById('resultContainer').innerHTML = ''
+        + '<div class="mt-[18%] text-center text-gray-400">'
+        + '<i class="fas fa-user-plus text-[40px] opacity-20 mb-4"></i>'
+        + '<div class="text-[14px]">请输入手机号搜索可添加的客户</div>'
+        + '</div>';
+}
+
+function renderTipState(msg, icon, colorClass) {
+    currentFoundMerchant = null;
+    document.getElementById('actionBottomBar').style.display = 'none';
+    document.getElementById('resultContainer').innerHTML = ''
+        + '<div class="mt-[18%] text-center text-gray-400">'
+        + '<i class="fas ' + icon + ' ' + colorClass + ' text-[34px] opacity-70 mb-4"></i>'
+        + '<div class="text-[15px] font-medium text-gray-600">' + msg + '</div>'
+        + '</div>';
+}
+
+function renderMerchant(merchant) {
+    currentFoundMerchant = merchant;
+    var bankCard = maskBankCard(merchant.card);
+    var maskedIdNo = maskIdCard(merchant.idNo);
+    document.getElementById('resultContainer').innerHTML = ''
+        + '<div class="w-full bg-white rounded-[20px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-6 animate-[fadeInUp_0.4s_ease] border border-gray-100">'
+        + '<div class="space-y-5">'
+        + '<div class="flex items-center justify-between">'
+        + '<div class="flex items-center gap-2.5 text-gray-500">'
+        + '<i class="far fa-user text-[14px] w-4 text-center"></i>'
+        + '<span class="text-[14px]">客户名称</span>'
+        + '</div>'
+        + '<span class="text-[15px] font-semibold text-gray-800">' + merchant.name + '</span>'
+        + '</div>'
+        + '<div class="flex items-center justify-between">'
+        + '<div class="flex items-center gap-2.5 text-gray-500">'
+        + '<i class="fas fa-mobile-screen-button text-[14px] w-4 text-center"></i>'
+        + '<span class="text-[14px]">手机号</span>'
+        + '</div>'
+        + '<span class="text-[15px] font-medium text-gray-800 tracking-wider" style="font-family:Poppins;">' + merchant.mobile + '</span>'
+        + '</div>'
+        + '<div class="flex items-center justify-between">'
+        + '<div class="flex items-center gap-2.5 text-gray-500">'
+        + '<i class="far fa-id-card text-[14px] w-4 text-center"></i>'
+        + '<span class="text-[14px]">身份证号</span>'
+        + '</div>'
+        + '<span class="text-[15px] font-medium text-gray-800 tracking-wider" style="font-family:Poppins;">' + maskedIdNo + '</span>'
+        + '</div>'
+        + '<div class="flex items-center justify-between">'
+        + '<div class="flex items-center gap-2.5 text-gray-500">'
+        + '<i class="far fa-building text-[14px] w-4 text-center"></i>'
+        + '<span class="text-[14px]">开户行</span>'
+        + '</div>'
+        + '<span class="text-[14px] font-medium text-gray-800 text-right ml-4">' + (merchant.bank || merchant.org || '--') + '</span>'
+        + '</div>'
+        + '<div class="flex items-center justify-between">'
+        + '<div class="flex items-center gap-2.5 text-gray-500">'
+        + '<i class="far fa-credit-card text-[14px] w-4 text-center"></i>'
+        + '<span class="text-[14px]">银行卡号</span>'
+        + '</div>'
+        + '<span class="text-[14px] font-medium text-gray-800" style="font-family:Poppins;">' + bankCard + '</span>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+    document.getElementById('actionBottomBar').style.display = 'block';
+}
+
+function searchMerchant() {
+    var phone = document.getElementById('searchInput').value.trim();
+    if (!phone) {
+        renderInitialState();
+        return;
+    }
+
+    var existing = store.findClientByMobile(phone);
+    if (existing) {
+        renderTipState('该收购商已在您的客户列表中', 'fa-circle-info', 'text-amber-500');
+        return;
+    }
+
+    var results = store.searchPlatformMerchants(phone);
+    if (!results.length) {
+        renderTipState('未搜到该客户', 'fa-circle-xmark', 'text-gray-400');
+        return;
+    }
+
+    renderMerchant(results[0]);
+}
+
+function doAdd(merchantId, name) {
+    var res = store.addClient(merchantId);
+    if (!res.success) {
+        showToast(res.message);
+        return;
+    }
+    showToast('已添加 ' + name + ' 为客户');
+    setTimeout(function() {
+        var joiner = backHref.indexOf('?') === -1 ? '?' : '&';
+        window.location.href = backHref + joiner + 'refresh=1';
+    }, 700);
+}
+
+function confirmAddClient() {
+    if (!currentFoundMerchant) {
+        showToast('请先搜索客户');
+        return;
+    }
+    doAdd(currentFoundMerchant.id, currentFoundMerchant.name);
+}
+
+function escapeJs(str) {
+    return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三期小迭代测试用例 - 团队管理、付款/结算信息修改、扫码开单</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.62}.wrap{max-width:1180px;margin:0 auto;padding:28px 18px 60px}.hero{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 8px 24px rgba(15,23,42,.05)}h1{margin:0 0 8px;font-size:28px}p{margin:0;color:var(--muted)}.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 18px rgba(15,23,42,.04)}.item{padding:12px 14px}.label{font-size:12px;color:var(--muted)}.value{font-size:15px;font-weight:800;margin-top:2px}.card{padding:20px;margin-top:16px}h2{font-size:20px;margin:0 0 12px}h3{font-size:15px;margin:18px 0 8px}.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.toc a{text-decoration:none;color:#047857;background:var(--green);border:1px solid rgba(17,166,74,.2);border-radius:999px;padding:6px 10px;font-size:13px;font-weight:700}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;font-weight:800;color:#374151}.p0{background:var(--red);color:#b91c1c;font-weight:800}.p1{background:var(--amber);color:#b45309;font-weight:800}.p2{background:var(--blue);color:#1d4ed8;font-weight:800}.pass{background:var(--green);color:#047857;font-weight:800}.note{margin-top:10px;padding:12px 14px;background:#f0fdf4;color:#166534;border-radius:14px;font-size:13px}.small{font-size:12px;color:var(--muted)}@media(max-width:800px){.meta{grid-template-columns:1fr}.wrap{padding:16px 12px}table{display:block;overflow-x:auto;white-space:nowrap}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <h1>三期小迭代测试用例</h1>
+    <p>用于测试团队对团队管理、付款/结算信息修改、扫码开单、订单管理关联点进行功能验收。测试时以真实上线环境为准，原型仅作为交互对照。</p>
+    <div class="toc">
+      <a href="#env">测试准备</a>
+      <a href="#team">团队管理</a>
+      <a href="#settlement">付款/结算信息修改</a>
+      <a href="#login-state">多端登录态</a>
+      <a href="#scan">扫码开单</a>
+      <a href="#order">订单管理</a>
+      <a href="#regression">回归检查</a>
+    </div>
+  </section>
+
+  <section class="meta" id="env">
+    <div class="item"><div class="label">版本</div><div class="value">V3 小迭代</div></div>
+    <div class="item"><div class="label">日期</div><div class="value">2026-05-08</div></div>
+    <div class="item"><div class="label">优先级</div><div class="value">P0/P1 优先</div></div>
+    <div class="item"><div class="label">验证码</div><div class="value">原型 123456</div></div>
+  </section>
+
+  <section class="card">
+    <h2>1. 测试准备</h2>
+    <table>
+      <tr><th>准备项</th><th>要求</th></tr>
+      <tr><td>账号</td><td>至少准备收购商超管、收购商业务员、农户三个账号。</td></tr>
+      <tr><td>渠道</td><td>微信小程序、微信 H5 扫码、邮储银行 H5、邮储银行 App 各准备一轮首次登录和免登测试。</td></tr>
+      <tr><td>数据</td><td>准备已建档农户二维码、未绑定有效收款账户农户、无效二维码。</td></tr>
+      <tr><td>订单</td><td>准备挂单、待开价、待付款、付款中、已取消、付款成功订单。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="team">
+    <h2>2. 团队管理测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>TM-001</td><td class="p0">P0</td><td>超管查看团队管理入口</td><td>使用收购商超管登录，进入“我的”。</td><td>展示“团队管理”入口，点击进入团队管理页。</td></tr>
+      <tr><td>TM-002</td><td class="p0">P0</td><td>业务员不可管理团队</td><td>使用业务员账号登录，进入“我的”。</td><td>不展示团队管理入口；直接访问团队管理地址时应拦截或提示无权限。</td></tr>
+      <tr><td>TM-003</td><td class="p1">P1</td><td>查看团队成员列表</td><td>超管进入团队管理页。</td><td>正确展示成员姓名、手机号、角色、状态；角色仅出现超管和业务员。</td></tr>
+      <tr><td>TM-004</td><td class="p1">P1</td><td>添加业务员</td><td>点击添加业务员，录入有效手机号和成员信息并提交。</td><td>添加成功后成员出现在列表中，角色为业务员。</td></tr>
+      <tr><td>TM-005</td><td class="p1">P1</td><td>当前团队重复添加</td><td>录入已存在于当前团队的业务员手机号提交。</td><td>系统提示成员已存在，不重复创建。</td></tr>
+      <tr><td>TM-006</td><td class="p0">P0</td><td>跨团队重复添加限制</td><td>使用另一个收购商超管，添加已归属其他收购商团队的业务员手机号。</td><td>系统拦截添加，并提示该手机号已加入其他团队或暂不支持重复加入。</td></tr>
+      <tr><td>TM-007</td><td class="p1">P1</td><td>删除业务员</td><td>在团队列表中选择某个业务员并确认删除。</td><td>删除成功后，该业务员从团队列表移除。</td></tr>
+      <tr><td>TM-008</td><td class="p1">P1</td><td>删除确认</td><td>点击删除业务员后取消确认。</td><td>取消后成员仍保留在列表中。</td></tr>
+      <tr><td>TM-009</td><td class="p1">P1</td><td>超管不可被普通删除</td><td>查看超管成员操作项。</td><td>超管成员不展示普通删除操作，或删除时明确拦截。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="settlement">
+    <h2>3. 付款/结算信息修改测试用例</h2>
+    <h3>收购商端：付款信息修改</h3>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>SI-001</td><td class="p0">P0</td><td>收购商入口展示</td><td>进入收购商“我的”。</td><td>入口展示为“付款信息修改”。</td></tr>
+      <tr><td>SI-002</td><td class="p0">P0</td><td>页面标题</td><td>点击收购商“付款信息修改”。</td><td>页面标题为“付款信息修改”，信息卡片标题为“付款银行信息”。</td></tr>
+      <tr><td>SI-003</td><td class="p0">P0</td><td>敏感信息脱敏</td><td>进入收购商个人户付款银行信息页。</td><td>姓名、手机号、身份证号、银行卡号默认脱敏；开户行、支行明文展示。</td></tr>
+      <tr><td>SI-004</td><td class="p0">P0</td><td>修改姓名</td><td>点击姓名修改，输入当前手机号验证码，通过后输入新姓名确认。</td><td>验证码正确才进入下一步；修改成功后页面回显新姓名。</td></tr>
+      <tr><td>SI-005</td><td class="p0">P0</td><td>修改手机号</td><td>点击手机号修改，输入原手机号验证码、新手机号、新手机号验证码。</td><td>两个验证码均通过后修改成功；任一错误则拦截。</td></tr>
+      <tr><td>SI-006</td><td class="p0">P0</td><td>修改身份证号</td><td>点击身份证号修改，先校验当前手机号验证码，再录入新身份证号。</td><td>校验通过后展示未脱敏原身份证号；新身份证号格式错误时拦截。</td></tr>
+      <tr><td>SI-007</td><td class="p0">P0</td><td>修改银行卡号</td><td>点击银行卡号修改，先校验当前手机号验证码，再录入新卡号并选择开户行、支行。</td><td>必须重新选择开户行和开户支行；成功后回显新卡号脱敏信息。</td></tr>
+      <tr><td>SI-008</td><td class="p1">P1</td><td>错误验证码</td><td>收购商任一需验证码字段修改时输入非 123456 验证码。</td><td>提示验证码错误，不能进入下一步或提交成功。</td></tr>
+    </table>
+    <h3>农户端：结算信息修改</h3>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>SI-101</td><td class="p0">P0</td><td>农户入口展示</td><td>进入农户“我的”。</td><td>入口仍展示为“结算信息修改”。</td></tr>
+      <tr><td>SI-102</td><td class="p0">P0</td><td>预留手机号只读</td><td>进入农户结算信息修改页。</td><td>预留手机号仅脱敏展示，不展示修改按钮。</td></tr>
+      <tr><td>SI-103</td><td class="p0">P0</td><td>农户修改姓名</td><td>点击姓名修改。</td><td>不出现手机号验证码前置步骤，直接展示当前姓名和新值输入页。</td></tr>
+      <tr><td>SI-104</td><td class="p0">P0</td><td>农户修改身份证号</td><td>点击身份证号修改。</td><td>不出现手机号验证码前置步骤，直接展示当前身份证号和新值输入页。</td></tr>
+      <tr><td>SI-105</td><td class="p0">P0</td><td>农户修改银行卡号</td><td>点击银行卡号修改。</td><td>不出现手机号验证码前置步骤，直接展示原银行卡号，并要求填写新卡号、开户行、开户支行。</td></tr>
+    </table>
+    <h3>对公户</h3>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>SI-201</td><td class="p1">P1</td><td>对公户展示</td><td>切换到对公户演示形态。</td><td>展示对公账户名称、手机号、银行账号、开户行、开户支行。</td></tr>
+      <tr><td>SI-202</td><td class="p0">P0</td><td>修改对公账户名称</td><td>点击对公账户名称修改。</td><td>收购商端需验证码校验；农户端直接进入修改页。</td></tr>
+      <tr><td>SI-203</td><td class="p0">P0</td><td>修改对公银行账号</td><td>点击银行账号修改，输入新账号并选择开户行、支行。</td><td>账号、开户行、支行都填写后才可提交成功。</td></tr>
+      <tr><td>SI-204</td><td class="p1">P1</td><td>开户行支行不可单独修改</td><td>查看开户行、开户支行区域。</td><td>不展示独立修改按钮，也不展示“不可修改”文案。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="login-state">
+    <h2>4. 多端登录态 / 免登 / 互踢测试用例</h2>
+    <div class="note">测试口径：免登优先按“同一渠道容器 + 同一设备 + 有效登录态”验证。跨渠道是否互踢以技术最终实现为准，本组用例需要记录实际结果并与技术确认。</div>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>LS-001</td><td class="p0">P0</td><td>微信 H5 首次扫码登录</td><td>清除微信 H5 登录态，使用微信扫一扫进入扫码开单。</td><td>首次进入需要登录；登录成功后进入开单页。</td></tr>
+      <tr><td>LS-002</td><td class="p0">P0</td><td>微信 H5 同设备免登</td><td>保持微信 H5 登录态，再次使用同一微信扫描农户二维码。</td><td>不再要求登录，直接进入开单页。</td></tr>
+      <tr><td>LS-003</td><td class="p0">P0</td><td>邮储银行 App 首次扫码登录</td><td>清除邮储银行 App 内登录态，使用邮储银行 App 扫码。</td><td>首次进入需要登录；登录成功后进入开单页。</td></tr>
+      <tr><td>LS-004</td><td class="p0">P0</td><td>邮储银行 App 同设备免登</td><td>保持邮储银行 App 登录态，再次扫码。</td><td>不再要求登录，直接进入开单页。</td></tr>
+      <tr><td>LS-005</td><td class="p1">P1</td><td>微信 H5 登录后打开微信小程序</td><td>先完成微信 H5 扫码登录，再打开丰收云微信小程序。</td><td>微信小程序不应直接复用微信 H5 登录态；如需登录，应独立完成小程序登录。</td></tr>
+      <tr><td>LS-006</td><td class="p1">P1</td><td>微信小程序登录后微信 H5 扫码</td><td>先登录微信小程序，再用微信扫一扫进入扫码开单 H5。</td><td>微信 H5 是否免登需按 OpenID / H5 登录态判断；不得因小程序已登录而错误跳过 H5 登录校验。</td></tr>
+      <tr><td>LS-007</td><td class="p1">P1</td><td>微信侧登录后邮储银行 App 扫码</td><td>先完成微信小程序或微信 H5 登录，再使用邮储银行 App 扫码。</td><td>邮储银行 App 应独立判断登录态；首次进入时需要重新登录。</td></tr>
+      <tr><td>LS-008</td><td class="p1">P1</td><td>邮储银行 App 登录后微信侧访问</td><td>先完成邮储银行 App 扫码登录，再打开微信小程序或微信 H5。</td><td>微信侧应独立判断登录态；不得直接复用邮储银行 App 登录态。</td></tr>
+      <tr><td>LS-009</td><td class="p1">P1</td><td>同账号多端互踢验证</td><td>同一业务员账号依次登录微信小程序、微信 H5、邮储银行 H5、邮储银行 App，并回到前一个端继续操作。</td><td>记录各端是否被退出；若无 OpenID / 渠道 ID 的端发生互踢，需要与技术确认属于预期。</td></tr>
+      <tr><td>LS-010</td><td class="p1">P1</td><td>OpenID / 渠道 ID 绑定免登验证</td><td>使用已完成授权绑定的同一渠道再次进入扫码开单。</td><td>系统能基于该渠道身份识别用户并免登；换渠道时不应误用其他渠道身份。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="scan">
+    <h2>5. 扫码开单测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>SB-001</td><td class="p0">P0</td><td>微信首次扫码</td><td>清除登录态，使用微信扫描有效农户二维码。</td><td>先进入登录流程；登录成功后自动进入开单页。</td></tr>
+      <tr><td>SB-002</td><td class="p0">P0</td><td>微信再次扫码免登</td><td>保持登录态，再次用微信扫描有效农户二维码。</td><td>不再要求登录，直接进入开单页。</td></tr>
+      <tr><td>SB-003</td><td class="p0">P0</td><td>邮储银行 App 首次扫码</td><td>清除登录态，使用邮储银行 App 扫描有效农户二维码。</td><td>先进入登录流程；登录成功后自动进入开单页。</td></tr>
+      <tr><td>SB-004</td><td class="p0">P0</td><td>邮储银行 App 再次扫码免登</td><td>保持登录态，再次用邮储银行 App 扫描有效农户二维码。</td><td>直接进入开单页。</td></tr>
+      <tr><td>SB-005</td><td class="p0">P0</td><td>扫码后页面限制</td><td>扫码进入后观察页面和可操作按钮。</td><td>只进入开单页；仅允许暂存或直接付款，不跳到订单列表或其他中间页。</td></tr>
+      <tr><td>SB-006</td><td class="p0">P0</td><td>农户信息自动带入</td><td>扫描已建档农户二维码进入开单页。</td><td>收款人信息自动回填，默认收款账户可用于付款。</td></tr>
+      <tr><td>SB-007</td><td class="p1">P1</td><td>暂存开单</td><td>扫码进入开单页，填写必要信息后点击暂存。</td><td>订单进入挂单 / 待处理链路，可在订单管理中查看。</td></tr>
+      <tr><td>SB-008</td><td class="p0">P0</td><td>直接付款</td><td>扫码进入开单页，填写完整信息后点击直接付款。</td><td>进入确认付款 / 收银台链路，付款结果正常回写订单状态。</td></tr>
+      <tr><td>SB-009</td><td class="p1">P1</td><td>无效二维码</td><td>扫描无效、过期或无法解析二维码。</td><td>提示二维码无效，不进入开单页。</td></tr>
+      <tr><td>SB-010</td><td class="p1">P1</td><td>未加入团队手机号首次扫码</td><td>清除登录态，使用未加入任何收购商团队的手机号扫码后尝试登录。</td><td>登录阶段无法完成账号识别或登录，不进入开单页。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="order">
+    <h2>6. 订单管理关联测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>OM-001</td><td class="p0">P0</td><td>页签结构</td><td>进入收购商订单管理。</td><td>一级页签为待处理、付款中、已结束。</td></tr>
+      <tr><td>OM-002</td><td class="p1">P1</td><td>待处理编辑</td><td>分别查看挂单、待开价、待付款订单。</td><td>三类订单均支持编辑信息。</td></tr>
+      <tr><td>OM-003</td><td class="p0">P0</td><td>付款中批量付款</td><td>进入付款中，勾选多笔订单，点击批量付款。</td><td>支持多选、全选；跳转确认付款页并携带所选订单。</td></tr>
+      <tr><td>OM-004</td><td class="p1">P1</td><td>部分失败后重试</td><td>模拟批量付款部分失败，返回订单管理。</td><td>失败订单仍停留付款中，可再次勾选并批量付款。</td></tr>
+      <tr><td>OM-005</td><td class="p1">P1</td><td>已取消展示</td><td>查看已结束中的取消订单。</td><td>统一展示为已取消，不区分付款前取消 / 付款中取消。</td></tr>
+      <tr><td>OM-006</td><td class="p2">P2</td><td>按钮文案</td><td>查看待付款和付款中底部操作栏。</td><td>付款按钮统一展示为“批量付款”，不出现“合并付款”。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="regression">
+    <h2>7. 回归检查</h2>
+    <table>
+      <tr><th>模块</th><th>检查点</th><th>预期</th></tr>
+      <tr><td>登录</td><td>扫码登录后返回目标页。</td><td>首次登录后能回到开单页，不丢失二维码带入的农户信息；不同渠道登录态按各自容器独立验证。</td></tr>
+      <tr><td>开单</td><td>普通入口开单。</td><td>不受扫码开单影响，仍可手动选择农户、暂存、付款。</td></tr>
+      <tr><td>支付</td><td>确认付款、收银台、付款结果。</td><td>直接付款链路正常，状态回写正确。</td></tr>
+      <tr><td>权限</td><td>超管和业务员菜单。</td><td>不同角色菜单和操作权限正确。</td></tr>
+      <tr><td>账户</td><td>账户管理与付款/结算信息修改。</td><td>两个入口互不影响，修改付款/结算信息不破坏账户列表展示。</td></tr>
+    </table>
+    <div class="note">建议测试优先级：先跑 SB-001 至 SB-008，再跑 SI-001 至 SI-006，最后跑团队管理和订单管理回归。</div>
+  </section>
+</main>
+</body>
+</html>

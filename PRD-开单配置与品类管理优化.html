@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD：开单配置与品类管理优化</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --bg: #F6F8F6;
+  --card: #FFFFFF;
+  --line: rgba(15, 23, 42, 0.08);
+  --text: #1F2937;
+  --muted: #6B7280;
+  --soft: #F0FDF4;
+  --primary: #11A64A;
+  --primary-dark: #0E7A38;
+  --amber: #F59E0B;
+  --blue: #2563EB;
+  --radius: 18px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: "Noto Sans SC", "Poppins", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.72;
+}
+.layout { display: flex; min-height: 100vh; }
+.side {
+  width: 264px;
+  position: fixed;
+  inset: 0 auto 0 0;
+  background: #fff;
+  border-right: 1px solid var(--line);
+  padding: 22px 0;
+  overflow-y: auto;
+}
+.brand { padding: 0 22px 18px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+.brand .kicker { color: var(--primary); font-size: 12px; font-weight: 900; letter-spacing: .04em; }
+.brand h1 { font-size: 18px; line-height: 1.35; margin: 6px 0 4px; }
+.brand p { margin: 0; color: var(--muted); font-size: 12px; }
+.side a {
+  display: block;
+  padding: 8px 22px;
+  color: var(--muted);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  font-size: 13px;
+}
+.side a:hover { color: var(--primary); background: rgba(17,166,74,.05); }
+.main { margin-left: 264px; width: calc(100% - 264px); padding: 28px 34px 70px; }
+.hero {
+  background: linear-gradient(135deg, #11A64A 0%, #0E7A38 100%);
+  color: #fff;
+  border-radius: 24px;
+  padding: 34px 36px;
+  box-shadow: 0 18px 40px rgba(17, 166, 74, .18);
+  overflow: hidden;
+  position: relative;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  right: -110px;
+  top: -120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+}
+.hero h2 { font-size: 30px; margin: 0 0 8px; position: relative; z-index: 1; }
+.hero p { max-width: 820px; margin: 0; opacity: .9; font-size: 15px; position: relative; z-index: 1; }
+.meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0 24px;
+}
+.meta .item, .card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 20px rgba(15,23,42,.04);
+}
+.meta .item { padding: 14px 16px; }
+.meta .label { font-size: 12px; color: var(--muted); }
+.meta .value { font-size: 15px; font-weight: 900; margin-top: 2px; }
+.card { padding: 24px; margin-bottom: 18px; }
+.card h3 { margin: 0 0 14px; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+.card h3 i { color: var(--primary); font-size: 18px; }
+.lead { color: var(--muted); margin: 0 0 14px; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+.tag.green { background: var(--soft); color: var(--primary-dark); }
+.tag.blue { background: #EFF6FF; color: var(--blue); }
+.tag.amber { background: #FFFBEB; color: #B45309; }
+.tag.gray { background: #F3F4F6; color: #4B5563; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.box { background: #FAFAFA; border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.box h4 { margin: 0 0 8px; font-size: 16px; }
+.box p { margin: 0; color: var(--muted); font-size: 13px; }
+.flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
+.step { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px; min-height: 96px; }
+.step .num { color: var(--primary); font-weight: 900; font-size: 13px; }
+.step .title { font-weight: 900; margin-top: 4px; }
+.step .desc { color: var(--muted); font-size: 12px; margin-top: 4px; }
+table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 14px; border: 1px solid var(--line); background: #fff; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; font-size: 14px; vertical-align: top; }
+th { background: #F9FAFB; font-weight: 900; }
+tr:last-child td { border-bottom: none; }
+ul { margin: 8px 0 0 18px; padding: 0; }
+li { margin: 5px 0; }
+.mock-wrap { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+.phone {
+  width: 360px;
+  background: #F7F8FA;
+  border: 1px solid rgba(15,23,42,.1);
+  border-radius: 28px;
+  padding: 14px;
+  box-shadow: 0 16px 40px rgba(15,23,42,.08);
+}
+.phone-screen { background: #fff; border-radius: 22px; overflow: hidden; min-height: 650px; border: 1px solid rgba(15,23,42,.06); }
+.phone-head { height: 48px; display: flex; align-items: center; justify-content: center; font-weight: 900; border-bottom: 1px solid rgba(15,23,42,.06); position: relative; }
+.phone-back { position: absolute; left: 16px; color: #6B7280; }
+.fav-card { padding: 16px; border-bottom: 10px solid #F6F8F6; }
+.section-title { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 900; margin-bottom: 12px; }
+.bar { width: 4px; height: 16px; background: var(--primary); border-radius: 999px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid rgba(17,166,74,.22); background: #F0FDF4; color: #0E7A38; border-radius: 999px; padding: 7px 10px; font-size: 12px; font-weight: 800; }
+.category-body { display: grid; grid-template-columns: 82px 1fr; min-height: 360px; }
+.left-tabs { background: #F7F8FA; }
+.left-tabs div { padding: 18px 0; text-align: center; font-size: 13px; color: #6B7280; }
+.left-tabs .active { color: var(--primary); background: #fff; font-weight: 900; border-left: 4px solid var(--primary); }
+.right-list { padding: 14px; }
+.cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cat-card { position: relative; min-height: 76px; border-radius: 14px; border: 1px solid #E5E7EB; background: #F9FAFB; padding: 12px 10px; }
+.cat-card.active { border-color: rgba(17,166,74,.35); background: #F0FDF4; }
+.cat-name { font-size: 13px; font-weight: 900; padding-right: 26px; line-height: 1.35; }
+.gear { position: absolute; right: 8px; top: 8px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; color: var(--primary); border: 1px solid rgba(17,166,74,.16); }
+.mini-tag { position: absolute; left: 10px; bottom: 8px; font-size: 10px; font-weight: 900; color: var(--primary-dark); background: #DCFCE7; padding: 2px 6px; border-radius: 999px; }
+.plus { position: absolute; right: 10px; bottom: 8px; width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+.sheet {
+  margin-top: -250px;
+  margin-left: 22px;
+  margin-right: 22px;
+  background: #fff;
+  border-radius: 22px 22px 0 0;
+  border: 1px solid rgba(15,23,42,.08);
+  box-shadow: 0 -12px 28px rgba(15,23,42,.16);
+  padding: 14px;
+  position: relative;
+}
+.handle { width: 42px; height: 4px; border-radius: 999px; background: #D1D5DB; margin: 0 auto 12px; }
+.template { border: 1px solid #E5E7EB; border-radius: 14px; padding: 12px; margin-bottom: 8px; }
+.template.active { border-color: rgba(17,166,74,.5); background: #F0FDF4; }
+.template .name { font-weight: 900; font-size: 14px; }
+.template .txt { color: #6B7280; font-size: 12px; margin-top: 2px; }
+.settings-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+.setting-pill { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px; padding: 8px; font-size: 12px; }
+.prompt {
+  white-space: pre-wrap;
+  background: #0F172A;
+  color: #E5E7EB;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.note { background: #FFFBEB; color: #92400E; border: 1px solid rgba(245,158,11,.24); border-radius: 14px; padding: 14px 16px; font-size: 14px; }
+.footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 28px; }
+a { color: var(--primary-dark); }
+@media (max-width: 980px) {
+  .side { display: none; }
+  .main { margin-left: 0; width: 100%; padding: 16px; }
+  .meta, .grid-2, .grid-3, .mock-wrap, .flow { grid-template-columns: 1fr; }
+  .phone { width: 100%; max-width: 360px; margin: 0 auto; }
+  .hero { padding: 28px 24px; }
+  .hero h2 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand">
+      <div class="kicker">FENGSHOUYUN PRD</div>
+      <h1>开单配置与品类管理优化</h1>
+      <p>三期小版本候选功能</p>
+    </div>
+    <a href="#background">背景目标</a>
+    <a href="#current">当前逻辑</a>
+    <a href="#solution">推荐方案</a>
+    <a href="#config">配置内容</a>
+    <a href="#billing">开单页套用</a>
+    <a href="#mock">概念图结构</a>
+    <a href="#acceptance">验收点</a>
+    <a href="#prompt">概念图提示词</a>
+  </aside>
+
+  <main class="main">
+    <section class="hero">
+      <h2>开单配置与品类管理优化</h2>
+      <p>把复杂度放在品类配置里，把一线开单页变简单。配置只影响新开单的字段展示和默认值，不改变订单状态机，不影响历史订单。</p>
+    </section>
+
+    <section class="meta">
+      <div class="item">
+        <div class="label">配置入口</div>
+        <div class="value">品类管理</div>
+      </div>
+      <div class="item">
+        <div class="label">配置维度</div>
+        <div class="value">二级品类</div>
+      </div>
+      <div class="item">
+        <div class="label">生效范围</div>
+        <div class="value">新开单</div>
+      </div>
+      <div class="item">
+        <div class="label">订单状态</div>
+        <div class="value">保持不变</div>
+      </div>
+    </section>
+
+    <section class="card" id="background">
+      <h3><i class="fa-solid fa-seedling"></i>背景目标</h3>
+      <p class="lead">不同农产品的收购方式差异很大，但一线业务员和农户年龄偏大，开单页越简单越好。本方案用“按二级品类配置开单方式”的办法，让超管提前配置，业务员现场只填写必要信息。</p>
+      <div class="grid-3">
+        <div class="box">
+          <h4>水果快收</h4>
+          <p>例如荔枝，通常只需要重量、单价或一口价、收款人。</p>
+        </div>
+        <div class="box">
+          <h4>粮食称重</h4>
+          <p>例如玉米，需要毛重、皮重、净重、单价，并可按需展示杂重或扣减比例。</p>
+        </div>
+        <div class="box">
+          <h4>状态分流</h4>
+          <p>极简快收不产生挂单；标准称重才会因“有毛重无皮重”进入挂单。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="current">
+      <h3><i class="fa-solid fa-route"></i>当前原型逻辑</h3>
+      <p class="lead">当前开单页底部保留“暂存”和“立即付款”。暂存后按开单方式与字段完整度自动判断状态。</p>
+      <table>
+        <thead>
+          <tr>
+            <th>条件</th>
+            <th>暂存后状态</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>极简快收：未填写总重量</td>
+            <td><strong>不可暂存</strong></td>
+            <td>提示先填写重量；极简快收不产生挂单。</td>
+          </tr>
+          <tr>
+            <td>极简快收：已填写总重量，但未填写当前计价方式要求的价格</td>
+            <td><strong>待开价</strong></td>
+            <td>适合快速收货后再补价格。</td>
+          </tr>
+          <tr>
+            <td>极简快收：总重量和价格完整</td>
+            <td><strong>待付款</strong></td>
+            <td>可进入付款链路。</td>
+          </tr>
+          <tr>
+            <td>标准称重：有毛重，无皮重</td>
+            <td><strong>挂单</strong></td>
+            <td>这才是挂单的核心定义。</td>
+          </tr>
+          <tr>
+            <td>标准称重：毛重、皮重完整，但未填写当前计价方式要求的价格</td>
+            <td><strong>待开价</strong></td>
+            <td>称重完成，价格后补。</td>
+          </tr>
+          <tr>
+            <td>标准称重：重量和价格完整</td>
+            <td><strong>待付款</strong></td>
+            <td>可进入付款链路。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="solution">
+      <h3><i class="fa-solid fa-layer-group"></i>推荐方案</h3>
+      <p class="lead">不新建独立配置页，在现有品类管理里给二级品类增加“开单方式设置”。二级品类最贴近真实收购动作，理解成本最低。</p>
+      <div class="flow">
+        <div class="step">
+          <div class="num">01</div>
+          <div class="title">进入品类管理</div>
+          <div class="desc">从开单页右上角或我的模块进入。</div>
+        </div>
+        <div class="step">
+          <div class="num">02</div>
+          <div class="title">选择二级品类</div>
+          <div class="desc">保持现有一二级分类结构。</div>
+        </div>
+        <div class="step">
+          <div class="num">03</div>
+          <div class="title">点击设置</div>
+          <div class="desc">从二级品类卡片进入底部弹窗。</div>
+        </div>
+        <div class="step">
+          <div class="num">04</div>
+          <div class="title">保存方式</div>
+          <div class="desc">选择开单方式、默认值和称重字段。</div>
+        </div>
+        <div class="step">
+          <div class="num">05</div>
+          <div class="title">开单自动套用</div>
+          <div class="desc">业务员只看到需要填写的字段。</div>
+        </div>
+      </div>
+      <div class="tag-row">
+        <span class="tag green"><i class="fa-solid fa-check"></i>不改订单状态</span>
+        <span class="tag blue"><i class="fa-solid fa-sliders"></i>按二级品类配置</span>
+        <span class="tag amber"><i class="fa-solid fa-user-check"></i>适合一线快速操作</span>
+      </div>
+    </section>
+
+    <section class="card" id="config">
+      <h3><i class="fa-solid fa-gear"></i>配置内容</h3>
+      <div class="grid-2">
+        <div class="box">
+          <h4>极简快收</h4>
+          <p>适合荔枝、水果、蔬菜等快速收购。显示总重量和价格，可配置仅单价、仅一口价或两者都支持。</p>
+          <div class="tag-row"><span class="tag green">快收</span><span class="tag amber">一口价</span></div>
+        </div>
+        <div class="box">
+          <h4>标准称重</h4>
+          <p>适合玉米、小麦、水稻。固定显示毛重、皮重、净重，可配置计价方式和杂重计算方式。</p>
+          <div class="tag-row"><span class="tag blue">称重</span><span class="tag gray">按比例算杂重</span><span class="tag gray">直接输杂重</span></div>
+        </div>
+      </div>
+      <table style="margin-top:14px;">
+        <thead>
+          <tr>
+            <th>配置项</th>
+            <th>内容</th>
+            <th>开单页影响</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>默认单位</td>
+            <td>斤、公斤、吨、袋、箱</td>
+            <td>选择品类后自动带出，开单时可改。</td>
+          </tr>
+          <tr>
+            <td>允许计价方式</td>
+            <td>仅单价、仅一口价、两者都支持</td>
+            <td>决定开单页展示单价输入、一口价输入，还是保留切换。</td>
+          </tr>
+          <tr>
+            <td>默认计价方式</td>
+            <td>单价、一口价</td>
+            <td>当允许两者都支持时，用于默认选中。</td>
+          </tr>
+          <tr>
+            <td>默认单价 / 杂重计算方式</td>
+            <td>可填，可为空</td>
+            <td>减少重复录入，但现场允许修改。</td>
+          </tr>
+          <tr>
+            <td>标准称重杂重</td>
+            <td>按扣减比例计算、直接输入杂重</td>
+            <td>仅标准称重支持配置；极简快收不展示杂重。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="billing">
+      <h3><i class="fa-solid fa-file-invoice-yen"></i>开单页套用规则</h3>
+      <p class="lead">业务员选择开单品类后，页面自动套用该二级品类配置。页面不展示复杂配置，只展示当前品类要填的内容。</p>
+      <div class="grid-2">
+        <div class="box">
+          <h4>荔枝示例</h4>
+          <ul>
+            <li>开单方式：极简快收</li>
+            <li>默认单位：斤</li>
+            <li>允许计价：仅单价、仅一口价、两者都支持</li>
+            <li>显示总重量，隐藏毛重、皮重、杂重、扣减比例</li>
+            <li>未填总重量不允许暂存</li>
+            <li>已填重量但未填当前计价方式要求的价格为待开价，填全为待付款</li>
+            <li>不产生挂单</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>玉米示例</h4>
+          <ul>
+            <li>开单方式：标准称重</li>
+            <li>默认单位：斤</li>
+            <li>显示毛重、皮重、净重和允许的计价输入</li>
+            <li>可配置杂重计算方式：按扣减比例计算或直接输入杂重</li>
+            <li>有毛重无皮重为挂单；重量完整但未填当前计价方式要求的价格为待开价；填全为待付款</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note" style="margin-top:14px;">
+        配置只影响新开单页面。订单保存后的状态、订单管理列表、订单详情字段，仍按当前原型规则展示。
+      </div>
+    </section>
+
+    <section class="card" id="mock">
+      <h3><i class="fa-solid fa-mobile-screen-button"></i>概念图结构</h3>
+      <div class="mock-wrap">
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-head"><span class="phone-back"><i class="fa-solid fa-chevron-left"></i></span>品类管理</div>
+            <div class="fav-card">
+              <div class="section-title"><span class="bar"></span>我的品类</div>
+              <div class="chips">
+                <span class="chip">玉米</span>
+                <span class="chip">荔枝</span>
+                <span class="chip">苹果</span>
+              </div>
+            </div>
+            <div class="category-body">
+              <div class="left-tabs">
+                <div class="active">粮食</div>
+                <div>水果</div>
+                <div>蔬菜</div>
+                <div>其他</div>
+              </div>
+              <div class="right-list">
+                <div class="section-title"><span class="bar"></span>粮食细分</div>
+                <div class="cat-grid">
+                  <div class="cat-card active">
+                    <div class="gear"><i class="fa-solid fa-gear"></i></div>
+                    <div class="cat-name">玉米</div>
+                    <div class="mini-tag">称重</div>
+                    <div class="plus"><i class="fa-solid fa-check"></i></div>
+                  </div>
+                  <div class="cat-card">
+                    <div class="gear"><i class="fa-solid fa-gear"></i></div>
+                    <div class="cat-name">小麦</div>
+                    <div class="mini-tag">称重</div>
+                    <div class="plus"><i class="fa-solid fa-plus"></i></div>
+                  </div>
+                  <div class="cat-card">
+                    <div class="gear"><i class="fa-solid fa-gear"></i></div>
+                    <div class="cat-name">水稻</div>
+                    <div class="plus"><i class="fa-solid fa-plus"></i></div>
+                  </div>
+                  <div class="cat-card active">
+                    <div class="gear"><i class="fa-solid fa-gear"></i></div>
+                    <div class="cat-name">大豆</div>
+                    <div class="mini-tag">称重</div>
+                    <div class="plus"><i class="fa-solid fa-check"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="sheet">
+              <div class="handle"></div>
+              <div class="section-title"><span class="bar"></span>开单方式设置</div>
+              <div class="template active">
+                <div class="name">标准称重</div>
+                <div class="txt">适合玉米、小麦等需要毛重、皮重，可配置杂重计算方式。</div>
+              </div>
+              <div class="template">
+                <div class="name">极简快收</div>
+                <div class="txt">只填总重量和价格，未填重量不能暂存。</div>
+              </div>
+              <div class="settings-row">
+                <div class="setting-pill">默认单位：斤</div>
+                <div class="setting-pill">计价：两者都支持</div>
+                <div class="setting-pill">默认：单价</div>
+                <div class="setting-pill">杂重方式：按比例</div>
+                <div class="setting-pill">默认扣减：2%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="box">
+            <h4>交互重点</h4>
+            <ul>
+              <li>点击品类卡片主体：仍然添加或移除常用品类。</li>
+              <li>点击齿轮：打开该二级品类的开单方式设置。</li>
+              <li>已配置品类显示小标签，让超管能一眼知道开单方式。</li>
+              <li>业务员开单时不需要理解配置，只选择品类即可。</li>
+            </ul>
+          </div>
+          <div class="box" style="margin-top:14px;">
+            <h4>适老化要求</h4>
+            <ul>
+              <li>配置弹窗用大按钮，不做复杂表格。</li>
+              <li>开单方式名称直接用业务语言：快收、称重。</li>
+              <li>开单页不出现“配置项”字样，只保留实际要填的字段。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="acceptance">
+      <h3><i class="fa-solid fa-list-check"></i>验收点</h3>
+      <div class="grid-2">
+        <div class="box">
+          <h4>品类管理</h4>
+          <ul>
+            <li>二级品类可进入开单方式设置。</li>
+            <li>已配置二级品类能展示配置标签。</li>
+            <li>点击品类主体仍是添加或移除常用品类。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>开单页</h4>
+          <ul>
+            <li>选择不同二级品类后，自动套用字段和默认值。</li>
+            <li>极简快收展示总重量和允许的计价输入，不展示毛重、皮重、杂重、扣减比例；未填总重量时不允许暂存。</li>
+            <li>标准称重固定展示毛重、皮重、净重，可配置允许计价方式和杂重计算方式。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>订单状态</h4>
+          <ul>
+            <li>只有标准称重支持挂单；极简快收不产生挂单。</li>
+            <li>立即付款仍进入确认付款页。</li>
+            <li>不新增订单状态。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>历史数据</h4>
+          <ul>
+            <li>历史订单不回写。</li>
+            <li>订单管理展示不变。</li>
+            <li>订单详情字段结构不变。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="prompt">
+      <h3><i class="fa-solid fa-wand-magic-sparkles"></i>概念图提示词</h3>
+      <div class="prompt">移动端小程序原型界面，丰收云农产品收购系统，绿色主色调，简洁适老化设计。页面为“品类管理”，上方是“我的品类”标签区，下方是左右双栏品类选择，左侧一级品类：粮食、水果、蔬菜、其他；右侧展示二级品类卡片。每个二级品类卡片右上角有小齿轮“设置”入口，已配置的品类显示小标签：快收、称重、一口价。点击设置后从底部弹出“开单方式设置”弹窗，包含两个大号开单方式按钮：极简快收、标准称重；极简快收说明为“只填总重量和价格，适合快速收购，未填重量不能暂存”；标准称重说明为“填写毛重、皮重，支持挂单、待开价、待付款”。下方有默认单位、允许计价方式分段控件，三个选项为“仅单价”“仅一口价”“两者都支持”；当选择两者都支持时，再展示默认计价方式“单价 / 一口价”；可填写默认单价。仅标准称重下展示“杂重计算方式”分段控件，两个选项为“按扣减比例计算”和“直接输入杂重”，选择按比例时展示默认扣减比例输入，选择直接输入时展示默认杂重输入。整体风格和微信小程序类似，白底、浅灰分区、绿色强调色，字体清晰，大按钮，适合中老年用户使用。</div>
+    </section>
+
+    <section class="card">
+      <h3><i class="fa-solid fa-book-open"></i>参考依据</h3>
+      <ul>
+        <li>Shopify POS Smart Grid：通过前置配置把常用操作变成前台快捷入口，减少一线操作步骤。<a href="https://help.shopify.com/en/manual/sell-in-person/shopify-pos/smart-grid-management" target="_blank">查看参考</a></li>
+        <li>Lightspeed POS Option Sets：把商品相关选项提前配置，前台按商品引导操作，减少临场判断。<a href="https://o-series-support.lightspeedhq.com/hc/en-us/articles/31329349913243-What-is-the-difference-between-Products-Modifiers-Variants-Option-Sets" target="_blank">查看参考</a></li>
+      </ul>
+    </section>
+
+    <div class="footer">丰收云三期小版本候选功能文档 · 开单配置与品类管理优化</div>
+  </main>
+</div>
+</body>
+</html>

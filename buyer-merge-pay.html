@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 合并付款</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js?v=2"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        /* ========== Tab 页签（与收购需求管理一致） ========== */
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #E5E7EB;
+            background: transparent;
+        }
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6B7280;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .tab-item.active {
+            color: #11A64A;
+            font-weight: 600;
+        }
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: #11A64A;
+            border-radius: 2px 2px 0 0;
+        }
+
+
+        /* ========== 已合并二级状态筛选 ========== */
+        .merged-filter-bar {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: #F7F8FA;
+            padding-bottom: 8px;
+        }
+        .merged-segment {
+            display: flex;
+            gap: 6px;
+            padding: 4px;
+            border-radius: 14px;
+            background: #F3F4F6;
+        }
+        .merged-segment-item {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: #6B7280;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 0;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .merged-segment-item.active {
+            background: #FFFFFF;
+            color: #11A64A;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        /* ========== 合并记录状态样式 ========== */
+        .merged-group-card--processing {
+            background: linear-gradient(145deg, rgba(14, 165, 233, 0.07) 0%, #FFFFFF 100%) !important;
+            border: 1px solid rgba(14, 165, 233, 0.14);
+        }
+        .merged-group-card--failed {
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.06) 0%, #FFFFFF 100%) !important;
+            border: 1px solid rgba(239, 68, 68, 0.12);
+        }
+        .merged-group-card--partial {
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.08) 0%, #FFFFFF 100%) !important;
+            border: 1px solid rgba(245, 158, 11, 0.16);
+        }
+        .merged-group-card--success {
+            background: linear-gradient(145deg, rgba(17, 166, 74, 0.06) 0%, #FFFFFF 100%) !important;
+            border: 1px solid rgba(17, 166, 74, 0.12);
+        }
+
+        /* ========== 订单卡片（与付款记录二级卡片一致） ========== */
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            overflow: hidden;
+            transition: all 0.15s;
+        }
+        .order-card:active { background: #FAFAFA; }
+
+        .status-pending { background: #FEFCE8; color: #CA8A04; border: 1px solid #FEF08A; }
+        .status-paid { background: #DCFCE7; color: #166534; }
+        .amount-pending { color: #D97706; }
+        .amount-paid { color: #1F2937; }
+
+        /* ========== 勾选框 ========== */
+        .check-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #D1D5DB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .check-circle.checked {
+            border-color: #11A64A;
+            background: #11A64A;
+        }
+        .check-circle.checked i { display: block; }
+        .check-circle i { display: none; color: white; font-size: 9px; }
+
+        /* ========== 底部操作栏 ========== */
+        .bottom-bar {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-top: 1px solid #F3F4F6;
+            padding: 10px 16px;
+            z-index: 10;
+        }
+
+        /* ========== 合并记录（与付款记录一二级卡片一致） ========== */
+        .merged-group-card {
+            background: linear-gradient(145deg, rgba(17, 166, 74, 0.06) 0%, #FFFFFF 100%) !important;
+            border: 1px solid rgba(17, 166, 74, 0.12);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .merged-sub-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .merged-sub-list.expanded {
+            max-height: 2000px;
+        }
+        .expand-icon {
+            transition: transform 0.2s ease;
+        }
+
+        /* ========== Toast ========== */
+        .toast-tip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75);
+            color: white;
+            padding: 10px 22px;
+            border-radius: 16px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 300;
+            white-space: nowrap;
+        }
+        .toast-tip.show { opacity: 1; }
+
+        /* ========== 应用内弹窗 ========== */
+        .app-modal-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 400;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden;
+            transition: all 0.25s ease;
+        }
+        .app-modal-overlay.show { opacity: 1; visibility: visible; }
+        .app-modal {
+            background: #fff; border-radius: 16px; width: 280px;
+            padding: 24px 20px 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            transform: scale(0.9); transition: transform 0.25s ease;
+        }
+        .app-modal-overlay.show .app-modal { transform: scale(1); }
+        .app-modal-title { font-size: 15px; font-weight: 600; color: #1F2937; text-align: center; margin-bottom: 16px; }
+        .app-modal-msg { font-size: 13px; color: #4B5563; text-align: center; margin-bottom: 18px; line-height: 1.5; }
+        .app-modal-btns { display: flex; gap: 10px; }
+        .app-modal-btn {
+            flex: 1; padding: 10px 0; border-radius: 10px; font-size: 14px;
+            font-weight: 500; text-align: center; cursor: pointer; border: none; transition: all 0.15s;
+        }
+        .app-modal-btn:active { transform: scale(0.96); }
+        .app-modal-btn-cancel { background: #F3F4F6; color: #6B7280; }
+        .app-modal-btn-confirm { background: #11A64A; color: #fff; }
+    </style>
+</head>
+<body>
+<div class="mobile-container" style="position:relative; overflow:hidden; display:flex; flex-direction:column;">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- Tab 切换（与收购需求管理一致） -->
+    <div class="-mx-0">
+        <div class="tab-container">
+            <div id="tabMergeable" class="tab-item active" onclick="switchTab('mergeable')">
+                待合并 (<span id="countMergeable">0</span>)
+            </div>
+            <div id="tabMerged" class="tab-item" onclick="switchTab('merged')">
+                已合并 (<span id="countMerged">0</span>)
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 待合并面板 ==================== -->
+    <div id="panelMergeable" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3 space-y-2.5" style="padding-bottom:72px;">
+        <div id="emptyMergeable" class="text-center pt-16 hidden">
+            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-layer-group text-gray-300 text-2xl"></i>
+            </div>
+            <div class="text-[14px] text-gray-500 font-medium">暂无待合并订单</div>
+            <div class="text-[11px] text-gray-400 mt-1">开单时选择「稍后结算」的订单将在此展示</div>
+        </div>
+        <div id="mergeableList"></div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div id="bottomBar" class="bottom-bar flex items-center justify-between">
+        <label class="flex items-center gap-2 cursor-pointer" onclick="toggleSelectAll()">
+            <div class="check-circle" id="selectAllCheck">
+                <i class="fas fa-check"></i>
+            </div>
+            <span class="text-[13px] text-gray-600">全选</span>
+        </label>
+        <div class="flex items-center gap-3">
+            <div class="text-right" id="bottomSummary">
+                <div class="text-[11px] text-gray-400">合计</div>
+                <div class="flex items-end gap-2 justify-end">
+                    <div class="text-[15px] font-bold text-gray-800" style="font-family:Poppins;" id="bottomAmount">¥0.00</div>
+                    <div class="text-[12px] text-gray-500 font-semibold" id="bottomCount">0笔</div>
+                </div>
+            </div>
+            <button onclick="doMergePay()" class="px-5 py-2.5 bg-primary text-white font-semibold text-[13px] rounded-xl active:scale-[0.98] transition-transform shadow-glow disabled:opacity-50" id="mergePayBtn" disabled>
+                确认付款
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== 已合并面板 ==================== -->
+    <div id="panelMerged" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3 space-y-3 hidden" style="padding-bottom:24px;">
+        <div class="merged-filter-bar">
+            <div class="merged-segment">
+                <button id="mergedTabProcessing" class="merged-segment-item active" onclick="switchMergedStatus('processing')">支付中 (<span id="countMergedProcessing">0</span>)</button>
+                <button id="mergedTabCompleted" class="merged-segment-item" onclick="switchMergedStatus('completed')">已完成 (<span id="countMergedCompleted">0</span>)</button>
+            </div>
+        </div>
+
+        <div id="emptyMerged" class="text-center pt-14 hidden">
+            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                <i id="emptyMergedIcon" class="fas fa-circle-notch text-gray-300 text-2xl"></i>
+            </div>
+            <div id="emptyMergedTitle" class="text-[14px] text-gray-500 font-medium">暂无支付中合并记录</div>
+            <div id="emptyMergedDesc" class="text-[11px] text-gray-400 mt-1">发起合并支付后，将在此跟踪支付状态</div>
+        </div>
+        <div id="mergedList"></div>
+    </div>
+
+    <!-- 弹窗 -->
+    <div class="app-modal-overlay" id="appModalOverlay">
+        <div class="app-modal">
+            <div class="app-modal-title" id="appModalTitle"></div>
+            <div id="appModalBody"></div>
+            <div class="app-modal-btns" id="appModalBtns"></div>
+        </div>
+    </div>
+    <div id="toastTip" class="toast-tip"></div>
+</div>
+
+<script>
+// ==================== 初始化 ====================
+document.getElementById('statusBar').innerHTML = renderStatusBar('dark');
+const urlQs = new URLSearchParams(window.location.search);
+const captureState = urlQs.get('captureState') || '';
+const backLink = urlQs.get('source') === 'home' ? 'buyer-home.html' : 'buyer-my.html';
+document.getElementById('navBar').innerHTML = renderHeader('合并付款', backLink, false, 'bg-white text-gray-800 border-b border-gray-100');
+
+const mockStore = window.BuyerMockStore || null;
+const MERGED_STORAGE_KEY = 'MERGED_ORDERS';
+const state = {
+    currentTab: urlQs.get('tab') === 'merged' ? 'merged' : 'mergeable',
+    currentMergedStatus: ['completed', 'failed', 'success'].includes(urlQs.get('mergedStatus')) ? 'completed' : 'processing',
+    selectedIds: new Set(),
+    mergeableOrders: [],
+    mergedOrders: []
+};
+
+function fmt(value) {
+    return Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function calcItemsAmount(items) {
+    return (items || []).reduce((sum, item) => sum + Number(item.subtotal || 0), 0);
+}
+
+function normalizeOrderStatus(status) {
+    if (status === 'unpaid') return 'pending';
+    if (status === 'paid') return 'success';
+    if (status === 'paying') return 'processing';
+    return status || '';
+}
+
+function normalizeMergedStatus(status) {
+    if (status === 'paid' || status === 'completed') return 'success';
+    if (status === 'paying') return 'processing';
+    if (status === 'processing' || status === 'failed' || status === 'success' || status === 'partial') return status;
+    return 'processing';
+}
+
+function smartTime(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const now = new Date();
+    const h = String(d.getHours()).padStart(2, '0');
+    const m = String(d.getMinutes()).padStart(2, '0');
+    const s = String(d.getSeconds()).padStart(2, '0');
+    const mo = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const diffDays = Math.floor((now - d) / 86400000);
+
+    if (diffDays === 0) return `${h}:${m}:${s}`;
+    if (diffDays === 1) return `昨天 ${h}:${m}:${s}`;
+    if (diffDays === 2) return `前天 ${h}:${m}:${s}`;
+    if (now.getFullYear() === d.getFullYear()) return `${mo}-${dd} ${h}:${m}:${s}`;
+    return `${d.getFullYear()}-${mo}-${dd} ${h}:${m}:${s}`;
+}
+
+function smartMergedTime(iso) {
+    if (!iso) return '';
+    const target = new Date(iso);
+    const now = new Date();
+    const targetDate = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+    const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffDays = Math.floor((nowDate - targetDate) / (1000 * 60 * 60 * 24));
+    const hh = String(target.getHours()).padStart(2, '0');
+    const mm = String(target.getMinutes()).padStart(2, '0');
+    const ss = String(target.getSeconds()).padStart(2, '0');
+    const timeStr = `${hh}:${mm}:${ss}`;
+
+    if (diffDays === 0) return `${timeStr}`;
+    if (diffDays === 1) return `昨天 ${timeStr}`;
+    if (diffDays === 2) return `前天 ${timeStr}`;
+    return `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-${String(target.getDate()).padStart(2, '0')} ${timeStr}`;
+}
+
+function countUniquePayees(subOrders) {
+    const set = new Set((subOrders || []).map(o => (o.payeeName || '').trim()).filter(Boolean));
+    return set.size;
+}
+
+function buildSubOrderFromOrder(order, index, mergeId, status) {
+    const fallbackPaymentOrderNo = `ZF${String(Date.now()).slice(-10)}${String(index + 1).padStart(2, '0')}`;
+    return {
+        id: order.id,
+        grainOrderNo: order.id,
+        paymentOrderNo: order.paymentOrderNo || fallbackPaymentOrderNo,
+        payeeName: order.payeeName || '未知',
+        payeeCompany: order.payeeCompany || order.payeeName || '未知',
+        payeeMobile: order.payeeMobile || '',
+        payeeBank: order.payeeBank || '--',
+        payeeCard: order.payeeCard || '--',
+        summary: order.summary || '',
+        amount: Number(order.amount || 0),
+        category: order.category || '',
+        createdAt: order.createdAt || new Date().toISOString(),
+        createTime: order.createdAt || new Date().toISOString(),
+        items: Array.isArray(order.items) ? order.items : [],
+        status: normalizeMergedStatus(status),
+        paidAt: order.paidAt || '',
+        failReason: order.failReason || '',
+        mergeId
+    };
+}
+
+function getSubOrderStatus(status, fallbackStatus) {
+    return normalizeMergedStatus(status || fallbackStatus || 'processing');
+}
+
+function resolveMergedStatusFromSubOrders(subOrders, fallbackStatus) {
+    if (!Array.isArray(subOrders) || subOrders.length === 0) {
+        return normalizeMergedStatus(fallbackStatus);
+    }
+
+    const counts = { processing: 0, success: 0, failed: 0 };
+    subOrders.forEach(function(sub) {
+        const subStatus = getSubOrderStatus(sub.status, fallbackStatus);
+        if (subStatus === 'processing') counts.processing += 1;
+        if (subStatus === 'success') counts.success += 1;
+        if (subStatus === 'failed') counts.failed += 1;
+    });
+
+    if (counts.processing > 0) return 'processing';
+    if (counts.success > 0 && counts.failed > 0) return 'partial';
+    if (counts.success > 0) return 'success';
+    if (counts.failed > 0) return 'failed';
+    return normalizeMergedStatus(fallbackStatus);
+}
+
+function getMergedStatusBreakdown(record) {
+    const counts = { processing: 0, success: 0, failed: 0 };
+    (record && Array.isArray(record.subOrders) ? record.subOrders : []).forEach(function(sub) {
+        const subStatus = getSubOrderStatus(sub.status, record && record.status);
+        if (subStatus === 'processing') counts.processing += 1;
+        if (subStatus === 'success') counts.success += 1;
+        if (subStatus === 'failed') counts.failed += 1;
+    });
+    return counts;
+}
+
+function getFailedSubOrders(record) {
+    return (record && Array.isArray(record.subOrders) ? record.subOrders : []).filter(function(sub) {
+        return getSubOrderStatus(sub.status, record && record.status) === 'failed';
+    });
+}
+
+function getProcessingSubOrders(record) {
+    return (record && Array.isArray(record.subOrders) ? record.subOrders : []).filter(function(sub) {
+        return getSubOrderStatus(sub.status, record && record.status) === 'processing';
+    });
+}
+
+function hasFailedSubOrders(record) {
+    return getFailedSubOrders(record).length > 0;
+}
+
+function normalizeMergedRecord(record, idx) {
+    const fallbackStatus = normalizeMergedStatus(record.status);
+    const mergeId = record.id || `HB${Date.now()}${idx || 0}`;
+    const createdAt = record.createdAt || record.updatedAt || new Date().toISOString();
+    const subOrders = (record.subOrders || []).map((sub, subIdx) => {
+        const paymentOrderNo = sub.paymentOrderNo || `ZF${String(mergeId).replace(/\D/g, '').slice(-10)}${String(subIdx + 1).padStart(2, '0')}`;
+        const amount = Number(sub.amount || calcItemsAmount(sub.items));
+        const subStatus = getSubOrderStatus(sub.status, fallbackStatus);
+        return {
+            id: sub.id || sub.grainOrderNo || `${mergeId}-${subIdx + 1}`,
+            grainOrderNo: sub.grainOrderNo || sub.id || `${mergeId}-${subIdx + 1}`,
+            paymentOrderNo,
+            payeeName: sub.payeeName || '未知',
+            payeeCompany: sub.payeeCompany || sub.payeeName || '未知',
+            payeeMobile: sub.payeeMobile || '',
+            payeeBank: sub.payeeBank || '--',
+            payeeCard: sub.payeeCard || '--',
+            summary: sub.summary || '',
+            amount,
+            category: sub.category || '',
+            createdAt: sub.createdAt || sub.createTime || createdAt,
+            createTime: sub.createTime || sub.createdAt || createdAt,
+            items: Array.isArray(sub.items) ? sub.items : [],
+            status: subStatus,
+            paidAt: sub.paidAt || '',
+            failReason: sub.failReason || '',
+            mergeId
+        };
+    });
+    const status = resolveMergedStatusFromSubOrders(subOrders, fallbackStatus);
+    const firstFailed = subOrders.find(function(sub) { return sub.status === 'failed' && sub.failReason; });
+    return {
+        id: mergeId,
+        status,
+        totalAmount: Number(record.totalAmount || subOrders.reduce((sum, sub) => sum + Number(sub.amount || 0), 0)),
+        createdAt,
+        updatedAt: record.updatedAt || record.paidAt || record.failedAt || createdAt,
+        paidAt: record.paidAt || '',
+        failReason: record.failReason || (firstFailed ? firstFailed.failReason : ''),
+        payMethod: record.payMethod || 'industry',
+        subOrders
+    };
+}
+
+function sortMergedOrders(list) {
+    return list.slice().sort((a, b) => {
+        const ta = new Date(a.updatedAt || a.createdAt).getTime();
+        const tb = new Date(b.updatedAt || b.createdAt).getTime();
+        return tb - ta;
+    });
+}
+
+function saveMergedOrders(list) {
+    localStorage.setItem(MERGED_STORAGE_KEY, JSON.stringify(sortMergedOrders(list.map((item, idx) => normalizeMergedRecord(item, idx)))));
+}
+
+function buildMergedRecordFromOrders(orders, status, options = {}) {
+    const mergeId = options.id || ('HB' + Date.now());
+    const createdAt = options.createdAt || new Date().toISOString();
+    const updatedAt = options.updatedAt || createdAt;
+    const subOrders = orders.map((order, index) => buildSubOrderFromOrder(order, index, mergeId, status));
+    return normalizeMergedRecord({
+        id: mergeId,
+        status,
+        totalAmount: Number(options.totalAmount || subOrders.reduce((sum, sub) => sum + Number(sub.amount || 0), 0)),
+        createdAt,
+        updatedAt,
+        paidAt: options.paidAt || '',
+        failReason: options.failReason || '',
+        payMethod: options.payMethod || 'industry',
+        subOrders
+    });
+}
+
+function buildSeedMergedOrders(allOrders) {
+    const successOrders = allOrders.filter(o => normalizeOrderStatus(o.status) === 'success').slice(0, 2);
+    const failedOrders = allOrders.filter(o => normalizeOrderStatus(o.status) === 'failed').slice(0, 1);
+    const processingOrders = allOrders.filter(o => normalizeOrderStatus(o.status) === 'processing').slice(0, 1);
+    const seeded = [];
+
+    if (processingOrders.length > 0) {
+        seeded.push(buildMergedRecordFromOrders(processingOrders, 'processing', {
+            id: 'HBPROC20260310001',
+            createdAt: processingOrders[0].createdAt,
+            updatedAt: processingOrders[0].createdAt
+        }));
+    }
+    if (failedOrders.length > 0) {
+        seeded.push(buildMergedRecordFromOrders(failedOrders, 'failed', {
+            id: 'HBFAIL20260309001',
+            createdAt: failedOrders[0].createdAt,
+            updatedAt: failedOrders[0].createdAt,
+            failReason: failedOrders[0].failReason || '银行返回失败，请重新发起支付'
+        }));
+    }
+    if (successOrders.length > 0) {
+        seeded.push(buildMergedRecordFromOrders(successOrders, 'success', {
+            id: 'HBSUCC20260308001',
+            createdAt: successOrders[0].createdAt,
+            updatedAt: successOrders[0].paidAt || successOrders[0].createdAt,
+            paidAt: successOrders[0].paidAt || successOrders[0].createdAt
+        }));
+    }
+
+    return sortMergedOrders(seeded);
+}
+
+function loadStoredMergedOrders(allOrders) {
+    const raw = localStorage.getItem(MERGED_STORAGE_KEY);
+    if (raw === null) {
+        const seeded = buildSeedMergedOrders(allOrders);
+        saveMergedOrders(seeded);
+        return seeded;
+    }
+    try {
+        const parsed = JSON.parse(raw);
+        return sortMergedOrders((Array.isArray(parsed) ? parsed : []).map((item, idx) => normalizeMergedRecord(item, idx)));
+    } catch (err) {
+        const seeded = buildSeedMergedOrders(allOrders);
+        saveMergedOrders(seeded);
+        return seeded;
+    }
+}
+
+function syncSubOrdersStatus(mergedRecord, status, extraPatch = {}) {
+    if (!mockStore || !mockStore.updateOrder) return;
+    const fallbackStatus = normalizeMergedStatus(status || mergedRecord.status);
+    mergedRecord.subOrders.forEach(function(sub) {
+        const subStatus = getSubOrderStatus(sub.status, fallbackStatus);
+        mockStore.updateOrder(sub.id, {
+            status: subStatus,
+            payMethod: extraPatch.payMethod || mergedRecord.payMethod || 'industry',
+            paymentOrderNo: sub.paymentOrderNo || '',
+            paidAt: extraPatch.paidAt !== undefined ? extraPatch.paidAt : (sub.paidAt || ''),
+            failReason: extraPatch.failReason !== undefined ? extraPatch.failReason : (sub.failReason || '')
+        });
+    });
+}
+
+function upsertMergedRecord(record) {
+
+    const normalized = normalizeMergedRecord(record);
+    const list = state.mergedOrders.slice();
+    const idx = list.findIndex(item => item.id === normalized.id);
+    if (idx >= 0) {
+        list[idx] = normalized;
+    } else {
+        list.unshift(normalized);
+    }
+    state.mergedOrders = sortMergedOrders(list);
+    saveMergedOrders(state.mergedOrders);
+    return normalized;
+}
+
+function loadData() {
+    const allOrders = mockStore ? mockStore.getOrders() : [];
+    state.mergeableOrders = allOrders.filter(order => ['pending', 'unpaid'].includes(normalizeOrderStatus(order.status)));
+    state.mergedOrders = loadStoredMergedOrders(allOrders);
+    state.selectedIds = new Set([...state.selectedIds].filter(id => state.mergeableOrders.some(order => order.id === id)));
+}
+
+function switchTab(tab) {
+    state.currentTab = tab;
+    syncTabs();
+    render();
+}
+
+function switchMergedStatus(status) {
+    state.currentMergedStatus = status;
+    syncTabs();
+    renderCounts();
+    renderMergedList();
+}
+
+function syncTabs() {
+    document.getElementById('tabMergeable').classList.toggle('active', state.currentTab === 'mergeable');
+    document.getElementById('tabMerged').classList.toggle('active', state.currentTab === 'merged');
+    document.getElementById('panelMergeable').classList.toggle('hidden', state.currentTab !== 'mergeable');
+    document.getElementById('panelMerged').classList.toggle('hidden', state.currentTab !== 'merged');
+    document.getElementById('mergedTabProcessing').classList.toggle('active', state.currentMergedStatus === 'processing');
+    document.getElementById('mergedTabCompleted').classList.toggle('active', state.currentMergedStatus === 'completed');
+}
+
+
+function toggleSelect(orderId, e) {
+    if (e) e.stopPropagation();
+    if (state.selectedIds.has(orderId)) {
+        state.selectedIds.delete(orderId);
+    } else {
+        state.selectedIds.add(orderId);
+    }
+    renderBottomBar();
+    renderMergeableList();
+}
+
+function toggleSelectAll() {
+    const allIds = state.mergeableOrders.map(o => o.id);
+    const allSelected = allIds.length > 0 && allIds.every(id => state.selectedIds.has(id));
+    if (allSelected) {
+        state.selectedIds.clear();
+    } else {
+        allIds.forEach(id => state.selectedIds.add(id));
+    }
+    renderBottomBar();
+    renderMergeableList();
+}
+
+function getOrderStatusMeta(status) {
+    const normalizedStatus = normalizeMergedStatus(status);
+    if (normalizedStatus === 'failed') {
+        return {
+            label: '支付失败',
+            chipClass: 'bg-red-50 text-red-600 border border-red-100',
+            amountClass: 'text-red-600'
+        };
+    }
+    if (normalizedStatus === 'success') {
+        return {
+            label: '支付成功',
+            chipClass: 'bg-green-50 text-green-700 border border-green-100',
+            amountClass: 'text-gray-900'
+        };
+    }
+    return {
+        label: '支付中',
+        chipClass: 'bg-sky-50 text-sky-600 border border-sky-100',
+        amountClass: 'text-sky-700'
+    };
+}
+
+function getMergedStatusMeta(merged) {
+    const status = resolveMergedStatusFromSubOrders(merged.subOrders, merged.status);
+    const counts = getMergedStatusBreakdown(merged);
+    if (status === 'failed') {
+        return {
+            label: '支付失败',
+            chipClass: 'bg-red-50 text-red-600 border border-red-100',
+            amountClass: 'text-red-600',
+            cardClass: 'merged-group-card merged-group-card--failed',
+            helper: `共 ${counts.failed} 笔支付失败，可重新支付`,
+            helperClass: 'text-red-500'
+        };
+    }
+    if (status === 'partial') {
+        return {
+            label: '部分完成',
+            chipClass: 'bg-amber-50 text-amber-700 border border-amber-100',
+            amountClass: 'text-amber-700',
+            cardClass: 'merged-group-card merged-group-card--partial',
+            helper: `已成功 ${counts.success} 笔，失败 ${counts.failed} 笔`,
+            helperClass: 'text-amber-600'
+        };
+    }
+    if (status === 'success') {
+        return {
+            label: '已完成',
+            chipClass: 'bg-green-50 text-green-700 border border-green-100',
+            amountClass: 'text-gray-900',
+            cardClass: 'merged-group-card merged-group-card--success',
+            helper: `共 ${counts.success} 笔，已全部支付成功`,
+            helperClass: 'text-green-600'
+        };
+    }
+    return {
+        label: '支付中',
+        chipClass: 'bg-sky-50 text-sky-600 border border-sky-100',
+        amountClass: 'text-sky-700',
+        cardClass: 'merged-group-card merged-group-card--processing',
+        helper: counts.success > 0
+            ? `待处理 ${counts.processing} 笔，已成功 ${counts.success} 笔`
+            : `共 ${counts.processing} 笔支付处理中`,
+        helperClass: 'text-sky-600'
+    };
+}
+
+function getFilteredMergedOrders() {
+    return state.mergedOrders.filter(function(item) {
+        const mergedStatus = resolveMergedStatusFromSubOrders(item.subOrders, item.status);
+        if (state.currentMergedStatus === 'processing') return mergedStatus === 'processing';
+        return mergedStatus !== 'processing';
+    });
+}
+
+function render() {
+    renderCounts();
+    renderMergeableList();
+    renderMergedList();
+    renderBottomBar();
+    syncTabs();
+}
+
+function renderCounts() {
+    const processingCount = state.mergedOrders.filter(function(item) {
+        return resolveMergedStatusFromSubOrders(item.subOrders, item.status) === 'processing';
+    }).length;
+    const completedCount = state.mergedOrders.filter(function(item) {
+        return resolveMergedStatusFromSubOrders(item.subOrders, item.status) !== 'processing';
+    }).length;
+
+    document.getElementById('countMergeable').textContent = state.mergeableOrders.length;
+    document.getElementById('countMerged').textContent = state.mergedOrders.length;
+    document.getElementById('countMergedProcessing').textContent = processingCount;
+    document.getElementById('countMergedCompleted').textContent = completedCount;
+}
+
+function renderBottomBar() {
+
+    const bottomBar = document.getElementById('bottomBar');
+    const shouldShowBottom = state.currentTab === 'mergeable' && state.mergeableOrders.length > 0;
+    bottomBar.classList.toggle('hidden', !shouldShowBottom);
+    if (!shouldShowBottom) return;
+
+    const selected = state.mergeableOrders.filter(o => state.selectedIds.has(o.id));
+    const count = selected.length;
+    const amount = selected.reduce((sum, o) => sum + Number(o.amount || 0), 0);
+
+    document.getElementById('bottomAmount').textContent = '¥' + fmt(amount);
+    document.getElementById('bottomCount').textContent = count + '笔';
+
+    const btn = document.getElementById('mergePayBtn');
+    btn.disabled = count === 0;
+    btn.textContent = '确认付款';
+
+    const allIds = state.mergeableOrders.map(o => o.id);
+    const allSelected = allIds.length > 0 && allIds.every(id => state.selectedIds.has(id));
+    document.getElementById('selectAllCheck').classList.toggle('checked', allSelected);
+}
+
+function renderMergeableList() {
+    const container = document.getElementById('mergeableList');
+    const empty = document.getElementById('emptyMergeable');
+
+    if (state.mergeableOrders.length === 0) {
+        container.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+    }
+    empty.classList.add('hidden');
+
+    container.innerHTML = state.mergeableOrders.map(order => {
+        const isSelected = state.selectedIds.has(order.id);
+        const timeStr = smartTime(order.createdAt);
+        return `
+            <div class="order-card mb-2.5 ${isSelected ? 'ring-1 ring-primary/30' : ''}">
+                <div class="flex items-stretch">
+                    <div class="flex items-center pl-3 pr-1" onclick="toggleSelect('${order.id}', event)">
+                        <div class="check-circle ${isSelected ? 'checked' : ''}">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1 px-3 py-3.5 cursor-pointer active:bg-gray-50 transition-colors" onclick="goOrderDetail('${order.id}')">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="text-[15px] text-gray-800 font-semibold" style="font-family:Poppins, sans-serif;">
+                                ${timeStr}
+                            </div>
+                            <div class="status-pending text-[11px] px-2 py-0.5 rounded-md font-medium">待支付</div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-[13px] text-gray-500 font-medium flex items-center gap-1.5">
+                                <div class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                                    <i class="fas fa-user text-[10px] text-gray-400"></i>
+                                </div>
+                                付给 ${order.payeeName || '未知'}
+                            </div>
+                            <div class="text-[18px] font-bold amount-pending" style="font-family:Poppins;">
+                                ¥${fmt(order.amount)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderMergedList() {
+    const container = document.getElementById('mergedList');
+    const empty = document.getElementById('emptyMerged');
+    const filtered = getFilteredMergedOrders();
+
+    if (filtered.length === 0) {
+        container.innerHTML = '';
+        empty.classList.remove('hidden');
+        const emptyMeta = {
+            processing: {
+                icon: 'fa-circle-notch',
+                title: '暂无支付中合并记录',
+                desc: '发起合并支付后，将在此跟踪支付状态'
+            },
+            completed: {
+                icon: 'fa-circle-check',
+                title: '暂无已完成合并记录',
+                desc: '已完成中会展示成功、失败和部分完成的合并批次'
+            }
+        }[state.currentMergedStatus];
+        document.getElementById('emptyMergedIcon').className = `fas ${emptyMeta.icon} text-gray-300 text-2xl`;
+        document.getElementById('emptyMergedTitle').textContent = emptyMeta.title;
+        document.getElementById('emptyMergedDesc').textContent = emptyMeta.desc;
+        return;
+    }
+    empty.classList.add('hidden');
+
+    container.innerHTML = filtered.map(function(merged) {
+        const domId = merged.id;
+        const meta = getMergedStatusMeta(merged);
+        const mergedStatus = resolveMergedStatusFromSubOrders(merged.subOrders, merged.status);
+        const retryableSubOrders = getFailedSubOrders(merged);
+        const hasRetryAction = mergedStatus !== 'processing' && retryableSubOrders.length > 0;
+        const headerPaddingClass = hasRetryAction ? 'pr-[110px] min-h-[92px]' : 'pr-12';
+        const rightActionsHtml = hasRetryAction
+            ? `<div class="absolute right-4 top-4 flex flex-col items-end gap-2"><i id="micon-${domId}" class="fas fa-chevron-down text-gray-400 text-[13px] transition-transform duration-200"></i><button type="button" class="text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-red-200 text-red-600 bg-red-50 active:scale-[0.98]" onclick="retryMergePay('${domId}', event)">重新支付</button></div>`
+            : `<i id="micon-${domId}" class="fas fa-chevron-down text-gray-400 text-[13px] absolute right-4 top-4 transition-transform duration-200"></i>`;
+
+        const subHtml = merged.subOrders.map(function(sub, subIdx) {
+            const subMeta = getOrderStatusMeta(sub.status);
+            const isLast = subIdx === merged.subOrders.length - 1;
+            const borderClass = isLast ? '' : 'border-b border-gray-100/50';
+            return `
+                <div class="px-3.5 py-4 ${borderClass} cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-colors" onclick="goOrderDetail('${sub.id}')">
+                    <div class="flex justify-between items-center mb-2.5">
+                        <div class="text-[15px] text-gray-800 font-semibold" style="font-family:Poppins, sans-serif;">
+                            ${smartTime(sub.createdAt || merged.createdAt)}
+                        </div>
+                        <div class="${subMeta.chipClass} text-[11px] px-2 py-0.5 rounded-md font-medium">${subMeta.label}</div>
+                    </div>
+                    <div class="flex justify-between items-center gap-4">
+                        <div class="text-[13px] text-gray-500 font-medium flex items-center gap-1.5 min-w-0">
+                            <div class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                                <i class="fas fa-user text-[10px] text-gray-400"></i>
+                            </div>
+                            <span class="truncate">付给 ${sub.payeeName || '未知'}</span>
+                        </div>
+                        <div class="text-[18px] font-bold ${subMeta.amountClass}" style="font-family:Poppins;">
+                            ¥${fmt(sub.amount)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="${meta.cardClass} mb-3">
+                <div class="px-4 py-3.5 ${headerPaddingClass} relative cursor-pointer" onclick="toggleMerged('${domId}')">
+                    ${rightActionsHtml}
+                    <div class="flex items-center gap-2 text-gray-800 mb-2">
+                        <span class="text-[15px] font-semibold" style="font-family:Poppins, sans-serif;">${smartMergedTime(merged.updatedAt || merged.createdAt)}</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-[12px] text-gray-500 font-medium">合计</span>
+                        <div class="flex items-baseline gap-2 flex-wrap">
+                            <span class="text-[20px] font-bold text-gray-900" style="font-family:Poppins; line-height: 1;">¥${fmt(merged.totalAmount)}</span>
+                            <span class="text-[12px] text-gray-500 font-medium whitespace-nowrap">共 ${merged.subOrders.length} 笔</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="msub-${domId}" class="merged-sub-list">
+                    <div class="bg-white px-3 pb-3 rounded-b-xl">
+                        ${subHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleMerged(id) {
+
+    const list = document.getElementById('msub-' + id);
+    const icon = document.getElementById('micon-' + id);
+    if (!list || !icon) return;
+    const isExpanded = list.classList.toggle('expanded');
+    icon.style.transform = isExpanded ? 'rotate(180deg)' : '';
+}
+
+function findSubOrderFallback(orderId) {
+    for (const merged of state.mergedOrders) {
+        const hit = (merged.subOrders || []).find(sub => sub.id === orderId);
+        if (hit) return { merged, sub: hit };
+    }
+    return null;
+}
+
+function goOrderDetail(orderId) {
+    const allOrders = mockStore ? mockStore.getOrders() : [];
+    let order = allOrders.find(o => o.id === orderId);
+
+    if (!order) {
+        const fallback = findSubOrderFallback(orderId);
+        if (fallback) {
+            order = {
+                id: fallback.sub.id,
+                paymentOrderNo: fallback.sub.paymentOrderNo,
+                bankFlowNo: '',
+                cancelSource: '',
+                amount: Number(fallback.sub.amount || 0),
+                payeeName: fallback.sub.payeeName,
+                payeeMobile: fallback.sub.payeeMobile,
+                payeeBank: fallback.sub.payeeBank,
+                payeeCard: fallback.sub.payeeCard,
+                summary: fallback.sub.summary,
+                createdAt: fallback.sub.createdAt,
+                paidAt: fallback.sub.paidAt || fallback.merged.paidAt || '',
+                failReason: fallback.sub.failReason || fallback.merged.failReason || '',
+                status: fallback.sub.status || fallback.merged.status,
+                payMethod: fallback.merged.payMethod || 'industry',
+                items: fallback.sub.items || [],
+                category: fallback.sub.category || ''
+            };
+        }
+    }
+
+    if (!order) {
+        showToast('订单不存在');
+        return;
+    }
+
+    const params = new URLSearchParams({
+        source: 'merge',
+        orderNo: order.id,
+        grainOrderNo: order.id,
+        paymentOrderNo: order.paymentOrderNo || '',
+        bankFlowNo: order.bankFlowNo || '',
+        cancelSource: order.cancelSource || '',
+        amount: Number(order.amount || 0).toFixed(2),
+        payeeName: order.payeeName || '',
+        payeeMobile: order.payeeMobile || '',
+        payeeBank: order.payeeBank || '',
+        payeeCard: order.payeeCard || '',
+        summary: order.summary || '',
+        createdAt: order.createdAt || '',
+        paidAt: order.paidAt || '',
+        failReason: order.failReason || '',
+        status: normalizeOrderStatus(order.status || ''),
+        payMethod: order.payMethod || '',
+        items: JSON.stringify(order.items || []),
+        category: order.category || ''
+    });
+
+    window.location.href = 'buyer-order-detail.html?' + params.toString();
+}
+
+function openMergedPay(mergeId) {
+    window.location.href = 'buyer-bank-merge-h5.html?source=merge&mergeId=' + encodeURIComponent(mergeId);
+}
+
+function doMergePay() {
+    if (state.selectedIds.size === 0) {
+        showToast('请至少选择一笔订单');
+        return;
+    }
+
+    const selected = state.mergeableOrders.filter(o => state.selectedIds.has(o.id));
+    const totalAmount = selected.reduce((sum, o) => sum + Number(o.amount || 0), 0);
+
+    showAppModal({
+        title: '确认合并付款',
+        message: `本次将合并支付 <b>${selected.length}</b> 笔订单<br>合计金额 <b style="font-family:Poppins; color:#11A64A;">¥${fmt(totalAmount)}</b>`,
+        confirmText: '确认付款',
+        onConfirm: function() { executeMergePay(selected); }
+    });
+}
+
+function executeMergePay(orders) {
+    const now = new Date().toISOString();
+    const mergedOrder = buildMergedRecordFromOrders(orders, 'processing', {
+        id: 'HB' + Date.now(),
+        createdAt: now,
+        updatedAt: now,
+        payMethod: 'industry'
+    });
+
+    syncSubOrdersStatus(mergedOrder, 'processing', { payMethod: 'industry', failReason: '' });
+    upsertMergedRecord(mergedOrder);
+    state.selectedIds.clear();
+    loadData();
+    state.currentTab = 'merged';
+    state.currentMergedStatus = 'processing';
+    render();
+    openMergedPay(mergedOrder.id);
+}
+
+function continueMergePay(mergedId, e) {
+    if (e) e.stopPropagation();
+    openMergedPay(mergedId);
+}
+
+function retryMergePay(mergedId, e) {
+    if (e) e.stopPropagation();
+    const merged = state.mergedOrders.find(item => item.id === mergedId);
+    if (!merged) {
+        showToast('合并记录不存在');
+        return;
+    }
+    const failedSubOrders = getFailedSubOrders(merged);
+    if (failedSubOrders.length === 0) {
+        showToast('当前没有可重付的失败订单');
+        return;
+    }
+    const failedAmount = failedSubOrders.reduce((sum, sub) => sum + Number(sub.amount || 0), 0);
+    showAppModal({
+        title: '重新发起支付',
+        message: `将重新支付 <b>${failedSubOrders.length}</b> 笔失败订单<br>合计金额 <b style="font-family:Poppins; color:#11A64A;">¥${fmt(failedAmount)}</b>`,
+        confirmText: '重新支付',
+        onConfirm: function() { resumeMergedPay(mergedId); }
+    });
+}
+
+function resumeMergedPay(mergedId) {
+    const current = state.mergedOrders.find(item => item.id === mergedId);
+    if (!current) {
+        showToast('合并记录不存在');
+        return;
+    }
+    const failedSubOrders = getFailedSubOrders(current);
+    if (failedSubOrders.length === 0) {
+        showToast('当前没有可重付的失败订单');
+        return;
+    }
+    const now = new Date().toISOString();
+    const reopened = normalizeMergedRecord({
+        ...current,
+        updatedAt: now,
+        failReason: '',
+        subOrders: (current.subOrders || []).map(function(sub) {
+            if (getSubOrderStatus(sub.status, current.status) !== 'failed') return { ...sub };
+            return {
+                ...sub,
+                status: 'processing',
+                failReason: '',
+                paidAt: ''
+            };
+        })
+    });
+    syncSubOrdersStatus(reopened, null, { payMethod: 'industry' });
+    upsertMergedRecord(reopened);
+    loadData();
+    state.currentTab = 'merged';
+    state.currentMergedStatus = 'processing';
+    render();
+    openMergedPay(reopened.id);
+}
+
+function showAppModal({ title, message, confirmText, onConfirm }) {
+    document.getElementById('appModalTitle').textContent = title || '';
+    document.getElementById('appModalBody').innerHTML = message ? `<div class="app-modal-msg">${message}</div>` : '';
+    document.getElementById('appModalBtns').innerHTML = `
+        <button class="app-modal-btn app-modal-btn-cancel" onclick="closeAppModal()">取消</button>
+        <button class="app-modal-btn app-modal-btn-confirm" id="appModalConfirmBtn">${confirmText || '确定'}</button>
+    `;
+    document.getElementById('appModalConfirmBtn').onclick = function() {
+        if (onConfirm) onConfirm();
+        closeAppModal();
+    };
+    document.getElementById('appModalOverlay').classList.add('show');
+}
+
+function closeAppModal() {
+    document.getElementById('appModalOverlay').classList.remove('show');
+}
+
+function showToast(msg) {
+    const tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => tip.classList.remove('show'), 2000);
+}
+
+loadData();
+render();
+if (captureState === 'empty') {
+    state.currentTab = 'mergeable';
+    state.mergeableOrders = [];
+    render();
+}
+if (captureState === 'modal') {
+    const selected = state.mergeableOrders.slice(0, Math.min(2, state.mergeableOrders.length));
+    if (selected.length) {
+        const total = selected.reduce(function(sum, item) {
+            return sum + Number(item.amount || 0);
+        }, 0);
+        state.selectedIds = new Set(selected.map(function(item) { return item.id; }));
+        render();
+        setTimeout(function() {
+            showAppModal({
+                title: '发起合并支付',
+                message: `将合并支付 <b>${selected.length}</b> 笔订单<br>合计金额 <b style="font-family:Poppins; color:#11A64A;">¥${fmt(total)}</b>`,
+                confirmText: '确认付款'
+            });
+        }, 120);
+    }
+}
+window.addEventListener('pageshow', function() {
+    loadData();
+    render();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>合并付款 - 手机银行支付</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+
+        :root {
+            --brand: #11a64a;
+            --brand-strong: #0a7532;
+            --bg: #f7f8fa;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --line: #d6ead6;
+            --panel: rgba(255, 255, 255, 0.95);
+            --panel-soft: linear-gradient(180deg, rgba(17, 122, 55, 0.05), #fbfefc 34%, #ffffff);
+            --shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Poppins", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body.sheet-open {
+            overflow: hidden;
+        }
+
+        .cashier-header-bg {
+            position: absolute;
+            top: 48px;
+            left: 0;
+            right: 0;
+            height: 168px;
+            background: linear-gradient(135deg, #13b15a 0%, #0d964a 100%);
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            z-index: 0;
+        }
+
+        .glass-panel {
+            background: var(--panel);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.42);
+            box-shadow: var(--shadow);
+        }
+
+        .section-card {
+            background: #fff;
+            border: 1px solid #e8edf1;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 14px 14px 12px;
+            margin-bottom: 14px;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .section-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .section-title-line {
+            width: 4px;
+            height: 16px;
+            border-radius: 999px;
+            background: var(--brand);
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(17, 122, 55, 0.08);
+            color: var(--brand-strong);
+            border: 1px solid rgba(17, 122, 55, 0.16);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .summary-card {
+            background: #fff;
+            border: 1px solid #e7ece3;
+            border-radius: 16px;
+            padding: 12px 14px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+        }
+
+        .summary-flat {
+            padding: 2px 2px 0;
+        }
+
+        .summary-card.compact {
+            padding: 10px 12px 12px;
+        }
+
+        .summary-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .summary-head.single {
+            justify-content: flex-start;
+        }
+
+        .summary-head.flat {
+            margin-bottom: 6px;
+        }
+
+        .summary-index {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+
+        .summary-head.title-inline {
+            justify-content: flex-start;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .summary-separator {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            line-height: 1;
+        }
+
+        .summary-merchant {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4b5563;
+            line-height: 1.4;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 9px 0;
+            border-bottom: 1px dashed #f1f5f9;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            width: 86px;
+            flex-shrink: 0;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .info-value {
+            font-size: 13px;
+            color: #111827;
+            font-weight: 500;
+            text-align: right;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+
+        .info-value.money {
+            color: var(--brand-strong);
+            font-family: "Poppins", sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .summary-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .text-action-btn {
+            border: 1px solid rgba(17, 122, 55, 0.18);
+            background: rgba(17, 122, 55, 0.08);
+            color: var(--brand-strong);
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .text-action-btn:active {
+            transform: scale(0.98);
+        }
+
+        .toast-tip {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.78);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            z-index: 120;
+            white-space: nowrap;
+        }
+
+        .toast-tip.show {
+            opacity: 1;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.28);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .sheet-mask {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.42);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.24s ease;
+            z-index: 90;
+        }
+
+        .sheet-mask.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .bottom-sheet {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 91;
+            background: #fff;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            box-shadow: 0 -10px 32px rgba(15, 23, 42, 0.14);
+            transform: translateY(100%);
+            transition: transform 0.28s ease;
+            max-height: calc(100% - 104px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .bottom-sheet.show {
+            transform: translateY(0);
+        }
+
+        .sheet-handle {
+            width: 42px;
+            height: 5px;
+            border-radius: 999px;
+            background: #d1d5db;
+            margin: 10px auto 8px;
+            flex-shrink: 0;
+        }
+
+        .sheet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 0 18px 14px;
+            border-bottom: 1px solid #edf0ea;
+        }
+
+        .sheet-title-wrap {
+            min-width: 0;
+        }
+
+        .sheet-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.3;
+        }
+
+        .sheet-subtitle {
+            margin-top: 4px;
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .sheet-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #6b7280;
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .sheet-body {
+            padding: 16px 18px calc(20px + env(safe-area-inset-bottom));
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sheet-empty {
+            padding: 26px 14px;
+            border: 1px dashed #f1f5f9;
+            border-radius: 14px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            background: #fbfdfb;
+        }
+
+        .result-option {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            border-radius: 16px;
+            padding: 14px 14px 13px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .result-option:active {
+            transform: scale(0.98);
+        }
+
+        .result-option-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .result-option-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .result-option.success .result-option-icon {
+            background: rgba(17, 122, 55, 0.10);
+            color: var(--brand-strong);
+        }
+
+        .result-option.partial .result-option-icon {
+            background: rgba(245, 158, 11, 0.12);
+            color: #b45309;
+        }
+
+        .result-option.failed .result-option-icon {
+            background: rgba(239, 68, 68, 0.10);
+            color: #dc2626;
+        }
+
+        .result-option-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.4;
+        }
+
+        .result-option-desc {
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container relative flex flex-col overflow-hidden min-h-screen" id="appContainer">
+    <div id="statusBar" class="relative z-20"></div>
+    <div class="cashier-header-bg"></div>
+
+    <div id="navBar" class="relative z-20">
+        <div class="flex items-center justify-between px-4 mt-2 h-[44px] text-white">
+            <div class="w-10 h-10 flex items-center justify-start text-white cursor-pointer" onclick="history.back()">
+                <i class="fas fa-chevron-left text-lg"></i>
+            </div>
+            <div class="text-[17px] font-semibold absolute left-0 right-0 text-center pointer-events-none">确认付款</div>
+            <div class="w-10"></div>
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar relative z-10 px-4 pt-4 pb-32">
+        <div class="glass-panel rounded-3xl px-6 py-6 mb-4 flex flex-col items-center justify-center text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-[#13b15a]/10 rounded-full blur-3xl -mr-10 -mt-10 opacity-60"></div>
+            <div class="text-[16px] text-gray-900 font-medium mb-1.5 z-10">应付金额</div>
+            <div class="text-[36px] font-bold text-gray-900 tracking-tight flex items-baseline gap-1 z-10 mt-1" style="font-family:Poppins;">
+                <span class="text-[20px]">¥</span>
+                <span id="mainAmount">0.00</span>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <div class="section-title-line"></div>
+                    <div class="section-title">订单信息</div>
+                </div>
+                <div id="orderCountBadge" class="section-badge">共 0 笔</div>
+            </div>
+            <div id="orderSummaryContainer"></div>
+            <div class="summary-actions">
+                <button id="viewAllOrdersBtn" type="button" class="text-action-btn" onclick="openSheet('orders')">查看全部订单</button>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <div class="section-title-line"></div>
+                    <div class="section-title">收款人信息</div>
+                </div>
+                <div id="payeeCountBadge" class="section-badge">共 0 户</div>
+            </div>
+            <div id="payeeSummaryContainer"></div>
+            <div class="summary-actions">
+                <button id="viewAllPayeesBtn" type="button" class="text-action-btn" onclick="openSheet('payees')">查看全部收款人</button>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-head">
+                <div class="section-title-wrap">
+                    <div class="section-title-line"></div>
+                    <div class="section-title">付款方信息</div>
+                </div>
+            </div>
+            <div class="info-row">
+                <span class="info-label">商户名称</span>
+                <span class="info-value">保定收购站有限公司</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款人</span>
+                <span class="info-value">张老板</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款银行</span>
+                <span class="info-value">邮储银行保定清苑支行</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">付款卡号</span>
+                <span class="info-value">6210********7288</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="absolute bottom-0 left-0 right-0 p-5 bg-white border-t border-gray-100 pb-8 z-50">
+        <button id="payBtn" class="w-full h-12 bg-[#13b15a] active:bg-[#0d964a] text-white font-bold text-[16px] rounded-xl shadow-[0_8px_20px_rgba(19,177,90,0.3)] transition-all flex items-center justify-center gap-2" onclick="processPayment()">
+            确认付款
+        </button>
+    </div>
+
+    <div id="toastTip" class="toast-tip"></div>
+
+    <div id="sheetMask" class="sheet-mask" onclick="closeAllSheets()"></div>
+
+    <div id="ordersSheet" class="bottom-sheet" aria-hidden="true">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <div class="sheet-title-wrap">
+                <div class="sheet-title">全部订单详情</div>
+                <div id="ordersSheetSubtitle" class="sheet-subtitle">共 0 笔订单</div>
+            </div>
+            <button type="button" class="sheet-close" onclick="closeSheet('orders')">×</button>
+        </div>
+        <div id="ordersSheetBody" class="sheet-body"></div>
+    </div>
+
+    <div id="payeesSheet" class="bottom-sheet" aria-hidden="true">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <div class="sheet-title-wrap">
+                <div class="sheet-title">全部收款人</div>
+                <div id="payeesSheetSubtitle" class="sheet-subtitle">共 0 户收款人</div>
+            </div>
+            <button type="button" class="sheet-close" onclick="closeSheet('payees')">×</button>
+        </div>
+        <div id="payeesSheetBody" class="sheet-body"></div>
+    </div>
+
+    <div id="resultSheet" class="bottom-sheet" aria-hidden="true">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <div class="sheet-title-wrap">
+                <div class="sheet-title">支付结果</div>
+                <div id="resultSheetSubtitle" class="sheet-subtitle">请选择本次合并支付结果</div>
+            </div>
+            <button type="button" class="sheet-close" onclick="closeSheet('result')">×</button>
+        </div>
+        <div id="resultSheetBody" class="sheet-body"></div>
+    </div>
+</div>
+
+<script>
+const mockMergeData = {
+    paymentOrderNo: 'ZF202603050800100',
+    createdAt: new Date().toISOString(),
+    subOrders: [
+        {
+            grainOrderNo: 'SL202603050101',
+            paymentOrderNo: 'ZF202603050101',
+            createTime: new Date(Date.now() - 3600000).toISOString(),
+            payeeCompany: '李大姐农户',
+            payeeName: '李大姐',
+            payeeBank: '邮储银行济南历城支行',
+            payeeCard: '6228********8901',
+            items: [
+                { name: '红富士苹果', price: 2.80, qty: 600, unit: '斤', subtotal: 1680.00 },
+                { name: '黄元帅苹果', price: 3.50, qty: 420, unit: '斤', subtotal: 1470.00 }
+            ]
+        },
+        {
+            grainOrderNo: 'SL202603050102',
+            paymentOrderNo: 'ZF202603050102',
+            createTime: new Date(Date.now() - 7200000).toISOString(),
+            payeeCompany: '王大哥果蔬合作社',
+            payeeName: '王大哥',
+            payeeBank: '邮储银行潍坊寒亭支行',
+            payeeCard: '6210********1258',
+            items: [
+                { name: '西红柿', price: 1.60, qty: 1000, unit: '斤', subtotal: 1600.00 },
+                { name: '黄瓜', price: 2.20, qty: 800, unit: '斤', subtotal: 1760.00 }
+            ]
+        },
+        {
+            grainOrderNo: 'SL202603050103',
+            paymentOrderNo: 'ZF202603050103',
+            createTime: new Date(Date.now() - 10800000).toISOString(),
+            payeeCompany: '张三农产品合作社',
+            payeeName: '张三',
+            payeeBank: '农业银行保定支行',
+            payeeCard: '6228********6666',
+            items: [
+                { name: '普通玉米', price: 1.25, qty: 2000, unit: '斤', subtotal: 2500.00 }
+            ]
+        }
+    ]
+};
+
+const MERGED_STORAGE_KEY = 'MERGED_ORDERS';
+const query = new URLSearchParams(window.location.search);
+const captureState = query.get('captureState') || '';
+const mergeId = query.get('mergeId');
+const mockStore = window.BuyerMockStore || null;
+document.getElementById('statusBar').innerHTML = renderStatusBar ? renderStatusBar() : '';
+
+function formatMoney(amount) {
+    return Number(amount || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatTime(isoString) {
+    if (!isoString) return '--';
+    const d = new Date(isoString);
+    if (Number.isNaN(d.getTime())) return '--';
+    return d.getFullYear() + '-'
+        + String(d.getMonth() + 1).padStart(2, '0') + '-'
+        + String(d.getDate()).padStart(2, '0') + ' '
+        + String(d.getHours()).padStart(2, '0') + ':'
+        + String(d.getMinutes()).padStart(2, '0');
+}
+
+function escapeHtml(unsafe) {
+    return (unsafe || '').toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function calcSubOrderAmount(subOrder) {
+    if (typeof subOrder.amount === 'number') return Number(subOrder.amount || 0);
+    return (subOrder.items || []).reduce((sum, item) => sum + Number(item.subtotal || 0), 0);
+}
+
+function normalizeMergedStatus(status) {
+    if (status === 'paid' || status === 'completed') return 'success';
+    if (status === 'paying') return 'processing';
+    if (status === 'processing' || status === 'failed' || status === 'success' || status === 'partial') return status;
+    return 'processing';
+}
+
+function getSubOrderStatus(status, fallbackStatus) {
+    return normalizeMergedStatus(status || fallbackStatus || 'processing');
+}
+
+function resolveMergedStatusFromSubOrders(subOrders, fallbackStatus) {
+    if (!Array.isArray(subOrders) || subOrders.length === 0) {
+        return normalizeMergedStatus(fallbackStatus);
+    }
+    const counts = { processing: 0, success: 0, failed: 0 };
+    subOrders.forEach(function(sub) {
+        const subStatus = getSubOrderStatus(sub.status, fallbackStatus);
+        if (subStatus === 'processing') counts.processing += 1;
+        if (subStatus === 'success') counts.success += 1;
+        if (subStatus === 'failed') counts.failed += 1;
+    });
+    if (counts.processing > 0) return 'processing';
+    if (counts.success > 0 && counts.failed > 0) return 'partial';
+    if (counts.success > 0) return 'success';
+    if (counts.failed > 0) return 'failed';
+    return normalizeMergedStatus(fallbackStatus);
+}
+
+function getProcessingSubOrders(record) {
+    return (record && Array.isArray(record.subOrders) ? record.subOrders : []).filter(function(sub) {
+        return getSubOrderStatus(sub.status, record && record.status) === 'processing';
+    });
+}
+
+function getPayableSubOrders(record) {
+    const processingSubOrders = getProcessingSubOrders(record);
+    if (processingSubOrders.length > 0) return processingSubOrders;
+    return record && Array.isArray(record.subOrders) ? record.subOrders : [];
+}
+
+function normalizeMergedRecord(record, idx) {
+    const fallbackStatus = normalizeMergedStatus(record.status);
+    const mergeKey = record.id || `HB${Date.now()}${idx || 0}`;
+    const createdAt = record.createdAt || record.updatedAt || new Date().toISOString();
+    const subOrders = (record.subOrders || []).map((sub, subIdx) => {
+        const subStatus = getSubOrderStatus(sub.status, fallbackStatus);
+        return {
+            id: sub.id || sub.grainOrderNo || `${mergeKey}-${subIdx + 1}`,
+            grainOrderNo: sub.grainOrderNo || sub.id || `${mergeKey}-${subIdx + 1}`,
+            paymentOrderNo: sub.paymentOrderNo || `ZF${String(mergeKey).replace(/\D/g, '').slice(-10)}${String(subIdx + 1).padStart(2, '0')}`,
+            createTime: sub.createTime || sub.createdAt || createdAt,
+            createdAt: sub.createdAt || sub.createTime || createdAt,
+            payeeCompany: sub.payeeCompany || sub.payeeName || '未知',
+            payeeName: sub.payeeName || '未知',
+            payeeBank: sub.payeeBank || '--',
+            payeeCard: sub.payeeCard || '--',
+            amount: Number(sub.amount || 0),
+            items: Array.isArray(sub.items) ? sub.items : [],
+            status: subStatus,
+            paidAt: sub.paidAt || '',
+            failReason: sub.failReason || ''
+        };
+    });
+    const status = resolveMergedStatusFromSubOrders(subOrders, fallbackStatus);
+    const firstFailed = subOrders.find(function(sub) { return sub.status === 'failed' && sub.failReason; });
+    return {
+        id: mergeKey,
+        status,
+        totalAmount: Number(record.totalAmount || subOrders.reduce((sum, sub) => sum + Number(sub.amount || 0), 0)),
+        createdAt,
+        updatedAt: record.updatedAt || record.paidAt || createdAt,
+        paidAt: record.paidAt || '',
+        failReason: record.failReason || (firstFailed ? firstFailed.failReason : ''),
+        payMethod: record.payMethod || 'industry',
+        subOrders
+    };
+}
+
+function loadMergedOrders() {
+    const raw = localStorage.getItem(MERGED_STORAGE_KEY);
+    if (!raw) return [];
+    try {
+        const parsed = JSON.parse(raw);
+        return (Array.isArray(parsed) ? parsed : []).map((item, idx) => normalizeMergedRecord(item, idx));
+    } catch (err) {
+        return [];
+    }
+}
+
+function saveMergedOrders(list) {
+    localStorage.setItem(MERGED_STORAGE_KEY, JSON.stringify(list));
+}
+
+function findMergedOrderById(targetId) {
+
+    return loadMergedOrders().find(item => item.id === targetId) || null;
+}
+
+function buildPageDataFromMerged(record) {
+    const payableSubOrders = getPayableSubOrders(record);
+    return {
+        paymentOrderNo: record.id,
+        createdAt: record.createdAt,
+        totalSubOrderCount: (record.subOrders || []).length,
+        payableSubOrderCount: payableSubOrders.length,
+        isRetry: payableSubOrders.length < (record.subOrders || []).length,
+        subOrders: payableSubOrders.map(sub => ({
+            grainOrderNo: sub.grainOrderNo || sub.id,
+            paymentOrderNo: sub.paymentOrderNo || '',
+            createTime: sub.createTime || sub.createdAt || record.createdAt,
+            payeeCompany: sub.payeeCompany || sub.payeeName || '未知',
+            payeeName: sub.payeeName || '未知',
+            payeeBank: sub.payeeBank || '--',
+            payeeCard: sub.payeeCard || '--',
+            amount: Number(sub.amount || 0),
+            items: Array.isArray(sub.items) ? sub.items : []
+        }))
+    };
+}
+
+const activeMergedRecord = mergeId ? findMergedOrderById(mergeId) : null;
+const activeMergeData = activeMergedRecord ? buildPageDataFromMerged(activeMergedRecord) : mockMergeData;
+
+function buildOrderCard(subOrder, index, inlineMode) {
+    const amount = calcSubOrderAmount(subOrder);
+    const wrapperClass = inlineMode ? 'summary-flat' : 'summary-card';
+    const headClass = inlineMode ? 'summary-head single flat title-inline' : 'summary-head single title-inline';
+    return [
+        '<div class="' + wrapperClass + '">',
+            '<div class="' + headClass + '">',
+                '<div class="summary-index">订单' + (index + 1) + '</div>',
+                '<span class="summary-separator">·</span>',
+                '<div class="summary-merchant">' + escapeHtml(subOrder.payeeCompany || '--') + '</div>',
+            '</div>',
+            '<div class="info-row"><span class="info-label">收粮订单号</span><span class="info-value">' + escapeHtml(subOrder.grainOrderNo || '--') + '</span></div>',
+            '<div class="info-row"><span class="info-label">支付订单号</span><span class="info-value">' + escapeHtml(subOrder.paymentOrderNo || '--') + '</span></div>',
+            '<div class="info-row"><span class="info-label">应付金额</span><span class="info-value money">¥ ' + formatMoney(amount) + '</span></div>',
+            '<div class="info-row"><span class="info-label">下单时间</span><span class="info-value">' + escapeHtml(formatTime(subOrder.createTime)) + '</span></div>',
+        '</div>'
+    ].join('');
+}
+
+function buildPayeeCard(subOrder, index, inlineMode) {
+    const wrapperClass = inlineMode ? 'summary-flat' : 'summary-card compact';
+    const headClass = inlineMode ? 'summary-head single flat' : 'summary-head single';
+    return [
+        '<div class="' + wrapperClass + '">',
+            '<div class="' + headClass + '">',
+                '<div class="summary-index">收款人' + (index + 1) + '</div>',
+            '</div>',
+            '<div class="info-row"><span class="info-label">商户名称</span><span class="info-value">' + escapeHtml(subOrder.payeeCompany || '--') + '</span></div>',
+            '<div class="info-row"><span class="info-label">收款人</span><span class="info-value">' + escapeHtml(subOrder.payeeName || '--') + '</span></div>',
+            '<div class="info-row"><span class="info-label">收款银行</span><span class="info-value">' + escapeHtml(subOrder.payeeBank || '--') + '</span></div>',
+            '<div class="info-row"><span class="info-label">收款卡号</span><span class="info-value">' + escapeHtml(subOrder.payeeCard || '--') + '</span></div>',
+        '</div>'
+    ].join('');
+}
+
+function hasOpenSheet() {
+    return ['ordersSheet', 'payeesSheet', 'resultSheet'].some(function(id) {
+        const el = document.getElementById(id);
+        return el && el.classList.contains('show');
+    });
+}
+
+function setSheetState(sheetId, visible) {
+    const mask = document.getElementById('sheetMask');
+    const sheet = document.getElementById(sheetId);
+    if (!mask || !sheet) return;
+    sheet.classList.toggle('show', visible);
+    sheet.setAttribute('aria-hidden', visible ? 'false' : 'true');
+    const anyOpen = hasOpenSheet();
+    mask.classList.toggle('show', anyOpen);
+    document.body.classList.toggle('sheet-open', anyOpen);
+}
+
+function openSheet(type) {
+    if (type === 'orders') setSheetState('ordersSheet', true);
+    if (type === 'payees') setSheetState('payeesSheet', true);
+    if (type === 'result') setSheetState('resultSheet', true);
+}
+
+function closeSheet(type) {
+    if (type === 'orders') setSheetState('ordersSheet', false);
+    if (type === 'payees') setSheetState('payeesSheet', false);
+    if (type === 'result') setSheetState('resultSheet', false);
+}
+
+function closeAllSheets() {
+    ['ordersSheet', 'payeesSheet', 'resultSheet'].forEach(function(id) {
+        const sheet = document.getElementById(id);
+        if (sheet) {
+            sheet.classList.remove('show');
+            sheet.setAttribute('aria-hidden', 'true');
+        }
+    });
+    document.getElementById('sheetMask').classList.remove('show');
+    document.body.classList.remove('sheet-open');
+}
+
+function fillPage() {
+
+    const subOrders = activeMergeData.subOrders || [];
+    const totalAmount = subOrders.reduce((sum, sub) => sum + calcSubOrderAmount(sub), 0);
+    const orderCount = subOrders.length;
+    const payeeCount = subOrders.length;
+    const first = subOrders[0];
+
+    document.getElementById('mainAmount').textContent = formatMoney(totalAmount);
+    document.getElementById('orderCountBadge').textContent = '共 ' + orderCount + ' 笔';
+    document.getElementById('payeeCountBadge').textContent = '共 ' + payeeCount + ' 户';
+    document.getElementById('viewAllOrdersBtn').style.display = orderCount > 1 ? 'inline-flex' : 'none';
+    document.getElementById('viewAllPayeesBtn').style.display = payeeCount > 1 ? 'inline-flex' : 'none';
+
+    document.getElementById('orderSummaryContainer').innerHTML = first
+        ? buildOrderCard(first, 0, true)
+        : '<div class="sheet-empty">暂无订单信息</div>';
+
+    document.getElementById('payeeSummaryContainer').innerHTML = first
+        ? buildPayeeCard(first, 0, true)
+        : '<div class="sheet-empty">暂无收款人信息</div>';
+
+    document.getElementById('ordersSheetSubtitle').textContent = '共 ' + orderCount + ' 笔订单';
+    document.getElementById('payeesSheetSubtitle').textContent = '共 ' + payeeCount + ' 户收款人';
+
+    document.getElementById('ordersSheetBody').innerHTML = orderCount
+        ? subOrders.map((sub, index) => buildOrderCard(sub, index, false)).join('')
+        : '<div class="sheet-empty">暂无订单信息</div>';
+
+    document.getElementById('payeesSheetBody').innerHTML = payeeCount
+        ? subOrders.map((sub, index) => buildPayeeCard(sub, index, false)).join('')
+        : '<div class="sheet-empty">暂无收款人信息</div>';
+}
+
+function syncMockStoreFromMergedRecord(record) {
+    if (!mockStore || !mockStore.updateOrder) return;
+    (record.subOrders || []).forEach(function(sub) {
+        mockStore.updateOrder(sub.id, {
+            status: getSubOrderStatus(sub.status, record.status),
+            payMethod: record.payMethod || 'industry',
+            paymentOrderNo: sub.paymentOrderNo || '',
+            paidAt: sub.paidAt || '',
+            failReason: sub.failReason || ''
+        });
+    });
+}
+
+function buildOutcomeSubOrders(record, outcome, now) {
+    const payableSubOrders = getPayableSubOrders(record);
+    const payableIds = payableSubOrders.map(function(sub) { return sub.id; });
+    const payableIdSet = new Set(payableIds);
+    const partialSuccessIds = new Set(
+        outcome === 'partial'
+            ? payableIds.slice(0, Math.ceil(payableIds.length / 2))
+            : []
+    );
+
+    return (record.subOrders || []).map(function(sub) {
+        if (!payableIdSet.has(sub.id)) return { ...sub };
+        if (outcome === 'success' || (outcome === 'partial' && partialSuccessIds.has(sub.id))) {
+            return {
+                ...sub,
+                status: 'success',
+                paidAt: now,
+                failReason: ''
+            };
+        }
+        return {
+            ...sub,
+            status: 'failed',
+            paidAt: '',
+            failReason: '银行返回失败，请重新支付'
+        };
+    });
+}
+
+function finalizeMergedPayment(targetId, outcome) {
+    if (!targetId) return null;
+    const list = loadMergedOrders();
+    const idx = list.findIndex(function(item) { return item.id === targetId; });
+    if (idx < 0) return null;
+    const current = normalizeMergedRecord(list[idx], idx);
+    const now = new Date().toISOString();
+    const nextSubOrders = buildOutcomeSubOrders(current, outcome, now);
+    const nextStatus = resolveMergedStatusFromSubOrders(nextSubOrders, current.status);
+    const updatedRecord = normalizeMergedRecord({
+        ...current,
+        updatedAt: now,
+        paidAt: nextStatus === 'success' ? now : (current.paidAt || ''),
+        failReason: nextStatus === 'failed'
+            ? '银行返回失败，请重新支付'
+            : (nextStatus === 'partial' ? '部分订单支付失败，可重新支付' : ''),
+        payMethod: 'industry',
+        subOrders: nextSubOrders
+    }, idx);
+    list[idx] = updatedRecord;
+    saveMergedOrders(list);
+    syncMockStoreFromMergedRecord(updatedRecord);
+    return updatedRecord;
+}
+
+function renderResultSheet() {
+    const subOrders = activeMergeData.subOrders || [];
+    const totalAmount = subOrders.reduce((sum, sub) => sum + calcSubOrderAmount(sub), 0);
+    const canPartial = subOrders.length > 1;
+    document.getElementById('resultSheetSubtitle').textContent = `本次支付 ${subOrders.length} 笔，合计 ¥${formatMoney(totalAmount)}`;
+    document.getElementById('resultSheetBody').innerHTML = [
+        `<button type="button" class="result-option success" onclick="confirmPaymentOutcome('success')">
+            <div class="result-option-main">
+                <div class="result-option-icon"><i class="fas fa-circle-check"></i></div>
+                <div>
+                    <div class="result-option-title">全部成功</div>
+                    <div class="result-option-desc">全部子单支付成功，合并单进入已完成</div>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right text-gray-300"></i>
+        </button>`,
+        canPartial ? `<button type="button" class="result-option partial" onclick="confirmPaymentOutcome('partial')">
+            <div class="result-option-main">
+                <div class="result-option-icon"><i class="fas fa-circle-half-stroke"></i></div>
+                <div>
+                    <div class="result-option-title">部分成功</div>
+                    <div class="result-option-desc">仅本次部分子单成功，其余失败，可在原合并单重付</div>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right text-gray-300"></i>
+        </button>` : '',
+        `<button type="button" class="result-option failed" onclick="confirmPaymentOutcome('failed')">
+            <div class="result-option-main">
+                <div class="result-option-icon"><i class="fas fa-circle-xmark"></i></div>
+                <div>
+                    <div class="result-option-title">全部失败</div>
+                    <div class="result-option-desc">本次子单全部支付失败，可回到原合并单重新支付</div>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right text-gray-300"></i>
+        </button>`
+    ].filter(Boolean).join('');
+}
+
+function confirmPaymentOutcome(outcome) {
+    closeSheet('result');
+    startPaymentProcess(outcome);
+}
+
+function startPaymentProcess(outcome) {
+    const btn = document.getElementById('payBtn');
+    if (btn.disabled) return;
+
+    btn.disabled = true;
+    btn.classList.add('opacity-90');
+    btn.innerHTML = '<div class="spinner"></div><span class="ml-2">处理中...</span>';
+
+    setTimeout(function() {
+        if (activeMergedRecord && mergeId) {
+            finalizeMergedPayment(mergeId, outcome);
+        }
+        const buttonMeta = {
+            success: {
+                text: '支付成功',
+                color: '#13b15a',
+                icon: 'fa-check-circle'
+            },
+            partial: {
+                text: '部分完成',
+                color: '#f59e0b',
+                icon: 'fa-circle-half-stroke'
+            },
+            failed: {
+                text: '支付失败',
+                color: '#ef4444',
+                icon: 'fa-circle-xmark'
+            }
+        }[outcome] || { text: '支付成功', color: '#13b15a', icon: 'fa-check-circle' };
+        btn.innerHTML = `<i class="fas ${buttonMeta.icon}"></i><span class="ml-2">${buttonMeta.text}</span>`;
+        btn.style.backgroundColor = buttonMeta.color;
+        showToast('支付结果已同步');
+        setTimeout(function() {
+            history.back();
+        }, 1400);
+    }, 1200);
+}
+
+function showToast(msg) {
+    const tip = document.getElementById('toastTip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() {
+        tip.classList.remove('show');
+    }, 2200);
+}
+
+function processPayment() {
+    const btn = document.getElementById('payBtn');
+    if (btn.disabled) return;
+    renderResultSheet();
+    openSheet('result');
+}
+
+fillPage();
+if (captureState === 'modal') {
+    setTimeout(function() {
+        renderResultSheet();
+        openSheet('result');
+    }, 120);
+}
+</script>
+</body>
+</html>

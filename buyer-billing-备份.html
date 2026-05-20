@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 开单</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .category-grid-item { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .category-grid-item:active { transform: scale(0.95); }
+        .product-tag {
+            display: inline-flex; align-items: center; padding: 5px 10px;
+            background: #F3F4F6; border-radius: 12px; font-size: 12px;
+            color: #4B5563; transition: all 0.2s ease; cursor: pointer;
+            border: 1px solid transparent; white-space: nowrap;
+        }
+        .product-tag:hover { background: #E5E7EB; }
+        .product-tag:active { transform: scale(0.95); }
+        .billing-sheet-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 200; opacity: 0; visibility: hidden; transition: all 0.3s ease;
+        }
+        .billing-sheet-overlay.show { opacity: 1; visibility: visible; }
+        .billing-sheet {
+            position: absolute; left: 0; right: 0; bottom: 0; z-index: 210;
+            background: #FFFFFF; border-radius: 24px 24px 0 0;
+            transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 80%; overflow-y: auto;
+        }
+        .billing-sheet.show { transform: translateY(0); }
+        .billing-sheet-handle { width: 40px; height: 4px; background: #D1D5DB; border-radius: 2px; margin: 12px auto; }
+        .custom-input {
+            width: 100%; padding: 10px 14px; border: 1px solid #E5E7EB;
+            border-radius: 12px; font-size: 14px; outline: none;
+            transition: border-color 0.2s; color: #1F2937; background: #fff;
+        }
+        .custom-input:focus { border-color: #11A64A; }
+        .step-card {
+            background: #FFFFFF; border: 1px solid rgba(243,244,246,0.8);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02); border-radius: 1rem; overflow: hidden;
+        }
+        .product-item { background: #F9FAFB; border-radius: 12px; padding: 12px; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+        .toast-tip {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.75); color: white; padding: 10px 22px;
+            border-radius: 16px; font-size: 13px; pointer-events: none;
+            opacity: 0; transition: opacity 0.3s; z-index: 300; white-space: nowrap;
+        }
+        .toast-tip.show { opacity: 1; }
+        .app-modal-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.45);
+            z-index: 400; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.25s ease;
+        }
+        .app-modal-overlay.show { opacity: 1; visibility: visible; }
+        .app-modal { background: #fff; border-radius: 16px; width: 280px; padding: 24px 20px 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); transform: scale(0.9); transition: transform 0.25s ease; }
+        .app-modal-overlay.show .app-modal { transform: scale(1); }
+        .app-modal-title { font-size: 15px; font-weight: 600; color: #1F2937; text-align: center; margin-bottom: 16px; }
+        .app-modal-input { width: 100%; padding: 10px 12px; border: 1px solid #E5E7EB; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; color: #1F2937; margin-bottom: 16px; box-sizing: border-box; }
+        .app-modal-input:focus { border-color: #11A64A; }
+        .app-modal-msg { font-size: 13px; color: #4B5563; text-align: center; margin-bottom: 18px; line-height: 1.5; }
+        .app-modal-btns { display: flex; gap: 10px; }
+        .app-modal-btn { flex: 1; padding: 10px 0; border-radius: 10px; font-size: 14px; font-weight: 500; text-align: center; cursor: pointer; border: none; transition: all 0.15s; }
+        .app-modal-btn:active { transform: scale(0.96); }
+        .app-modal-btn-cancel { background: #F3F4F6; color: #6B7280; }
+        .app-modal-btn-confirm { background: #11A64A; color: #fff; }
+        .app-modal-btn-danger { background: #EF4444; color: #fff; }
+        /* Photo grid */
+        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .photo-thumb {
+            position: relative; width: 100%; padding-bottom: 100%; border-radius: 10px;
+            overflow: hidden; background: #F3F4F6;
+        }
+        .photo-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .photo-thumb .photo-del {
+            position: absolute; top: 4px; right: 4px; width: 20px; height: 20px;
+            background: rgba(0,0,0,0.5); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; z-index: 2;
+        }
+        .photo-thumb .photo-del i { color: #fff; font-size: 10px; }
+        .photo-add-btn {
+            width: 100%; padding-bottom: 100%; position: relative; border-radius: 10px;
+            border: 2px dashed #D1D5DB; background: #F9FAFB; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .photo-add-btn:hover { border-color: #11A64A; background: #F0FDF4; }
+        .photo-add-btn .inner {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 2px;
+        }
+        .photo-add-btn.disabled { opacity: 0.4; pointer-events: none; }
+        /* Combo menu bottom sheet */
+        .combo-menu-item {
+            display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px;
+            border-radius: 12px; cursor: pointer; transition: all 0.15s;
+        }
+        .combo-menu-item:active:not(.combo-disabled) { background: #F0FDF4; transform: scale(0.98); }
+        .combo-menu-item.combo-disabled { opacity: 0.45; cursor: not-allowed; }
+        /* Product flat card */
+        .product-flat-card {
+            background: #F9FAFB; border: 1px solid rgba(0,0,0,0.04);
+            border-radius: 14px; padding: 14px; position: relative;
+        }
+        .product-flat-card .flat-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; }
+        .product-flat-card .flat-label { font-size: 13px; color: #6B7280; }
+        .product-flat-card .flat-value { font-size: 14px; color: #1F2937; font-weight: 500; }
+        .product-flat-card .flat-highlight { color: #11A64A; font-weight: 700; font-family: Poppins, sans-serif; }
+        .draft-entry-btn {
+            position: relative; width: 48px; height: 48px;
+            border-radius: 14px; border: 1px solid #E5E7EB; background: #FFFFFF;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #6B7280; transition: all 0.15s ease;
+        }
+        .draft-entry-btn:active { transform: scale(0.97); background: #F9FAFB; }
+        .draft-entry-badge {
+            position: absolute; top: -5px; right: -5px;
+            min-width: 18px; height: 18px; padding: 0 5px;
+            border-radius: 999px; background: #EF4444; color: #FFFFFF;
+            font-size: 10px; font-weight: 700; line-height: 18px; text-align: center;
+            box-shadow: 0 2px 8px rgba(239,68,68,0.22);
+        }
+        .draft-entry-badge.hidden { display: none; }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto hide-scrollbar px-4 pt-3 pb-4">
+
+        <!-- ❶ 品类选择 -->
+        <div class="step-card mb-3">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1 h-4 bg-primary rounded-full"></div>
+                        <span class="text-sm font-medium text-gray-800">开单品类 <span class="text-gray-400 text-xs font-normal ml-1">请选择开单品类</span></span>
+                    </div>
+                    <a href="buyer-category-manage.html" class="text-gray-400 p-1 flex items-center gap-1 active:bg-gray-100 rounded-md cursor-pointer transition-colors no-underline">
+                        <i class="fas fa-sliders-h text-xs"></i>
+                        <span class="text-[12px]">设置</span>
+                    </a>
+                </div>
+                <div id="categoryContainer" class="relative">
+                    <div id="primaryCategoryList" class="flex overflow-x-auto hide-scrollbar gap-2 w-full mb-3 pb-1"></div>
+                    <div id="secondaryCategoryList" class="flex overflow-x-auto gap-2 pb-1 hide-scrollbar w-full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ❷ 商品明细 (一单一品) -->
+        <div class="step-card mb-3">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1 h-4 bg-primary rounded-full"></div>
+                        <span class="text-sm font-medium text-gray-800">商品明细</span>
+                    </div>
+                    <!-- <span class="text-xs text-gray-400" id="itemCount">一单一品</span> -->
+                </div>
+
+                <!-- 已添加商品的卡片展示 -->
+                <div id="productFlatCard" class="hidden mb-3"></div>
+
+                <!-- 添加商品按钮 -->
+                <button id="addProductBtn" onclick="openAddProductSheet()" class="w-full py-2.5 border border-dashed border-gray-300 rounded-2xl text-[14px] text-gray-500 hover:border-[#11A64A] hover:text-[#11A64A] transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                    <i class="fas fa-plus-circle"></i>
+                    添加商品
+                </button>
+            </div>
+
+            <!-- 应付金额 -->
+            <div class="border-t border-gray-100"></div>
+            <div class="p-4 bg-gray-50/50">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-coins text-gray-400 text-sm"></i>
+                        <span class="text-sm font-medium text-gray-800">应付金额</span>
+                    </div>
+                    <span class="text-lg font-bold text-primary" style="font-family:Poppins;">¥<span id="totalAmount">0.00</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ❸ 拍照留存 -->
+        <div class="step-card mb-3">
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-1 h-4 bg-primary rounded-full"></div>
+                    <span class="text-sm font-medium text-gray-800">拍照留存</span>
+                    <span class="text-xs text-gray-400" id="photoCount">(0/9)</span>
+                </div>
+                <div class="photo-grid" id="photoGrid">
+                    <div class="photo-add-btn" id="photoAddBtn" onclick="document.getElementById('photoInput').click()">
+                        <div class="inner">
+                            <i class="fas fa-camera text-gray-400 text-lg"></i>
+                            <span class="text-[11px] text-gray-400">拍照/相册</span>
+                        </div>
+                    </div>
+                </div>
+                <input type="file" id="photoInput" accept="image/*" multiple class="hidden" onchange="handlePhotoSelect(event)">
+            </div>
+        </div>
+
+        <!-- ❹ 收款对象 -->
+        <div class="step-card mb-3">
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-1 h-4 bg-primary rounded-full"></div>
+                    <span class="text-sm font-medium text-gray-800">收款对象</span>
+                </div>
+                <div id="payeeOptions" class="space-y-2">
+                    <div onclick="pickByScan()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
+                        <div class="w-10 h-10 rounded-[12px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] border border-[#11A64A]/10 flex items-center justify-center shrink-0">
+                            <i class="fas fa-qrcode text-[#11A64A] text-sm"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium text-gray-800">扫码付款</div>
+                            <div class="text-[11px] text-gray-500 mt-0.5">扫描农户二维码付款</div>
+                        </div>
+                        <i class="fas fa-expand text-[#11A64A] text-sm"></i>
+                    </div>
+                    <div onclick="openFarmerSelectSheet()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
+                        <div class="w-10 h-10 rounded-[12px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] border border-[#11A64A]/10 flex items-center justify-center shrink-0">
+                            <i class="fas fa-address-book text-[#11A64A] text-sm"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium text-gray-800">选择合作农户</div>
+                            <div class="text-[11px] text-gray-500 mt-0.5">从历史合作过的农户中快捷选择</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                </div>
+                <div id="payeeCard" class="hidden flex items-center gap-3 p-3 bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] border border-[#11A64A]/15 rounded-2xl">
+                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm border border-[#11A64A]/10">
+                        <i class="fas fa-user-check text-[#11A64A]"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div id="payeeName" class="text-sm font-medium text-gray-800 truncate"></div>
+                        <div id="payeeMeta" class="text-xs text-gray-500 mt-0.5"></div>
+                    </div>
+                    <button onclick="clearPayee()" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ❺ 底部操作栏 -->
+        <div class="mb-2 mt-1">
+            <div class="flex items-center bg-white border border-gray-100 shadow-sm rounded-[24px] p-1.5">
+                
+                <!-- 草稿箱 -->
+                <button onclick="goDraftOrders()" class="relative shrink-0 w-[52px] h-[48px] rounded-[20px] flex items-center justify-center text-gray-500 hover:bg-gray-50 active:scale-95 transition-all group" aria-label="草稿箱">
+                    <div class="w-[38px] h-[38px] rounded-full bg-gray-100/80 group-hover:bg-gray-200/80 flex items-center justify-center transition-colors">
+                        <i class="fas fa-inbox text-[18px] text-gray-600"></i>
+                    </div>
+                    <span id="draftEntryBadge" class="absolute top-0 right-0 w-[18px] h-[18px] bg-[#FF4D4F] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10" style="font-family:Poppins;">12</span>
+                </button>
+
+                <!-- 分割线 -->
+                <div class="w-[1px] h-[24px] bg-gray-200/80 mx-1 shrink-0"></div>
+
+                <!-- 暂存 -->
+                <button onclick="handleTempSave()" id="tempSaveBtn" class="shrink-0 w-[76px] h-[48px] rounded-[20px] flex items-center justify-center text-[14px] font-semibold text-gray-700 active:scale-95 hover:bg-gray-50 transition-all">
+                    暂存
+                </button>
+
+                <!-- 立即付款 (主按钮) -->
+                <button onclick="confirmBilling()" class="flex-1 h-[48px] ml-1 bg-[#11A64A] text-white font-semibold text-[15px] rounded-[20px] active:scale-[0.98] transition-transform shadow-[0_8px_20px_-6px_rgba(17,166,74,0.4)] flex items-center justify-center gap-1.5">
+                    立即付款
+                </button>
+            </div>
+        </div>
+        <div class="h-6"></div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div id="tabBar"></div>
+
+
+    <!-- 添加商品明细弹窗 -->
+    <div class="billing-sheet-overlay" id="productSheetOverlay" onclick="closeAddProductSheet()"></div>
+    <div class="billing-sheet" id="addProductSheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-5 pb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-semibold text-gray-800" id="sheetProductName">添加商品</h3>
+                <button onclick="closeAddProductSheet()" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="max-h-[60vh] overflow-y-auto hide-scrollbar pb-2">
+                <!-- 毛重 & 单位 -->
+                <div class="flex gap-3 mb-3">
+                    <div class="flex-1">
+                        <label class="text-xs text-gray-500 block mb-1.5">毛重</label>
+                        <input type="number" id="sheetGrossWeight" placeholder="请输入毛重" step="0.01" class="custom-input" oninput="calcSheetSubtotal()">
+                    </div>
+                    <div class="w-20">
+                        <label class="text-xs text-gray-500 block mb-1.5">单位</label>
+                        <select id="sheetProductUnit" class="custom-input text-sm py-2.5" onchange="syncSheetUnit()">
+                            <option value="斤" selected>斤</option>
+                            <option value="公斤">公斤</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 皮重 & 扣除 -->
+                <div class="flex gap-3 mb-3">
+                    <div class="flex-1">
+                        <label class="text-xs text-gray-500 block mb-1.5">皮重 (<span class="sheet-unit-display">斤</span>)</label>
+                        <input type="number" id="sheetTareWeight" placeholder="0.00" step="0.01" class="custom-input" oninput="calcSheetSubtotal()">
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-xs text-gray-500 block mb-1.5">扣减比例 (%)</label>
+                        <input type="number" id="sheetDeductRatio" placeholder="0.00" step="0.1" class="custom-input" oninput="calcSheetSubtotal()">
+                    </div>
+                </div>
+
+                <!-- 净重展示区 -->
+                <div class="flex items-center justify-between py-2 border-b border-gray-100 mb-3">
+                    <span class="text-sm text-gray-600">净重计算</span>
+                    <div class="text-[15px] font-bold text-[#11A64A]" style="font-family:Poppins;">
+                        <span id="sheetNetWeight">0.00</span> <span class="sheet-unit-display text-xs font-normal">斤</span>
+                    </div>
+                </div>
+
+                <!-- 单价 -->
+                <div class="mb-3">
+                    <label class="text-xs text-gray-500 block mb-1.5">单价 (元/<span class="sheet-unit-display">斤</span>)</label>
+                    <div class="relative">
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">¥</span>
+                        <input type="number" id="sheetProductPrice" placeholder="0.00" step="0.01" class="custom-input pl-7" oninput="calcSheetSubtotal()">
+                    </div>
+                </div>
+
+                <!-- 备注 -->
+                <div class="mb-4">
+                    <label class="text-xs text-gray-500 block mb-1.5">备注 (选填)</label>
+                    <input type="text" id="sheetProductRemark" placeholder="请输入备注信息" class="custom-input">
+                </div>
+            </div>
+
+            <!-- 按钮 -->
+            <div class="flex gap-3 pt-2">
+                <button onclick="closeAddProductSheet()" class="flex-1 py-3 bg-gray-100 text-gray-700 font-medium rounded-2xl active:scale-[0.98] transition-transform text-sm">
+                    取消
+                </button>
+                <button onclick="confirmAddProduct()" class="flex-1 py-3 bg-[#11A64A] text-white font-medium rounded-2xl active:scale-[0.98] transition-transform shadow-[0_4px_12px_rgba(17,166,74,0.3)] text-sm">
+                    添加
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 选择合作农户弹窗 -->
+    <div class="billing-sheet-overlay" id="farmerSelectOverlay" onclick="closeFarmerSelectSheet()"></div>
+    <div class="billing-sheet" id="farmerSelectSheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-5 pb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-semibold text-gray-800">选择合作农户</h3>
+                <button onclick="closeFarmerSelectSheet()" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="relative mb-4">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input type="text" id="farmerSearchInput" placeholder="搜索姓名/手机号" class="w-full pl-9 pr-3 py-2.5 bg-gray-50 rounded-xl text-sm outline-none border border-transparent focus:border-[#11A64A]/30 focus:bg-white transition-colors" onkeyup="filterFarmers(this.value)">
+            </div>
+            <div id="farmerSelectList" class="max-h-[50vh] overflow-y-auto hide-scrollbar space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- 应用内弹窗 -->
+    <div class="app-modal-overlay" id="appModalOverlay">
+        <div class="app-modal">
+            <div class="app-modal-title" id="appModalTitle"></div>
+            <div id="appModalBody"></div>
+            <div class="app-modal-btns" id="appModalBtns"></div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div id="toastTip" class="toast-tip"></div>
+</div>
+
+<script>
+// ==================== 初始化 ====================
+const billingQuery = new URLSearchParams(window.location.search);
+const captureState = new URLSearchParams(window.location.search).get('captureState') || '';
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('开单', billingQuery.get('back') || '');
+document.getElementById('tabBar').innerHTML = renderBuyerTabBar('billing');
+
+// ==================== 数据配置 ====================
+const CATEGORY_CONFIG = {
+    '水果': { color: 'red', icon: 'fa-apple-whole', brandHex: '#11A64A', tagBg: 'bg-[#F0FDF4]', tagText: 'text-[#11A64A]', tagBorder: 'border-[#11A64A]/10' },
+    '蔬菜': { color: 'green', icon: 'fa-carrot', brandHex: '#11A64A', tagBg: 'bg-[#F0FDF4]', tagText: 'text-[#11A64A]', tagBorder: 'border-[#11A64A]/10' },
+    '粮食': { color: 'amber', icon: 'fa-wheat-awn', brandHex: '#11A64A', tagBg: 'bg-[#F0FDF4]', tagText: 'text-[#11A64A]', tagBorder: 'border-[#11A64A]/10' },
+    '其他': { color: 'gray', icon: 'fa-box-open', brandHex: '#11A64A', tagBg: 'bg-[#F0FDF4]', tagText: 'text-[#11A64A]', tagBorder: 'border-[#11A64A]/10' }
+};
+const mockStore = window.BuyerMockStore || null;
+
+// ==================== 状态管理 ====================
+const SECONDARY_CATEGORIES = {
+    '粮食': ['玉米', '水稻', '小麦', '大豆', '马铃薯（土豆）', '花生', '红薯', '高粱', '谷子', '油菜籽', '杂豆（绿豆、红小豆、芸豆等）', '芝麻', '其他粮食'],
+    '水果': ['柑橘类（橘、橙、柚、沃柑、耙耙柑）', '苹果', '西瓜', '葡萄', '香蕉', '梨', '桃', '猕猴桃', '大枣', '草莓', '柿子', '樱桃', '李子、杏', '石榴', '火龙果', '芒果', '菠萝', '荔枝', '其他水果'],
+    '蔬菜': ['大白菜', '番茄（西红柿）', '黄瓜', '辣椒', '马铃薯（土豆）', '萝卜', '甘蓝（圆白菜、包菜）', '茄子', '大葱', '大蒜', '生姜', '芹菜', '花椰菜（菜花、西兰花）', '豆角、芸豆、四季豆', '叶菜类（菠菜、生菜、油麦菜等）', '瓜类（冬瓜、南瓜、西葫芦）', '韭菜、香菜', '其他蔬菜'],
+    '其他': ['食用菌（香菇、木耳、平菇等）', '中药材', '坚果', '饲料、牧草', '其他农产品']
+};
+
+const state = {
+    currentCategory: null,
+    currentSubCategory: null,
+    product: null, // single product (one-product-per-order)
+    payee: null,
+    photos: [], // data URLs
+    editingProduct: false, // true when editing existing product
+    editingOrderId: billingQuery.get('editOrder') || '',
+    tareInputValue: '',
+    payeePool: mockStore ? mockStore.getFrequentContacts() : [
+        { name: '李大姐', mobile: '138****2233', bank: '邮储银行烟台支行', card: '尾号 2233', payCount: 15 },
+        { name: '王大哥', mobile: '139****5612', bank: '邮储银行保定支行', card: '尾号 5612', payCount: 8 },
+        { name: '赵师傅', mobile: '136****9801', bank: '农业银行哈尔滨支行', card: '尾号 9801', payCount: 3 }
+    ]
+};
+
+// ==================== 品类渲染 ====================
+function renderPrimaryCategories() {
+    const container = document.getElementById('primaryCategoryList');
+    const allPrimary = ['粮食', '水果', '蔬菜', '其他'];
+    let favSubcats = [];
+    try { favSubcats = JSON.parse(localStorage.getItem('ylt_favorite_categories')) || ['玉米', '小麦', '苹果', '大白菜']; } catch(e) { favSubcats = ['玉米', '小麦', '苹果', '大白菜']; }
+    const displayCats = allPrimary.filter(cat => (SECONDARY_CATEGORIES[cat] || []).some(s => favSubcats.includes(s)));
+    if (displayCats.length === 0) { container.innerHTML = '<div class="text-[12px] text-gray-400 py-2">暂无选中品类，请点击"设置"按钮配置</div>'; return; }
+    if (!state.currentCategory || !displayCats.includes(state.currentCategory)) state.currentCategory = displayCats[0];
+    container.innerHTML = displayCats.map(cat => {
+        const c = CATEGORY_CONFIG[cat]; if(!c) return '';
+        const isActive = state.currentCategory === cat;
+        return isActive
+            ? `<div onclick="selectCategory('${cat}')" class="shrink-0 w-[72px] ${c.tagBg} rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-[#11A64A]/30 transition-all"><i class="fas ${c.icon} text-[18px]" style="color:${c.brandHex}"></i><span class="text-[11px] font-bold" style="color:${c.brandHex}">${cat}</span></div>`
+            : `<div onclick="selectCategory('${cat}')" class="shrink-0 w-[72px] bg-gray-50 rounded-xl py-2.5 flex flex-col items-center gap-1 cursor-pointer border border-transparent hover:bg-gray-100 transition-all"><i class="fas ${c.icon} text-gray-400 text-[18px]"></i><span class="text-[11px] font-medium text-gray-500">${cat}</span></div>`;
+    }).join('');
+}
+
+function renderSecondaryCategories() {
+    const wrapper = document.getElementById('secondaryCategoryList');
+    if (!state.currentCategory) { wrapper.innerHTML = ''; return; }
+    let favSubcats = [];
+    try { favSubcats = JSON.parse(localStorage.getItem('ylt_favorite_categories')) || ['玉米', '小麦', '苹果', '大白菜']; } catch(e) {}
+    const subcats = (SECONDARY_CATEGORIES[state.currentCategory] || []).filter(s => favSubcats.includes(s));
+    wrapper.innerHTML = subcats.map(sub => {
+        const isActive = state.currentSubCategory === sub;
+        const escaped = sub.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        return isActive
+            ? `<button onclick="selectSubCategory('${escaped}')" class="shrink-0 max-w-[150px] truncate px-3 py-1.5 rounded-full border border-[#11A64A] bg-[#EBF7F0] text-[#11A64A] text-[12px] font-semibold transition-all">${sub}</button>`
+            : `<button onclick="selectSubCategory('${escaped}')" class="shrink-0 max-w-[150px] truncate px-3 py-1.5 rounded-full border border-gray-100 bg-gray-50 text-gray-600 text-[12px] hover:bg-gray-100 transition-all">${sub}</button>`;
+    }).join('');
+}
+
+function selectCategory(cat) {
+    if (state.product && state.currentCategory && state.currentCategory !== cat) {
+        showAppModal({ title: '更换品类', message: '更换开单品类将清空目前已添加的商品明细，是否继续？', confirmText: '继续更换', cancelText: '取消', confirmClass: 'app-modal-btn-danger',
+            onConfirm: () => { state.product = null; state.currentCategory = cat; state.currentSubCategory = null; renderPrimaryCategories(); renderSecondaryCategories(); renderProductCard(); updateTotalAmount(); }
+        }); return;
+    }
+    state.currentCategory = cat; state.currentSubCategory = null;
+    renderPrimaryCategories(); renderSecondaryCategories();
+}
+function selectSubCategory(sub) { 
+    state.currentSubCategory = sub; 
+    renderSecondaryCategories();
+    openAddProductSheet(sub);
+}
+
+function clearProduct() {
+    state.product = null;
+    state.currentSubCategory = null;
+    renderSecondaryCategories();
+    document.getElementById('productFlatCard').classList.add('hidden');
+    document.getElementById('addProductBtn').classList.remove('hidden');
+    updateTotalAmount();
+}
+
+function renderProductFlatCard() {
+    const card = document.getElementById('productFlatCard');
+    const btn = document.getElementById('addProductBtn');
+    if (!state.product) { card.classList.add('hidden'); btn.classList.remove('hidden'); return; }
+    btn.classList.add('hidden');
+    card.classList.remove('hidden');
+    const p = state.product;
+    
+    let bgClass = 'bg-[#EBF7F0]';
+    let textClass = 'text-[#11A64A]';
+    let iconClass = 'fa-clipboard-list';
+    if (state.currentCategory && CATEGORY_CONFIG[state.currentCategory]) {
+        bgClass = CATEGORY_CONFIG[state.currentCategory].bgClass;
+        textClass = CATEGORY_CONFIG[state.currentCategory].textClass;
+        iconClass = CATEGORY_CONFIG[state.currentCategory].icon;
+    }
+    
+    card.innerHTML = `
+        <div class="product-item flex items-center gap-3 relative" onclick="openAddProductSheet('${p.name}')" style="cursor:pointer">
+            <div class="w-9 h-9 rounded-lg ${bgClass} flex items-center justify-center shrink-0">
+                <i class="fas ${iconClass} ${textClass} text-xs"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-gray-800 truncate">${p.name}</div>
+                <div class="text-xs text-gray-500 mt-0.5">
+                    毛: ${(p.grossWeight||0).toFixed(2)} ${p.tareWeight ? `皮: ${(p.tareWeight||0).toFixed(2)}` : ''} ${p.deductRatio ? `扣: ${p.deductRatio}%` : ''} 
+                    | ${(p.unitPrice||0).toFixed(2)}元/${p.unit} × 净 ${(p.netWeight||0).toFixed(2)}${p.unit}
+                </div>
+                ${p.remark ? `<div class="text-[11px] text-gray-400 mt-0.5 truncate">备注: ${p.remark}</div>` : ''}
+            </div>
+            <div class="text-right">
+                <div class="text-sm font-bold text-primary" style="font-family:Poppins;">¥${(p.amount||0).toFixed(2)}</div>
+            </div>
+            <button onclick="event.stopPropagation(); clearProduct()" class="w-7 h-7 flex items-center justify-center text-gray-300 hover:text-red-500 transition-colors ml-1">
+                <i class="fas fa-times-circle"></i>
+            </button>
+        </div>
+    `;
+}
+
+function openAddProductSheet(subCategory) {
+    document.getElementById('productSheetOverlay').classList.add('show');
+    document.getElementById('addProductSheet').classList.add('show');
+    
+    const name = subCategory || state.currentSubCategory || '添加商品';
+    document.getElementById('sheetProductName').textContent = name;
+    
+    // 恢复状态
+    if (state.product && state.product.name === name) {
+        document.getElementById('sheetGrossWeight').value = state.product.grossWeight || '';
+        document.getElementById('sheetTareWeight').value = state.product.tareWeight || '';
+        document.getElementById('sheetDeductRatio').value = state.product.deductRatio || '';
+        document.getElementById('sheetProductPrice').value = state.product.unitPrice || '';
+        document.getElementById('sheetProductUnit').value = state.product.unit || '斤';
+        document.getElementById('sheetProductRemark').value = state.product.remark || '';
+    } else {
+        document.getElementById('sheetGrossWeight').value = '';
+        document.getElementById('sheetTareWeight').value = '';
+        document.getElementById('sheetDeductRatio').value = '';
+        document.getElementById('sheetProductPrice').value = '';
+        document.getElementById('sheetProductUnit').value = '斤';
+        document.getElementById('sheetProductRemark').value = '';
+    }
+    syncSheetUnit();
+    calcSheetSubtotal();
+}
+
+function closeAddProductSheet() {
+    document.getElementById('productSheetOverlay').classList.remove('show');
+    document.getElementById('addProductSheet').classList.remove('show');
+}
+
+function calcSheetSubtotal() {
+    const gross = parseFloat(document.getElementById('sheetGrossWeight').value) || 0;
+    const tare = parseFloat(document.getElementById('sheetTareWeight').value) || 0;
+    const netWeightWithoutDeduct = Math.max(0, gross - tare);
+    const deductRatio = parseFloat(document.getElementById('sheetDeductRatio').value) || 0;
+    const deduction = netWeightWithoutDeduct * (deductRatio / 100);
+    const netWeight = Math.max(0, netWeightWithoutDeduct - deduction);
+    document.getElementById('sheetNetWeight').textContent = netWeight.toFixed(2);
+}
+
+function syncSheetUnit() {
+    const unit = document.getElementById('sheetProductUnit').value || '斤';
+    document.querySelectorAll('.sheet-unit-display').forEach(el => el.textContent = unit);
+    calcSheetSubtotal();
+}
+
+function confirmAddProduct() {
+    const gross = parseFloat(document.getElementById('sheetGrossWeight').value) || 0;
+    if (gross <= 0) { showToast('请输入有效的毛重'); return; }
+    
+    const tare = parseFloat(document.getElementById('sheetTareWeight').value) || 0;
+    const netWeightWithoutDeduct = Math.max(0, gross - tare);
+    const deductRatio = parseFloat(document.getElementById('sheetDeductRatio').value) || 0;
+    const deduction = netWeightWithoutDeduct * (deductRatio / 100);
+    const netWeight = Math.max(0, netWeightWithoutDeduct - deduction);
+    
+    const price = parseFloat(document.getElementById('sheetProductPrice').value) || 0;
+    const amount = netWeight * price;
+    const unit = document.getElementById('sheetProductUnit').value || '斤';
+    const remark = document.getElementById('sheetProductRemark').value.trim();
+    const name = document.getElementById('sheetProductName').textContent;
+    
+    state.product = {
+        name,
+        grossWeight: gross,
+        tareWeight: tare,
+        deductRatio: deductRatio,
+        deduction: deduction,
+        netWeight: netWeight,
+        unitPrice: price,
+        unit: unit,
+        amount: amount,
+        remark: remark
+    };
+    
+    renderProductFlatCard();
+    updateTotalAmount();
+    closeAddProductSheet();
+}
+
+function updateTotalAmount() {
+    const total = state.product ? (state.product.amount || 0) : 0;
+    document.getElementById('totalAmount').textContent = total.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+
+// ==================== 拍照留存 ====================
+function renderPhotoGrid() {
+    const grid = document.getElementById('photoGrid');
+    const countEl = document.getElementById('photoCount');
+    countEl.textContent = `(${state.photos.length}/9)`;
+    let html = state.photos.map((url, i) => `
+        <div class="photo-thumb">
+            <img src="${url}" alt="照片${i+1}">
+            <div class="photo-del" onclick="removePhoto(${i})"><i class="fas fa-times"></i></div>
+        </div>
+    `).join('');
+    if (state.photos.length < 9) {
+        html += `<div class="photo-add-btn" onclick="document.getElementById('photoInput').click()"><div class="inner"><i class="fas fa-camera text-gray-400 text-lg"></i><span class="text-[11px] text-gray-400">拍照/相册</span></div></div>`;
+    }
+    grid.innerHTML = html;
+}
+function handlePhotoSelect(event) {
+    const files = Array.from(event.target.files || []);
+    const remaining = 9 - state.photos.length;
+    if (remaining <= 0) { showToast('最多 9 张照片'); event.target.value = ''; return; }
+    const toProcess = files.slice(0, remaining);
+    let loaded = 0;
+    toProcess.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) { state.photos.push(e.target.result); loaded++; if(loaded === toProcess.length) renderPhotoGrid(); };
+        reader.readAsDataURL(file);
+    });
+    if (files.length > remaining) showToast('最多 9 张照片，已忽略多余照片');
+    event.target.value = '';
+}
+function removePhoto(index) { state.photos.splice(index, 1); renderPhotoGrid(); }
+
+// ==================== 收款对象管理 ====================
+function setPayee(payee) {
+    state.payee = payee;
+    const options = document.getElementById('payeeOptions');
+    const card = document.getElementById('payeeCard');
+    if (!payee) { if(options) options.classList.remove('hidden'); if(card) card.classList.add('hidden'); return; }
+    if(options) options.classList.add('hidden');
+    if(card) { card.classList.remove('hidden'); document.getElementById('payeeName').textContent = payee.name + '（' + payee.mobile + '）'; document.getElementById('payeeMeta').textContent = (payee.bank||'') + ' · ' + (payee.card||''); }
+}
+function clearPayee() { state.payee = null; document.getElementById('payeeOptions').classList.remove('hidden'); document.getElementById('payeeCard').classList.add('hidden'); }
+function pickByScan() {
+    const chosen = mockStore && mockStore.getRandomContact ? mockStore.getRandomContact() : state.payeePool[Math.floor(Math.random() * state.payeePool.length)];
+    if (!chosen) { showToast('暂无合作农户'); return; }
+    setPayee(chosen); showToast('扫码识别成功');
+}
+function openFarmerSelectSheet() { renderFarmerList(state.payeePool); document.getElementById('farmerSelectOverlay').classList.add('show'); document.getElementById('farmerSelectSheet').classList.add('show'); }
+function closeFarmerSelectSheet() { document.getElementById('farmerSelectSheet').classList.remove('show'); document.getElementById('farmerSelectOverlay').classList.remove('show'); document.getElementById('farmerSearchInput').value = ''; }
+function renderFarmerList(list) {
+    const container = document.getElementById('farmerSelectList');
+    if(list.length === 0) { container.innerHTML = '<div class="py-10 text-center text-sm text-gray-400">暂无符合条件的农户</div>'; return; }
+    function mask(m) { if(!m) return '无'; if(m.includes('*')||m.includes('尾号')) return m; return m.length>=11 ? m.substring(0,3)+'****'+m.substring(m.length-4) : m; }
+    function maskCard(c) { if(!c) return '无卡号'; if(c.includes('*')||c.includes('尾号')) return c; return c.length>4 ? '尾号 '+c.substring(c.length-4) : c; }
+    container.innerHTML = list.map(f => {
+        const fj = JSON.stringify(f).replace(/"/g,'&quot;');
+        const badge = f.payCount ? `<span class="inline-block text-[10px] px-2 py-0.5 rounded-full bg-[#EBF7F0] text-[#11A64A] font-medium border border-[#11A64A]/20">付款${f.payCount}次</span>` : '';
+        return `<div onclick="selectFarmer(${fj})" class="bg-white rounded-2xl p-4 flex items-center gap-3.5 mb-2.5 cursor-pointer border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] active:scale-[0.98] transition-all">
+            <div class="w-12 h-12 rounded-full bg-[#EBF7F0] flex items-center justify-center shrink-0 border border-[#11A64A]/10"><i class="fas fa-user text-[#11A64A]/80 text-[20px]"></i></div>
+            <div class="flex-1 min-w-0 flex flex-col gap-1"><div class="flex items-center flex-wrap gap-2"><span class="text-[16px] font-semibold text-gray-800">${f.name}</span>${badge}</div><div class="text-[14px] font-medium text-gray-600" style="font-family:Poppins,monospace;">${mask(f.mobile)}</div><div class="flex items-center gap-1.5 text-[12px] text-gray-400/90" style="font-family:Poppins,monospace;"><i class="fas fa-building-columns text-[10px] text-gray-400"></i><span>${(f.bank||'未知银行')+' · '+maskCard(f.card)}</span></div></div>
+            <div class="shrink-0"><div class="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center border border-gray-100"><i class="fas fa-check text-gray-300 text-[10px]"></i></div></div></div>`;
+    }).join('');
+}
+function filterFarmers(q) { q=(q||'').trim().toLowerCase(); renderFarmerList(q ? state.payeePool.filter(f=>(f.name&&f.name.toLowerCase().includes(q))||(f.mobile&&f.mobile.includes(q))) : state.payeePool); }
+function selectFarmer(f) { setPayee(f); closeFarmerSelectSheet(); showToast('已选中：'+f.name); }
+
+// ==================== 暂存与草稿箱 ====================
+function updateDraftEntryBadge() {
+    const badge = document.getElementById('draftEntryBadge');
+    if (!badge || !mockStore || typeof mockStore.getOrderCounts !== 'function') return;
+    const counts = mockStore.getOrderCounts();
+    const draftCount = Number(counts && counts.draft || 0);
+    if (draftCount > 0) {
+        badge.textContent = draftCount > 99 ? '99+' : String(draftCount);
+        badge.classList.remove('hidden');
+    } else {
+        badge.classList.add('hidden');
+    }
+}
+
+function goDraftOrders() {
+    window.location.href = 'buyer-order-manage.html?tab=draft';
+}
+
+function hasTareInput() {
+    return String(state.tareInputValue || '').trim() !== '';
+}
+
+function resolveDraftStatusFromForm() {
+    const hasPrice = !!(state.product && Number(state.product.unitPrice) > 0);
+    if (!hasTareInput()) return 'draft';
+    if (!hasPrice) return 'pending_price';
+    return 'unpaid';
+}
+
+function saveOrderByStatus(status) {
+    const order = buildOrderData(status);
+    if (state.editingOrderId && mockStore && typeof mockStore.findOrderById === 'function') {
+        const original = mockStore.findOrderById(state.editingOrderId);
+        if (original && original.createdAt) {
+            order.createdAt = original.createdAt;
+        }
+    }
+    if (mockStore && typeof mockStore.upsertOrder === 'function') mockStore.upsertOrder(order);
+    updateDraftEntryBadge();
+    const messages = {
+        draft: { create: '已暂存到挂单', update: '挂单已更新' },
+        pending_price: { create: '已暂存到待开价', update: '待开价订单已更新' },
+        unpaid: { create: '已暂存到待结算', update: '订单已更新为待结算' }
+    };
+    const cfg = messages[status];
+    showToast(state.editingOrderId ? cfg.update : cfg.create);
+    resetBillingForm();
+}
+
+function handleTempSave() {
+    if (!state.payee) { showToast('请先选择收款对象'); return; }
+    if (!state.product) { showToast('请先添加商品'); return; }
+    if (Number(state.product.grossWeight || 0) <= 0) { showToast('请至少填写毛重'); return; }
+    const status = resolveDraftStatusFromForm();
+    saveOrderByStatus(status);
+}
+
+// ==================== 构建订单数据 ====================
+
+function buildOrderData(status) {
+    const p = state.product || {};
+    const orderNo = state.editingOrderId || (mockStore && typeof mockStore.buildOrderNo === 'function' ? mockStore.buildOrderNo(new Date()) : 'SL' + Date.now());
+    const netWeight = p.netWeight || 0;
+    const amount = p.amount || 0;
+    const unit = p.unit || '斤';
+    return {
+        id: orderNo, status: status,
+        productName: p.name || '', categoryPrimary: state.currentCategory || '', categorySecondary: state.currentSubCategory || '',
+        grossWeight: p.grossWeight || 0, tareWeight: p.tareWeight || 0, deduction: p.deduction || 0,
+        netWeight: netWeight, unitPrice: p.unitPrice || 0, unit: unit,
+        amount: Number(amount.toFixed(2)),
+        summary: p.name ? (p.name + ' × ' + netWeight.toLocaleString() + unit) : '',
+        payeeName: state.payee ? state.payee.name : '', payeeMobile: state.payee ? state.payee.mobile : '',
+        payeeBank: state.payee ? (state.payee.bank||'') : '', payeeCard: state.payee ? (state.payee.card||'') : '',
+        photos: state.photos.slice(),
+        items: p.name ? [{ name: p.name, qty: netWeight, unit: unit, price: p.unitPrice || 0, subtotal: Number(amount.toFixed(2)) }] : [],
+        category: state.currentCategory || '',
+        createdAt: new Date().toISOString(), payMethod: '', remark: p.remark || ''
+    };
+}
+
+// ==================== 保存逻辑 ====================
+function saveDraft() {
+    handleTempSave();
+}
+function savePendingPrice() {
+    handleTempSave();
+}
+function saveUnpaid() {
+    handleTempSave();
+}
+
+// ==================== 确认开单 ====================
+function confirmBilling() {
+    if (!state.currentCategory) { showToast('请先选择开单品类'); return; }
+    if (!state.product) { showToast('请先添加商品'); return; }
+    if (state.product.grossWeight <= 0) { showToast('请填写毛重'); return; }
+    if (!state.product.unitPrice || state.product.unitPrice <= 0) { showToast('请填写单价'); return; }
+    if (!state.payee) { showToast('请选择收款农户'); return; }
+    const order = buildOrderData('unpaid');
+    if (state.editingOrderId && mockStore && typeof mockStore.findOrderById === 'function') {
+        const original = mockStore.findOrderById(state.editingOrderId);
+        if (original && original.createdAt) {
+            order.createdAt = original.createdAt;
+        }
+    }
+    if (mockStore && typeof mockStore.upsertOrder === 'function') mockStore.upsertOrder(order);
+    window.location.href = 'buyer-billing-done.html?orderNo=' + encodeURIComponent(order.id);
+}
+
+// ==================== 工具函数 ====================
+function showToast(msg) { const t = document.getElementById('toastTip'); t.textContent = msg; t.classList.add('show'); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => t.classList.remove('show'), 2000); }
+function showAppModal({ title, message, inputPlaceholder, confirmText, cancelText, confirmClass, onConfirm }) {
+    const overlay = document.getElementById('appModalOverlay');
+    document.getElementById('appModalTitle').textContent = title || '';
+    document.getElementById('appModalBody').innerHTML = inputPlaceholder ? `<input type="text" id="appModalInput" class="app-modal-input" placeholder="${inputPlaceholder}" autofocus>` : (message ? `<div class="app-modal-msg">${message}</div>` : '');
+    document.getElementById('appModalBtns').innerHTML = `<button class="app-modal-btn ${confirmClass || 'app-modal-btn-confirm'}" id="appModalConfirmBtn">${confirmText || '确定'}</button>`;
+    document.getElementById('appModalConfirmBtn').onclick = function() { if(onConfirm) { const inp = document.getElementById('appModalInput'); onConfirm(inp ? inp.value : null); } closeAppModal(); };
+    overlay.classList.add('show');
+}
+function closeAppModal() { document.getElementById('appModalOverlay').classList.remove('show'); }
+function resetBillingForm() { state.product = null; state.payee = null; state.photos = []; state.editingOrderId = ''; state.tareInputValue = ''; renderProductCard(); clearPayee(); renderPhotoGrid(); }
+
+// ==================== 页面初始化 ====================
+function hydrateFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    const payeeName = params.get('payeeName');
+    if (payeeName) { setPayee({ name: payeeName, mobile: params.get('payeeMobile') || '', bank: params.get('payeeBank') || '', card: params.get('payeeCard') || '尾号 ****' }); }
+    if (params.get('picked') === '1') showToast('已选择收款对象');
+    const editOrderId = params.get('editOrder');
+    if (editOrderId && mockStore && typeof mockStore.findOrderById === 'function') {
+        const order = mockStore.findOrderById(editOrderId);
+        if (order) {
+            state.editingOrderId = editOrderId;
+            state.currentCategory = order.categoryPrimary || order.category || state.currentCategory;
+            const subCategoryPool = SECONDARY_CATEGORIES[state.currentCategory] || [];
+            state.currentSubCategory = subCategoryPool.includes(order.categorySecondary) ? order.categorySecondary : null;
+            state.product = {
+                name: order.productName || (order.items && order.items[0] && order.items[0].name) || '',
+                grossWeight: order.grossWeight || 0,
+                tareWeight: order.tareWeight || 0,
+                deductRatio: order.deductRatio !== undefined ? Number(order.deductRatio || 0) : (order.grossWeight && order.grossWeight > (order.tareWeight || 0)
+                    ? Number((((order.deduction || 0) / Math.max(order.grossWeight - (order.tareWeight || 0), 1)) * 100).toFixed(2))
+                    : 0),
+                deduction: order.deduction || 0,
+                netWeight: order.netWeight || 0,
+                unitPrice: order.unitPrice || 0,
+                unit: order.unit || '斤',
+                amount: order.amount || 0,
+                remark: order.remark || '',
+                category: order.categoryPrimary || order.category || '',
+            };
+            state.tareInputValue = order.tareWeight === 0
+                ? (order.status === 'draft' ? '' : '0')
+                : (order.tareWeight !== undefined && order.tareWeight !== null && order.tareWeight !== '' ? String(order.tareWeight) : '');
+            state.photos = Array.isArray(order.photos) ? order.photos.slice() : [];
+            if (order.payeeName) {
+                setPayee({
+                    name: order.payeeName,
+                    mobile: order.payeeMobile || '',
+                    bank: order.payeeBank || '',
+                    card: order.payeeCard || '',
+                });
+            } else {
+                clearPayee();
+            }
+            document.getElementById('navBar').innerHTML = renderHeader('编辑挂单', params.get('back') || 'buyer-order-manage.html?tab=draft');
+            showToast('已回填挂单信息');
+        }
+    }
+}
+
+renderPrimaryCategories(); renderSecondaryCategories(); renderProductCard(); renderPhotoGrid(); hydrateFromQuery(); updateDraftEntryBadge();
+document.getElementById('addProductSheet').classList.remove('show');
+document.getElementById('addProductOverlay').classList.remove('show');
+document.getElementById('addProductOverlay').addEventListener('click', closeAddProductSheet);
+
+if (captureState === 'modal') {
+    state.currentCategory = '粮食'; renderPrimaryCategories(); renderSecondaryCategories();
+    setTimeout(function() { openAddProductSheet(); }, 120);
+}
+</script>
+</body>
+</html>

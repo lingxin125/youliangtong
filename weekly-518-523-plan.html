@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>收粮系统 v3.1 · 5/18-5/23 本周需求讲解</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2311A64A'/%3E%3Cpath d='M17 41c12-1 22-8 30-22 1 16-8 28-24 31-4-1-6-4-6-9Z' fill='white'/%3E%3Cpath d='M24 43c3-9 9-16 19-22' stroke='%2311A64A' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --green: #11A64A;
+  --green-700: #087735;
+  --mint: #EAF7EF;
+  --blue: #2563EB;
+  --blue-soft: #EFF6FF;
+  --amber: #D97706;
+  --amber-soft: #FFF7ED;
+  --red: #DC2626;
+  --red-soft: #FEF2F2;
+  --slate: #172033;
+  --muted: #667085;
+  --line: rgba(15, 23, 42, 0.08);
+  --panel: #FFFFFF;
+  --page: #F6F8F7;
+  --shadow: 0 12px 34px rgba(16, 24, 40, 0.08);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--slate);
+  font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.68;
+}
+a { color: inherit; }
+.page-shell { display: flex; min-height: 100vh; }
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 284px;
+  background: #0F281A;
+  color: #fff;
+  overflow-y: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+.side-brand { padding: 24px 22px 18px; border-bottom: 1px solid rgba(255,255,255,0.10); }
+.side-kicker { font-size: 11px; letter-spacing: 0.12em; color: rgba(255,255,255,0.56); font-weight: 700; }
+.side-brand h1 { margin: 8px 0 6px; font-size: 19px; line-height: 1.35; }
+.side-brand p { margin: 0; color: rgba(255,255,255,0.66); font-size: 12px; }
+.side-nav { padding: 12px 0 24px; }
+.side-nav a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 22px;
+  text-decoration: none;
+  color: rgba(255,255,255,0.70);
+  font-size: 13px;
+  border-left: 3px solid transparent;
+}
+.side-nav a:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.07);
+  border-left-color: var(--green);
+}
+.main { margin-left: 284px; width: calc(100% - 284px); padding: 28px 34px 72px; }
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background:
+    linear-gradient(120deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 18px),
+    linear-gradient(135deg, #0F3A23 0%, #126434 52%, #0E7A38 100%);
+  color: #fff;
+  padding: 34px 36px;
+  box-shadow: 0 18px 44px rgba(8, 119, 53, 0.18);
+}
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 28px; align-items: end; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.78); font-weight: 700; font-size: 12px; letter-spacing: 0.08em; }
+.hero h2 { margin: 12px 0 10px; font-size: 34px; line-height: 1.2; letter-spacing: 0; }
+.hero p { margin: 0; max-width: 860px; color: rgba(255,255,255,0.82); font-size: 15px; }
+.hero-note {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  padding: 16px;
+}
+.hero-note strong { display: block; font-size: 14px; margin-bottom: 6px; }
+.hero-note span { display: block; color: rgba(255,255,255,0.78); font-size: 12px; line-height: 1.7; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0 22px;
+}
+.stat-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 5px 18px rgba(16,24,40,0.04);
+}
+.stat-card .label { color: var(--muted); font-size: 12px; }
+.stat-card .value { margin-top: 4px; font: 700 26px/1 "Poppins", sans-serif; color: var(--slate); }
+.stat-card .hint { margin-top: 8px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.section { margin-top: 22px; }
+.section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 12px; }
+.section-title { margin: 0; display: flex; align-items: center; gap: 10px; font-size: 22px; line-height: 1.35; }
+.section-title i { color: var(--green); font-size: 18px; }
+.section-desc { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+.pill.green { background: var(--mint); color: var(--green-700); border-color: rgba(17,166,74,0.16); }
+.pill.blue { background: var(--blue-soft); color: var(--blue); border-color: rgba(37,99,235,0.14); }
+.pill.amber { background: var(--amber-soft); color: var(--amber); border-color: rgba(217,119,6,0.16); }
+.pill.red { background: var(--red-soft); color: var(--red); border-color: rgba(220,38,38,0.14); }
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 22px;
+  margin-bottom: 14px;
+}
+.panel.compact { padding: 18px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.feature-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 12px; }
+.feature-title { margin: 0; font-size: 19px; line-height: 1.35; }
+.feature-sub { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+.content-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 14px; }
+.mini-title {
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 800;
+}
+.mini-title i { color: var(--green); }
+ul.clean { margin: 0; padding: 0; list-style: none; }
+ul.clean li {
+  position: relative;
+  padding-left: 17px;
+  margin: 7px 0;
+  color: #344054;
+  font-size: 13px;
+}
+ul.clean li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+.flow.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.step {
+  position: relative;
+  border: 1px solid var(--line);
+  background: #FBFCFB;
+  border-radius: 8px;
+  padding: 14px;
+  min-height: 94px;
+}
+.step-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--green);
+  color: #fff;
+  font: 700 12px/1 "Poppins", sans-serif;
+}
+.step strong { display: block; margin: 10px 0 4px; font-size: 13px; }
+.step span { display: block; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; min-width: 720px; background: #fff; }
+th, td { border-bottom: 1px solid var(--line); padding: 11px 12px; text-align: left; vertical-align: top; font-size: 13px; }
+th { background: #F8FAF9; color: #344054; font-weight: 800; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+td strong { color: var(--slate); }
+.timeline { position: relative; display: grid; gap: 12px; }
+.timeline-item {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.timeline-date {
+  border-radius: 8px;
+  background: #F8FAF9;
+  border: 1px solid var(--line);
+  padding: 12px 10px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+.timeline-date strong { display: block; color: var(--slate); font: 700 18px/1.2 "Poppins", sans-serif; }
+.timeline-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fff;
+}
+.timeline-card strong { display: block; margin-bottom: 4px; }
+.timeline-card span { color: var(--muted); font-size: 13px; }
+.link-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.proto-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(17,166,74,0.18);
+  background: #F7FCF9;
+  color: var(--green-700);
+  font-size: 12px;
+  font-weight: 700;
+}
+.proto-link:hover { border-color: rgba(17,166,74,0.38); background: #ECFDF3; }
+.checklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.check-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+}
+.check-item i { color: var(--green); margin-top: 4px; }
+.check-item strong { display: block; font-size: 13px; }
+.check-item span { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.callout {
+  border: 1px solid rgba(217,119,6,0.18);
+  background: #FFFCF5;
+  border-radius: 8px;
+  padding: 14px;
+  color: #7A3D05;
+  font-size: 13px;
+}
+.callout strong { display: block; color: #92400E; margin-bottom: 4px; }
+.roadmap-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+}
+.roadmap-card h4 { margin: 0 0 8px; font-size: 16px; }
+.roadmap-card p { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
+.footer-note { color: var(--muted); font-size: 12px; margin-top: 24px; text-align: center; }
+@media (max-width: 1100px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; width: 100%; padding: 18px; }
+  .hero-grid, .content-grid { grid-template-columns: 1fr; }
+  .stats, .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .main { padding: 12px; }
+  .hero { padding: 24px 18px; }
+  .hero h2 { font-size: 26px; }
+  .stats, .grid-2, .grid-3, .flow, .flow.three, .checklist { grid-template-columns: 1fr; }
+  .section-head, .feature-head { display: block; }
+  .section-head .pill, .feature-head .pill { margin-top: 10px; }
+  .timeline-item { grid-template-columns: 1fr; }
+  table { min-width: 0; table-layout: fixed; }
+  th, td { white-space: normal; word-break: break-word; padding: 9px 8px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="page-shell">
+  <aside class="sidebar">
+    <div class="side-brand">
+      <div class="side-kicker">WEEKLY DELIVERY BRIEF</div>
+      <h1>5/18-5/23 本周需求讲解</h1>
+      <p>给业务、产品、研发、测试共用的拆解页</p>
+    </div>
+    <nav class="side-nav">
+      <a href="#overview"><i class="fa-solid fa-gauge-high"></i>总览</a>
+      <a href="#launch"><i class="fa-solid fa-rocket"></i>本周要上线</a>
+      <a href="#develop"><i class="fa-solid fa-code-branch"></i>本周要开发</a>
+      <a href="#flows"><i class="fa-solid fa-diagram-project"></i>关键流程图</a>
+      <a href="#acceptance"><i class="fa-solid fa-clipboard-check"></i>验收口径</a>
+      <a href="#questions"><i class="fa-solid fa-circle-question"></i>待确认问题</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <section class="hero" id="overview">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow"><i class="fa-solid fa-seedling"></i>收粮系统 v3.1 · 本周需求作战图</div>
+          <h2>把“这周要做什么”讲清楚：上线闭环、开发启动、依赖确认</h2>
+          <p>本页将飞书文档内容拆成可讲解的页面：业务侧能看清目标和场景，技术侧能看清接口、权限、状态和验收边界。页面中的原型入口可直接打开，用于会议中同步对照。</p>
+        </div>
+        <div class="hero-note">
+          <strong>本周核心节奏</strong>
+          <span>上线项先保证闭环：订单商品明细同步、团队订单权限、农户结算卡修改。开发项先明确边界：开单对象整合、账户管理、建档规则、进件页精简。</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat-card">
+        <div class="label">本周要上线</div>
+        <div class="value">3</div>
+        <div class="hint">订单明细同步、团队权限、农户结算卡修改</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">本周要开始开发</div>
+        <div class="value">6</div>
+        <div class="hint">开单、首页、账户、建档、进件联动</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">P0 关注点</div>
+        <div class="value">4</div>
+        <div class="hint">订单数据、选择收款对象、四要素、付款前拦截</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">联动模块</div>
+        <div class="value">8+</div>
+        <div class="hint">PC、小程序、企微 H5、账户、订单、建档、支付、后台配置</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h3 class="section-title"><i class="fa-solid fa-map"></i>一页总览</h3>
+          <p class="section-desc">先用这张表统一口径：哪些本周收口上线，哪些本周只启动开发和技术确认。</p>
+        </div>
+        <span class="pill green"><i class="fa-solid fa-calendar-week"></i>5/18-5/23</span>
+      </div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>分组</th>
+                <th>模块</th>
+                <th>本周目标</th>
+                <th>业务价值</th>
+                <th>技术重点</th>
+                <th>优先级</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>上线</strong></td>
+                <td>数据同步/订单商品明细</td>
+                <td>PC 订单同步到移动端后，订单详情补齐单个农产品明细。</td>
+                <td>用户能在移动端核对品类、重量、单价、金额。</td>
+                <td>字段映射、历史缺失兜底、金额一致性。</td>
+                <td><span class="pill red">P0</span></td>
+              </tr>
+              <tr>
+                <td><strong>上线</strong></td>
+                <td>团队管理/扫码开单</td>
+                <td>业务员只看自己开单数据，超管看团队全部数据，订单详情展示业务员。</td>
+                <td>解决团队数据越权和订单归属不清问题。</td>
+                <td>接口权限、订单归属、列表/详情/统计一致。</td>
+                <td><span class="pill amber">P1</span></td>
+              </tr>
+              <tr>
+                <td><strong>上线</strong></td>
+                <td>农户端结算卡信息修改</td>
+                <td>农户可修改结算卡关键字段，并联动受影响订单处理。</td>
+                <td>减少结算卡错误导致的付款失败和线下返工。</td>
+                <td>账户校验、订单状态联动、历史快照保留。</td>
+                <td><span class="pill red">P0</span></td>
+              </tr>
+              <tr>
+                <td><strong>开发</strong></td>
+                <td>开单优化/农户建档</td>
+                <td>收购商超管可在我的页快速开通卖方身份。</td>
+                <td>减少隐藏入口带来的现场指导成本。</td>
+                <td>团队角色权限、买方/卖方身份切换。</td>
+                <td><span class="pill amber">P1</span></td>
+              </tr>
+              <tr>
+                <td><strong>开发</strong></td>
+                <td>开单优化：选择收款对象整合</td>
+                <td>开单页统一通过选择收款人完成搜索、扫码、邀请建档。</td>
+                <td>让开单入口更顺，减少用户选择路径割裂。</td>
+                <td>农户状态、账户状态、暂存/付款链路字段保留。</td>
+                <td><span class="pill red">P0</span></td>
+              </tr>
+              <tr>
+                <td><strong>开发</strong></td>
+                <td>首页待办</td>
+                <td>收购商和农户首页展示待处理、付款异常、账户提醒。</td>
+                <td>首页直接告诉用户下一步该处理什么。</td>
+                <td>统计口径、跳转参数、订单页签数量一致。</td>
+                <td><span class="pill amber">P1</span></td>
+              </tr>
+              <tr>
+                <td><strong>开发</strong></td>
+                <td>账户管理</td>
+                <td>统一管理付款/收款账户，支持默认和删除，不提供编辑入口。</td>
+                <td>把银行卡维护从进件、结算修改中逐步收敛到统一入口。</td>
+                <td>默认账户、删除限制、农户一张卡/一个钱包。</td>
+                <td><span class="pill amber">P1</span></td>
+              </tr>
+              <tr>
+                <td><strong>开发</strong></td>
+                <td>建档/结算卡/进件</td>
+                <td>补齐四要素、开户行支行、省级建档规则配置。</td>
+                <td>适配各省政策，降低卡信息错误导致的支付失败。</td>
+                <td>四要素接口、省级配置、付款前拦截。</td>
+                <td><span class="pill red">P0/P1</span></td>
+              </tr>
+              <tr>
+                <td><strong>开发</strong></td>
+                <td>企微端 H5 进件优化</td>
+                <td>进件页移除银行卡信息，银行卡统一到账户管理维护。</td>
+                <td>进件更轻，账户维护更集中。</td>
+                <td>过渡期兼容、存量银行卡迁移、风控依赖确认。</td>
+                <td><span class="pill amber">P1</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="launch">
+      <div class="section-head">
+        <div>
+          <h3 class="section-title"><i class="fa-solid fa-rocket"></i>本周要上线的功能</h3>
+          <p class="section-desc">上线项要讲清楚“具体改什么、从哪里验证、什么情况算通过”。</p>
+        </div>
+        <span class="pill red"><i class="fa-solid fa-flag-checkered"></i>优先闭环</span>
+      </div>
+
+      <article class="panel">
+        <div class="feature-head">
+          <div>
+            <h4 class="feature-title">1. 数据同步/订单商品明细</h4>
+            <p class="feature-sub">PC 端同步订单进入移动端后，详情页需要按移动端订单详情原型补齐单个农产品信息块。</p>
+          </div>
+          <span class="pill red">P0 · 上线</span>
+        </div>
+        <div class="content-grid">
+          <div>
+            <h5 class="mini-title"><i class="fa-solid fa-bullseye"></i>本周要做</h5>
+            <ul class="clean">
+              <li>PC 端同步到移动端的订单，需要同步一组农产品明细数据。</li>
+              <li>移动端详情只展示一个“农产品信息”模块，一个订单只对应一个农产品。</li>
+              <li>字段展示按当前订单详情页：农产品名称、毛重、皮重、扣杂、净重、单价、备注、订单金额。</li>
+              <li>订单金额需要与 PC 端订单金额、移动端顶部付款金额保持一致。</li>
+              <li>字段缺失时用“--”或“未填写”等兜底，不允许页面空白或报错。</li>
+            </ul>
+          </div>
+          <div>
+            <h5 class="mini-title"><i class="fa-solid fa-triangle-exclamation"></i>不要混淆的边界</h5>
+            <ul class="clean">
+              <li>本周不处理 PC 端现金结算后移动端状态未更新的问题。</li>
+              <li>本期不做多商品列表，也不做一口价展示。</li>
+              <li>历史已同步订单是否补数据，需要产品和研发确认。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow">
+          <div class="step"><span class="step-number">1</span><strong>PC 端订单</strong><span>订单已有品类、重量、单价、金额等明细。</span></div>
+          <div class="step"><span class="step-number">2</span><strong>同步字段</strong><span>同步单个农产品明细，不生成多条商品明细。</span></div>
+          <div class="step"><span class="step-number">3</span><strong>移动端详情</strong><span>进入“农产品信息”模块按原型展示。</span></div>
+          <div class="step"><span class="step-number">4</span><strong>验收核对</strong><span>金额、单位、缺失字段兜底均符合预期。</span></div>
+        </div>
+        <div class="link-row">
+          <a class="proto-link" href="buyer-order-detail.html" target="_blank"><i class="fa-solid fa-file-invoice"></i>订单详情原型</a>
+          <a class="proto-link" href="buyer-order-manage.html" target="_blank"><i class="fa-solid fa-list"></i>订单管理原型</a>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="feature-head">
+          <div>
+            <h4 class="feature-title">2. 团队管理/扫码开单</h4>
+            <p class="feature-sub">当前重点不是新增授权流程，而是让订单数据按团队角色正确隔离，并记录业务员归属。</p>
+          </div>
+          <span class="pill amber">P1 · 上线</span>
+        </div>
+        <div class="grid-2">
+          <div>
+            <h5 class="mini-title"><i class="fa-solid fa-user-shield"></i>权限口径</h5>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>角色</th><th>订单列表</th><th>订单详情</th><th>统计/导出</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>业务员</strong></td><td>只看自己开单订单</td><td>只能进入自己的订单详情</td><td>只统计自己的订单</td></tr>
+                  <tr><td><strong>超管</strong></td><td>看团队全部订单</td><td>可查看团队全部订单详情</td><td>统计团队全部订单</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <h5 class="mini-title"><i class="fa-solid fa-qrcode"></i>扫码开单口径</h5>
+            <ul class="clean">
+              <li>业务员首次扫码后自行登录，系统自动完成身份和渠道绑定。</li>
+              <li>扫码开单产生的订单必须记录当前业务员，后续列表、详情、统计都使用该归属。</li>
+              <li>本周不做“超管给业务员开单授权”的入口，该能力先隐藏。</li>
+              <li>订单详情页需要展示“业务员”字段，便于超管核对订单来源。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout">
+          <strong>技术侧重点</strong>
+          数据隔离必须在接口层限制，不能只靠前端隐藏。需要覆盖列表、详情、筛选、统计、导出和通过 URL 直接访问详情的场景。
+        </div>
+        <div class="link-row">
+          <a class="proto-link" href="buyer-team.html" target="_blank"><i class="fa-solid fa-users"></i>团队管理</a>
+          <a class="proto-link" href="buyer-order-detail.html" target="_blank"><i class="fa-solid fa-id-badge"></i>订单详情业务员字段</a>
+          <a class="proto-link" href="buyer-billing.html" target="_blank"><i class="fa-solid fa-receipt"></i>开单页</a>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="feature-head">
+          <div>
+            <h4 class="feature-title">3. 农户端结算卡信息修改</h4>
+            <p class="feature-sub">本周只上线农户端修改结算卡信息，收购商付款信息修改后续由账户管理承接。</p>
+          </div>
+          <span class="pill red">P0 · 上线</span>
+        </div>
+        <div class="content-grid">
+          <div>
+            <h5 class="mini-title"><i class="fa-solid fa-credit-card"></i>页面与字段</h5>
+            <ul class="clean">
+              <li>农户从“我的”页进入“结算信息修改”。</li>
+              <li>预留手机号只读展示，不提供修改入口。</li>
+              <li>持卡人姓名、身份证号、银行卡号支持修改。</li>
+              <li>修改银行卡号时，需要同步选择开户行、开户支行。</li>
+              <li>修改成功后页面刷新，银行卡号等敏感信息按原型脱敏展示。</li>
+            </ul>
+          </div>
+          <div>
+            <h5 class="mini-title"><i class="fa-solid fa-link"></i>订单联动</h5>
+            <ul class="clean">
+              <li>待处理订单：引导回填至开单页，生成新订单。</li>
+              <li>付款中订单：引导重新支付，生成新的支付订单。</li>
+              <li>已结束订单：保留历史结算信息快照，不被新卡覆盖。</li>
+              <li>订单列表和详情建议展示“结算信息已变更”的处理提醒。</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow">
+          <div class="step"><span class="step-number">1</span><strong>农户改卡</strong><span>修改姓名、身份证号或银行卡号。</span></div>
+          <div class="step"><span class="step-number">2</span><strong>账户校验</strong><span>新银行卡和开户行支行校验通过后保存。</span></div>
+          <div class="step"><span class="step-number">3</span><strong>订单识别</strong><span>判断该农户是否存在待处理或付款中订单。</span></div>
+          <div class="step"><span class="step-number">4</span><strong>引导处理</strong><span>重新下单或重新支付，保留新旧订单关系。</span></div>
+        </div>
+        <div class="link-row">
+          <a class="proto-link" href="settlement-info-edit.html?source=farmer-my.html" target="_blank"><i class="fa-solid fa-pen-to-square"></i>农户结算信息修改</a>
+          <a class="proto-link" href="farmer-my.html" target="_blank"><i class="fa-solid fa-user"></i>农户我的页</a>
+          <a class="proto-link" href="buyer-order-manage.html" target="_blank"><i class="fa-solid fa-list-check"></i>订单管理联动</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="section" id="develop">
+      <div class="section-head">
+        <div>
+          <h3 class="section-title"><i class="fa-solid fa-code-branch"></i>本周要开始开发的功能</h3>
+          <p class="section-desc">开发项不一定本周上线，但本周需要明确方案、边界、接口和可验收拆分。</p>
+        </div>
+        <span class="pill blue"><i class="fa-solid fa-screwdriver-wrench"></i>启动开发</span>
+      </div>
+
+      <div class="grid-3">
+        <div class="roadmap-card">
+          <h4>开通农户/卖方身份入口</h4>
+          <p>入口放在收购商端“我的”页顶部身份切换位置。仅买方且当前为超管时展示“开通卖方”，业务员不展示，也不能通过接口绕过。</p>
+          <ul class="clean">
+            <li>点击弹窗确认是否开通卖方身份。</li>
+            <li>开通后可切换卖方进行收款。</li>
+            <li>示例演示账号需要具备超管身份才能展示。</li>
+          </ul>
+          <div class="link-row"><a class="proto-link" href="buyer-my.html" target="_blank"><i class="fa-solid fa-user-gear"></i>我的页</a></div>
+        </div>
+
+        <div class="roadmap-card">
+          <h4>选择收款对象整合</h4>
+          <p>开单页统一从“选择收款人”进入，底部面板提供搜索、扫码、邀请农户建档、合作农户列表。</p>
+          <ul class="clean">
+            <li>选择后回填收款人摘要，可清除重选。</li>
+            <li>农户未建档时引导邀请建档。</li>
+            <li>付款前需要检查收款账户状态。</li>
+          </ul>
+          <div class="link-row"><a class="proto-link" href="buyer-billing.html" target="_blank"><i class="fa-solid fa-receipt"></i>开单页</a></div>
+        </div>
+
+        <div class="roadmap-card">
+          <h4>首页待办</h4>
+          <p>收购商首页已有挂单、待开价、待付款三列面板，后续需要补齐数据源和跳转口径；农户首页按收款视角补齐待办。</p>
+          <ul class="clean">
+            <li>数量与订单管理页签一致。</li>
+            <li>点击带准确 tab 参数。</li>
+            <li>账户缺失、结算变更形成提醒。</li>
+          </ul>
+          <div class="link-row">
+            <a class="proto-link" href="buyer-home.html" target="_blank"><i class="fa-solid fa-house"></i>收购商首页</a>
+            <a class="proto-link" href="farmer-home.html" target="_blank"><i class="fa-solid fa-house-user"></i>农户首页</a>
+          </div>
+        </div>
+
+        <div class="roadmap-card">
+          <h4>账户管理</h4>
+          <p>账户管理作为银行卡维护的统一入口。收购商维护付款账户，农户维护收款账户；账户卡片支持设为默认和删除，不提供修改入口。</p>
+          <ul class="clean">
+            <li>收购商支持本人银行卡、非本人银行卡、对公账户、数币钱包。</li>
+            <li>农户只允许一张收款银行卡和一个数币钱包。</li>
+            <li>信息错误按删除后重新新增处理。</li>
+          </ul>
+          <div class="link-row">
+            <a class="proto-link" href="account-security.html?source=buyer-my.html" target="_blank"><i class="fa-solid fa-shield-halved"></i>账户管理</a>
+            <a class="proto-link" href="account-add.html?role=buyer" target="_blank"><i class="fa-solid fa-credit-card"></i>新增银行卡</a>
+          </div>
+        </div>
+
+        <div class="roadmap-card">
+          <h4>建档/结算卡/进件校验</h4>
+          <p>补齐四要素、开户行支行、省级建档规则配置，让建档、账户、付款前校验使用同一套规则。</p>
+          <ul class="clean">
+            <li>付款人四要素：姓名、手机号、银行卡号、身份证号。</li>
+            <li>他行卡需要校验开户行和支行。</li>
+            <li>省级配置控制是否必须邮储卡、是否支持他行卡、银行卡是否必填。</li>
+          </ul>
+          <div class="link-row"><a class="proto-link" href="buyer-farmer-add%20-jiandang.html" target="_blank"><i class="fa-solid fa-address-card"></i>农户建档</a></div>
+        </div>
+
+        <div class="roadmap-card">
+          <h4>企微端 H5 进件页优化</h4>
+          <p>账户管理上线后，收购商进件页不再维护银行卡信息，只保留基础信息、营业执照、法人/负责人等必要资料。</p>
+          <ul class="clean">
+            <li>银行卡和默认付款账户统一到账户管理维护。</li>
+            <li>无可用付款账户时，引导到账户管理新增。</li>
+            <li>需要确认存量银行卡是否迁移。</li>
+          </ul>
+          <div class="link-row"><a class="proto-link" href="manager-account-buyer.html" target="_blank"><i class="fa-solid fa-building-user"></i>企微 H5 进件</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="flows">
+      <div class="section-head">
+        <div>
+          <h3 class="section-title"><i class="fa-solid fa-diagram-project"></i>关键流程图</h3>
+          <p class="section-desc">以下流程适合在评审会上直接讲：谁触发、系统做什么、落到哪个页面。</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel compact">
+          <h4 class="feature-title">农户修改结算卡后的订单处理</h4>
+          <div class="flow three">
+            <div class="step"><span class="step-number">A</span><strong>待处理</strong><span>挂单、待开价、待付款回填开单页，重新生成订单。</span></div>
+            <div class="step"><span class="step-number">B</span><strong>付款中</strong><span>原支付单不可继续支付，重新生成新的支付订单。</span></div>
+            <div class="step"><span class="step-number">C</span><strong>已结束</strong><span>保持历史结算快照，不能被新卡覆盖。</span></div>
+          </div>
+        </div>
+
+        <div class="panel compact">
+          <h4 class="feature-title">账户管理统一入口</h4>
+          <div class="flow three">
+            <div class="step"><span class="step-number">1</span><strong>新增账户</strong><span>银行卡或数币钱包进入统一账户管理。</span></div>
+            <div class="step"><span class="step-number">2</span><strong>校验账户</strong><span>四要素、开户行支行、账户状态校验。</span></div>
+            <div class="step"><span class="step-number">3</span><strong>业务使用</strong><span>付款、收款、收款码、进件后引导均读取账户状态。</span></div>
+          </div>
+        </div>
+
+        <div class="panel compact">
+          <h4 class="feature-title">选择收款对象整合</h4>
+          <div class="flow three">
+            <div class="step"><span class="step-number">1</span><strong>开单页入口</strong><span>点击选择收款人，打开底部面板。</span></div>
+            <div class="step"><span class="step-number">2</span><strong>三种方式</strong><span>搜索合作农户、扫码识别、邀请建档。</span></div>
+            <div class="step"><span class="step-number">3</span><strong>回填订单</strong><span>收款对象进入暂存、开单、付款链路。</span></div>
+          </div>
+        </div>
+
+        <div class="panel compact">
+          <h4 class="feature-title">建档省级规则</h4>
+          <div class="flow three">
+            <div class="step"><span class="step-number">1</span><strong>识别省份</strong><span>按农户所属省份读取配置。</span></div>
+            <div class="step"><span class="step-number">2</span><strong>动态表单</strong><span>控制邮储卡/他行卡、银行卡必填或后置补录。</span></div>
+            <div class="step"><span class="step-number">3</span><strong>付款前拦截</strong><span>缺少可用收款账户时引导补录。</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="acceptance">
+      <div class="section-head">
+        <div>
+          <h3 class="section-title"><i class="fa-solid fa-clipboard-check"></i>验收口径</h3>
+          <p class="section-desc">建议测试和研发按这些点拆用例，避免只验页面显示。</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="checklist">
+          <div class="check-item"><i class="fa-solid fa-circle-check"></i><div><strong>PC 同步订单明细</strong><span>移动端订单详情展示农产品名称、毛重、皮重、扣杂、净重、单价、备注、订单金额。</span></div></div>
+          <div class="check-item"><i class="fa-solid fa-circle-check"></i><div><strong>单商品口径</strong><span>一个订单只展示一个农产品信息块，不出现多条商品明细。</span></div></div>
+          <div class="check-item"><i class="fa-solid fa-circle-check"></i><div><strong>团队权限</strong><span>业务员无法通过列表、筛选、详情链接或接口参数查看他人订单。</span></div></div>
+          <div class="check-item"><i class="fa-solid fa-circle-check"></i><div><strong>业务员字段</strong><span>超管查看订单详情时能看到业务员归属，扫码开单新订单能记录归属。</span></div></div>
+          <div class="check-item"><i class="fa-solid fa-circle-check"></i><div><strong>农户改卡</strong><span>预留手机号不可修改，姓名、身份证号、银行卡号可修改，改卡时选择开户行和支行。</span></div></div>
+          <div class="check-item"><i class="fa-solid fa-circle-check"></i><div><strong>改卡订单联动</strong><span>待处理订单可引导重新下单，付款中订单可引导重新支付，已结束订单保持历史快照。</span></div></div>
+          <div class="check-item"><i class="fa-solid fa-circle-check"></i><div><strong>账户管理限制</strong><span>收购商可维护多个付款账户；农户仅一张收款银行卡和一个数币钱包。</span></div></div>
+          <div class="check-item"><i class="fa-solid fa-circle-check"></i><div><strong>建档规则配置</strong><span>省级配置能控制是否必须邮储卡、是否支持他行卡、银行卡是否必填、是否允许后置补录。</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="questions">
+      <div class="section-head">
+        <div>
+          <h3 class="section-title"><i class="fa-solid fa-circle-question"></i>需要尽快确认的问题</h3>
+          <p class="section-desc">这些问题会影响接口、数据迁移、测试范围和排期，需要在开发前先定口径。</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-date"><strong>01</strong>订单</div>
+            <div class="timeline-card"><strong>PC 端订单商品明细同步是否补历史数据？</strong><span>如果只处理新同步订单，历史订单详情继续兜底；如果补历史，需要评估数据回刷和一致性校验。</span></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date"><strong>02</strong>团队</div>
+            <div class="timeline-card"><strong>本周团队管理上线范围是否只包含数据隔离和业务员字段？</strong><span>若加入成员状态、停用、导出等能力，需要额外拆范围。</span></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date"><strong>03</strong>结算</div>
+            <div class="timeline-card"><strong>农户修改结算卡后，未付款订单如何失效或重新生成？</strong><span>需要确定原订单是否自动作废、新订单如何关联、付款中支付单如何展示。</span></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date"><strong>04</strong>建档</div>
+            <div class="timeline-card"><strong>省级建档配置由谁维护，是否需要审批？</strong><span>配置会影响建档表单、付款前拦截、批量导入和存量农户状态。</span></div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date"><strong>05</strong>进件</div>
+            <div class="timeline-card"><strong>进件页移除银行卡后，存量银行卡信息是否迁移到账户管理？</strong><span>需要确认过渡期是否保留旧字段、风控开户是否仍依赖银行卡。</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer-note">页面来源：飞书文档《收粮系统-v3.1-确认518-523要做的需求》；本页用于内部讲解、技术拆分和测试对照。</p>
+  </main>
+</div>
+</body>
+</html>

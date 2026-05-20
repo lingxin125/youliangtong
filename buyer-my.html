@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 我的</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        window.__FIGMA_CAPTURE_MODE__ = window.location.hash.indexOf('figmacapture=') !== -1;
+        if (!window.__FIGMA_CAPTURE_MODE__) {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"><' + '/script>');
+        }
+    </script>
+    <script src="shared.js?v=20260515-farmer-role-permission"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        .role-switch-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 28px;
+            padding: 0 12px;
+            border-radius: 999px;
+            background: #11A64A;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 500;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(17, 166, 74, 0.2);
+            transition: transform 0.18s ease, opacity 0.18s ease;
+        }
+        .role-switch-chip:active {
+            transform: scale(0.96);
+            opacity: 0.85;
+        }
+        .invite-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 90;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .invite-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .invite-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .invite-modal-overlay.show .invite-modal-sheet {
+            transform: translateY(0);
+        }
+        .invite-qr-box {
+            width: 230px;
+            height: 230px;
+            border-radius: 16px;
+            border: 1px solid rgba(17, 166, 74, 0.18);
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 4px 14px rgba(17, 166, 74, 0.12);
+        }
+        .invite-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #11A64A;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(17, 166, 74, 0.06);
+            border: 1px solid rgba(17, 166, 74, 0.12);
+        }
+        .invite-link:active {
+            transform: scale(0.98);
+        }
+        .logout-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 95;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .logout-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .logout-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .logout-modal-overlay.show .logout-modal-sheet {
+            transform: translateY(0);
+        }
+        .switch-role-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 92;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .switch-role-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .switch-role-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .switch-role-modal-overlay.show .switch-role-modal-sheet {
+            transform: translateY(0);
+        }
+        .team-context-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 16px;
+            background: #F2F8F4;
+            border-radius: 999px;
+            border: 1px solid rgba(17, 166, 74, 0.12);
+            transition: all 0.2s ease;
+            max-width: 100%;
+            margin-top: 2px;
+        }
+        .team-context-pill.is-clickable:active {
+            transform: scale(0.97);
+            background: #EAF3EC;
+        }
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(17, 166, 74, 0.1);
+            color: #11A64A;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(17, 166, 74, 0.1);
+        }
+        .team-switch-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 93;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .team-switch-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .team-switch-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .team-switch-modal-overlay.show .team-switch-modal-sheet {
+            transform: translateY(0);
+        }
+        .version-switch-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 94;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .version-switch-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .version-switch-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .version-switch-modal-overlay.show .version-switch-modal-sheet {
+            transform: translateY(0);
+        }
+        .team-option-card {
+            border: 1px solid rgba(17, 24, 39, 0.06);
+            border-radius: 16px;
+            background: #fff;
+            transition: all 0.18s ease;
+        }
+        .team-option-card.active {
+            border-color: rgba(17, 166, 74, 0.25);
+            background: #F5FBF7;
+            box-shadow: 0 6px 16px rgba(17, 166, 74, 0.08);
+        }
+        .account-switch-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 94;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .account-switch-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .account-switch-modal-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .account-switch-modal-overlay.show .account-switch-modal-sheet {
+            transform: translateY(0);
+        }
+        .account-option-card {
+            border: 1px solid rgba(17, 24, 39, 0.06);
+            border-radius: 16px;
+            background: #fff;
+            transition: all 0.18s ease;
+        }
+        .account-option-card.active {
+            border-color: rgba(17, 166, 74, 0.25);
+            background: #F5FBF7;
+            box-shadow: 0 6px 16px rgba(17, 166, 74, 0.08);
+        }
+        .header-role-tag {
+            font-size: 10px;
+            background: rgba(17, 166, 74, 0.1);
+            color: #11A64A;
+            padding: 1px 6px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-left: 6px;
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            border: 1px solid rgba(17, 166, 74, 0.08);
+            letter-spacing: 0.02em;
+        }
+        .header-mobile-info {
+            display: inline-flex;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            color: #94A3B8;
+            font-size: 13px;
+        }
+        .header-split-line {
+            width: 1px;
+            height: 14px;
+            background: #D1D5DB;
+            margin: 0 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <!-- 状态栏 -->
+    <div id="statusBar"></div>
+    <!-- 导航栏 -->
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4 space-y-4" style="padding-bottom:80px;">
+
+        <!-- 顶部操作区与用户信息 -->
+        <div class="pt-2 pb-2 relative">
+            <div class="flex justify-end mb-4 pr-1">
+                <div id="buyerSwitchRoleWrap" class="hidden relative z-10">
+                    <button id="buyerSwitchRoleChip" type="button" class="role-switch-chip" onclick="return openSwitchRoleModal(event)">
+                        <i class="fas fa-arrow-right-arrow-left text-[11px] opacity-90"></i>
+                        <span id="buyerSwitchRoleLabel">切换到卖方</span>
+                    </button>
+                </div>
+            </div>
+            <div class="block no-underline active:scale-[0.98] transition-transform relative z-0">
+                <div class="flex items-center gap-5 px-2">
+                    <!-- 头像：保持 60x60 -->
+                    <div class="w-[60px] h-[60px] rounded-full bg-gray-200 flex items-center justify-center border border-black/5 shadow-sm overflow-hidden shrink-0">
+                        <img id="buyerAvatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face" alt="头像" class="w-full h-full object-cover">
+                    </div>
+                    <!-- 右侧信息：使用 flex-col 并 justify-center 实现与头像的垂直居中融合 -->
+                    <div class="flex-1 min-w-0 flex flex-col justify-center py-1">
+                        <div class="mb-0.5">
+                            <span id="buyerDisplayName" class="text-[18px] font-bold text-gray-900 truncate">张老板</span>
+                        </div>
+                        <div class="flex items-center text-[13px] text-gray-500 font-poppins mb-2">
+                            <span id="buyerTopMobile">13700005555</span>
+                            <div class="header-split-line" style="height:10px;"></div>
+                            <span id="buyerHeaderRoleTag" class="role-badge">超管</span>
+                        </div>
+                        <!-- 团队切换 Pill：保持大尺寸易读 -->
+                        <div id="buyerTeamContextWrap" class="hidden">
+                            <div id="buyerTeamContextCard" class="team-context-pill" onclick="event.stopPropagation();">
+                                <i class="fas fa-building text-[#11A64A] text-[11px]"></i>
+                                <span id="buyerTeamName" class="text-[13px] font-bold text-gray-700 truncate max-w-[160px]">张老板收购站</span>
+                                <i id="buyerTeamChevron" class="fas fa-right-left text-gray-400 text-[10px] ml-1.5 hidden"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-7 h-7 rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.05)] flex items-center justify-center shrink-0 cursor-pointer active:scale-95 transition-transform" onclick="window.location.href='buyer-profile.html'">
+                        <i class="fas fa-chevron-right text-gray-300 text-[11px] ml-[1px]"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能菜单 -->
+        <div class="bg-white rounded-2xl overflow-hidden border border-black/[0.04]">
+            <!-- 团队管理（仅超管可见） -->
+            <a href="buyer-team.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;" id="menuTeamManage">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-users-gear text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">团队管理</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4" id="menuTeamManageDivider"></div>
+            <!-- 品类管理 -->
+            <a href="buyer-category-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-layer-group text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">品类管理</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            <!-- 需求管理 -->
+            <!-- <a href="buyer-demand-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-list-check text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">需求管理</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div> -->
+            <!-- 账户管理 -->
+            <a href="account-security.html?source=buyer-my.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-shield-halved text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">账户管理</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            <!-- 付款信息修改：暂不展示 -->
+            <!-- <a href="settlement-info-edit.html?source=buyer-my.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-pen-to-square text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">付款信息修改</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div> -->
+            <!-- 附言管理 -->
+            <a href="buyer-remark-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-comment-dots text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">附言管理</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            <!-- 报表分析 -->
+            <a href="buyer-profit-analysis.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-chart-pie text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">报表分析</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            <!-- 切换版本 -->
+            <a href="#" onclick="return openVersionSwitcher(event)" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-font text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">切换版本</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="currentVersionHint" class="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[12px] font-bold transition-all duration-300">标准版</span>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            <!-- 切换账号 -->
+            <a href="#" onclick="return openAccountSwitcher(event)" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-repeat text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">切换账号</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="currentAccountHint" class="text-[11px] text-gray-400 font-poppins">13700005555</span>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
+            </a>
+            <!--
+            <div class="h-px bg-gray-50 mx-4"></div>
+            消息通知（暂隐藏）
+            <a href="buyer-notifications.html?source=my" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-bell text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">消息通知</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            邀请农户建档（暂隐藏）
+            <a href="#" onclick="return openInviteModal(event)" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-user-plus text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">邀请农户建档</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
+            帮助与反馈（暂隐藏）
+            <a href="#" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-circle-question text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">帮助与反馈</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            -->
+            <!--
+            <div class="h-px bg-gray-100 mx-4"></div>
+            关于模块（MVP 暂不开放）
+            <a href="about-us.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                        <i class="fas fa-info-circle text-purple-500 text-sm"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">关于</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-gray-400">V1.1.0</span>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
+            </a>
+            -->
+        </div>
+
+        <!-- 微信服务通知（暂隐藏） -->
+        <!--
+        <div class="bg-white rounded-2xl p-4 border border-black/[0.04] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fab fa-weixin text-[#07C160] text-[16px]"></i>
+                    </div>
+                    <div>
+                        <div class="text-[15px] font-medium text-gray-700 tracking-wide">微信服务通知</div>
+                        <div class="text-[11px] text-gray-400">开启后接收订单、支付等通知</div>
+                    </div>
+                </div>
+                <div class="relative inline-block w-11 h-6 cursor-pointer" onclick="toggleWechatNotify()">
+                    <input type="checkbox" id="wechatNotifySwitch" class="peer sr-only">
+                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-primary transition-colors duration-300"></div>
+                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300 peer-checked:translate-x-5"></div>
+                </div>
+            </div>
+        </div>
+        -->
+
+        <!-- 退出登录 -->
+        <div class="pt-4">
+            <a href="#" onclick="return openLogoutModal(event)" class="block w-full py-3 rounded-2xl bg-white border border-black/[0.04] text-red-500 text-sm font-medium text-center no-underline" style="text-decoration:none;">
+                退出登录
+            </a>
+            <div class="mt-2 text-center text-[11px] text-gray-400 tracking-wide select-none">版本号 v1.1.0</div>
+        </div>
+    </div>
+
+    <!-- 邀请农户弹窗 -->
+    <div id="inviteModal" class="invite-modal-overlay" onclick="closeInviteModal()">
+        <div class="invite-modal-sheet" onclick="event.stopPropagation()">
+            <!-- 拖拽指示条 -->
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            
+            <div class="mb-3">
+                <div class="text-[16px] font-semibold text-gray-800">邀请农户建档</div>
+            </div>
+            <div class="text-[12px] text-gray-500 leading-relaxed mb-3">
+                保存或出示二维码给农户，农户扫码后引导完成建档。
+            </div>
+            <div class="invite-qr-box">
+                <canvas id="inviteQrCanvas" width="210" height="210"></canvas>
+            </div>
+            <div class="text-[11px] text-gray-400 text-center mt-2">演示二维码图例（用于原型跳转）</div>
+
+            <button class="w-full h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-transform mt-4" onclick="saveInviteQr()">保存二维码</button>
+
+            <a id="inviteQuickLink" href="buyer-farmer-add%20-jiandang.html?source=invite&back=mine" class="invite-link mt-3" style="display:flex;">
+                <i class="fas fa-arrow-up-right-from-square text-[11px]"></i>
+                <span>快捷跳转：前往农户建档页</span>
+            </a>
+
+            <button class="w-full h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform mt-3" onclick="closeInviteModal()">关闭</button>
+        </div>
+    </div>
+
+    <!-- 退出登录确认弹窗 -->
+    <div id="logoutModal" class="logout-modal-overlay" onclick="closeLogoutModal()">
+        <div class="logout-modal-sheet" onclick="event.stopPropagation()">
+            <!-- 拖拽指示条 -->
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">退出当前账号</div>
+            <div class="text-[12px] text-gray-500 text-center mb-4">退出后需要重新登录才能继续使用</div>
+            <div class="flex gap-2.5">
+                <button class="flex-1 h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform" onclick="closeLogoutModal()">取消</button>
+                <button class="flex-1 h-11 rounded-xl bg-red-500 text-white text-sm font-medium active:scale-[0.98] transition-transform" onclick="confirmLogout()">退出登录</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 身份切换确认弹窗 -->
+    <div id="switchRoleModal" class="switch-role-modal-overlay" onclick="closeSwitchRoleModal()">
+        <div class="switch-role-modal-sheet" onclick="event.stopPropagation()">
+            <!-- 拖拽指示条 -->
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">切换身份</div>
+            <div id="switchRoleModalDesc" class="text-[12px] text-gray-500 text-center mb-4">确认切换到卖方身份？切换后将进入卖方首页</div>
+            <div class="flex gap-2.5">
+                <button class="flex-1 h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform" onclick="closeSwitchRoleModal()">取消</button>
+                <button id="switchRoleConfirmBtn" class="flex-1 h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-transform" onclick="confirmSwitchRole()">确认切换</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 团队切换弹窗 -->
+    <div id="teamSwitchModal" class="team-switch-modal-overlay" onclick="closeTeamSwitcher()">
+        <div class="team-switch-modal-sheet" onclick="event.stopPropagation()">
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-1">切换团队</div>
+            <div id="teamSwitchRoleDesc" class="text-[12px] text-gray-500 text-center mb-4"></div>
+            <div id="teamSwitchList" class="space-y-2.5 max-h-[48vh] overflow-y-auto no-scrollbar"></div>
+            <button class="w-full h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform mt-4" onclick="closeTeamSwitcher()">关闭</button>
+        </div>
+    </div>
+
+    <!-- 账号切换弹窗 -->
+    <div id="accountSwitchModal" class="account-switch-modal-overlay" onclick="closeAccountSwitcher()">
+        <div class="account-switch-modal-sheet" onclick="event.stopPropagation()">
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-1">切换账号</div>
+            <div class="text-[12px] text-gray-500 text-center mb-4">选择一个预置演示账号，直接切换查看不同场景</div>
+            <div id="accountSwitchList" class="space-y-2.5 max-h-[48vh] overflow-y-auto no-scrollbar"></div>
+            <button class="w-full h-11 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 active:scale-[0.98] transition-transform mt-4" onclick="closeAccountSwitcher()">关闭</button>
+        </div>
+    </div>
+
+    <!-- 版本切换弹窗 -->
+    <div id="versionSwitchModal" class="version-switch-modal-overlay" onclick="closeVersionSwitcher()">
+        <div class="version-switch-modal-sheet" onclick="event.stopPropagation()">
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            <div class="text-[16px] font-semibold text-gray-800 text-center mb-5">切换版本</div>
+            
+            <div class="space-y-3" id="versionOptionList">
+                <!-- 标准版 -->
+                <div class="flex items-center justify-between p-4 rounded-xl border border-primary bg-primary/5 cursor-pointer version-option transition-all duration-200" data-version="standard" onclick="selectVersionOption('standard')">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <i class="fas fa-mobile-screen text-primary"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-[15px] font-semibold text-gray-800">标准版</div>
+                            <div class="text-[11px] text-gray-400">常规字体大小，适合日常使用</div>
+                        </div>
+                    </div>
+                    <div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center version-check shrink-0">
+                        <i class="fas fa-check text-white text-[10px]"></i>
+                    </div>
+                </div>
+                
+                <!-- 关怀版 -->
+                <div class="flex items-center justify-between p-4 rounded-xl border border-gray-100 bg-white cursor-pointer version-option transition-all duration-200" data-version="elderly" onclick="selectVersionOption('elderly')">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center shrink-0">
+                            <i class="fas fa-heart text-orange-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-[15px] font-semibold text-gray-800">关怀版</div>
+                            <div class="text-[11px] text-gray-400">大字体设计，视觉更清晰</div>
+                        </div>
+                    </div>
+                    <div class="w-5 h-5 rounded-full border border-gray-200 version-check shrink-0"></div>
+                </div>
+            </div>
+            
+            <button class="w-full h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-all mt-6 shadow-lg shadow-primary/20" onclick="confirmSwitchVersion()">确认切换</button>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div id="tabBar"></div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('我的');
+var captureState = new URLSearchParams(window.location.search).get('captureState') || '';
+document.getElementById('tabBar').innerHTML = renderBuyerTabBar('mine');
+
+if (window.__FIGMA_CAPTURE_MODE__) {
+    var buyerAvatar = document.getElementById('buyerAvatar');
+    if (buyerAvatar) {
+        buyerAvatar.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23DDEFE4'/%3E%3Ccircle cx='60' cy='46' r='22' fill='%2311A64A' fill-opacity='0.22'/%3E%3Cpath d='M24 100c8-18 21-27 36-27s28 9 36 27' fill='%2311A64A' fill-opacity='0.22'/%3E%3C/svg%3E";
+    }
+}
+
+// 微信服务通知开关
+function toggleWechatNotify() {
+    var checkbox = document.getElementById('wechatNotifySwitch');
+    if (!checkbox) return;
+    checkbox.checked = !checkbox.checked;
+
+    // 保存状态到本地存储
+    try {
+        localStorage.setItem('ylt_wechat_notify_enabled', checkbox.checked ? '1' : '0');
+    } catch (e) {}
+
+    // 显示提示
+    showToast(checkbox.checked ? '已开启微信服务通知' : '已关闭微信服务通知');
+}
+
+// 初始化开关状态
+function initWechatNotify() {
+    var checkbox = document.getElementById('wechatNotifySwitch');
+    if (!checkbox) return;
+    try {
+        var enabled = localStorage.getItem('ylt_wechat_notify_enabled');
+        checkbox.checked = enabled === '1';
+    } catch (e) {
+        checkbox.checked = false;
+    }
+}
+
+// Toast 提示
+function showToast(msg) {
+    var existing = document.querySelector('.toast-msg');
+    if (existing) existing.remove();
+
+    var div = document.createElement('div');
+    div.className = 'toast-msg fixed left-1/2 -translate-x-1/2 bottom-24 px-4 py-2 bg-black/80 text-white text-xs rounded-lg z-[120]';
+    div.textContent = msg;
+    document.body.appendChild(div);
+
+    setTimeout(function() {
+        div.style.opacity = '0';
+        div.style.transition = 'opacity 0.3s';
+        setTimeout(function() { div.remove(); }, 300);
+    }, 1500);
+}
+
+function copyTopMobile(event, id) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+    }
+    var mobile = (document.getElementById(id) || {}).textContent || '';
+    if (!mobile) {
+        showToast('未获取到手机号');
+        return false;
+    }
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(mobile).then(function() {
+            showToast('手机号已复制');
+        }).catch(function() {
+            showToast('复制失败，请手动复制');
+        });
+    } else {
+        var input = document.createElement('input');
+        input.value = mobile;
+        document.body.appendChild(input);
+        input.select();
+        try {
+            document.execCommand('copy');
+            showToast('手机号已复制');
+        } catch (e) {
+            showToast('复制失败，请手动复制');
+        }
+        document.body.removeChild(input);
+    }
+    return false;
+}
+
+function copyTopMerchantNo(event, id) {
+    return copyTopMobile(event, id);
+}
+
+function getInviteUrl() {
+    var currentUser = typeof UserIdentityStore !== 'undefined' ? UserIdentityStore.getCurrentUser() : null;
+    var merchantNo = currentUser && currentUser.merchantId ? currentUser.merchantId : '';
+    var inviteUrl = new URL('buyer-farmer-add -jiandang.html', window.location.href);
+    inviteUrl.searchParams.set('source', 'invite');
+    inviteUrl.searchParams.set('back', 'mine');
+    if (merchantNo) {
+        inviteUrl.searchParams.set('inviter', merchantNo);
+    }
+    return inviteUrl.toString();
+}
+
+function openInviteModal(event) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+    }
+    var modal = document.getElementById('inviteModal');
+    if (!modal) return false;
+    modal.classList.add('show');
+    renderInviteQr();
+    return false;
+}
+
+function closeInviteModal() {
+    var modal = document.getElementById('inviteModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function openLogoutModal(event) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+    }
+    var modal = document.getElementById('logoutModal');
+    if (!modal) return false;
+    modal.classList.add('show');
+    return false;
+}
+
+function closeLogoutModal() {
+    var modal = document.getElementById('logoutModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function confirmLogout() {
+    window.location.href = 'login.html';
+}
+
+function renderInviteQr() {
+    var canvas = document.getElementById('inviteQrCanvas');
+    var quickLink = document.getElementById('inviteQuickLink');
+    if (!canvas) return;
+
+    var inviteUrl = getInviteUrl();
+    if (quickLink) {
+        quickLink.href = inviteUrl;
+    }
+    drawMockQr(canvas, inviteUrl);
+}
+
+function drawMockQr(canvas, content) {
+    var ctx = canvas.getContext('2d');
+    var size = canvas.width;
+    var modules = 29;
+    var cell = Math.floor(size / modules);
+    var offset = Math.floor((size - cell * modules) / 2);
+    var reserved = [];
+    var x;
+    var y;
+
+    for (y = 0; y < modules; y += 1) {
+        reserved[y] = [];
+        for (x = 0; x < modules; x += 1) {
+            reserved[y][x] = false;
+        }
+    }
+
+    function markFinder(startX, startY) {
+        var ix;
+        var iy;
+        for (iy = -1; iy <= 7; iy += 1) {
+            for (ix = -1; ix <= 7; ix += 1) {
+                var rx = startX + ix;
+                var ry = startY + iy;
+                if (rx >= 0 && rx < modules && ry >= 0 && ry < modules) {
+                    reserved[ry][rx] = true;
+                }
+            }
+        }
+        for (iy = 0; iy < 7; iy += 1) {
+            for (ix = 0; ix < 7; ix += 1) {
+                var px = startX + ix;
+                var py = startY + iy;
+                var isOuter = ix === 0 || ix === 6 || iy === 0 || iy === 6;
+                var isInner = ix >= 2 && ix <= 4 && iy >= 2 && iy <= 4;
+                var black = isOuter || isInner;
+                ctx.fillStyle = black ? '#111827' : '#FFFFFF';
+                ctx.fillRect(offset + px * cell, offset + py * cell, cell, cell);
+            }
+        }
+    }
+
+    function hashSeed(text) {
+        var seed = 0;
+        for (var i = 0; i < text.length; i += 1) {
+            seed = (seed * 131 + text.charCodeAt(i)) % 2147483647;
+        }
+        return seed || 97;
+    }
+
+    var seed = hashSeed(content);
+    function random() {
+        seed = (seed * 48271) % 2147483647;
+        return seed / 2147483647;
+    }
+
+    ctx.clearRect(0, 0, size, size);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, size, size);
+
+    markFinder(0, 0);
+    markFinder(modules - 7, 0);
+    markFinder(0, modules - 7);
+
+    for (x = 8; x < modules - 8; x += 1) {
+        reserved[6][x] = true;
+        reserved[x][6] = true;
+        ctx.fillStyle = x % 2 === 0 ? '#111827' : '#FFFFFF';
+        ctx.fillRect(offset + x * cell, offset + 6 * cell, cell, cell);
+        ctx.fillRect(offset + 6 * cell, offset + x * cell, cell, cell);
+    }
+
+    for (y = 0; y < modules; y += 1) {
+        for (x = 0; x < modules; x += 1) {
+            if (reserved[y][x]) continue;
+            if (random() > 0.5) {
+                ctx.fillStyle = '#111827';
+                ctx.fillRect(offset + x * cell, offset + y * cell, cell, cell);
+            }
+        }
+    }
+}
+
+function saveInviteQr() {
+    // 原型演示：不触发真实下载，避免在部分浏览器/本地协议下跳白页
+    showToast('保存成功');
+}
+
+// 页面加载时初始化
+initWechatNotify();
+
+// === 身份切换逻辑 ===
+var _switchTargetRole = null;
+var _switchTargetLabel = '';
+var _switchTargetActionText = '';
+var _defaultSwitchRole = 'farmer';
+var _switchRoleMode = 'switch';
+
+function getSwitchActionText(role) {
+    return role === 'buyer' ? '买方' : '卖方';
+}
+
+function userHasRole(user, role) {
+    return !!(user && Array.isArray(user.roles) && user.roles.indexOf(role) >= 0);
+}
+
+function getTeamRoleLabel(role) {
+    if (typeof TeamMockStore !== 'undefined' && TeamMockStore.getRoleInfo) {
+        var info = TeamMockStore.getRoleInfo(role);
+        if (info && info.label) return info.label;
+    }
+    return role || '--';
+}
+
+function getBuyerCurrentContext() {
+    var currentRole = typeof UserIdentityStore !== 'undefined' ? (UserIdentityStore.getCurrentRole() || 'buyer') : 'buyer';
+    var currentUser = typeof UserIdentityStore !== 'undefined' ? UserIdentityStore.getCurrentUser() : null;
+    var teams = [];
+    if (currentUser && Array.isArray(currentUser.teams)) {
+        teams = currentUser.teams.slice();
+    } else if (typeof TeamMockStore !== 'undefined' && TeamMockStore.getAllTeams) {
+        teams = TeamMockStore.getAllTeams();
+    }
+    var currentTeamId = currentUser && currentUser.currentTeamId ? currentUser.currentTeamId : null;
+    if (!currentTeamId && typeof TeamMockStore !== 'undefined' && TeamMockStore.getCurrentTeam) {
+        var fallbackTeam = TeamMockStore.getCurrentTeam();
+        currentTeamId = fallbackTeam ? fallbackTeam.teamId : null;
+    }
+    var currentTeam = null;
+    for (var i = 0; i < teams.length; i++) {
+        if (teams[i] && teams[i].teamId === currentTeamId) {
+            currentTeam = teams[i];
+            break;
+        }
+    }
+    if (!currentTeam && teams.length) currentTeam = teams[0];
+    return {
+        currentRole: currentRole,
+        currentUser: currentUser,
+        teams: teams,
+        currentTeam: currentTeam
+    };
+}
+
+function renderBuyerProfileContext() {
+    var ctx = getBuyerCurrentContext();
+    var currentUser = ctx.currentUser;
+    var currentTeam = ctx.currentTeam;
+    var displayNameEl = document.getElementById('buyerDisplayName');
+    var mobileEl = document.getElementById('buyerTopMobile');
+    var teamWrap = document.getElementById('buyerTeamContextWrap');
+    var teamCard = document.getElementById('buyerTeamContextCard');
+    var teamNameEl = document.getElementById('buyerTeamName');
+    // var teamRoleTagEl = document.getElementById('buyerTeamRoleTag'); // 已移除
+    var teamChevronEl = document.getElementById('buyerTeamChevron');
+    var teamManageMenu = document.getElementById('menuTeamManage');
+    var teamManageDivider = document.getElementById('menuTeamManageDivider');
+    var currentAccountHintEl = document.getElementById('currentAccountHint');
+
+    if (displayNameEl) {
+        displayNameEl.textContent = currentUser && currentUser.name ? currentUser.name : '张老板';
+    }
+    if (mobileEl && currentUser && currentUser.mobile) {
+        mobileEl.textContent = currentUser.mobile;
+    }
+    
+    // 处理头部角色标签
+    var headerRoleTagEl = document.getElementById('buyerHeaderRoleTag');
+    if (headerRoleTagEl) {
+        headerRoleTagEl.textContent = getTeamRoleLabel(currentTeam && currentTeam.role);
+    }
+
+    if (currentAccountHintEl) {
+        currentAccountHintEl.textContent = currentUser && currentUser.mobile ? currentUser.mobile : '--';
+    }
+
+    var teamCount = Array.isArray(ctx.teams) ? ctx.teams.length : 0;
+    if (!teamWrap || !teamCard || !teamNameEl || !teamChevronEl) return;
+
+    if (teamCount === 0) {
+        teamWrap.classList.add('hidden');
+        return;
+    }
+
+    teamWrap.classList.remove('hidden');
+    teamNameEl.textContent = currentTeam && currentTeam.teamName ? currentTeam.teamName : '默认团队';
+    // teamRoleTagEl.textContent = getTeamRoleLabel(currentTeam && currentTeam.role); // 已迁移至头部
+
+    var currentTeamRole = currentTeam && currentTeam.role ? currentTeam.role : null;
+    var roleInfo = currentTeamRole && typeof TeamMockStore !== 'undefined' && TeamMockStore.getRoleInfo
+        ? TeamMockStore.getRoleInfo(currentTeamRole)
+        : null;
+    var canManageTeam = !!(roleInfo && roleInfo.canManage);
+    if (teamManageMenu) {
+        teamManageMenu.classList.toggle('hidden', !canManageTeam);
+    }
+    if (teamManageDivider) {
+        teamManageDivider.classList.toggle('hidden', !canManageTeam);
+    }
+
+    if (teamCount > 1) {
+        teamCard.classList.add('is-clickable', 'cursor-pointer');
+        teamCard.onclick = function(e) { 
+            if (e) e.stopPropagation();
+            return openTeamSwitcher(); 
+        };
+        teamChevronEl.classList.remove('hidden');
+    } else {
+        teamCard.classList.remove('is-clickable', 'cursor-pointer');
+        teamCard.onclick = function(e) { if (e) e.stopPropagation(); };
+        teamChevronEl.classList.add('hidden');
+    }
+}
+
+function renderTeamSwitchList() {
+    var list = document.getElementById('teamSwitchList');
+    var desc = document.getElementById('teamSwitchRoleDesc');
+    if (!list || !desc) return;
+    var ctx = getBuyerCurrentContext();
+    // desc.textContent = '当前身份：' + (ctx.currentRole === 'buyer' ? '买方' : '卖方');
+    if (!ctx.teams.length) {
+        list.innerHTML = '<div class="py-10 text-center text-sm text-gray-400">暂无可切换团队</div>';
+        return;
+    }
+    var currentTeamId = ctx.currentTeam && ctx.currentTeam.teamId ? ctx.currentTeam.teamId : '';
+    list.innerHTML = ctx.teams.map(function(team) {
+        var active = team.teamId === currentTeamId;
+        return '<button type="button" class="team-option-card w-full p-4 text-left ' + (active ? 'active' : '') + '" onclick="selectBuyerTeam(\'' + team.teamId + '\')">'
+            + '<div class="flex items-start gap-3">'
+            + '<div class="w-10 h-10 rounded-[12px] ' + (active ? 'bg-[#EBF7F0] border border-[#11A64A]/10' : 'bg-gray-50 border border-gray-100') + ' flex items-center justify-center shrink-0">'
+            + '<i class="fas fa-building ' + (active ? 'text-[#11A64A]' : 'text-gray-400') + ' text-[15px]"></i>'
+            + '</div>'
+            + '<div class="flex-1 min-w-0">'
+            + '<div class="flex items-center gap-2 mb-1">'
+            + '<span class="text-[15px] font-semibold text-gray-800 truncate">' + (team.teamName || '未命名团队') + '</span>'
+            + '<span class="text-[10px] px-2 py-0.5 rounded-full ' + (active ? 'bg-[#E5F5EC] text-[#11A64A]' : 'bg-[#F6F7F8] text-gray-500') + ' font-medium shrink-0">' + getTeamRoleLabel(team.role) + '</span>'
+            + '</div>'
+            + '<div class="text-[12px] text-gray-400">' + (active ? '当前所在团队' : '点击切换到该团队') + '</div>'
+            + '</div>'
+            + '<div class="w-6 h-6 rounded-full ' + (active ? 'bg-[#11A64A]' : 'bg-gray-100') + ' flex items-center justify-center shrink-0 mt-0.5">'
+            + '<i class="fas fa-check text-[10px] ' + (active ? 'text-white' : 'text-gray-300') + '"></i>'
+            + '</div>'
+            + '</div>'
+            + '</button>';
+    }).join('');
+}
+
+function renderAccountSwitchList() {
+    var list = document.getElementById('accountSwitchList');
+    if (!list || typeof UserIdentityStore === 'undefined' || !UserIdentityStore.listDemoUsers) return;
+    var currentUser = UserIdentityStore.getCurrentUser();
+    var currentMobile = currentUser && currentUser.mobile ? currentUser.mobile : '';
+    var users = UserIdentityStore.listDemoUsers();
+    list.innerHTML = users.map(function(user) {
+        var active = user.mobile === currentMobile;
+        var roleText = (user.roles || []).map(function(role) {
+            return role === 'buyer' ? '收购商' : '农户';
+        }).join(' / ');
+        return '<button type="button" class="account-option-card w-full p-4 text-left ' + (active ? 'active' : '') + '" onclick="switchDemoAccount(\'' + user.mobile + '\')">'
+            + '<div class="flex items-start gap-3">'
+            + '<div class="w-10 h-10 rounded-[12px] ' + (active ? 'bg-[#EBF7F0] border border-[#11A64A]/10' : 'bg-gray-50 border border-gray-100') + ' flex items-center justify-center shrink-0">'
+            + '<i class="fas fa-user-circle ' + (active ? 'text-[#11A64A]' : 'text-gray-400') + ' text-[16px]"></i>'
+            + '</div>'
+            + '<div class="flex-1 min-w-0">'
+            + '<div class="flex items-center gap-2 mb-1">'
+            + '<span class="text-[15px] font-semibold text-gray-800 truncate">' + (user.name || '未命名账号') + '</span>'
+            + (active ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-[#E5F5EC] text-[#11A64A] font-medium shrink-0">当前账号</span>' : '')
+            + '</div>'
+            + '<div class="text-[12px] text-gray-500 font-poppins mb-1">' + user.mobile + '</div>'
+            + '<div class="text-[12px] text-gray-400">' + (roleText || '--') + '</div>'
+            + '</div>'
+            + '</div>'
+            + '</button>';
+    }).join('');
+}
+
+(function initSwitchRole() {
+    var otherRole = _defaultSwitchRole;
+    var label = getSwitchActionText(otherRole);
+    var hasMultipleRoles = false;
+    var canOpenFarmerRole = false;
+    if (typeof UserIdentityStore !== 'undefined') {
+        var user = UserIdentityStore.getCurrentUser();
+        if (user) {
+            hasMultipleRoles = !!(UserIdentityStore.hasMultipleRoles());
+            if (hasMultipleRoles) {
+                otherRole = UserIdentityStore.getOtherRole() || _defaultSwitchRole;
+                label = UserIdentityStore.getRoleLabel(otherRole);
+            } else {
+                var ctx = getBuyerCurrentContext();
+                var teamRole = ctx.currentTeam && ctx.currentTeam.role ? ctx.currentTeam.role : user.currentTeamRole;
+                var roleInfo = teamRole && typeof TeamMockStore !== 'undefined' && TeamMockStore.getRoleInfo
+                    ? TeamMockStore.getRoleInfo(teamRole)
+                    : null;
+                canOpenFarmerRole = user.currentRole === 'buyer'
+                    && userHasRole(user, 'buyer')
+                    && !userHasRole(user, 'farmer')
+                    && !!(roleInfo && roleInfo.canManage);
+            }
+        }
+    }
+
+    _switchTargetRole = otherRole;
+    _switchTargetLabel = label;
+    _switchTargetActionText = getSwitchActionText(otherRole);
+    _switchRoleMode = canOpenFarmerRole ? 'activate' : 'switch';
+
+    var chipWrap = document.getElementById('buyerSwitchRoleWrap');
+    var chipLabel = document.getElementById('buyerSwitchRoleLabel');
+    if (chipWrap) {
+        if (hasMultipleRoles || canOpenFarmerRole) {
+            chipWrap.classList.remove('hidden');
+        } else {
+            chipWrap.classList.add('hidden');
+        }
+    }
+    if (chipLabel) {
+        chipLabel.textContent = canOpenFarmerRole ? '开通卖方' : '切换到' + _switchTargetActionText;
+    }
+
+    var modalDesc = document.getElementById('switchRoleModalDesc');
+    var modalTitle = document.querySelector('#switchRoleModal .text-\\[16px\\]');
+    var confirmBtn = document.getElementById('switchRoleConfirmBtn');
+    if (canOpenFarmerRole) {
+        if (modalTitle) modalTitle.textContent = '开通卖方身份';
+        if (modalDesc) modalDesc.textContent = '是否开通卖方身份？开通后可切换到卖方进行收款、查看收款记录。';
+        if (confirmBtn) confirmBtn.textContent = '确认开通';
+    } else {
+        if (modalTitle) modalTitle.textContent = '切换身份';
+        if (modalDesc) modalDesc.textContent = '确认切换到' + _switchTargetActionText + '身份？切换后将进入' + _switchTargetActionText + '首页';
+        if (confirmBtn) confirmBtn.textContent = '确认切换';
+    }
+    renderBuyerProfileContext();
+})();
+
+function openSwitchRoleModal(event) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+    }
+    var modal = document.getElementById('switchRoleModal');
+    if (!modal) return false;
+    modal.classList.add('show');
+    return false;
+}
+
+function closeSwitchRoleModal() {
+    var modal = document.getElementById('switchRoleModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function confirmSwitchRole() {
+    if (!_switchTargetRole) return;
+    if (typeof UserIdentityStore !== 'undefined') {
+        if (_switchRoleMode === 'activate' && UserIdentityStore.activateFarmerRole) {
+            UserIdentityStore.activateFarmerRole();
+            showToast('已开通卖方身份');
+            setTimeout(function() {
+                window.location.href = UserIdentityStore.getHomeUrl('farmer');
+            }, 250);
+            return;
+        }
+        UserIdentityStore.setCurrentRole(_switchTargetRole);
+        window.location.href = UserIdentityStore.getHomeUrl(_switchTargetRole);
+        return;
+    }
+    window.location.href = _switchTargetRole === 'buyer' ? 'buyer-home.html' : 'farmer-home.html';
+}
+
+function openTeamSwitcher() {
+    var ctx = getBuyerCurrentContext();
+    if (!ctx.teams || ctx.teams.length <= 1) return false;
+    var modal = document.getElementById('teamSwitchModal');
+    if (!modal) return false;
+    renderTeamSwitchList();
+    modal.classList.add('show');
+    return false;
+}
+
+function closeTeamSwitcher() {
+    var modal = document.getElementById('teamSwitchModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function selectBuyerTeam(teamId) {
+    if (!teamId || typeof TeamMockStore === 'undefined') return;
+    TeamMockStore.switchTeam(teamId);
+    if (typeof UserIdentityStore !== 'undefined' && UserIdentityStore.setCurrentTeamId) {
+        UserIdentityStore.setCurrentTeamId(teamId);
+    }
+    renderBuyerProfileContext();
+    renderTeamSwitchList();
+    closeTeamSwitcher();
+    showToast('已切换团队');
+}
+
+function openAccountSwitcher(event) {
+    if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+    }
+    var modal = document.getElementById('accountSwitchModal');
+    if (!modal) return false;
+    renderAccountSwitchList();
+    modal.classList.add('show');
+    return false;
+}
+
+function closeAccountSwitcher() {
+    var modal = document.getElementById('accountSwitchModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+}
+
+function switchDemoAccount(mobile) {
+    if (!mobile || typeof UserIdentityStore === 'undefined' || !UserIdentityStore.switchAccount) return;
+    var result = UserIdentityStore.switchAccount(mobile, 'buyer');
+    if (!result) {
+        showToast('切换账号失败');
+        return;
+    }
+    showToast('已切换账号');
+    setTimeout(function() {
+        window.location.href = result.homeUrl || 'buyer-home.html';
+    }, 250);
+}
+
+// 版本切换
+var currentAppVersion = 'standard';
+var tempSelectedVersion = 'standard';
+
+function openVersionSwitcher(e) {
+    if (e) e.preventDefault();
+    tempSelectedVersion = currentAppVersion;
+    updateVersionOptionUI(tempSelectedVersion);
+    document.getElementById('versionSwitchModal').classList.add('show');
+    return false;
+}
+
+function closeVersionSwitcher() {
+    document.getElementById('versionSwitchModal').classList.remove('show');
+}
+
+function selectVersionOption(version) {
+    tempSelectedVersion = version;
+    updateVersionOptionUI(version);
+}
+
+function updateVersionOptionUI(version) {
+    var options = document.querySelectorAll('.version-option');
+    options.forEach(function(opt) {
+        var isTarget = opt.getAttribute('data-version') === version;
+        var checkEl = opt.querySelector('.version-check');
+        if (isTarget) {
+            opt.classList.add('border-primary', 'bg-primary/5');
+            opt.classList.remove('border-gray-100', 'bg-white');
+            if (checkEl) {
+                checkEl.classList.add('bg-primary');
+                checkEl.classList.remove('border', 'border-gray-200');
+                checkEl.innerHTML = '<i class="fas fa-check text-white text-[10px]"></i>';
+            }
+        } else {
+            opt.classList.remove('border-primary', 'bg-primary/5');
+            opt.classList.add('border-gray-100', 'bg-white');
+            if (checkEl) {
+                checkEl.classList.remove('bg-primary');
+                checkEl.classList.add('border', 'border-gray-200');
+                checkEl.innerHTML = '';
+            }
+        }
+    });
+}
+
+function confirmSwitchVersion() {
+    currentAppVersion = tempSelectedVersion;
+    var hintEl = document.getElementById('currentVersionHint');
+    if (hintEl) {
+        hintEl.textContent = currentAppVersion === 'standard' ? '标准版' : '关怀版';
+        if (currentAppVersion === 'elderly') {
+            hintEl.classList.add('bg-orange-50', 'text-orange-500');
+            hintEl.classList.remove('bg-primary/10', 'text-primary');
+        } else {
+            hintEl.classList.remove('bg-orange-50', 'text-orange-500');
+            hintEl.classList.add('bg-primary/10', 'text-primary');
+        }
+    }
+    
+    showToast('已切换至' + (currentAppVersion === 'standard' ? '标准版' : '关怀版'));
+    setTimeout(closeVersionSwitcher, 300);
+}
+
+if (captureState === 'modal') {
+    setTimeout(function() {
+        openInviteModal();
+    }, 120);
+}
+</script>
+</body>
+</html>

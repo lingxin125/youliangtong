@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 订单管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js?v=2"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        /* ========== 基础样式 ========== */
+        .amount-received { color: #11A64A; }
+        .amount-pending { color: #D97706; }
+        .amount-cancelled { color: #9CA3AF; text-decoration: line-through; }
+
+        .status-success { background: #DCFCE7; color: #166534; }
+        .status-pending { background: #FEF3C7; color: #92400E; }
+        .status-cancelled { background: #F3F4F6; color: #6B7280; }
+
+        /* ========== 筛选面板 ========== */
+        .filter-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .filter-overlay.show { opacity: 1; pointer-events: auto; }
+
+        .filter-sheet {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            z-index: 101;
+            background: white;
+            border-radius: 16px 16px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 70%;
+            display: flex; flex-direction: column;
+        }
+        .filter-sheet.show { transform: translateY(0); }
+
+        .filter-option {
+            font-size: 12px; padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+            background: white; color: #4B5563;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .filter-option.active {
+            background: #F0FDF4;
+            border-color: #11A64A;
+            color: #11A64A;
+            font-weight: 500;
+        }
+
+        .date-input {
+            flex: 1; height: 36px; padding: 0 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 12px; color: #374151;
+            background: white;
+        }
+
+        .stage-tabs {
+            display: flex;
+            align-items: center;
+            background: #FFFFFF;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            position: relative;
+        }
+        .stage-tab {
+            flex: 1;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: #6B7280;
+            font-size: 14px;
+            font-weight: 600;
+            position: relative;
+        }
+        .stage-tab.active { color: #11A64A; }
+        .stage-tab.active::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            width: 34px;
+            height: 3px;
+            border-radius: 3px 3px 0 0;
+            background: #11A64A;
+            transform: translateX(-50%);
+        }
+        .stage-count {
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            border-radius: 8px;
+            background: #F3F4F6;
+            color: #6B7280;
+            font-size: 10px;
+            line-height: 16px;
+            text-align: center;
+        }
+        .stage-tab.active .stage-count { background: #EBF7F0; color: #11A64A; }
+        .sub-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 9px 16px 8px;
+            background: #FFFFFF;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .sub-tabs::-webkit-scrollbar { display: none; }
+        .sub-tab {
+            height: 28px;
+            padding: 0 12px;
+            border-radius: 999px;
+            border: 1px solid #E5E7EB;
+            background: #FFFFFF;
+            color: #6B7280;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .sub-tab.active {
+            color: #11A64A;
+            border-color: rgba(17,166,74,0.55);
+            background: #FFFFFF;
+        }
+        .sub-tab-count {
+            min-width: 16px;
+            height: 16px;
+            line-height: 16px;
+            padding: 0 4px;
+            border-radius: 8px;
+            background: #F3F4F6;
+            color: #6B7280;
+            font-size: 10px;
+            text-align: center;
+        }
+        .sub-tab.active .sub-tab-count {
+            background: #EBF7F0;
+            color: #11A64A;
+        }
+        .order-card {
+            background: #FFFFFF;
+            border: 1px solid rgba(0,0,0,0.04);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            overflow: hidden;
+            transition: all 0.15s;
+            position: relative;
+        }
+        .order-card:active { background: #FAFAFA; }
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .status-draft { background:#F3F4F6; color:#6B7280; }
+        .status-pending-price { background:#EFF6FF; color:#2563EB; }
+        .status-unpaid { background:#FEF3C7; color:#D97706; }
+        .status-paying { background:#EEF2FF; color:#4F46E5; }
+        .status-success { background:#ECFDF5; color:#059669; }
+        .status-canceled { background:#F3F4F6; color:#6B7280; }
+        .farmer-card-title-line,
+        .farmer-card-payer-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+        }
+        .farmer-card-title-line i {
+            color: #D1D5DB;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .farmer-card-title {
+            font-size: 15px;
+            line-height: 1.35;
+            font-weight: 700;
+            color: #1F2937;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .farmer-card-payer-line i {
+            color: #D1D5DB;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+        .farmer-card-payer {
+            font-size: 12px;
+            line-height: 1.35;
+            color: #6B7280;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .farmer-card-main-row {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 0;
+            flex: 1;
+            min-width: 0;
+        }
+        .farmer-card-content {
+            min-width: 0;
+            flex: 1;
+        }
+        .farmer-card-side {
+            min-width: 64px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 8px;
+            flex-shrink: 0;
+            min-height: 76px;
+            transform: translateX(18px);
+        }
+        .farmer-card-time {
+            color: #9CA3AF;
+            font-size: 11px;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+        .farmer-card-enter-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin-top: auto;
+        }
+        .farmer-card-enter {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #D1D5DB;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .farmer-card-amount {
+            margin-top: 12px;
+            font-size: 18px;
+            line-height: 1;
+            font-weight: 700;
+            font-family: Poppins, sans-serif;
+        }
+        .result-status-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 22px;
+            padding: 0 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .result-status-tag.success { background:#ECFDF5; color:#059669; }
+        .result-status-tag.canceled { background:#F3F4F6; color:#6B7280; }
+        .result-status-tag.paying { background:#EFF6FF; color:#2563EB; }
+        .order-side-enter {
+            width: 20px;
+            min-width: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9CA3AF;
+            padding: 0;
+            margin-left: 4px;
+            flex-shrink: 0;
+            align-self: center;
+        }
+        .order-side-enter i { font-size: 14px; }
+        .farmer-todo-card {
+            background: white;
+            border: 1px solid rgba(0,0,0,0.04);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+        .farmer-todo-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .farmer-todo-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            flex: 1;
+        }
+        .farmer-todo-title i {
+            color: #D1D5DB;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .farmer-todo-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1F2937;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .farmer-todo-note {
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .farmer-todo-title-row .farmer-todo-note {
+            transform: translateX(18px);
+        }
+        .farmer-todo-payer {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            color: #6B7280;
+            font-size: 12px;
+            font-weight: 500;
+            min-width: 0;
+        }
+        .farmer-todo-payer i {
+            color: #D1D5DB;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+        .farmer-todo-metrics-row {
+            display: flex;
+            align-items: stretch;
+            gap: 12px;
+        }
+        .farmer-todo-metrics {
+            flex: 1;
+            min-width: 0;
+            border-radius: 12px;
+            background: rgba(249,250,251,0.8);
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 28px;
+        }
+        .farmer-todo-metric {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .farmer-todo-metric-label {
+            font-size: 10px;
+            color: #9CA3AF;
+            flex-shrink: 0;
+        }
+        .farmer-todo-metric-value {
+            font-family: Poppins, sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1F2937;
+            white-space: nowrap;
+        }
+        .farmer-todo-enter {
+            width: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9CA3AF;
+            flex-shrink: 0;
+        }
+        .farmer-todo-time-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+            margin-top: 2px;
+        }
+        .farmer-flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 2px;
+            width: 100%;
+        }
+        .farmer-flow-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 4px;
+            width: 100%;
+        }
+        .farmer-amount-time-line {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+        }
+        .farmer-amount-flow-line {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0;
+        }
+        .farmer-flow-info {
+            min-width: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 500;
+            color: #4B5563;
+            align-self: flex-start;
+        }
+        .farmer-flow-info i {
+            font-size: 10px;
+            color: #9CA3AF;
+            flex-shrink: 0;
+        }
+        .farmer-flow-info.transfer-out i { color: #3B82F6; }
+        .farmer-flow-info.transfer-in i { color: #F59E0B; }
+        .farmer-flow-info .name {
+            color: #1F2937;
+            font-weight: 600;
+        }
+        .farmer-todo-time {
+            color: #9CA3AF;
+            font-size: 10px;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+        .farmer-todo-time-row .farmer-todo-time,
+        .farmer-amount-time-line .farmer-todo-time {
+            transform: translateX(18px);
+        }
+        .farmer-todo-amount {
+            font-family: Poppins, sans-serif;
+            font-size: 16px;
+            line-height: 1;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .farmer-card-shell {
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+        }
+        .farmer-card-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .farmer-todo-side {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 8px;
+            flex-shrink: 0;
+            min-height: 76px;
+            transform: translateX(18px);
+        }
+        .farmer-time-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-top: 8px;
+            margin-top: 8px;
+            border-top: 1px solid #F3F4F6;
+        }
+        .farmer-flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-top: 8px;
+            margin-top: 8px;
+            border-top: 1px solid #F3F4F6;
+        }
+        .summary-strip {
+            margin: 8px 16px 6px;
+            padding: 0;
+            border-radius: 0;
+            background: transparent;
+            border: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .summary-inline {
+            display: inline-flex;
+            align-items: baseline;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .summary-strip .summary-label {
+            font-size: 12px;
+            color: #6B7280;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .summary-strip .summary-amount {
+            font-family: Poppins, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            white-space: nowrap;
+            line-height: 1.4;
+        }
+
+        /* ========== Toast提示 ========== */
+        .toast-tip {
+            position: absolute; left: 16px; right: 16px; bottom: 88px;
+            padding: 11px 14px;
+            background: rgba(17, 24, 39, 0.9);
+            border-radius: 11px;
+            color: #fff; font-size: 12px; line-height: 1.45;
+            z-index: 70;
+            opacity: 0; pointer-events: none;
+            transform: translateY(8px);
+            transition: all 0.2s ease;
+        }
+        .toast-tip.show { opacity: 1; transform: translateY(0); }
+
+        .filter-group-title {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 500;
+            color: #374151; margin-bottom: 10px;
+        }
+        .filter-group-title i { color: #9CA3AF; font-size: 14px; }
+
+        .filter-content { flex: 1; overflow-y: auto; padding: 16px; }
+    </style>
+</head>
+<body>
+<div class="mobile-container" style="position: relative; overflow: hidden;">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="stage-tabs shrink-0">
+        <button class="stage-tab active" id="stagePending" onclick="App.switchStage('pending')">待收款 <span class="stage-count" id="countPending">0</span></button>
+        <button class="stage-tab" id="stagePaid" onclick="App.switchStage('paid')">已收款 <span class="stage-count" id="countPaid">0</span></button>
+        <button class="stage-tab" id="stageCanceled" onclick="App.switchStage('canceled')">已取消 <span class="stage-count" id="countCanceled">0</span></button>
+    </div>
+
+    <!-- 搜索与筛选 -->
+    <div class="px-4 py-2.5 shrink-0 flex items-center gap-2 bg-white border-b border-gray-100">
+        <div class="flex-1 h-9 px-3 rounded-xl bg-gray-50 border border-gray-100 flex items-center gap-2">
+            <i class="fas fa-search text-gray-400 text-xs"></i>
+            <input id="searchInput" type="text" placeholder="搜索农产品或收购商" class="flex-1 bg-transparent outline-none text-[13px] text-gray-700 placeholder-gray-400">
+        </div>
+        <button id="filterBtn" class="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center active:bg-gray-100" onclick="FilterPanel.open()">
+            <i class="fas fa-filter text-gray-500 text-xs"></i>
+        </button>
+    </div>
+    <div id="subTabs" class="sub-tabs shrink-0"></div>
+
+    <!-- 统计栏 -->
+    <div id="summaryBar" class="summary-strip shrink-0 hidden">
+        <div class="summary-inline">
+            <div class="summary-label">累计收款</div>
+            <div id="amountSummary" class="summary-amount">¥0.00</div>
+        </div>
+    </div>
+
+    <!-- 筛选结果汇总（仅筛选时显示） -->
+    <div id="filterResult" class="px-4 mb-3 shrink-0 hidden">
+        <div class="glass-card rounded-2xl p-4 bg-gradient-to-r from-green-50 to-white border border-green-100">
+            <div class="text-[14px] font-semibold text-gray-800 mb-3">筛选结果</div>
+            <div class="flex items-center">
+                <div class="flex-1 text-center">
+                    <div class="text-[12px] text-gray-500 mb-0.5">收入总额</div>
+                    <div class="text-[18px] font-bold text-gray-900" style="font-family:Poppins;">
+                        ¥<span id="filterTotalAmount">0.00</span>
+                    </div>
+                </div>
+                <div class="w-px h-10 bg-gray-200"></div>
+                <div class="flex-1 text-center">
+                    <div class="text-[12px] text-gray-500 mb-0.5">交易笔数</div>
+                    <div class="text-[18px] font-bold text-gray-900">
+                        <span id="filterRecordCount">0</span>笔
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 空状态 -->
+    <div id="emptyState" class="px-4 pt-8 hidden">
+        <div class="text-center">
+            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-wallet text-gray-300 text-2xl"></i>
+            </div>
+            <div class="text-[15px] font-medium text-gray-600">暂无订单</div>
+            <div class="text-[12px] text-gray-400 mt-2">收购商给您开单后会展示在这里</div>
+        </div>
+    </div>
+
+    <!-- 订单列表 -->
+    <div id="recordList" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3 space-y-3" style="padding-bottom:80px;"></div>
+
+    <!-- Toast提示 -->
+    <div id="toastTip" class="toast-tip"></div>
+
+    <!-- 底部导航栏 -->
+    <div id="tabBar"></div>
+
+    <!-- 筛选弹窗 -->
+    <div id="filterOverlay" class="filter-overlay" onclick="FilterPanel.close()"></div>
+    <div id="filterSheet" class="filter-sheet">
+        <div class="flex justify-center pt-2 pb-1">
+            <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
+        </div>
+        <div class="px-4 py-3 border-b border-gray-100 flex-shrink-0">
+            <div class="flex items-center justify-between">
+                <h3 class="text-[15px] font-semibold text-gray-800">筛选订单</h3>
+                <button class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="FilterPanel.close()">
+                    <i class="fas fa-times text-gray-400 text-sm"></i>
+                </button>
+            </div>
+        </div>
+        <div class="filter-content space-y-5">
+            <!-- 时间范围 -->
+            <div>
+                <div class="filter-group-title">
+                    <i class="far fa-calendar-alt"></i><span>时间范围</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-option active" data-type="time" data-value="all">全部</button>
+                    <button class="filter-option" data-type="time" data-value="today">今天</button>
+                    <button class="filter-option" data-type="time" data-value="week">近7天</button>
+                    <button class="filter-option" data-type="time" data-value="month">近30天</button>
+                    <button class="filter-option" data-type="time" data-value="custom">自定义日期</button>
+                </div>
+                <div id="customDateRange" class="mt-3 hidden">
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="startDate" class="date-input">
+                        <span class="text-gray-400">至</span>
+                        <input type="date" id="endDate" class="date-input">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="px-4 py-3 border-t border-gray-100 flex gap-3 flex-shrink-0">
+            <button class="flex-1 h-10 rounded-2xl border border-gray-200 text-[13px] font-medium text-gray-600 bg-white" onclick="FilterPanel.reset()">重置</button>
+            <button class="flex-1 h-10 rounded-2xl text-[13px] font-medium text-white bg-primary" onclick="FilterPanel.confirm()">确定</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const FARMER_NAME = '李大姐';
+const STAGE_STATUS_MAP = {
+    pending: ['draft', 'pending_price', 'unpaid', 'pending_client', 'pending', 'paying', 'processing'],
+    paid: ['success'],
+    canceled: ['canceled']
+};
+const PENDING_SUB_TABS = [
+    { id: 'draft', label: '挂单' },
+    { id: 'pending_price', label: '待开价' },
+    { id: 'unpaid', label: '待付款' },
+    { id: 'paying', label: '付款中' }
+];
+const STATUS_CONFIG = {
+    draft: { label: '挂单', cls: 'status-draft', icon: 'fa-file-pen', sub: 'draft', stage: 'pending', rank: 5 },
+    pending_price: { label: '待开价', cls: 'status-pending-price', icon: 'fa-tag', sub: 'pending_price', stage: 'pending', rank: 4 },
+    unpaid: { label: '待付款', cls: 'status-unpaid', icon: 'fa-clock', sub: 'unpaid', stage: 'pending', rank: 3 },
+    pending_client: { label: '待付款', cls: 'status-unpaid', icon: 'fa-clock', sub: 'unpaid', stage: 'pending', rank: 3 },
+    pending: { label: '付款中', cls: 'status-paying', icon: 'fa-spinner', sub: 'paying', stage: 'pending', rank: 2 },
+    paying: { label: '付款中', cls: 'status-paying', icon: 'fa-spinner', sub: 'paying', stage: 'pending', rank: 2 },
+    processing: { label: '付款中', cls: 'status-paying', icon: 'fa-spinner', sub: 'paying', stage: 'pending', rank: 2 },
+    success: { label: '付款成功', cls: 'status-success', icon: 'fa-circle-check', sub: 'success', stage: 'paid', rank: 9 },
+    canceled: { label: '已取消', cls: 'status-canceled', icon: 'fa-ban', sub: 'canceled', stage: 'canceled', rank: 10 }
+};
+const AMOUNT_KNOWN_STATUSES = ['unpaid', 'pending_client', 'pending', 'paying', 'processing', 'success', 'canceled'];
+
+// ==================== 数据服务层 ====================
+const RecordService = {
+    mockStore: window.BuyerMockStore || null,
+
+    getRecords() {
+        if (this.mockStore && typeof this.mockStore.getOrders === 'function') {
+            const records = this.mockStore.getOrders().filter(function(order) {
+                return order.payeeName === FARMER_NAME;
+            });
+            return this.ensureFarmerDemoRecords(records);
+        }
+        return this.getFallbackRecords();
+    },
+
+    getFallbackRecords() {
+        return [
+            {
+                id: 'SL20260212142210',
+                payerName: '张老板',
+                payeeName: FARMER_NAME,
+                productName: '东北大米',
+                amount: 3200,
+                status: 'success',
+                createdAt: '2026-02-12T14:22:10+08:00',
+                paidAt: '2026-02-12T14:23:08+08:00',
+                payerCompany: '张老板收购站',
+                grossWeight: 1035,
+                tareWeight: 20,
+                deduction: 15,
+                netWeight: 1000,
+                unitPrice: 3.2,
+                unit: '斤',
+                items: [{ name: '东北大米', qty: 1000, unit: '斤', price: 3.2, subtotal: 3200 }]
+            },
+            {
+                id: 'SL20260211103322',
+                payerName: '李经理',
+                payeeName: FARMER_NAME,
+                productName: '有机西红柿',
+                amount: 0,
+                status: 'pending_price',
+                createdAt: '2026-02-11T10:33:22+08:00',
+                payerCompany: '盛丰农贸',
+                grossWeight: 535,
+                tareWeight: 15,
+                deduction: 20,
+                netWeight: 500,
+                unitPrice: 0,
+                unit: '斤',
+                items: [{ name: '有机西红柿', qty: 500, unit: '斤', price: 0, subtotal: 0 }]
+            },
+            {
+                id: 'SL20260210100618',
+                payerName: '周老板',
+                payeeName: FARMER_NAME,
+                payerCompany: '丰顺粮行',
+                productName: '小米椒',
+                amount: 0,
+                status: 'draft',
+                createdAt: '2026-02-10T10:06:18+08:00',
+                grossWeight: 420,
+                tareWeight: 0,
+                tareWeightRaw: '',
+                deduction: 0,
+                netWeight: 420,
+                unitPrice: 0,
+                unit: '斤',
+                items: [{ name: '小米椒', qty: 420, unit: '斤', price: 0, subtotal: 0 }]
+            },
+            {
+                id: 'SL20260210123844',
+                payerName: '王站长',
+                payeeName: FARMER_NAME,
+                payerCompany: '利农合作社',
+                productName: '黄桃',
+                amount: 0,
+                status: 'draft',
+                createdAt: '2026-02-10T12:38:44+08:00',
+                grossWeight: 860,
+                tareWeight: 0,
+                tareWeightRaw: '',
+                deduction: 0,
+                netWeight: 860,
+                unitPrice: 0,
+                unit: '斤',
+                items: [{ name: '黄桃', qty: 860, unit: '斤', price: 0, subtotal: 0 }]
+            },
+            {
+                id: 'SL20260211145812',
+                payerName: '赵经理',
+                payeeName: FARMER_NAME,
+                payerCompany: '晨光果业',
+                productName: '蜜薯',
+                amount: 0,
+                status: 'pending_price',
+                createdAt: '2026-02-11T14:58:12+08:00',
+                grossWeight: 980,
+                tareWeight: 40,
+                deduction: 20,
+                netWeight: 920,
+                unitPrice: 0,
+                unit: '斤',
+                items: [{ name: '蜜薯', qty: 920, unit: '斤', price: 0, subtotal: 0 }]
+            },
+            {
+                id: 'SL20260211172206',
+                payerName: '陈老板',
+                payeeName: FARMER_NAME,
+                payerCompany: '北仓粮贸',
+                productName: '糯玉米',
+                amount: 3680,
+                status: 'unpaid',
+                createdAt: '2026-02-11T17:22:06+08:00',
+                grossWeight: 2840,
+                tareWeight: 60,
+                deduction: 20,
+                netWeight: 2760,
+                unitPrice: 1.33,
+                unit: '斤',
+                items: [{ name: '糯玉米', qty: 2760, unit: '斤', price: 1.33, subtotal: 3680 }]
+            },
+            {
+                id: 'SL20260211190836',
+                payerName: '何老板',
+                payeeName: FARMER_NAME,
+                payerCompany: '绿禾市场',
+                productName: '紫皮洋葱',
+                amount: 2240,
+                status: 'pending_client',
+                createdAt: '2026-02-11T19:08:36+08:00',
+                transferredAt: '2026-02-11T19:26:12+08:00',
+                clientName: '安顺食品厂',
+                grossWeight: 1620,
+                tareWeight: 20,
+                deduction: 0,
+                netWeight: 1600,
+                unitPrice: 1.4,
+                unit: '斤',
+                items: [{ name: '紫皮洋葱', qty: 1600, unit: '斤', price: 1.4, subtotal: 2240 }]
+            },
+            {
+                id: 'SL20260212084218',
+                payerName: '高主管',
+                payeeName: FARMER_NAME,
+                payerCompany: '鲁丰农贸',
+                productName: '白萝卜',
+                amount: 1520,
+                status: 'pending',
+                createdAt: '2026-02-12T08:42:18+08:00',
+                updatedAt: '2026-02-12T09:18:08+08:00',
+                grossWeight: 1260,
+                tareWeight: 20,
+                deduction: 0,
+                netWeight: 1240,
+                unitPrice: 1.23,
+                unit: '斤',
+                items: [{ name: '白萝卜', qty: 1240, unit: '斤', price: 1.23, subtotal: 1520 }]
+            },
+            {
+                id: 'SL20260212091408',
+                payerName: '郭经理',
+                payeeName: FARMER_NAME,
+                payerCompany: '新源合作社',
+                productName: '绿豆',
+                amount: 1960,
+                status: 'paying',
+                createdAt: '2026-02-12T09:14:08+08:00',
+                updatedAt: '2026-02-12T09:31:20+08:00',
+                grossWeight: 1500,
+                tareWeight: 20,
+                deduction: 10,
+                netWeight: 1470,
+                unitPrice: 1.33,
+                unit: '斤',
+                items: [{ name: '绿豆', qty: 1470, unit: '斤', price: 1.33, subtotal: 1960 }]
+            },
+            {
+                id: 'SL20260212093652',
+                payerName: '马老板',
+                payeeName: FARMER_NAME,
+                payerCompany: '金禾收购点',
+                productName: '富硒小米',
+                amount: 4860,
+                status: 'success',
+                createdAt: '2026-02-12T09:36:52+08:00',
+                paidAt: '2026-02-12T09:48:15+08:00',
+                grossWeight: 1830,
+                tareWeight: 20,
+                deduction: 10,
+                netWeight: 1800,
+                unitPrice: 2.7,
+                unit: '斤',
+                items: [{ name: '富硒小米', qty: 1800, unit: '斤', price: 2.7, subtotal: 4860 }]
+            },
+            {
+                id: 'SL20260212111839',
+                payerName: '宋经理',
+                payeeName: FARMER_NAME,
+                payerCompany: '田丰合作社',
+                productName: '黑花生',
+                amount: 2750,
+                status: 'canceled',
+                createdAt: '2026-02-12T11:18:39+08:00',
+                updatedAt: '2026-02-12T11:32:21+08:00',
+                grossWeight: 1015,
+                tareWeight: 10,
+                deduction: 5,
+                netWeight: 1000,
+                unitPrice: 2.75,
+                unit: '斤',
+                items: [{ name: '黑花生', qty: 1000, unit: '斤', price: 2.75, subtotal: 2750 }]
+            }
+        ];
+    },
+
+    ensureFarmerDemoRecords(records) {
+        const list = Array.isArray(records) ? records.slice() : [];
+        const seeds = this.getFallbackRecords();
+        const existingIds = new Set(list.map(function(item) { return item && item.id; }));
+        seeds.forEach(function(seed) {
+            if (!existingIds.has(seed.id)) {
+                list.push(Object.assign({}, seed));
+            }
+        });
+        return list;
+    },
+
+    findById(recordId) {
+        return this.getRecords().find(function(item) { return item.id === recordId; });
+    }
+};
+
+function getStage(order) {
+    const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.draft;
+    return cfg.stage;
+}
+
+function getSubStatus(order) {
+    const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.draft;
+    return cfg.sub;
+}
+
+function getProductName(order) {
+    return order.productName || (order.items && order.items[0] && order.items[0].name) || '农产品';
+}
+
+function getPayerName(order) {
+    return order.payerCompany || order.payerOrg || order.operatorName || order.payerName || '收购商';
+}
+
+function hasKnownAmount(order) {
+    return AMOUNT_KNOWN_STATUSES.includes(order.status) && Number(order.amount || 0) > 0;
+}
+
+function getOrderFlowTime(order) {
+    if (!order) return '';
+    if (order.status === 'pending_client' || order.fromClientName) {
+        return FormatService.smartTime(order.transferredAt || order.createdAt);
+    }
+    return FormatService.smartTime(order.createdAt);
+}
+
+// ==================== 筛选服务层 ====================
+const FilterService = {
+    state: {
+        timeRange: 'all',
+        startDate: null,
+        endDate: null,
+        keyword: ''
+    },
+
+    isActive() {
+        return this.state.timeRange !== 'all' || !!this.state.keyword;
+    },
+
+    setTimeRange(value) {
+        this.state.timeRange = value;
+    },
+
+    setKeyword(value) {
+        this.state.keyword = String(value || '').trim().toLowerCase();
+    },
+
+    setCustomDates(start, end) {
+        this.state.startDate = start;
+        this.state.endDate = end;
+    },
+
+    reset() {
+        this.state = { timeRange: 'all', startDate: null, endDate: null, keyword: this.state.keyword };
+    },
+
+    apply(records) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const { timeRange, startDate, endDate, keyword } = this.state;
+
+        return records.filter(function(record) {
+            const recordDate = new Date(record.createdAt);
+            const recordDay = new Date(recordDate.getFullYear(), recordDate.getMonth(), recordDate.getDate());
+            let timeMatch = true;
+            if (timeRange === 'today') {
+                timeMatch = recordDay.getTime() === today.getTime();
+            } else if (timeRange === 'week') {
+                timeMatch = recordDay >= new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            } else if (timeRange === 'month') {
+                timeMatch = recordDay >= new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+            } else if (timeRange === 'custom' && startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                timeMatch = recordDay >= start && recordDay <= end;
+            }
+            if (!timeMatch) return false;
+            if (!keyword) return true;
+            const haystack = [getProductName(record), getPayerName(record), record.summary || ''].join(' ').toLowerCase();
+            return haystack.indexOf(keyword) > -1;
+        });
+    }
+};
+
+// ==================== 格式化服务层 ====================
+const FormatService = {
+    smartTime(iso) {
+        const date = new Date(iso || '');
+        if (Number.isNaN(date.getTime())) return '--';
+        const now = new Date();
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+        if (minutes < 1) return '刚刚';
+        if (minutes < 60) return minutes + '分钟前';
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return hours + '小时前';
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return month + '-' + day;
+    },
+
+    amount(value) {
+        return Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    },
+
+        qty(value, unit) {
+            return Number(value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (unit || '斤');
+        },
+
+        unitPrice(value, unit) {
+            if (!Number(value || 0)) return '-';
+            return `¥${Number(value || 0).toFixed(2)}/${unit || '斤'}`;
+        }
+    };
+
+function getOrderUnitPrice(order) {
+    if (order.unitPrice !== undefined && order.unitPrice !== null && order.unitPrice !== '') return order.unitPrice;
+    if (order.items && order.items[0] && order.items[0].price !== undefined) return order.items[0].price;
+    return null;
+}
+
+// ==================== UI 渲染层 ====================
+const RenderService = {
+    renderSubTabs() {
+        const el = document.getElementById('subTabs');
+        if (App.state.stage !== 'pending') {
+            el.style.display = 'none';
+            el.innerHTML = '';
+            return;
+        }
+        el.style.display = 'flex';
+        el.innerHTML = PENDING_SUB_TABS.map(function(tab) {
+            const active = App.state.subStatus === tab.id;
+            return `<button class="sub-tab ${active ? 'active' : ''}" onclick="App.switchSubStatus('${tab.id}')">${tab.label}<span class="sub-tab-count">${App.getSubStatusCount(tab.id)}</span></button>`;
+        }).join('');
+    },
+
+    renderStageTabs(allOrders) {
+        const counts = { pending: 0, paid: 0, canceled: 0 };
+        allOrders.forEach(function(order) {
+            const stage = getStage(order);
+            counts[stage] = (counts[stage] || 0) + 1;
+        });
+        document.getElementById('countPending').textContent = counts.pending || 0;
+        document.getElementById('countPaid').textContent = counts.paid || 0;
+        document.getElementById('countCanceled').textContent = counts.canceled || 0;
+        ['Pending', 'Paid', 'Canceled'].forEach(function(name) {
+            document.getElementById('stage' + name).classList.remove('active');
+        });
+        const id = App.state.stage === 'paid' ? 'stagePaid' : (App.state.stage === 'canceled' ? 'stageCanceled' : 'stagePending');
+        document.getElementById(id).classList.add('active');
+        this.renderSubTabs();
+    },
+
+    renderEmpty() {
+        document.getElementById('recordList').innerHTML = '';
+        document.getElementById('emptyState').classList.remove('hidden');
+        document.getElementById('filterResult').classList.add('hidden');
+        document.getElementById('summaryBar').classList.add('hidden');
+        document.getElementById('amountSummary').textContent = '';
+    },
+
+    renderList(records) {
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('filterResult').classList.add('hidden');
+        const summaryBar = document.getElementById('summaryBar');
+        const knownTotal = records.reduce(function(sum, order) {
+            return hasKnownAmount(order) ? sum + Number(order.amount || 0) : sum;
+        }, 0);
+        if (App.state.stage === 'paid') {
+            summaryBar.classList.remove('hidden');
+            document.getElementById('amountSummary').textContent = '¥' + FormatService.amount(knownTotal);
+        } else {
+            summaryBar.classList.add('hidden');
+            document.getElementById('amountSummary').textContent = '';
+        }
+        document.getElementById('recordList').innerHTML = records.map(order => this.renderOrderCard(order)).join('');
+    },
+
+    renderOrderCard(order) {
+        if (App.state.stage === 'pending') {
+            if (getSubStatus(order) === 'draft') return this.renderDraftCard(order);
+            if (getSubStatus(order) === 'pending_price') return this.renderPriceCard(order);
+            if (getSubStatus(order) === 'unpaid') return this.renderUnpaidCard(order);
+        }
+        const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.draft;
+        const amountText = '¥' + FormatService.amount(order.amount || 0);
+        const amountClass = order.status === 'canceled' ? 'text-gray-400' : 'text-primary';
+        const unit = order.unit || '斤';
+        return `<div class="order-card cursor-pointer active:bg-gray-50" onclick="Actions.goDetail('${order.id}')">
+            <div class="py-3 px-3.5 flex items-stretch gap-0">
+                <div class="farmer-card-main-row">
+                    <div class="farmer-card-content">
+                        <div class="min-h-[96px]">
+                            <div class="farmer-card-title-line">
+                                <i class="fas fa-box"></i>
+                                <div class="farmer-card-title">${getProductName(order)}</div>
+                            </div>
+                            <div class="farmer-card-payer-line mt-1">
+                                <i class="fas fa-user-circle"></i>
+                                <div class="farmer-card-payer">来自 ${getPayerName(order)}</div>
+                            </div>
+                            <div class="farmer-todo-metrics-row mt-2.5">
+                                <div class="farmer-todo-metrics">
+                                    <div class="farmer-todo-metric">
+                                        <span class="farmer-todo-metric-label">净重</span>
+                                        <span class="farmer-todo-metric-value">${FormatService.qty(order.netWeight || 0, unit)}</span>
+                                    </div>
+                                    <div class="farmer-todo-metric">
+                                        <span class="farmer-todo-metric-label">单价</span>
+                                        <span class="farmer-todo-metric-value">${FormatService.unitPrice(getOrderUnitPrice(order), unit)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="farmer-card-amount ${amountClass}">${amountText}</div>
+                        </div>
+                    </div>
+                    <div class="farmer-card-side">
+                        <span class="result-status-tag ${cfg.cls.replace('status-', '')}">${cfg.label}</span>
+                        <span class="farmer-card-time">${FormatService.smartTime(order.updatedAt || order.paidAt || order.createdAt)}</span>
+                    </div>
+                </div>
+                <div class="order-side-enter"><i class="fas fa-chevron-right"></i></div>
+            </div>
+        </div>`;
+    },
+
+    renderDraftCard(order) {
+        const unit = order.unit || '斤';
+        const tareText = Number(order.tareWeight || 0) > 0 ? FormatService.qty(order.tareWeight, unit) : '-';
+        return `<div class="farmer-todo-card cursor-pointer active:bg-gray-50" onclick="Actions.goDetail('${order.id}')">
+            <div class="py-2.5 px-3.5">
+                <div class="farmer-card-shell">
+                    <div class="farmer-card-body">
+                        <div class="farmer-todo-title-row">
+                            <div class="farmer-todo-title">
+                                <i class="fas fa-box"></i>
+                                <span class="farmer-todo-name">${getProductName(order)}</span>
+                            </div>
+                            <span class="farmer-todo-note bg-orange-50 text-orange-500">待补皮重</span>
+                        </div>
+                        <div class="farmer-todo-payer">
+                            <i class="fas fa-user-circle"></i>
+                            <span>来自 ${getPayerName(order)}</span>
+                        </div>
+                        <div class="farmer-todo-metrics-row">
+                            <div class="farmer-todo-metrics">
+                                <div class="farmer-todo-metric">
+                                    <span class="farmer-todo-metric-label">毛重</span>
+                                    <span class="farmer-todo-metric-value">${FormatService.qty(order.grossWeight || 0, unit)}</span>
+                                </div>
+                                <div class="farmer-todo-metric">
+                                    <span class="farmer-todo-metric-label">皮重</span>
+                                    <span class="farmer-todo-metric-value">${tareText}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="farmer-todo-time-row">
+                            <span class="farmer-todo-time">${FormatService.smartTime(order.createdAt)}</span>
+                        </div>
+                    </div>
+                    <div class="order-side-enter"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+        </div>`;
+    },
+
+    renderPriceCard(order) {
+        const unit = order.unit || '斤';
+        return `<div class="farmer-todo-card cursor-pointer active:bg-gray-50" onclick="Actions.goDetail('${order.id}')">
+            <div class="py-2.5 px-3.5">
+                <div class="farmer-card-shell">
+                    <div class="farmer-card-body">
+                        <div class="farmer-todo-title-row">
+                            <div class="farmer-todo-title">
+                                <i class="fas fa-box"></i>
+                                <span class="farmer-todo-name">${getProductName(order)}</span>
+                            </div>
+                            <span class="farmer-todo-note bg-blue-50 text-blue-500">待开单价</span>
+                        </div>
+                        <div class="farmer-todo-payer">
+                            <i class="fas fa-user-circle"></i>
+                            <span>来自 ${getPayerName(order)}</span>
+                        </div>
+                        <div class="farmer-todo-metrics-row">
+                            <div class="farmer-todo-metrics">
+                                <div class="farmer-todo-metric">
+                                    <span class="farmer-todo-metric-label">净重</span>
+                                    <span class="farmer-todo-metric-value">${FormatService.qty(order.netWeight || 0, unit)}</span>
+                                </div>
+                                <div class="farmer-todo-metric">
+                                    <span class="farmer-todo-metric-label">单价</span>
+                                    <span class="farmer-todo-metric-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="farmer-todo-time-row">
+                            <span class="farmer-todo-time">${FormatService.smartTime(order.createdAt)}</span>
+                        </div>
+                    </div>
+                    <div class="order-side-enter"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+        </div>`;
+    },
+
+    renderUnpaidCard(order) {
+        const unit = order.unit || '斤';
+        const flow = this.getUnpaidFlow(order);
+        const flowHtml = flow.rowClass
+            ? `<div class="farmer-flow-info ${flow.rowClass}">
+                <i class="fas ${flow.icon}"></i>
+                <span>${flow.text}</span>
+            </div>`
+            : '<div></div>';
+        return `<div class="farmer-todo-card cursor-pointer active:bg-gray-50" onclick="Actions.goDetail('${order.id}')">
+            <div class="py-2.5 px-3.5">
+                <div class="farmer-card-shell">
+                    <div class="farmer-card-body">
+                        <div class="farmer-todo-title-row">
+                            <div class="farmer-todo-title">
+                                <i class="fas fa-box"></i>
+                                <span class="farmer-todo-name">${getProductName(order)}</span>
+                            </div>
+                            <span class="farmer-todo-note bg-emerald-50 text-primary">待付款</span>
+                        </div>
+                        <div class="farmer-todo-payer">
+                            <i class="fas fa-user-circle"></i>
+                            <span>来自 ${getPayerName(order)}</span>
+                        </div>
+                        <div class="farmer-todo-metrics-row">
+                            <div class="farmer-todo-metrics">
+                                <div class="farmer-todo-metric">
+                                    <span class="farmer-todo-metric-label">净重</span>
+                                    <span class="farmer-todo-metric-value">${FormatService.qty(order.netWeight || 0, unit)}</span>
+                                </div>
+                                <div class="farmer-todo-metric">
+                                    <span class="farmer-todo-metric-label">单价</span>
+                                    <span class="farmer-todo-metric-value">${FormatService.unitPrice(getOrderUnitPrice(order), unit)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="farmer-flow-stack">
+                            <div class="farmer-amount-time-line">
+                                <span class="farmer-todo-amount text-primary">¥${FormatService.amount(order.amount)}</span>
+                                <span class="farmer-todo-time">${flow.time}</span>
+                            </div>
+                            ${flow.rowClass ? flowHtml : ''}
+                        </div>
+                    </div>
+                    <div class="order-side-enter"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+        </div>`;
+    },
+
+    getUnpaidFlow(order) {
+        if (order.status === 'pending_client' && order.clientName) {
+            return {
+                rowClass: 'transfer-out',
+                icon: 'fa-paper-plane',
+                text: `已转给 <span class="name">${order.clientName}</span>`,
+                time: getOrderFlowTime(order)
+            };
+        }
+        if (order.fromClientName) {
+            return {
+                rowClass: 'transfer-in',
+                icon: 'fa-inbox',
+                text: `<span class="name">${order.fromClientName}</span> 转来`,
+                time: getOrderFlowTime(order)
+            };
+        }
+        return {
+            rowClass: '',
+            icon: 'fa-clock',
+            text: '待付款',
+            time: getOrderFlowTime(order)
+        };
+    }
+};
+
+// ==================== 筛选面板控制 ====================
+const FilterPanel = {
+    open() {
+        document.getElementById('filterOverlay').classList.add('show');
+        document.getElementById('filterSheet').classList.add('show');
+    },
+
+    close() {
+        document.getElementById('filterOverlay').classList.remove('show');
+        document.getElementById('filterSheet').classList.remove('show');
+    },
+
+    reset() {
+        FilterService.reset();
+        document.querySelectorAll('.filter-option').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.value === 'all');
+        });
+        document.getElementById('customDateRange').classList.add('hidden');
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+    },
+
+    confirm() {
+        if (FilterService.state.timeRange === 'custom') {
+            FilterService.setCustomDates(
+                document.getElementById('startDate').value,
+                document.getElementById('endDate').value
+            );
+        }
+        this.close();
+        App.refresh();
+    },
+
+    init() {
+        // 筛选按钮点击事件委托
+        document.querySelectorAll('.filter-option').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const type = e.target.dataset.type;
+                const value = e.target.dataset.value;
+
+                // 同组其他按钮取消激活
+                document.querySelectorAll(`[data-type="${type}"]`).forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+
+                // 更新筛选状态
+                if (type === 'time') {
+                    FilterService.setTimeRange(value);
+                    document.getElementById('customDateRange').classList.toggle('hidden', value !== 'custom');
+                }
+            });
+        });
+    }
+};
+
+// ==================== 用户操作 ====================
+const Actions = {
+    goDetail(recordId) {
+        const record = RecordService.findById(recordId);
+        if (record && ['draft', 'pending_price', 'unpaid', 'pending_client'].includes(record.status)) {
+            window.location.href = 'farmer-collection-detail.html?source=records&mode=billing&orderNo=' + encodeURIComponent(recordId);
+            return;
+        }
+        window.location.href = 'farmer-collection-detail.html?source=records&orderNo=' + encodeURIComponent(recordId);
+    }
+};
+
+// ==================== 应用主控 ====================
+const App = {
+    state: {
+        stage: 'pending',
+        subStatus: 'draft',
+        allOrders: []
+    },
+
+    getSubStatusCount(sub) {
+        const pendingOrders = this.state.allOrders.filter(function(order) { return getStage(order) === 'pending'; });
+        return pendingOrders.filter(function(order) { return getSubStatus(order) === sub; }).length;
+    },
+
+    init() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sourcePage = urlParams.get('source') || 'my';
+        const backLink = sourcePage === 'home' ? 'farmer-home.html' : 'farmer-my.html';
+        const stageParam = urlParams.get('stage');
+        if (stageParam === 'paid' || stageParam === 'canceled' || stageParam === 'pending') {
+            this.state.stage = stageParam;
+        }
+        const subParam = urlParams.get('sub');
+        if (subParam === 'failed') {
+            this.state.subStatus = 'paying';
+        } else if (subParam && PENDING_SUB_TABS.some(function(tab) { return tab.id === subParam; })) {
+            this.state.subStatus = subParam;
+        }
+
+        document.getElementById('statusBar').innerHTML = renderStatusBar();
+        document.getElementById('navBar').innerHTML = renderHeader('订单管理', backLink);
+        document.getElementById('tabBar').innerHTML = renderFarmerTabBar('mine');
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            FilterService.setKeyword(e.target.value);
+            App.refresh();
+        });
+
+        FilterPanel.init();
+        this.refresh();
+    },
+
+    switchStage(stage) {
+        if (!STAGE_STATUS_MAP[stage]) return;
+        this.state.stage = stage;
+        this.state.subStatus = 'draft';
+        this.refresh();
+    },
+
+    switchSubStatus(sub) {
+        this.state.subStatus = sub || 'draft';
+        this.refresh();
+    },
+
+    refresh() {
+        const allOrders = RecordService.getRecords();
+        this.state.allOrders = allOrders;
+        RenderService.renderStageTabs(allOrders);
+        let filtered = FilterService.apply(allOrders).filter(order => getStage(order) === this.state.stage);
+        if (this.state.stage === 'pending') {
+            filtered = filtered.filter(order => getSubStatus(order) === this.state.subStatus);
+        }
+        filtered.sort(function(a, b) {
+            const ar = (STATUS_CONFIG[a.status] || STATUS_CONFIG.draft).rank;
+            const br = (STATUS_CONFIG[b.status] || STATUS_CONFIG.draft).rank;
+            if (App.state.stage === 'pending' && ar !== br) return ar - br;
+            return new Date(b.updatedAt || b.paidAt || b.createdAt || 0) - new Date(a.updatedAt || a.paidAt || a.createdAt || 0);
+        });
+
+        if (filtered.length === 0) {
+            RenderService.renderEmpty();
+            return;
+        }
+        RenderService.renderList(filtered);
+    },
+
+    showToast(msg) {
+        const tip = document.getElementById('toastTip');
+        tip.textContent = msg;
+        tip.classList.add('show');
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => tip.classList.remove('show'), 1800);
+    }
+};
+
+const captureState = new URLSearchParams(window.location.search).get('captureState') || '';
+
+// 启动应用
+App.init();
+
+if (captureState === 'empty') {
+    FilterService.setTimeRange('custom');
+    FilterService.setCustomDates('2035-01-01', '2035-01-02');
+    App.refresh();
+}
+
+if (captureState === 'modal') {
+    setTimeout(() => {
+        FilterPanel.open();
+    }, 120);
+}
+</script>
+</body>
+</html>

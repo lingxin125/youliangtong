@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 个人信息</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #FFFBF0;
+        }
+        .glass-panel {
+            background: #FFFFFF;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-size: 15px;
+            color: #1F2937;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .info-label i {
+            color: #9CA3AF;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+        .info-value {
+            font-size: 15px;
+            color: #6B7280;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .role-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            background: rgba(17, 166, 74, 0.1);
+            color: #11A64A;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 9999px;
+        }
+        .role-tag.role-admin {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3B82F6;
+        }
+        .copy-icon {
+            color: #9CA3AF;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+        .copy-icon:active {
+            color: #11A64A;
+        }
+        .edit-trigger {
+            color: #9CA3AF;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+        .edit-trigger:active {
+            color: #11A64A;
+        }
+        .name-editor-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.42);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.22s ease;
+            z-index: 1000;
+        }
+        .name-editor-mask.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .name-editor-sheet {
+            position: fixed;
+            left: 16px;
+            right: 16px;
+            bottom: 16px;
+            background: #fff;
+            border-radius: 20px;
+            padding: 18px 16px 16px;
+            box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.16);
+            transform: translateY(20px);
+            transition: transform 0.22s ease;
+            z-index: 1001;
+        }
+        .name-editor-mask.show .name-editor-sheet {
+            transform: translateY(0);
+        }
+        .name-editor-input {
+            width: 100%;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid rgba(17, 24, 39, 0.08);
+            background: #F8FAFC;
+            padding: 0 14px;
+            font-size: 15px;
+            color: #111827;
+            outline: none;
+        }
+        .name-editor-input:focus {
+            border-color: rgba(17, 166, 74, 0.45);
+            box-shadow: 0 0 0 3px rgba(17, 166, 74, 0.12);
+            background: #fff;
+        }
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container">
+    <!-- 状态栏 -->
+    <div id="statusBar"></div>
+    <!-- 导航栏 -->
+    <div id="navBar"></div>
+
+    <!-- 主内容区 -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:80px;">
+
+        <!-- 个人信息列表 -->
+        <div class="glass-panel rounded-2xl mt-3 overflow-hidden">
+            <!-- 商户号 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-hashtag"></i>注册编号</span>
+                <span class="info-value">
+                    <span id="merchantNo">6026245559</span>
+                    <i class="far fa-copy copy-icon" onclick="copyMerchantNo()"></i>
+                </span>
+            </div>
+
+            <!-- 收购商名称 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-store"></i>所属收购商</span>
+                <span class="info-value">
+                    <span id="merchantName">张三的粮站</span>
+                    <i class="fas fa-pen edit-trigger" onclick="openNameEditor()" title="编辑名称"></i>
+                </span>
+            </div>
+
+            <!-- 用户姓名 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-user"></i>用户昵称</span>
+                <span class="info-value" id="userName">张老板</span>
+            </div>
+
+            <!-- 手机号 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-phone"></i>手机号</span>
+                <span class="info-value" id="mobileNo">13812342233</span>
+            </div>
+
+            <!-- 当前身份 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-user-tag"></i>当前身份</span>
+                <span class="info-value">
+                    <span class="role-tag" id="roleTag">买方</span>
+                </span>
+            </div>
+
+            <!-- 当前角色 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-id-badge"></i>当前角色</span>
+                <span class="info-value">
+                    <span class="role-tag role-admin" id="teamRoleTag">超管</span>
+                </span>
+            </div>
+
+            <!-- 创建日期 -->
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-calendar-alt"></i>创建日期</span>
+                <span class="info-value" id="createdAt">2024-03-15</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div id="tabBar"></div>
+</div>
+
+<!-- Toast 提示 -->
+<div id="toast" class="toast"></div>
+<div id="nameEditorMask" class="name-editor-mask" onclick="closeNameEditor()">
+    <div class="name-editor-sheet" onclick="event.stopPropagation()">
+        <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-4"></div>
+        <div class="text-[16px] font-semibold text-gray-800 text-center mb-2">编辑收购商名称</div>
+        <div class="text-[12px] text-gray-500 text-center mb-4">用于展示当前收购商主体或团队名称</div>
+        <input id="nameEditorInput" class="name-editor-input" type="text" maxlength="20" placeholder="请输入收购商名称">
+        <div class="grid grid-cols-2 gap-3 mt-4">
+            <button class="h-11 rounded-xl bg-gray-100 text-gray-600 text-[14px] font-medium" onclick="closeNameEditor()">取消</button>
+            <button class="h-11 rounded-xl bg-[#11A64A] text-white text-[14px] font-medium" onclick="saveDisplayName()">保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('个人信息', 'buyer-my.html');
+document.getElementById('tabBar').innerHTML = renderBuyerTabBar('mine');
+
+function getBuyerProfileContext() {
+    var user = window.UserIdentityStore ? UserIdentityStore.getCurrentUser() : null;
+    var currentRole = window.UserIdentityStore ? (UserIdentityStore.getCurrentRole() || 'buyer') : 'buyer';
+    var currentTeam = window.TeamMockStore ? TeamMockStore.getCurrentTeam() : null;
+    return {
+        user: user,
+        currentRole: currentRole,
+        currentTeam: currentTeam
+    };
+}
+
+function getTeamRoleLabel(role) {
+    if (window.TeamMockStore && TeamMockStore.getRoleInfo) {
+        var info = TeamMockStore.getRoleInfo(role);
+        if (info && info.label) return info.label;
+    }
+    if (role === 'owner') return '超管';
+    if (role === 'operator') return '业务员';
+    return '--';
+}
+
+function renderProfile() {
+    var ctx = getBuyerProfileContext();
+    var user = ctx.user;
+    var currentTeam = ctx.currentTeam;
+
+    var merchantNoEl = document.getElementById('merchantNo');
+    var merchantNameEl = document.getElementById('merchantName');
+    var userNameEl = document.getElementById('userName');
+    var mobileNoEl = document.getElementById('mobileNo');
+    var roleTagEl = document.getElementById('roleTag');
+    var teamRoleTagEl = document.getElementById('teamRoleTag');
+    var createdAtEl = document.getElementById('createdAt');
+
+    if (merchantNoEl) {
+        merchantNoEl.textContent = user && user.merchantId ? user.merchantId : '--';
+    }
+    if (merchantNameEl) {
+        merchantNameEl.textContent = currentTeam && currentTeam.teamName
+            ? currentTeam.teamName
+            : (user && user.name ? user.name : '--');
+    }
+    if (userNameEl) {
+        userNameEl.textContent = user && user.name ? user.name : '--';
+    }
+    if (mobileNoEl) {
+        mobileNoEl.textContent = user && user.mobile ? user.mobile : '--';
+    }
+    if (roleTagEl) {
+        roleTagEl.textContent = ctx.currentRole === 'buyer' ? '买方' : '卖方';
+    }
+    if (teamRoleTagEl) {
+        var role = currentTeam && currentTeam.role ? currentTeam.role : '';
+        var roleLabel = getTeamRoleLabel(role);
+        teamRoleTagEl.textContent = roleLabel;
+        teamRoleTagEl.classList.toggle('role-admin', role === 'owner');
+    }
+    if (createdAtEl) {
+        createdAtEl.textContent = currentTeam && currentTeam.createdAt
+            ? currentTeam.createdAt
+            : '2024-03-15';
+    }
+}
+
+function openNameEditor() {
+    var mask = document.getElementById('nameEditorMask');
+    var input = document.getElementById('nameEditorInput');
+    var currentName = (document.getElementById('merchantName') || {}).textContent || '';
+    if (!mask || !input) return;
+    input.value = currentName;
+    mask.classList.add('show');
+    setTimeout(function() {
+        input.focus();
+        input.select();
+    }, 60);
+}
+
+function closeNameEditor() {
+    var mask = document.getElementById('nameEditorMask');
+    if (!mask) return;
+    mask.classList.remove('show');
+}
+
+function saveDisplayName() {
+    var input = document.getElementById('nameEditorInput');
+    var value = input ? input.value.trim() : '';
+    var user = window.UserIdentityStore ? UserIdentityStore.getCurrentUser() : null;
+    if (!value) {
+        showToast('请输入收购商名称');
+        return;
+    }
+    var currentTeam = window.TeamMockStore && TeamMockStore.getCurrentTeam ? TeamMockStore.getCurrentTeam() : null;
+    if (currentTeam && currentTeam.teamId && window.TeamMockStore && TeamMockStore.getAllTeams) {
+        var teams = TeamMockStore.getAllTeams();
+        var idx = teams.findIndex(function(team) { return team.teamId === currentTeam.teamId; });
+        if (idx >= 0) {
+            teams[idx].teamName = value;
+            localStorage.setItem('harvest_teams_v1', JSON.stringify(teams));
+        }
+    }
+    document.getElementById('merchantName').textContent = value;
+    closeNameEditor();
+    showToast('收购商名称已更新');
+}
+
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2000);
+}
+
+function copyMerchantNo() {
+    const merchantNo = document.getElementById('merchantNo').textContent;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(merchantNo).then(() => {
+            showToast('商户号已复制');
+        }).catch(() => {
+            showToast('复制失败，请手动复制');
+        });
+    } else {
+        const input = document.createElement('input');
+        input.value = merchantNo;
+        document.body.appendChild(input);
+        input.select();
+        try {
+            document.execCommand('copy');
+            showToast('商户号已复制');
+        } catch (e) {
+            showToast('复制失败，请手动复制');
+        }
+        document.body.removeChild(input);
+    }
+}
+
+renderProfile();
+</script>
+</body>
+</html>

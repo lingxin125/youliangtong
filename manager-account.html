@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 进件开户</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        .manager-bg { background-color: #F7F8FA; }
+
+        .manager-header-bg {
+            background: #13b15a;
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 190px;
+            z-index: 0;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+
+        .manager-nav {
+            position: relative;
+            z-index: 10;
+        }
+
+        .type-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            text-decoration: none;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .type-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .type-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        .type-icon.buyer {
+            background: #E8F5E9;
+            color: #13b15a;
+        }
+        .type-icon.farmer {
+            background: #FFF7E6;
+            color: #F59E0B;
+        }
+
+    </style>
+</head>
+<body>
+<div class="mobile-container manager-bg">
+    <div class="manager-header-bg"></div>
+
+    <div class="manager-nav">
+        <div class="h-12 w-full flex justify-between items-end px-5 pb-2 select-none text-white font-medium text-sm">
+            <span>9:41</span>
+            <div class="flex gap-2 items-center">
+                <i class="fas fa-signal text-xs"></i>
+                <i class="fas fa-wifi text-xs"></i>
+                <i class="fas fa-battery-full text-xs"></i>
+            </div>
+        </div>
+        <div class="flex items-center justify-between px-4 mt-2 h-[44px] text-white">
+            <a href="manager-home.html" class="w-10 h-10 flex items-center justify-start z-20">
+                <i class="fas fa-chevron-left text-lg"></i>
+            </a>
+            <div class="text-[17px] font-semibold absolute left-0 right-0 text-center pointer-events-none">进件开户</div>
+            <div class="w-10"></div>
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-8 relative z-10">
+        <div class="space-y-4 mt-4">
+            <a href="manager-account-buyer.html" class="type-card">
+                <div class="flex items-center gap-4 min-w-0">
+                    <div class="type-icon buyer">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-[17px] font-semibold text-[#111827]">收购商进件</div>
+                        <div class="text-[13px] text-gray-500 mt-2 leading-6">一般为粮站/企业主体进件，需提供营业执照。</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-sm flex-shrink-0"></i>
+            </a>
+
+            <a href="manager-account-farmer.html" class="type-card">
+                <div class="flex items-center gap-4 min-w-0">
+                    <div class="type-icon farmer">
+                        <i class="fas fa-tractor"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-[17px] font-semibold text-[#111827]">农户进件</div>
+                        <div class="text-[13px] text-gray-500 mt-2 leading-6">一般为个人农户进件，需提供身份证。</div>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-sm flex-shrink-0"></i>
+            </a>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

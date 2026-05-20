@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 账户管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</head>
+<body class="bg-[#F7F8FA]">
+<div class="mobile-container relative bg-[#F7F8FA]">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pt-4 pb-8">
+        <div class="flex items-center gap-2">
+            <div class="w-1 h-4 bg-primary rounded-full"></div>
+            <span id="defaultSectionTitle" class="text-sm font-medium text-gray-700">默认账户</span>
+        </div>
+
+        <div id="defaultAccountCard" class="mt-3"></div>
+
+        <div class="mt-5 flex items-center gap-2">
+            <div class="w-1 h-4 bg-primary/70 rounded-full"></div>
+            <span id="listSectionTitle" class="text-sm font-medium text-gray-700">其他账户</span>
+        </div>
+
+        <div id="accountList" class="mt-3 space-y-3"></div>
+
+        <div id="emptyState" class="hidden mt-3 bg-white rounded-2xl p-6 border border-black/[0.04] text-center">
+            <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center">
+                <i class="fas fa-wallet text-lg"></i>
+            </div>
+            <div class="text-sm font-medium text-gray-700 mt-3">暂无其他账户</div>
+            <div id="emptyStateDesc" class="text-[12px] text-gray-400 mt-1">可新增一张新的账户卡作为备用账户。</div>
+        </div>
+
+        <div class="mt-5 space-y-3">
+            <button id="addAccountBtn" onclick="goAddAccount()" class="w-full h-12 rounded-2xl bg-primary text-white text-[15px] font-semibold shadow-glow active:scale-[0.98] transition-transform">
+                新增账户
+            </button>
+            <button id="addWalletBtn" onclick="goAddWalletAccount()" class="hidden w-full h-12 rounded-2xl border border-emerald-100 bg-white text-primary text-[15px] font-semibold active:scale-[0.98] transition-transform">
+                新增钱包账户
+            </button>
+        </div>
+    </div>
+
+    <div id="accountModal" class="absolute inset-0 bg-black/40 z-[75] flex items-end opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="accountModalContent" class="bg-white rounded-t-[24px] p-5 w-full max-h-[88vh] overflow-y-auto no-scrollbar transform translate-y-full transition-transform duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+            <div class="flex items-center justify-between mb-4">
+                <div id="accountModalTitle" class="text-[16px] font-semibold text-gray-800">新增账户</div>
+                <button onclick="closeAccountForm()" class="w-8 h-8 flex items-center justify-center text-gray-400">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-[12px] text-gray-500 mb-1.5">账户类型</label>
+                <select id="accountTypeSelect" onchange="setAccountType(this.value)" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white appearance-none" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 12 12%22><path fill=%22%239CA3AF%22 d=%22M6 8L1 3h10z%22/></svg>');background-repeat:no-repeat;background-position:right 12px center;">
+                    <option value="self_private">本人银行卡</option>
+                    <option value="other_private">非本人银行卡</option>
+                    <option value="public">对公账户</option>
+                </select>
+            </div>
+
+            <div id="uploadSection" class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-[13px] font-semibold text-gray-700">证件与银行卡识别</div>
+                </div>
+                <div id="idUploadGrid" class="grid grid-cols-2 gap-2 mb-2">
+                    <button id="uploadIdFrontBox" type="button" onclick="simulateUpload('idFront')" class="h-[74px] rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center text-gray-400 active:scale-[0.98] transition-transform">
+                        <i class="fas fa-id-card text-lg mb-1.5"></i>
+                        <span class="text-[12px]">身份证人像面</span>
+                    </button>
+                    <button id="uploadIdBackBox" type="button" onclick="simulateUpload('idBack')" class="h-[74px] rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center text-gray-400 active:scale-[0.98] transition-transform">
+                        <i class="fas fa-id-card-clip text-lg mb-1.5"></i>
+                        <span class="text-[12px]">身份证国徽面</span>
+                    </button>
+                </div>
+                <button id="uploadBankCardBox" type="button" onclick="simulateUpload('bankCard')" class="w-full h-[74px] rounded-2xl border border-dashed border-gray-200 bg-gray-50 flex flex-col items-center justify-center text-gray-400 active:scale-[0.98] transition-transform">
+                    <i class="fas fa-credit-card text-lg mb-1.5"></i>
+                    <span class="text-[12px]">银行卡正面</span>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div id="holderNameField">
+                    <label id="holderNameLabel" class="block text-[12px] text-gray-500 mb-1.5">开户人姓名</label>
+                    <input id="holderNameInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="请输入开户人姓名">
+                </div>
+                <div id="ownerIdNoField">
+                    <label id="ownerIdNoLabel" class="block text-[12px] text-gray-500 mb-1.5">身份证号</label>
+                    <input id="ownerIdNoInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="请输入身份证号" inputmode="text">
+                </div>
+                <div>
+                    <label id="cardNoLabel" class="block text-[12px] text-gray-500 mb-1.5">银行卡号</label>
+                    <input id="cardNoInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="可上传银行卡自动识别，也可手动填写" inputmode="numeric">
+                </div>
+                <div>
+                    <label class="block text-[12px] text-gray-500 mb-1.5">开户银行</label>
+                    <select id="bankNameInput" onchange="syncBranchOptions()" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white"></select>
+                </div>
+                <div>
+                    <label class="block text-[12px] text-gray-500 mb-1.5">开户支行</label>
+                    <select id="branchNameInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white"></select>
+                </div>
+                <label id="authConfirmWrap" class="hidden items-start gap-2 rounded-2xl bg-gray-50 px-3 py-2.5 border border-gray-100">
+                    <input id="authConfirmInput" type="checkbox" class="mt-0.5 accent-[#11A64A]">
+                    <span class="text-[12px] leading-5 text-gray-500">确认使用非本人银行卡进行结算</span>
+                </label>
+            </div>
+            <div id="bankToggleWrap" class="mt-3 text-center" style="display:none;">
+                <button type="button" id="bankToggleLink" onclick="toggleBankMode()" class="text-[12px] text-gray-400 underline active:text-gray-600 transition-colors">
+                    没有邮储银行卡？使用其他银行 >
+                </button>
+            </div>
+            <div class="mt-5 flex gap-3">
+                <button onclick="closeAccountForm()" class="flex-1 h-11 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 active:scale-[0.98] transition-transform">取消</button>
+                <button onclick="submitAccountForm()" class="flex-1 h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-transform">确认新增</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="absolute inset-0 bg-black/40 z-[76] flex items-end opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="deleteModalContent" class="bg-white rounded-t-[24px] p-5 w-full transform translate-y-full transition-transform duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+            <div class="text-[16px] font-semibold text-gray-800">删除账户</div>
+            <div id="deleteModalDesc" class="text-[13px] text-gray-500 leading-6 mt-2">删除后该账户将不再用于当前业务，请确认是否继续。</div>
+            <div class="mt-5 flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 h-11 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 active:scale-[0.98] transition-transform">取消</button>
+                <button onclick="confirmDeleteAccount()" class="flex-1 h-11 rounded-xl bg-red-500 text-white text-sm font-medium active:scale-[0.98] transition-transform">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="defaultModal" class="absolute inset-0 bg-black/40 z-[77] flex items-end opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="defaultModalContent" class="bg-white rounded-t-[24px] p-5 w-full transform translate-y-full transition-transform duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+            <div class="text-[16px] font-semibold text-gray-800">设为默认账户</div>
+            <div id="defaultModalDesc" class="text-[13px] text-gray-500 leading-6 mt-2">确认将该账户切换为默认账户吗？</div>
+            <div class="mt-5 flex gap-3">
+                <button onclick="closeDefaultModal()" class="flex-1 h-11 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 active:scale-[0.98] transition-transform">取消</button>
+                <button onclick="confirmSetDefaultAccount()" class="flex-1 h-11 rounded-xl bg-primary text-white text-sm font-medium active:scale-[0.98] transition-transform">确认切换</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastTip" class="hidden absolute left-1/2 -translate-x-1/2 bottom-8 px-4 py-2 bg-black/80 text-white text-xs rounded-lg z-[90] opacity-0 pointer-events-none transition-all duration-200"></div>
+    </div>
+</div>
+
+<script>
+    var q = new URLSearchParams(window.location.search);
+    var captureState = q.get('captureState') || '';
+    var sourcePage = q.get('source') || 'buyer-my.html';
+    var isFarmerPage = sourcePage.indexOf('farmer') >= 0;
+    var pageConfig = isFarmerPage
+        ? {
+            title: '账户管理',
+            heroTitle: '收款账户管理',
+            heroDesc: '当前默认收款账户会用于收款码与收款场景，新增账户后可随时切换默认账户。',
+            defaultTitle: '默认收款账户',
+            listTitle: '其他收款账户',
+            emptyText: '可新增一张新的收款账户卡作为备用账户。',
+            addText: '新增银行卡账户',
+            deleteText: '删除后该收款账户将无法用于收款。',
+            defaultConfirmText: '确认将该收款账户设为默认账户吗？',
+            badge: '默认收款',
+            storageKey: 'ylt_farmer_receipt_accounts',
+            seedAccounts: [
+                { id: 'farmer-1', type: 'self_private', bank: '中国邮政储蓄银行', branch: '烟台市福山区支行', cardNo: '6228888888888888', holder: '李大姐', mobile: '13800006666', idNo: '370611197802146628', isDefault: true },
+                { id: 'farmer-2', type: 'self_private', bank: '烟台农商银行', branch: '福山清洋支行', cardNo: '6215853322334455', holder: '李大姐', mobile: '13800006666', idNo: '370611197802146628', isDefault: false },
+                { id: 'farmer-wallet-1', type: 'ecny_wallet', bank: '中国邮政储蓄银行', walletId: '008188887777', walletLevel: 'III类钱包', holder: '李大姐', mobile: '13800006666', idNo: '370611197802146628', isDefault: false }
+            ]
+        }
+        : {
+            title: '账户管理',
+            heroTitle: '付款账户管理',
+            heroDesc: '当前默认付款账户会用于付款流程，新增账户后可按业务场景切换默认付款账户。',
+            defaultTitle: '默认付款账户',
+            listTitle: '其他付款账户',
+            emptyText: '可新增一张新的付款账户卡作为备用账户。',
+            addText: '新增银行卡账户',
+            deleteText: '删除后该付款账户将无法用于付款。',
+            defaultConfirmText: '确认将该付款账户设为默认账户吗？',
+            badge: '默认付款',
+            storageKey: 'ylt_buyer_payment_accounts',
+            seedAccounts: [
+                { id: 'buyer-1', type: 'public', bank: '中国邮政储蓄银行', branch: '烟台市芝罘区支行', cardNo: '6221888800002233', holder: '张三的粮站', accountName: '张三的粮站', isDefault: true },
+                { id: 'buyer-2', type: 'self_private', bank: '中国农业银行', branch: '烟台市开发区支行', cardNo: '6228480100098012', holder: '张三', mobile: '13700005555', idNo: '370602198608126219', isDefault: false },
+                { id: 'buyer-wallet-1', type: 'ecny_wallet', bank: '中国邮政储蓄银行', walletId: '008188889012', walletLevel: 'III类钱包', holder: '张三', mobile: '13700005555', idNo: '370602198608126219', isDefault: false }
+            ]
+        };
+
+    var pendingDeleteId = null;
+    var pendingDefaultId = null;
+    var currentAccountType = 'self_private';
+    var isPostalBank = true;
+    var uploadState = { idFront: false, idBack: false, bankCard: false };
+    var currentProfile = isFarmerPage
+        ? { name: '李大姐', idNo: '370611197802146628' }
+        : { name: '张三', idNo: '370602198608126219' };
+    var bankBranchMap = {
+        '中国邮政储蓄银行': isFarmerPage
+            ? ['烟台市福山区支行', '烟台市牟平区支行', '烟台市莱山区支行']
+            : ['烟台市芝罘区支行', '烟台市开发区支行', '烟台市莱山区支行'],
+        '中国农业银行': ['烟台市开发区支行', '烟台市莱山区支行', '烟台市福山区支行'],
+        '烟台农商银行': ['福山清洋支行', '芝罘幸福支行', '牟平宁海支行'],
+        '中国建设银行': ['烟台芝罘支行', '烟台开发区支行', '烟台福山支行']
+    };
+    var accounts = loadAccounts();
+    if (captureState === 'empty') {
+        var defaultSeed = (pageConfig.seedAccounts.find(function(item) { return item.isDefault; }) || pageConfig.seedAccounts[0]);
+        accounts = defaultSeed ? [{ ...defaultSeed, isDefault: true }] : [];
+    }
+
+    document.getElementById('statusBar').innerHTML = renderStatusBar();
+    document.getElementById('navBar').innerHTML = renderHeader(pageConfig.title, sourcePage);
+    document.getElementById('defaultSectionTitle').textContent = pageConfig.defaultTitle;
+    document.getElementById('listSectionTitle').textContent = pageConfig.listTitle;
+    document.getElementById('emptyStateDesc').textContent = pageConfig.emptyText;
+    document.getElementById('addAccountBtn').textContent = pageConfig.addText;
+    document.getElementById('addWalletBtn').style.display = 'block';
+    document.getElementById('accountModalTitle').textContent = pageConfig.addText;
+    initializeAccountForm();
+
+    renderAccounts();
+    if (captureState === 'modal') {
+        setTimeout(function() {
+            openAccountForm();
+        }, 120);
+    }
+
+    function loadAccounts() {
+        try {
+            var stored = localStorage.getItem(pageConfig.storageKey);
+            if (stored) return JSON.parse(stored);
+        } catch (e) {}
+        return pageConfig.seedAccounts.slice();
+    }
+
+    function saveAccounts() {
+        try {
+            localStorage.setItem(pageConfig.storageKey, JSON.stringify(accounts));
+        } catch (e) {}
+    }
+
+    function initializeAccountForm() {
+        isPostalBank = true;
+        renderBankOptions();
+        setAccountType('self_private');
+    }
+
+    function renderBankOptions(selectedBank) {
+        var bankInput = document.getElementById('bankNameInput');
+        var banks = Object.keys(bankBranchMap);
+        bankInput.innerHTML = banks.map(function(bank) {
+            return '<option value="' + bank + '">' + bank + '</option>';
+        }).join('');
+        bankInput.value = selectedBank || banks[0];
+        syncBranchOptions();
+    }
+
+    function syncBranchOptions(selectedBranch) {
+        var bank = document.getElementById('bankNameInput').value || Object.keys(bankBranchMap)[0];
+        var branchInput = document.getElementById('branchNameInput');
+        var branches = bankBranchMap[bank] || [];
+        branchInput.innerHTML = branches.map(function(branch) {
+            return '<option value="' + branch + '">' + branch + '</option>';
+        }).join('');
+        branchInput.value = selectedBranch && branches.indexOf(selectedBranch) >= 0 ? selectedBranch : (branches[0] || '');
+    }
+
+    function maskCardNo(cardNo) {
+        var clean = (cardNo || '').replace(/\s+/g, '');
+        if (clean.length <= 4) return clean;
+        return clean.slice(0, 4) + ' **** **** ' + clean.slice(-4);
+    }
+
+    function cardLastFour(cardNo) {
+        var clean = (cardNo || '').replace(/\D/g, '');
+        return clean ? clean.slice(-4) : '--';
+    }
+
+    function maskIdNo(idNo) {
+        var clean = (idNo || '').replace(/\s+/g, '');
+        if (clean.length < 10) return clean || '-';
+        return clean.slice(0, 6) + '********' + clean.slice(-4);
+    }
+
+    function maskMobile(mobile) {
+        var clean = (mobile || '').replace(/\s+/g, '');
+        if (clean.length !== 11) return clean || '-';
+        return clean.slice(0, 3) + '****' + clean.slice(-4);
+    }
+
+    function maskName(name) {
+        var clean = String(name || '').trim();
+        if (!clean) return '-';
+        if (clean.length <= 1) return clean;
+        if (clean.length === 2) return clean.slice(0, 1) + '*';
+        return clean.slice(0, 1) + '*'.repeat(Math.min(clean.length - 2, 4)) + clean.slice(-1);
+    }
+
+    function maskAccountName(name) {
+        var clean = String(name || '').trim();
+        if (!clean) return '-';
+        if (clean.length <= 4) return clean.slice(0, 1) + '**';
+        return clean.slice(0, 2) + '***' + clean.slice(-2);
+    }
+
+    function maskWalletId(walletId) {
+        var clean = (walletId || '').replace(/\s+/g, '');
+        if (clean.length <= 8) return clean || '-';
+        return clean.slice(0, 4) + ' **** ' + clean.slice(-4);
+    }
+
+    function getAccountTypeMeta(type) {
+        var map = {
+            self_private: { text: '个人银行卡', chip: '个人账户', cls: 'bg-emerald-50 text-emerald-600', icon: 'fa-user-check' },
+            other_private: { text: '个人银行卡', chip: '个人账户', cls: 'bg-emerald-50 text-emerald-600', icon: 'fa-user-check' },
+            public: { text: '对公账户', chip: '对公账户', cls: 'bg-blue-50 text-blue-600', icon: 'fa-building' },
+            ecny_wallet: { text: '数字人民币钱包', chip: '', cls: 'bg-teal-50 text-teal-600', icon: 'fa-wallet' }
+        };
+        return map[type] || map.self_private;
+    }
+
+    function setAccountType(type) {
+        currentAccountType = type;
+        var sel = document.getElementById('accountTypeSelect');
+        if (sel) sel.value = type;
+
+        document.getElementById('uploadSection').style.display = type === 'public' ? 'none' : 'block';
+        document.getElementById('idUploadGrid').style.display = type === 'other_private' ? 'grid' : 'none';
+        document.getElementById('uploadBankCardBox').style.display = type === 'public' ? 'none' : 'flex';
+        document.getElementById('ownerIdNoField').style.display = type === 'public' ? 'none' : 'block';
+        document.getElementById('authConfirmWrap').style.display = type === 'other_private' ? 'flex' : 'none';
+
+        document.getElementById('holderNameLabel').textContent = type === 'public' ? '对公账户名称' : (type === 'other_private' ? '持卡人姓名' : '开户人姓名');
+        document.getElementById('holderNameInput').placeholder = type === 'public' ? '请输入对公账户名称' : '请输入开户人姓名';
+        document.getElementById('ownerIdNoLabel').textContent = type === 'other_private' ? '持卡人身份证号' : '身份证号';
+        document.getElementById('cardNoLabel').textContent = type === 'public' ? '银行账号' : '银行卡号';
+        document.getElementById('cardNoInput').placeholder = type === 'public' ? '请输入对公银行账号' : '可上传银行卡自动识别，也可手动填写';
+
+        if (type === 'self_private') {
+            document.getElementById('holderNameInput').value = currentProfile.name;
+            document.getElementById('ownerIdNoInput').value = currentProfile.idNo;
+            document.getElementById('holderNameInput').readOnly = true;
+            document.getElementById('ownerIdNoInput').readOnly = true;
+            document.getElementById('holderNameInput').classList.add('text-gray-500');
+            document.getElementById('ownerIdNoInput').classList.add('text-gray-500');
+        } else {
+            document.getElementById('holderNameInput').readOnly = false;
+            document.getElementById('ownerIdNoInput').readOnly = false;
+            document.getElementById('holderNameInput').classList.remove('text-gray-500');
+            document.getElementById('ownerIdNoInput').classList.remove('text-gray-500');
+            if (type === 'public' && document.getElementById('holderNameInput').value === currentProfile.name) {
+                document.getElementById('holderNameInput').value = '';
+            }
+            if (type === 'other_private' && document.getElementById('holderNameInput').value === currentProfile.name) {
+                document.getElementById('holderNameInput').value = '';
+                document.getElementById('ownerIdNoInput').value = '';
+            }
+        }
+
+        updateBankModeUI();
+    }
+
+    function toggleBankMode() {
+        isPostalBank = !isPostalBank;
+        updateBankModeUI();
+    }
+
+    function updateBankModeUI() {
+        var bankField = document.getElementById('bankNameInput').parentElement;
+        var branchField = document.getElementById('branchNameInput').parentElement;
+        var toggleLink = document.getElementById('bankToggleLink');
+        var toggleWrap = document.getElementById('bankToggleWrap');
+
+        if (!isFarmerPage) {
+            bankField.style.display = 'none';
+            branchField.style.display = 'none';
+            if (toggleWrap) toggleWrap.style.display = 'none';
+            return;
+        }
+
+        if (toggleWrap) toggleWrap.style.display = 'block';
+
+        if (isPostalBank) {
+            bankField.style.display = 'none';
+            branchField.style.display = 'none';
+            if (toggleLink) toggleLink.textContent = '没有邮储银行卡？使用其他银行 >';
+        } else {
+            bankField.style.display = 'block';
+            branchField.style.display = 'block';
+            if (toggleLink) toggleLink.textContent = '返回使用邮储银行卡 >';
+            renderNonPostalBankOptions();
+        }
+    }
+
+    function renderNonPostalBankOptions() {
+        var bankInput = document.getElementById('bankNameInput');
+        var banks = Object.keys(bankBranchMap).filter(function(b) {
+            return b !== '中国邮政储蓄银行';
+        });
+        bankInput.innerHTML = banks.map(function(bank) {
+            return '<option value="' + bank + '">' + bank + '</option>';
+        }).join('');
+        bankInput.value = banks[0] || '';
+        syncBranchOptions();
+    }
+
+    function getDefaultAccount() {
+        return accounts.find(function(account) { return account.isDefault; }) || accounts[0] || null;
+    }
+
+    function renderAccounts() {
+        if (!accounts.length) {
+            accounts = pageConfig.seedAccounts.slice();
+        }
+
+        var defaultAccount = getDefaultAccount();
+        if (defaultAccount && !defaultAccount.isDefault) {
+            accounts = accounts.map(function(item) {
+                item.isDefault = item.id === defaultAccount.id;
+                return item;
+            });
+            defaultAccount.isDefault = true;
+            saveAccounts();
+        }
+
+        var defaultWrap = document.getElementById('defaultAccountCard');
+        var listWrap = document.getElementById('accountList');
+        var emptyWrap = document.getElementById('emptyState');
+        var otherAccounts = accounts.filter(function(item) { return !item.isDefault; });
+        var bankAccounts = otherAccounts.filter(function(item) { return item.type !== 'ecny_wallet'; });
+        var walletAccounts = otherAccounts.filter(function(item) { return item.type === 'ecny_wallet'; });
+
+        defaultWrap.innerHTML = defaultAccount ? renderAccountCard(defaultAccount, true) : '';
+        listWrap.innerHTML = renderGroupedAccounts(bankAccounts, walletAccounts);
+        emptyWrap.style.display = otherAccounts.length ? 'none' : 'block';
+    }
+
+    if (captureState === 'default-confirm') {
+        setTimeout(function() {
+            var candidate = accounts.find(function(item) { return !item.isDefault; });
+            if (candidate) {
+                promptSetDefaultAccount(candidate.id);
+            }
+        }, 120);
+    }
+
+    function renderAccountCard(account, isDefault) {
+        if ((account.type || '') === 'ecny_wallet') {
+            return renderWalletCard(account, isDefault);
+        }
+        var type = account.type || 'self_private';
+        var meta = getAccountTypeMeta(type);
+        var isPublicAccount = type === 'public';
+        var defaultMark = isDefault
+            ? '<div class="pointer-events-none absolute -right-7 top-2 z-10 h-5 w-20 rotate-45 bg-emerald-500 text-center text-[9px] font-semibold leading-5 text-white shadow-[0_4px_10px_rgba(17,166,74,0.16)]">' +
+                '默认' +
+              '</div>'
+            : '';
+        var detailHtml = isPublicAccount
+            ? '<div class="flex items-center justify-between gap-3">' +
+                    '<span class="text-xs text-gray-400">账户名</span>' +
+                    '<span class="text-sm font-medium text-gray-800 text-right">' + maskAccountName(account.accountName || account.holder) + '</span>' +
+                '</div>' +
+                '<div class="flex items-center justify-between gap-3">' +
+                    '<span class="text-xs text-gray-400">银行卡号</span>' +
+                    '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskCardNo(account.cardNo) + '</span>' +
+                '</div>'
+            : '<div class="flex items-center justify-between gap-3">' +
+                    '<span class="text-xs text-gray-400">持卡人姓名</span>' +
+                    '<span class="text-sm font-medium text-gray-800 text-right">' + maskName(account.holder) + '</span>' +
+                '</div>' +
+                '<div class="flex items-center justify-between gap-3">' +
+                    '<span class="text-xs text-gray-400">手机号</span>' +
+                    '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskMobile(account.mobile) + '</span>' +
+                '</div>' +
+                '<div class="flex items-center justify-between gap-3">' +
+                    '<span class="text-xs text-gray-400">身份证号</span>' +
+                    '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskIdNo(account.idNo) + '</span>' +
+                '</div>' +
+                '<div class="flex items-center justify-between gap-3">' +
+                    '<span class="text-xs text-gray-400">银行卡号</span>' +
+                    '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskCardNo(account.cardNo) + '</span>' +
+                '</div>';
+        var actionHtml = isDefault
+            ? ''
+            : '<div class="flex gap-2.5 mt-4 pt-1">' +
+                '<button onclick="promptSetDefaultAccount(\'' + account.id + '\')" class="flex-1 h-10 rounded-2xl border border-emerald-100 bg-emerald-50/80 text-emerald-600 text-[12px] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] active:scale-[0.98] transition-transform">设为默认</button>' +
+                '<button onclick="promptDeleteAccount(\'' + account.id + '\')" class="w-[88px] h-10 rounded-2xl border border-red-100 bg-white text-red-500 text-[12px] font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] active:scale-[0.98] transition-transform">删除</button>' +
+              '</div>';
+
+        return '' +
+            '<div class="relative overflow-hidden bg-white rounded-2xl p-4 border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.04)]">' +
+                defaultMark +
+                '<div class="flex items-center justify-between gap-3 mb-4">' +
+                    '<div class="flex items-center gap-3 min-w-0 flex-1' + (isDefault ? ' pr-9' : '') + '">' +
+                        '<div class="w-10 h-10 rounded-full bg-[#11A64A]/10 flex items-center justify-center shrink-0">' +
+                            '<i class="fas ' + meta.icon + ' text-[#11A64A] text-lg"></i>' +
+                        '</div>' +
+                        '<div class="min-w-0 flex-1">' +
+                            '<div class="flex flex-wrap items-center gap-1.5 leading-5">' +
+                                '<span class="text-sm font-semibold text-gray-800 break-words">' + (account.bank || '银行') + '</span>' +
+                                '<span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ' + meta.cls + '">' + meta.chip + '</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="h-px bg-gray-100 mb-3"></div>' +
+                '<div class="space-y-2">' +
+                    detailHtml +
+                '</div>' +
+                actionHtml +
+            '</div>';
+    }
+
+    function renderGroupedAccounts(bankAccounts, walletAccounts) {
+        var html = '';
+        if (bankAccounts.length) {
+            html += renderAccountGroup('银行卡账户', bankAccounts);
+        }
+        if (walletAccounts.length) {
+            html += renderAccountGroup('数币钱包账户', walletAccounts);
+        }
+        return html;
+    }
+
+    function renderAccountGroup(title, items) {
+        return '' +
+            '<div class="space-y-2.5">' +
+                '<div class="text-[12px] font-semibold text-gray-500 px-1">' + title + '</div>' +
+                items.map(function(item) { return renderAccountCard(item, false); }).join('') +
+            '</div>';
+    }
+
+    function renderWalletCard(account, isDefault) {
+        var meta = getAccountTypeMeta('ecny_wallet');
+        var actionHtml = isDefault
+            ? ''
+            : '<div class="flex gap-2.5 mt-4 pt-1">' +
+                '<button onclick="promptSetDefaultAccount(\'' + account.id + '\')" class="flex-1 h-10 rounded-2xl border border-emerald-100 bg-emerald-50/80 text-emerald-600 text-[12px] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] active:scale-[0.98] transition-transform">设为默认</button>' +
+                '<button onclick="promptDeleteAccount(\'' + account.id + '\')" class="w-[88px] h-10 rounded-2xl border border-red-100 bg-white text-red-500 text-[12px] font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] active:scale-[0.98] transition-transform">删除</button>' +
+              '</div>';
+
+        return '' +
+            '<div class="bg-white rounded-2xl p-4 border border-emerald-100/70 shadow-[0_2px_8px_rgba(15,23,42,0.04)] overflow-hidden relative">' +
+                '<div class="absolute right-0 top-0 w-24 h-24 rounded-bl-full bg-emerald-50/70"></div>' +
+                '<div class="relative flex items-center justify-between gap-3 mb-4">' +
+                    '<div class="flex items-center gap-3 min-w-0 flex-1">' +
+                        '<div class="w-10 h-10 rounded-full bg-[#11A64A]/10 flex items-center justify-center shrink-0">' +
+                            '<i class="fas ' + meta.icon + ' text-[#11A64A] text-lg"></i>' +
+                        '</div>' +
+                        '<div class="min-w-0 flex-1">' +
+                            '<div class="flex items-center gap-2 min-w-0">' +
+                                '<div class="text-sm font-semibold text-gray-800 truncate">数字人民币钱包</div>' +
+                                '<span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ' + meta.cls + '">' + meta.chip + '</span>' +
+                            '</div>' +
+                            '<div class="text-xs text-gray-400 mt-0.5 truncate">' + (account.bank || '中国邮政储蓄银行') + ' · ' + (account.walletLevel || 'III类钱包') + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    (isDefault ? '<div class="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-600 px-2.5 py-1 text-[11px] font-medium"><i class="fas fa-circle-check text-[10px]"></i>' + pageConfig.badge + '</div>' : '') +
+                '</div>' +
+                '<div class="relative h-px bg-gray-100 mb-3"></div>' +
+                '<div class="relative space-y-2">' +
+                    '<div class="flex items-center justify-between gap-3">' +
+                        '<span class="text-xs text-gray-400">钱包ID</span>' +
+                        '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskWalletId(account.walletId) + '</span>' +
+                    '</div>' +
+                    '<div class="flex items-center justify-between gap-3">' +
+                        '<span class="text-xs text-gray-400">姓名</span>' +
+                        '<span class="text-sm font-medium text-gray-800 text-right">' + (account.holder || '-') + '</span>' +
+                    '</div>' +
+                    '<div class="flex items-center justify-between gap-3">' +
+                        '<span class="text-xs text-gray-400">手机号</span>' +
+                        '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskMobile(account.mobile) + '</span>' +
+                    '</div>' +
+                    '<div class="flex items-center justify-between gap-3">' +
+                        '<span class="text-xs text-gray-400">身份证号</span>' +
+                        '<span class="text-sm font-medium text-gray-800 text-right" style="font-family:Poppins,monospace;">' + maskIdNo(account.idNo) + '</span>' +
+                    '</div>' +
+                '</div>' +
+                actionHtml +
+            '</div>';
+    }
+
+    function goAddAccount() {
+        var role = isFarmerPage ? 'farmer' : 'buyer';
+        var backSource = encodeURIComponent(sourcePage);
+        window.location.href = 'account-add.html?role=' + role + '&source=' + backSource;
+    }
+
+    function goAddWalletAccount() {
+        var backSource = encodeURIComponent(sourcePage);
+        window.location.href = 'account-wallet-add.html?source=' + backSource;
+    }
+
+
+    function openAccountForm() {
+        initializeAccountForm();
+        var modal = document.getElementById('accountModal');
+        var content = document.getElementById('accountModalContent');
+        modal.classList.remove('pointer-events-none', 'opacity-0');
+        content.classList.remove('translate-y-full');
+    }
+
+    function closeAccountForm() {
+        var modal = document.getElementById('accountModal');
+        var content = document.getElementById('accountModalContent');
+        modal.classList.add('pointer-events-none', 'opacity-0');
+        content.classList.add('translate-y-full');
+        clearAccountForm();
+    }
+
+    function clearAccountForm() {
+        isPostalBank = true;
+        uploadState = { idFront: false, idBack: false, bankCard: false };
+        document.getElementById('cardNoInput').value = '';
+        document.getElementById('holderNameInput').value = '';
+        document.getElementById('ownerIdNoInput').value = '';
+        document.getElementById('authConfirmInput').checked = false;
+        markUploadBox('idFront', false);
+        markUploadBox('idBack', false);
+        markUploadBox('bankCard', false);
+        setAccountType('self_private');
+        renderBankOptions();
+    }
+
+    function markUploadBox(type, uploaded) {
+        var idMap = {
+            idFront: 'uploadIdFrontBox',
+            idBack: 'uploadIdBackBox',
+            bankCard: 'uploadBankCardBox'
+        };
+        var textMap = {
+            idFront: '身份证人像面',
+            idBack: '身份证国徽面',
+            bankCard: '银行卡正面'
+        };
+        var iconMap = {
+            idFront: 'fa-id-card',
+            idBack: 'fa-id-card-clip',
+            bankCard: 'fa-credit-card'
+        };
+        var el = document.getElementById(idMap[type]);
+        if (!el) return;
+        el.className = (type === 'bankCard' ? 'w-full ' : '') +
+            'h-[74px] rounded-2xl border border-dashed flex flex-col items-center justify-center active:scale-[0.98] transition-transform ' +
+            (uploaded ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : 'border-gray-200 bg-gray-50 text-gray-400');
+        el.innerHTML = '<i class="fas ' + (uploaded ? 'fa-circle-check' : iconMap[type]) + ' text-lg mb-1.5"></i>' +
+            '<span class="text-[12px]">' + (uploaded ? textMap[type] + '已识别' : textMap[type]) + '</span>';
+    }
+
+    function simulateUpload(type) {
+        uploadState[type] = true;
+        markUploadBox(type, true);
+        if (type === 'bankCard') {
+            var bank = isFarmerPage ? '烟台农商银行' : '中国邮政储蓄银行';
+            var branch = isFarmerPage ? '福山清洋支行' : '烟台市芝罘区支行';
+            document.getElementById('cardNoInput').value = isFarmerPage ? '6215 8533 2233 4455' : '6221 8888 0000 2233';
+            renderBankOptions(bank);
+            syncBranchOptions(branch);
+            showToast('银行卡信息已识别');
+            return;
+        }
+        if (type === 'idFront') {
+            document.getElementById('holderNameInput').value = '王大哥';
+            document.getElementById('ownerIdNoInput').value = '370602198203116512';
+            showToast('身份证信息已识别');
+            return;
+        }
+        showToast('证件照片已上传');
+    }
+
+    function submitAccountForm() {
+        var cardNo = document.getElementById('cardNoInput').value.trim().replace(/\s+/g, '');
+        var holder = document.getElementById('holderNameInput').value.trim();
+        var idNo = document.getElementById('ownerIdNoInput').value.trim().replace(/\s+/g, '');
+
+        var bank, branch;
+        if (!isFarmerPage || isPostalBank) {
+            bank = '中国邮政储蓄银行';
+            var postalBranches = bankBranchMap['中国邮政储蓄银行'] || [];
+            branch = postalBranches[0] || '';
+        } else {
+            bank = document.getElementById('bankNameInput').value;
+            branch = document.getElementById('branchNameInput').value;
+            if (!bank || !branch) {
+                showToast('请选择开户银行和支行');
+                return;
+            }
+        }
+
+        if (!cardNo || !holder) {
+            showToast('请完整填写账户信息');
+            return;
+        }
+        if (currentAccountType !== 'public' && !idNo) {
+            showToast('请填写身份证号');
+            return;
+        }
+        if (currentAccountType === 'self_private' && !uploadState.bankCard) {
+            showToast('请上传银行卡正面识别卡号');
+            return;
+        }
+        if (currentAccountType === 'other_private') {
+            if (!uploadState.idFront || !uploadState.idBack || !uploadState.bankCard) {
+                showToast('请上传持卡人身份证和银行卡照片');
+                return;
+            }
+            if (!document.getElementById('authConfirmInput').checked) {
+                showToast('请确认已获得持卡人授权');
+                return;
+            }
+        }
+
+        accounts.push({
+            id: 'acc-' + Date.now(),
+            type: currentAccountType,
+            bank: bank,
+            branch: branch,
+            cardNo: cardNo,
+            holder: holder,
+            mobile: isFarmerPage ? '13800006666' : '13700005555',
+            accountName: currentAccountType === 'public' ? holder : '',
+            idNo: currentAccountType === 'public' ? '' : idNo,
+            isDefault: false
+        });
+        saveAccounts();
+        renderAccounts();
+        closeAccountForm();
+        showToast('已新增账户');
+    }
+
+    function promptSetDefaultAccount(id) {
+        pendingDefaultId = id;
+        document.getElementById('defaultModalDesc').textContent = pageConfig.defaultConfirmText;
+        var modal = document.getElementById('defaultModal');
+        var content = document.getElementById('defaultModalContent');
+        modal.classList.remove('pointer-events-none', 'opacity-0');
+        content.classList.remove('translate-y-full');
+    }
+
+    function closeDefaultModal() {
+        pendingDefaultId = null;
+        var modal = document.getElementById('defaultModal');
+        var content = document.getElementById('defaultModalContent');
+        modal.classList.add('pointer-events-none', 'opacity-0');
+        content.classList.add('translate-y-full');
+    }
+
+    function confirmSetDefaultAccount() {
+        if (!pendingDefaultId) return;
+        var id = pendingDefaultId;
+        accounts = accounts.map(function(item) {
+            item.isDefault = item.id === id;
+            return item;
+        });
+        saveAccounts();
+        renderAccounts();
+        closeDefaultModal();
+        showToast('默认账户已切换');
+    }
+
+    function promptDeleteAccount(id) {
+        pendingDeleteId = id;
+        document.getElementById('deleteModalDesc').textContent = pageConfig.deleteText;
+        var modal = document.getElementById('deleteModal');
+        var content = document.getElementById('deleteModalContent');
+        modal.classList.remove('pointer-events-none', 'opacity-0');
+        content.classList.remove('translate-y-full');
+    }
+
+    function closeDeleteModal() {
+        pendingDeleteId = null;
+        var modal = document.getElementById('deleteModal');
+        var content = document.getElementById('deleteModalContent');
+        modal.classList.add('pointer-events-none', 'opacity-0');
+        content.classList.add('translate-y-full');
+    }
+
+    function confirmDeleteAccount() {
+        if (!pendingDeleteId) return;
+        accounts = accounts.filter(function(item) { return item.id !== pendingDeleteId; });
+        saveAccounts();
+        renderAccounts();
+        closeDeleteModal();
+        showToast('账户已删除');
+    }
+
+    function showToast(text) {
+        var tip = document.getElementById('toastTip');
+        tip.textContent = text;
+        tip.classList.remove('hidden');
+        tip.classList.remove('opacity-0');
+        tip.style.transform = 'translate(-50%, 0)';
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(function() {
+            tip.classList.add('opacity-0');
+            setTimeout(function() {
+                tip.classList.add('hidden');
+            }, 200);
+        }, 1800);
+    }
+</script>
+</body>
+</html>
