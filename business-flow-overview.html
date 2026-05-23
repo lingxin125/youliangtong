@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>丰收云业务流程全景图</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f6f8f7;
+      --card: #fff;
+      --line: rgba(15, 23, 42, .09);
+      --text: #1f2937;
+      --muted: #667085;
+      --primary: #11a64a;
+      --primary-dark: #087536;
+      --blue: #2563eb;
+      --amber: #d97706;
+      --red: #dc2626;
+      --ink: #0f172a;
+      --soft-green: #ecfdf3;
+      --soft-blue: #eff6ff;
+      --soft-amber: #fffbeb;
+      --soft-gray: #f8fafc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      line-height: 1.7;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .side {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 268px;
+      background: #fff;
+      border-right: 1px solid var(--line);
+      padding: 22px 0;
+      overflow: auto;
+    }
+
+    .brand {
+      padding: 0 22px 18px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 8px;
+    }
+
+    .brand .k {
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+    }
+
+    .brand h1 {
+      margin: 6px 0 4px;
+      font-size: 19px;
+      line-height: 1.35;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .side a {
+      display: block;
+      padding: 8px 22px;
+      color: var(--muted);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      font-size: 13px;
+    }
+
+    .side a:hover {
+      color: var(--primary-dark);
+      background: rgba(17, 166, 74, .05);
+      border-left-color: var(--primary);
+    }
+
+    .main {
+      margin-left: 268px;
+      width: calc(100% - 268px);
+      padding: 28px 34px 70px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0b7035 0%, #11a64a 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 34px 36px;
+      box-shadow: 0 18px 38px rgba(17, 166, 74, .18);
+    }
+
+    .hero h2 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      line-height: 1.25;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 900px;
+      color: rgba(255, 255, 255, .88);
+      font-size: 15px;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .14);
+      border: 1px solid rgba(255, 255, 255, .18);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .section {
+      margin-top: 18px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .04);
+    }
+
+    .section h3 {
+      margin: 0 0 10px;
+      font-size: 21px;
+      color: var(--ink);
+    }
+
+    .lead {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .box strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--ink);
+    }
+
+    .box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .box.green {
+      background: var(--soft-green);
+    }
+
+    .box.blue {
+      background: var(--soft-blue);
+    }
+
+    .box.amber {
+      background: var(--soft-amber);
+    }
+
+    .scope-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .scope-item {
+      border-radius: 8px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      background: var(--soft-gray);
+      font-size: 13px;
+    }
+
+    .scope-item i {
+      margin-right: 7px;
+      color: var(--primary);
+    }
+
+    .scope-item.no i {
+      color: var(--red);
+    }
+
+    .diagram {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 24px;
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .flow-hero {
+      min-height: 1120px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .flow-hero .mermaid {
+      min-width: 760px;
+      width: 100%;
+    }
+
+    .mermaid {
+      min-width: 980px;
+      font-size: 15px;
+    }
+
+    .diagram-download-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid rgba(17, 166, 74, 0.22);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .diagram-download-btn:hover {
+      border-color: rgba(17, 166, 74, 0.38);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .diagram-download-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+    }
+
+    .diagram-download-btn i {
+      font-size: 11px;
+    }
+
+    .diagram-download-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid rgba(17, 166, 74, 0.22);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .diagram-download-btn:hover {
+      border-color: rgba(17, 166, 74, 0.38);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .diagram-download-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+    }
+
+    .diagram-download-btn i {
+      font-size: 11px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #344054;
+      font-weight: 800;
+    }
+
+    td {
+      background: #fff;
+      color: #344054;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #eefbf3;
+      color: var(--primary-dark);
+    }
+
+    .tag.blue {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+
+    .tag.amber {
+      background: #fffbeb;
+      color: #b45309;
+    }
+
+    .tag.gray {
+      background: #f2f4f7;
+      color: #667085;
+    }
+
+    .links {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .link-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 64px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .link-card span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .link-card i {
+      color: var(--primary);
+    }
+
+    @media (max-width: 980px) {
+      .side {
+        display: none;
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100%;
+        padding: 16px;
+      }
+
+      .hero {
+        padding: 26px 22px;
+      }
+
+      .grid,
+      .two-col,
+      .scope-list,
+      .links {
+        grid-template-columns: 1fr;
+      }
+
+      .mermaid {
+        min-width: 860px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <aside class="side">
+      <div class="brand">
+        <div class="k">BUSINESS FLOW</div>
+        <h1>丰收云业务流程全景图</h1>
+        <p>当前小程序上线口径</p>
+      </div>
+      <nav>
+        <a href="#scope">功能边界</a>
+        <a href="#main-flow">完整业务流程</a>
+        <a href="#role-flow">分角色操作流程</a>
+        <a href="#order-state">订单状态流转</a>
+        <a href="#sequence">扫码开单时序图</a>
+        <a href="#data-flow">数据流向图</a>
+        <a href="#journey">用户旅程图</a>
+        <a href="#map">功能地图</a>
+        <a href="#links">原型参考入口</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <section class="hero">
+        <h2>丰收云从入驻、出码、扫码开单到付款成功的业务全景</h2>
+        <p>
+          本页按当前最新上线功能梳理：收购商通过企微进件，资料填写正确后直接免审开户；登录后再协助农户建档，农户出示二维码，收购商扫码开单并按实际填写情况在挂单、待开价、待付款之间流转，随后发起单笔付款，订单最终进入支付成功或已取消。
+        </p>
+        <div class="badges">
+          <span class="badge"><i class="fa-solid fa-user-tie"></i>收购商</span>
+          <span class="badge"><i class="fa-solid fa-user"></i>农户</span>
+          <span class="badge"><i class="fa-solid fa-qrcode"></i>扫码开单</span>
+          <span class="badge"><i class="fa-solid fa-credit-card"></i>单笔付款</span>
+          <span class="badge"><i class="fa-solid fa-chart-line"></i>订单状态</span>
+        </div>
+      </section>
+
+      <section class="section" id="scope">
+        <h3>1. 当前功能边界</h3>
+        <p class="lead">先把范围钉牢：本页只描述当前可用主流程，不把后续规划能力混进业务图。</p>
+        <div class="scope-list">
+          <div class="scope-item"><i class="fa-solid fa-check"></i>包含：企微进件免审开户、手机号验证码登录、收购商建档农户、农户出示二维码、收购商扫码开单、挂单 / 待开价
+            / 待付款流转、单笔付款、订单状态变化。</div>
+          <div class="scope-item"><i class="fa-solid fa-check"></i>包含：农户查看收款记录；收购商查看订单管理、付款中、已结束记录。</div>
+          <div class="scope-item no"><i class="fa-solid fa-xmark"></i>不包含：开单配置、一口价、在品类设置中配置开单规则。</div>
+          <div class="scope-item no"><i class="fa-solid fa-xmark"></i>不包含：合并付款、批量付款、合并付款状态流和多笔批量支付失败重试。</div>
+        </div>
+      </section>
+
+      <section class="section" id="main-flow">
+        <h3>2. 完整操作业务流程图</h3>
+        <p class="lead">从收购商准入开始，到农户建档、扫码开单、在挂单 / 待开价 / 待付款之间流转，再到发起付款和完成支付；信息完整时也可以直接立即付款，跳过暂存等待。</p>
+        <div class="diagram flow-hero">
+          <pre class="mermaid">
+flowchart TD
+  A[收购商企微进件] --> B[资料填写正确]
+  B --> C[免审开户成功]
+  C --> D[生成收购商账号]
+  D --> E[手机号加验证码登录丰收云小程序]
+  E --> F[收购商邀请农户建档]
+  F --> G[农户扫码完成建档]
+  G --> H[农户出示丰收码]
+  H --> I[收购商开单]
+  I --> J{开单方式}
+  J -- 正常开单 --> K[手动选择已建档合作农户]
+  J -- 扫码开单 --> L[扫描农户二维码]
+  K --> M[进入开单页]
+  L --> M
+  M --> N[录入品类 毛重 皮重 单价等]
+  N --> O{开单操作}
+  O -- 暂存 --> P{暂存归属}
+  O -- 立即付款且信息完整 --> Q[付款中]
+  P -- 无皮重 --> R[挂单]
+  P -- 有皮重无单价 --> S[待开价]
+  P -- 信息完整 --> T[待付款]
+  R -- 补充皮重 --> S
+  R -- 直接补齐信息 --> T
+  S -- 补齐单价 --> T
+  T -- 发起付款 --> Q
+  Q --> U{支付结果}
+  U -- 支付成功 --> V[已结束-支付成功]
+  U -- 支付失败继续支付 --> Q
+  U -- 取消订单 --> W[已结束-已取消]
+  V --> X[农户查看已收款]
+        </pre>
+        </div>
+      </section>
+
+      <section class="section" id="role-flow">
+        <h3>3. 分角色操作流程图</h3>
+        <div class="two-col">
+          <div>
+            <p class="lead"><span class="tag">收购商端</span> 负责准入后的经营操作：进件、登录、建档、开单、付款、查订单；开单可手动选农户，也可扫农户二维码。</p>
+            <div class="diagram">
+              <pre class="mermaid">
+flowchart TD
+  B0[客户经理企微进件资料填写正确] --> B1[免审开户成功]
+  B1 --> B2[收购商手机号验证码登录]
+  B2 --> B3[首页查看合作农户和订单管理]
+  B3 --> B4[正常开单]
+  B4 --> B5[手动选择已建档合作农户]
+  B3 --> B6[扫码开单]
+  B6 --> B7[扫描农户二维码]
+  B5 --> B8[进入开单页]
+  B7 --> B8
+  B8 --> B9[录入品类 毛重 皮重 单价等]
+  B9 --> B10{操作选择}
+  B10 -- 暂存且无皮重 --> B11[挂单]
+  B10 -- 暂存且有皮重无单价 --> B12[待开价]
+  B10 -- 暂存且信息完整 --> B13[待付款]
+  B10 -- 立即付款且信息完整 --> B14[付款中]
+  B11 -- 补充皮重 --> B12
+  B11 -- 直接补齐信息 --> B13
+  B12 -- 补齐单价 --> B13
+  B13 -- 发起付款 --> B14
+  B14 -- 支付失败继续支付 --> B14
+  B14 -- 取消订单 --> B15[已结束-已取消]
+  B14 -- 支付成功 --> B16[已结束-支付成功]
+            </pre>
+            </div>
+          </div>
+          <div>
+            <p class="lead"><span class="tag blue">农户端</span> 由收购商建档生成，核心动作是登录、出示二维码、查看待收款与收款结果。</p>
+            <div class="diagram">
+              <pre class="mermaid">
+flowchart TD
+  F0[收购商完成农户建档] --> F1[农户手机号验证码登录]
+  F1 --> F2[进入农户端首页]
+  F2 --> F3[展示本人收款二维码]
+  F3 --> F4[收购商扫码开单]
+  F4 --> F5[查看待收款]
+  F5 --> F6{订单状态}
+  F6 -- 挂单 --> F7[待收款页签]
+  F6 -- 待开价 --> F7
+  F6 -- 待付款 --> F7
+  F6 -- 付款中 --> F7
+  F6 -- 支付成功 --> F8[已收款页签]
+  F6 -- 已取消 --> F9[已取消页签]
+            </pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="order-state">
+        <h3>4. 订单状态流程图</h3>
+        <p class="lead">当前单笔开单支付链路中，待处理承接挂单、待开价、待付款；发起付款后进入付款中，直到支付成功或已取消归档到已结束。</p>
+        <div class="diagram">
+          <pre class="mermaid">
+flowchart TD
+  A{开单操作}
+  A -- 暂存且无皮重 --> B[挂单]
+  A -- 暂存且有皮重无单价 --> C[待开价]
+  A -- 暂存且信息完整 --> D[待付款]
+  A -- 立即付款且信息完整 --> E[付款中]
+  B -- 补充皮重 --> C
+  B -- 直接补齐信息 --> D
+  C -- 补齐单价 --> D
+  D -- 发起付款 --> E
+  E -- 支付失败继续支付 --> E
+  E -- 支付成功 --> F[已结束-支付成功]
+  E -- 取消订单 --> G[已结束-已取消]
+  B -- 付款前取消 --> G
+  C -- 付款前取消 --> G
+  D -- 付款前取消 --> G
+        </pre>
+        </div>
+        <table style="margin-top:14px">
+          <tr>
+            <th>页面分组</th>
+            <th>承接状态</th>
+            <th>业务含义</th>
+          </tr>
+          <tr>
+            <td>收购商待处理</td>
+            <td>挂单、待开价、待付款</td>
+            <td>订单还没有完成付款。选择暂存时，无皮重进入挂单；有皮重无单价进入待开价；信息完整进入待付款。挂单可转待开价或待付款，待开价可转待付款。</td>
+          </tr>
+          <tr>
+            <td>付款中</td>
+            <td>付款中、支付中、处理中</td>
+            <td>已发起付款，支付失败时仍停留在该状态，可继续支付或取消。</td>
+          </tr>
+          <tr>
+            <td>收购商已结束</td>
+            <td>支付成功、已取消</td>
+            <td>订单最终归档，支付成功或取消后不再回到主开单流。</td>
+          </tr>
+          <tr>
+            <td>农户待收款</td>
+            <td>挂单、待开价、待付款、付款中</td>
+            <td>农户可全程看到收购商为自己开的单以及当前状态。</td>
+          </tr>
+          <tr>
+            <td>农户已收款 / 已取消</td>
+            <td>支付成功、已取消</td>
+            <td>支付成功进入已收款，取消订单进入已取消。</td>
+          </tr>
+        </table>
+      </section>
+
+      <section class="section" id="sequence">
+        <h3>5. 扫码开单时序图</h3>
+        <p class="lead">把现场扫码的参与方拆开看：农户只负责出码和查记录，收购商完成开单与付款，系统负责识别身份、生成订单和更新状态。</p>
+        <div class="diagram">
+          <pre class="mermaid">
+sequenceDiagram
+  participant Farmer as 农户
+  participant Buyer as 收购商
+  participant Mini as 丰收云小程序
+  participant Order as 订单服务
+  participant Pay as 支付通道
+
+  Buyer->>Mini: 手机号加验证码登录
+  Buyer->>Mini: 为农户建档
+  Mini-->>Farmer: 生成农户档案和收款二维码
+  Farmer->>Mini: 登录并展示二维码
+  Buyer->>Mini: 扫描农户二维码
+  Mini-->>Buyer: 打开开单页并带入农户信息
+  Buyer->>Mini: 录入品类 毛重、皮重、单价等
+  Mini->>Order: 创建待处理订单
+  Buyer->>Mini: 暂存为挂单/待开价/待付款
+  Note over Buyer,Order: 挂单可补单价转待开价，也可直接补齐转待付款
+  Note over Buyer,Order: 待开价可补齐单价转待付款
+  Buyer->>Mini: 确认单笔付款
+  Mini->>Pay: 发起支付
+  Pay-->>Mini: 返回付款中
+  Mini->>Order: 更新订单为付款中
+  Pay-->>Mini: 支付成功或支付失败
+  Mini->>Order: 成功则更新已结束-支付成功
+  Pay-->>Mini: 失败则保留付款中
+  Farmer->>Mini: 支付成功后查看收款记录
+        </pre>
+        </div>
+      </section>
+
+      <section class="section" id="data-flow">
+        <h3>6. 数据流向图</h3>
+        <p class="lead">这张图面向业务和技术沟通：看清楚资料、档案、二维码、订单、支付结果分别从哪里来、流向哪里。</p>
+        <div class="diagram">
+          <pre class="mermaid">
+flowchart LR
+  subgraph External[外部入口]
+    WX[企微进件资料]
+    Bank[银行支付结果]
+  end
+  subgraph Platform[丰收云平台]
+    BuyerAcct[收购商账号和开户信息]
+    FarmerFile[农户档案]
+    QR[农户收款二维码]
+    Order[订单数据]
+    PayRecord[付款和收款记录]
+  end
+  subgraph Apps[小程序端]
+    BuyerApp[收购商端]
+    FarmerApp[农户端]
+  end
+
+  WX --> BuyerAcct
+  BuyerAcct --> BuyerApp
+  BuyerApp --> FarmerFile
+  FarmerFile --> QR
+  QR --> FarmerApp
+  QR --> BuyerApp
+  BuyerApp --> Order
+  Order --> PayRecord
+  BuyerApp --> PayRecord
+  Bank --> PayRecord
+  PayRecord --> FarmerApp
+        </pre>
+        </div>
+      </section>
+
+      <section class="section" id="journey">
+        <h3>7. 用户旅程图</h3>
+        <p class="lead">按真实用户动作拆成旅程视角：收购商推进建档、开单和付款；农户配合出码并查看收款结果。</p>
+        <div class="diagram">
+          <pre class="mermaid">
+journey
+  title 丰收云收购业务用户旅程
+  section 准入与登录
+    企微进件资料填写正确并免审开户: 5: 收购商
+    手机号验证码登录丰收云小程序: 4: 收购商
+  section 农户建档
+    收购商协助农户建档: 4: 收购商
+    农户登录并确认身份: 4: 农户
+    农户出示收款二维码: 5: 农户
+  section 现场开单
+    收购商扫码进入开单页: 5: 收购商
+    录入品类毛重皮重单价: 4: 收购商
+    暂存为挂单待开价或待付款: 3: 收购商
+    信息完整时直接立即付款: 5: 收购商
+  section 状态处理
+    挂单补信息转待开价或待付款: 3: 收购商
+    待开价补单价转待付款: 4: 收购商
+    待付款发起单笔付款: 5: 收购商
+  section 支付完成
+    付款中继续支付或取消订单: 3: 收购商
+    支付成功进入已结束: 5: 收购商, 农户
+    农户查看收款记录: 5: 农户
+        </pre>
+        </div>
+      </section>
+
+      <section class="section" id="map">
+        <h3>8. 当前功能地图</h3>
+        <div class="grid">
+          <div class="box green"><strong>收购商小程序</strong>
+            <p>首页待办、合作农户、扫码开单、订单管理、付款信息维护、个人中心。</p>
+          </div>
+          <div class="box blue"><strong>农户小程序</strong>
+            <p>登录、展示收款二维码、查看收款记录、维护个人和结算信息。</p>
+          </div>
+        </div>
+        <table style="margin-top:14px">
+          <tr>
+            <th>模块</th>
+            <th>当前定位</th>
+            <th>关键页面</th>
+          </tr>
+          <tr>
+            <td>收购商首页</td>
+            <td>看待办、合作农户和经营信息，不作为首页开单入口。</td>
+            <td>buyer-home.html</td>
+          </tr>
+          <tr>
+            <td>开单</td>
+            <td>由底部导航或扫码进入，完成品类、重量、单价、收款人等信息录入。</td>
+            <td>buyer-billing.html</td>
+          </tr>
+          <tr>
+            <td>订单管理</td>
+            <td>按待处理、付款中、已结束管理订单状态。</td>
+            <td>buyer-order-manage.html</td>
+          </tr>
+          <tr>
+            <td>农户收款</td>
+            <td>出示二维码并查看收款记录。</td>
+            <td>farmer-collection.html、farmer-collection-records.html</td>
+          </tr>
+        </table>
+      </section>
+
+      <section class="section" id="links">
+        <h3>9. 原型参考入口</h3>
+        <p class="lead">下面这些页面是本流程图的主要口径来源，适合和业务图并排打开走查。</p>
+        <div class="links">
+          <a class="link-card" href="login-gateway.html" target="_blank" rel="noopener noreferrer">
+            <div>小程序登录入口<br><span>角色登录与切换</span></div><i class="fa-solid fa-chevron-right"></i>
+          </a>
+          <a class="link-card" href="buyer-home.html" target="_blank" rel="noopener noreferrer">
+            <div>收购商首页<br><span>待办与合作农户</span></div><i class="fa-solid fa-chevron-right"></i>
+          </a>
+          <a class="link-card" href="buyer-farmer-add.html" target="_blank" rel="noopener noreferrer">
+            <div>农户建档<br><span>收购商创建农户</span></div><i class="fa-solid fa-chevron-right"></i>
+          </a>
+          <a class="link-card" href="farmer-collection.html" target="_blank" rel="noopener noreferrer">
+            <div>农户出码<br><span>收款二维码</span></div><i class="fa-solid fa-chevron-right"></i>
+          </a>
+          <a class="link-card" href="buyer-billing.html" target="_blank" rel="noopener noreferrer">
+            <div>扫码开单<br><span>录入收购单</span></div><i class="fa-solid fa-chevron-right"></i>
+          </a>
+          <a class="link-card" href="buyer-cashier.html" target="_blank" rel="noopener noreferrer">
+            <div>移动收银台<br><span>单笔确认付款</span></div><i class="fa-solid fa-chevron-right"></i>
+          </a>
+          <a class="link-card" href="buyer-order-manage.html" target="_blank" rel="noopener noreferrer">
+            <div>订单管理<br><span>状态流转</span></div><i class="fa-solid fa-chevron-right"></i>
+          </a>
+          <a class="link-card" href="farmer-collection-records.html" target="_blank" rel="noopener noreferrer">
+            <div>收款记录<br><span>农户查看结果</span></div><i class="fa-solid fa-chevron-right"></i>
+          </a>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#ecfdf3',
+        primaryTextColor: '#1f2937',
+        primaryBorderColor: '#11a64a',
+        lineColor: '#667085',
+        secondaryColor: '#eff6ff',
+        tertiaryColor: '#fffbeb',
+        fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Noto Sans SC, sans-serif'
+      }
+    });
+
+    function svgTextToDataUrl(svgText) {
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgText);
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function getSvgExportSize(svg) {
+      const viewBox = svg.viewBox && svg.viewBox.baseVal;
+      if (viewBox && viewBox.width && viewBox.height) {
+        return { width: viewBox.width, height: viewBox.height };
+      }
+      const widthAttr = parseFloat(svg.getAttribute('width'));
+      const heightAttr = parseFloat(svg.getAttribute('height'));
+      if (widthAttr && heightAttr) return { width: widthAttr, height: heightAttr };
+      const box = svg.getBBox();
+      return {
+        width: Math.max(box.width + box.x, svg.scrollWidth || 0, 1200),
+        height: Math.max(box.height + box.y, svg.scrollHeight || 0, 800)
+      };
+    }
+
+    function addDiagramDownloads() {
+      document.querySelectorAll('.diagram').forEach((diagram, index) => {
+        if (diagram.querySelector('.diagram-download-btn')) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'diagram-download-btn';
+        btn.innerHTML = '<i class="fa-solid fa-download"></i><span>下载 PNG</span>';
+        btn.addEventListener('click', async () => {
+          const svg = diagram.querySelector('svg');
+          if (!svg) return;
+          const svgClone = svg.cloneNode(true);
+          svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+          svgClone.setAttribute('version', '1.1');
+          const size = getSvgExportSize(svg);
+          const padding = 48;
+          svgClone.setAttribute('width', String(size.width));
+          svgClone.setAttribute('height', String(size.height));
+          if (!svgClone.getAttribute('viewBox')) svgClone.setAttribute('viewBox', `0 0 ${size.width} ${size.height}`);
+          const xml = new XMLSerializer().serializeToString(svgClone);
+          const svgUrl = svgTextToDataUrl(xml);
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            const scale = 3;
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.ceil((size.width + padding * 2) * scale);
+            canvas.height = Math.ceil((size.height + padding * 2) * scale);
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.setTransform(scale, 0, 0, scale, 0, 0);
+            ctx.drawImage(img, padding, padding, size.width, size.height);
+            canvas.toBlob((blob) => {
+              if (blob) downloadBlob(blob, `business-flow-${index + 1}.png`);
+            }, 'image/png');
+          };
+          img.src = svgUrl;
+        });
+        diagram.appendChild(btn);
+      });
+    }
+
+    window.addEventListener('load', () => {
+      setTimeout(addDiagramDownloads, 600);
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>账户管理与多付款账户支付测试用例</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.62}.wrap{max-width:1220px;margin:0 auto;padding:28px 18px 60px}.hero{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 8px 24px rgba(15,23,42,.05)}h1{margin:0 0 8px;font-size:28px}p{margin:0;color:var(--muted)}.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 18px rgba(15,23,42,.04)}.item{padding:12px 14px}.label{font-size:12px;color:var(--muted)}.value{font-size:15px;font-weight:800;margin-top:2px}.card{padding:20px;margin-top:16px}h2{font-size:20px;margin:0 0 12px}h3{font-size:15px;margin:18px 0 8px}.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.toc a{text-decoration:none;color:#047857;background:var(--green);border:1px solid rgba(17,166,74,.2);border-radius:999px;padding:6px 10px;font-size:13px;font-weight:700}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;font-weight:800;color:#374151}.p0{background:var(--red);color:#b91c1c;font-weight:800}.p1{background:var(--amber);color:#b45309;font-weight:800}.p2{background:var(--blue);color:#1d4ed8;font-weight:800}.pass{background:var(--green);color:#047857;font-weight:800}.note{margin-top:10px;padding:12px 14px;background:#f0fdf4;color:#166534;border-radius:14px;font-size:13px}.small{font-size:12px;color:var(--muted)}@media(max-width:800px){.meta{grid-template-columns:1fr}.wrap{padding:16px 12px}table{display:block;overflow-x:auto;white-space:nowrap}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <h1>账户管理与多付款账户支付测试用例</h1>
+    <p>用于测试收购商端账户管理、移动 H5 付款确认、PC 收银台以及扫码开单到付款的完整链路。测试时以提测环境和最终上线实现为准，原型用于交互对照。</p>
+    <div class="toc">
+      <a href="#env">测试准备</a>
+      <a href="#account">账户管理</a>
+      <a href="#h5">移动 H5</a>
+      <a href="#scan">扫码开单</a>
+      <a href="#pc">PC 收银台</a>
+      <a href="#regression">回归</a>
+    </div>
+  </section>
+
+  <section class="meta" id="env">
+    <div class="item"><div class="label">版本</div><div class="value">三期小迭代</div></div>
+    <div class="item"><div class="label">测试对象</div><div class="value">收购商付款账户</div></div>
+    <div class="item"><div class="label">优先级</div><div class="value">P0/P1 优先</div></div>
+    <div class="item"><div class="label">关联页面</div><div class="value">H5 / PC / 开单</div></div>
+  </section>
+
+  <section class="card">
+    <h2>1. 测试准备</h2>
+    <table>
+      <tr><th>准备项</th><th>要求</th></tr>
+      <tr><td>收购商账号</td><td>准备一个已开通收购商身份的超管账号，至少一个业务员账号。</td></tr>
+      <tr><td>付款账户</td><td>准备至少 1 张个人邮储银行卡、1 个对公账户、1 个数字人民币钱包；如需测试更多账户，准备 4 个以上付款账户。</td></tr>
+      <tr><td>农户数据</td><td>准备一个可用农户丰收码，农户需能被扫码开单带入。</td></tr>
+      <tr><td>渠道</td><td>准备微信扫一扫、微信小程序、邮储银行 App、PC 浏览器环境。</td></tr>
+      <tr><td>订单数据</td><td>准备可直接付款订单、付款中订单、付款失败后可重试订单。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="account">
+    <h2>2. 账户管理测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>AM-001</td><td class="p0">P0</td><td>进入付款账户管理</td><td>收购商登录后进入“我的”，点击账户管理。</td><td>进入付款账户管理页，展示默认付款账户和其他付款账户。</td></tr>
+      <tr><td>AM-002</td><td class="p0">P0</td><td>银行卡账户标签</td><td>查看银行卡列表。</td><td>银行卡仅展示“个人账户”或“公户”标签，不展示多余校验状态。</td></tr>
+      <tr><td>AM-003</td><td class="p0">P0</td><td>默认付款标识</td><td>查看默认付款账户卡片。</td><td>默认付款账户有明确默认标识，且不挤压银行名称和账户标签。</td></tr>
+      <tr><td>AM-004</td><td class="p0">P0</td><td>新增本人个人银行卡</td><td>点击新增银行卡，选择个人账户和本人银行卡，录入银行卡号后提交。</td><td>不要求录入姓名、手机号、身份证号；提交成功后账户出现在列表。</td></tr>
+      <tr><td>AM-005</td><td class="p0">P0</td><td>新增非本人个人银行卡</td><td>新增银行卡时选择非本人银行卡，录入姓名、手机号、身份证号、银行卡号后提交。</td><td>四要素必填；缺少任一字段时拦截提交。</td></tr>
+      <tr><td>AM-006</td><td class="p0">P0</td><td>新增对公账户</td><td>选择对公账户，录入账户名称、银行账号、开户行、开户支行、联行号。</td><td>提交成功后列表展示为公户账户。</td></tr>
+      <tr><td>AM-007</td><td class="p0">P0</td><td>新增数币钱包</td><td>点击新增数币钱包，只录入钱包 ID 后提交。</td><td>姓名、手机号、身份证号只读带入；提交后列表展示脱敏钱包 ID。</td></tr>
+      <tr><td>AM-008</td><td class="p1">P1</td><td>设置默认付款账户</td><td>选择非默认账户，点击设为默认。</td><td>该账户成为默认付款账户，原默认账户变为普通账户。</td></tr>
+      <tr><td>AM-009</td><td class="p0">P0</td><td>默认付款账户不可直接删除</td><td>在默认付款账户卡片上尝试删除，或进入删除操作。</td><td>系统不允许直接删除默认付款账户，并提示需先将其他账户设为默认付款账户后再删除。</td></tr>
+      <tr><td>AM-010</td><td class="p0">P0</td><td>切换默认后删除原默认账户</td><td>先新增至少一个可用付款账户，将新账户设为默认付款账户，再删除原默认付款账户。</td><td>新账户成为默认付款账户；原默认账户变为普通账户后可删除，删除后不再展示。</td></tr>
+      <tr><td>AM-011</td><td class="p1">P1</td><td>删除非默认账户</td><td>删除一个非默认付款账户。</td><td>删除成功后该账户不再展示；默认付款账户不受影响。</td></tr>
+      <tr><td>AM-012</td><td class="p1">P1</td><td>敏感信息脱敏</td><td>查看个人银行卡、公户、数币钱包列表。</td><td>个人银行卡展示姓名、手机号、身份证号、银行卡号脱敏信息；公户展示账户名和银行账号脱敏信息；数币钱包展示脱敏钱包 ID。</td></tr>
+      <tr><td>AM-013</td><td class="p1">P1</td><td>无可用付款账户</td><td>使用无可用付款账户的收购商进入付款确认页。</td><td>系统提示先维护付款账户，不能直接发起付款。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="h5">
+    <h2>3. 移动 H5 付款确认测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>H5-001</td><td class="p0">P0</td><td>默认账户带入</td><td>账户管理设置个人银行卡为默认，进入 H5 付款确认页。</td><td>付款账户默认选中该个人银行卡，当前支付方式为行业支付。</td></tr>
+      <tr><td>H5-002</td><td class="p0">P0</td><td>公户默认带入</td><td>账户管理设置对公账户为默认，进入 H5 付款确认页。</td><td>付款账户默认选中该公户，当前支付方式为订单付。</td></tr>
+      <tr><td>H5-003</td><td class="p0">P0</td><td>数币钱包默认带入</td><td>账户管理设置数币钱包为默认，进入 H5 付款确认页。</td><td>付款账户默认选中数币钱包，展示脱敏钱包 ID，当前支付方式为行业支付。</td></tr>
+      <tr><td>H5-004</td><td class="p0">P0</td><td>账户展示数量</td><td>准备超过 3 个可用付款账户，进入 H5 付款确认页。</td><td>默认最多展示 3 个账户，并展示“更多付款账户”入口。</td></tr>
+      <tr><td>H5-005</td><td class="p0">P0</td><td>更多账户切换</td><td>点击“更多付款账户”，在底部弹层中选择第 4 个账户并确认。</td><td>被选账户成为当前选中账户，并进入页面展示账户列表；当前标识展示正确。</td></tr>
+      <tr><td>H5-006</td><td class="p0">P0</td><td>个人银行卡发起付款</td><td>选择个人银行卡，点击确认发起。</td><td>付款账户锁定，页面展示行业支付二维码或支付链接。</td></tr>
+      <tr><td>H5-007</td><td class="p0">P0</td><td>对公账户发起付款</td><td>选择公户，点击确认发起。</td><td>付款账户锁定，页面展示订单付付款引导。</td></tr>
+      <tr><td>H5-008</td><td class="p0">P0</td><td>数币钱包发起付款</td><td>选择数币钱包，点击确认发起。</td><td>付款账户锁定，页面展示数币相关支付入口。</td></tr>
+      <tr><td>H5-009</td><td class="p1">P1</td><td>发起后禁止切换</td><td>点击确认发起后，再点击其他付款账户或更多付款账户。</td><td>系统不允许切换，并提示付款已发起不能更换付款账户。</td></tr>
+      <tr><td>H5-010</td><td class="p1">P1</td><td>收款方信息展示</td><td>进入 H5 付款确认页。</td><td>收款方信息保持原页面样式，展示收款人和收款账户关键信息。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="scan">
+    <h2>4. 扫码开单到付款测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>SB-001</td><td class="p0">P0</td><td>微信扫码开单付款</td><td>使用微信扫描农户丰收码，登录后进入开单页，填写订单并点击直接付款。</td><td>开单后进入 H5 付款确认页，可选择付款账户。</td></tr>
+      <tr><td>SB-002</td><td class="p0">P0</td><td>邮储 App 扫码开单付款</td><td>使用邮储银行 App 扫描农户丰收码，登录后进入开单页，填写订单并点击直接付款。</td><td>开单后进入 H5 付款确认页，可选择付款账户。</td></tr>
+      <tr><td>SB-003</td><td class="p0">P0</td><td>小程序内选择个人卡</td><td>在小程序内完成开单，进入内嵌 H5，选择个人银行卡并确认发起。</td><td>展示行业支付二维码或链接页；用户需手动扫码或复制链接后继续拉起手机银行。</td></tr>
+      <tr><td>SB-004</td><td class="p0">P0</td><td>小程序内选择公户</td><td>在小程序内完成开单，进入内嵌 H5，选择对公账户并确认发起。</td><td>展示订单付付款引导页。</td></tr>
+      <tr><td>SB-005</td><td class="p1">P1</td><td>暂存不进入付款</td><td>扫码进入开单页后点击暂存。</td><td>按开单页现有规则生成挂单、待开价或待付款，不进入付款确认页。</td></tr>
+      <tr><td>SB-006</td><td class="p1">P1</td><td>付款中重试</td><td>制造一笔付款失败或部分失败后仍在付款中的订单，再次进入付款。</td><td>可重新进入付款确认页选择账户并发起付款。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="pc">
+    <h2>5. PC 收银台测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>PC-001</td><td class="p0">P0</td><td>默认付款账户展示</td><td>进入 PC 收银台。</td><td>顶部付款账户区域默认选中账户管理中的默认付款账户。</td></tr>
+      <tr><td>PC-002</td><td class="p0">P0</td><td>更多付款账户弹窗</td><td>准备超过 2 个付款账户，点击更多付款账户。</td><td>弹窗展示可选账户，账户名和尾号一行或两行清晰展示，公户标签位于银行名称右侧。</td></tr>
+      <tr><td>PC-003</td><td class="p0">P0</td><td>切换个人银行卡</td><td>在 PC 收银台选择个人银行卡并确认发起。</td><td>支付区域展示行业支付二维码。</td></tr>
+      <tr><td>PC-004</td><td class="p0">P0</td><td>切换公户</td><td>选择对公账户并确认发起。</td><td>支付区域展示订单付企业网银付款引导。</td></tr>
+      <tr><td>PC-005</td><td class="p0">P0</td><td>切换数币钱包</td><td>选择数币钱包并确认发起。</td><td>支付区域展示数币相关支付入口，二维码区域尺寸与行业支付保持一致。</td></tr>
+      <tr><td>PC-006</td><td class="p1">P1</td><td>发起后锁定</td><td>确认发起付款后尝试更换账户。</td><td>系统不允许再次更换付款账户。</td></tr>
+      <tr><td>PC-007</td><td class="p1">P1</td><td>收款人信息位置</td><td>进入 PC 收银台支付区。</td><td>收款人信息位于支付区域右侧或指定位置，二维码/引导区域居中展示。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="regression">
+    <h2>6. 回归检查</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>检查点</th><th>预期结果</th></tr>
+      <tr><td>RG-001</td><td class="p0">P0</td><td>开单页主流程</td><td>选择品类、填写重量价格、选择收款人、暂存、直接付款。</td><td>开单和暂存规则不受账户管理影响。</td></tr>
+      <tr><td>RG-002</td><td class="p0">P0</td><td>订单管理待付款</td><td>待付款订单点击付款。</td><td>进入新的付款确认链路，能选择付款账户。</td></tr>
+      <tr><td>RG-003</td><td class="p1">P1</td><td>订单管理付款中</td><td>付款中订单重新发起付款。</td><td>可再次进入付款确认页，不丢失订单金额和收款人信息。</td></tr>
+      <tr><td>RG-004</td><td class="p1">P1</td><td>农户端账户管理</td><td>进入农户收款账户管理和新增账户。</td><td>农户收款账户功能不受收购商付款账户改造影响。</td></tr>
+      <tr><td>RG-005</td><td class="p1">P1</td><td>页面兼容</td><td>在常见手机宽度和 PC 浏览器打开 H5/PC 页面。</td><td>账户展示、更多账户弹层、二维码或引导区域不遮挡、不错位。</td></tr>
+    </table>
+  </section>
+</main>
+</body>
+</html>

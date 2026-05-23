@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>账户管理与多付款账户支付 PRD</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2;--slate:#f8fafc}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.68}
+.layout{display:flex;min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:258px;background:#fff;border-right:1px solid var(--line);padding:22px 0;overflow:auto}.brand{padding:0 22px 18px;border-bottom:1px solid var(--line);margin-bottom:10px}.brand .k{font-size:12px;color:var(--primary);font-weight:800;letter-spacing:.4px}.brand h1{margin:6px 0 4px;font-size:18px;line-height:1.35}.brand p{margin:0;color:var(--muted);font-size:12px}.side a{display:block;padding:8px 22px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;font-size:13px}.side a:hover{color:var(--primary);background:rgba(17,166,74,.05);border-left-color:var(--primary)}
+.main{margin-left:258px;width:calc(100% - 258px);padding:28px 34px 70px}.hero{background:linear-gradient(135deg,#11a64a,#0f7f3d);color:#fff;border-radius:24px;padding:34px 36px;box-shadow:0 18px 40px rgba(17,166,74,.18)}.hero h2{margin:0 0 8px;font-size:30px;line-height:1.25}.hero p{margin:0;max-width:900px;opacity:.92;font-size:15px}
+.meta,.grid,.flow{display:grid;gap:12px}.meta{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 24px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.flow{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:12px}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}.item{padding:14px 16px}.label{font-size:12px;color:var(--muted)}.value{margin-top:2px;font-size:15px;font-weight:800}.card{padding:24px;margin-bottom:18px}.card h3{margin:0 0 14px;font-size:20px}.card h4{margin:18px 0 8px;font-size:16px}.lead{color:var(--muted);font-size:14px;margin:0 0 14px}
+.box{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fafafa}.box strong{display:block;font-size:16px;margin-bottom:4px}.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;margin:0 6px 6px 0}.green{background:var(--green);color:#047857}.blue{background:var(--blue);color:#2563eb}.amber{background:var(--amber);color:#b45309}.red{background:var(--red);color:#dc2626}.slate{background:var(--slate);color:#475569}
+table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;color:#374151;font-weight:800}ul{margin:8px 0 0;padding-left:20px}li{margin:5px 0}.step{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcfb}.step b{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-size:12px;margin-right:6px}.note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f0fdf4;color:#166534;font-size:13px}.warn{background:#fffbeb;color:#92400e}.req{margin:10px 0 0;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff}.req b{color:#047857}
+@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.flow{grid-template-columns:1fr}.hero{padding:26px 22px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand"><div class="k">PRD</div><h1>账户管理与多付款账户支付</h1><p>收购商端提测评审资料</p></div>
+    <nav>
+      <a href="#overview">概览</a>
+      <a href="#scope">功能范围</a>
+      <a href="#account">付款账户管理</a>
+      <a href="#payment">付款账户选择</a>
+      <a href="#scan">扫码开单支付</a>
+      <a href="#miniapp">小程序限制处理</a>
+      <a href="#rules">业务规则</a>
+      <a href="#acceptance">验收标准</a>
+      <a href="#links">原型入口</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <section class="hero">
+      <h2>账户管理与多付款账户支付 PRD</h2>
+      <p>本需求用于支持收购商维护多个付款账户，并在开单付款、扫码开单付款、PC 收银台付款时选择本次实际使用的付款账户。系统根据账户类型自动进入对应付款方式。</p>
+    </section>
+
+    <section class="meta" id="overview">
+      <div class="item"><div class="label">版本</div><div class="value">三期小迭代</div></div>
+      <div class="item"><div class="label">适用端</div><div class="value">收购商端</div></div>
+      <div class="item"><div class="label">计划口径</div><div class="value">预计5月底至6月初</div></div>
+      <div class="item"><div class="label">关联链路</div><div class="value">开单 / H5 / PC</div></div>
+    </section>
+
+    <section class="card" id="scope">
+      <h3>1. 背景与目标</h3>
+      <p class="lead">收购商在真实付款时可能同时存在个人银行卡、对公账户和数字人民币钱包。开单页只负责生成订单和进入支付，不再在开单页内确认具体付款方式；付款账户选择统一前置到 H5 付款确认页和 PC 收银台。</p>
+      <div class="grid">
+        <div class="box"><strong>账户统一维护</strong><span class="tag green">账户管理</span><p class="lead">收购商可维护个人银行卡、对公账户和数币钱包，并设置默认付款账户。</p></div>
+        <div class="box"><strong>付款时选择账户</strong><span class="tag blue">H5 / PC</span><p class="lead">进入付款确认页后展示具体付款账户，用户选择后再发起付款。</p></div>
+        <div class="box"><strong>按账户类型分流</strong><span class="tag amber">自动判断</span><p class="lead">个人卡和数币钱包走行业支付；对公账户走订单付。</p></div>
+      </div>
+      <h4>不在本次范围</h4>
+      <ul>
+        <li>不调整农户收款账户维护主流程。</li>
+        <li>不调整订单状态机，付款中、付款成功、已取消等状态沿用现有订单规则。</li>
+        <li>不在开单页增加付款方式选择，付款账户选择统一在支付确认页完成。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="account">
+      <h3>2. 付款账户管理</h3>
+      <h4>账户类型</h4>
+      <table>
+        <tr><th>账户类型</th><th>维护内容</th><th>列表展示</th><th>说明</th></tr>
+        <tr><td>个人银行卡</td><td>持卡人姓名、手机号、身份证号、银行卡号、开户行、开户支行、联行号</td><td>银行名称、尾号后四位、个人账户标签、默认付款标识</td><td>默认优先支持邮储卡；本人银行卡可只录入银行卡号，非本人银行卡需要四要素。</td></tr>
+        <tr><td>对公账户</td><td>账户名称、银行账号、开户行、开户支行、联行号</td><td>银行名称、尾号后四位、公户标签、默认付款标识</td><td>用于订单付付款场景。</td></tr>
+        <tr><td>数字人民币钱包</td><td>钱包 ID；姓名、手机号、身份证号只读带入</td><td>数币钱包图标、脱敏钱包 ID、默认付款标识</td><td>添加时完成校验，账户列表不展示校验状态。</td></tr>
+      </table>
+      <h4>核心需求</h4>
+      <div class="req"><b>REQ-001</b> 当收购商进入付款账户管理页时，系统应展示默认付款账户和其他付款账户，且银行卡与数币钱包共用一套默认付款账户规则。</div>
+      <div class="req"><b>REQ-002</b> 当收购商新增个人银行卡时，系统应默认选择“本人银行卡”，仅要求录入银行卡号；当切换为“非本人银行卡”时，系统应要求录入姓名、手机号、身份证号和银行卡号。</div>
+      <div class="req"><b>REQ-003</b> 当收购商新增对公账户时，系统应要求录入对公账户名称、银行账号、开户行、开户支行和联行号。</div>
+      <div class="req"><b>REQ-004</b> 当收购商新增数字人民币钱包时，系统应仅允许输入钱包 ID，其他身份信息从当前结算人信息只读带入。</div>
+      <div class="req"><b>REQ-005</b> 当用户设置某个账户为默认付款账户时，系统应将该账户作为后续付款确认页的默认选中账户。</div>
+      <div class="req"><b>REQ-006</b> 当用户删除付款账户时，系统应禁止直接删除默认付款账户；用户必须先将其他可用账户设为默认付款账户，再删除原默认账户。</div>
+    </section>
+
+    <section class="card" id="payment">
+      <h3>3. 多付款账户支付确认</h3>
+      <h4>支付方式映射</h4>
+      <table>
+        <tr><th>用户选择的付款账户</th><th>系统进入的付款方式</th><th>付款确认页表现</th></tr>
+        <tr><td>个人银行卡</td><td>行业支付</td><td>确认发起后展示行业支付二维码或支付链接。</td></tr>
+        <tr><td>对公账户</td><td>订单付</td><td>确认发起后展示企业网银订单付付款引导。</td></tr>
+        <tr><td>数字人民币钱包</td><td>行业支付</td><td>确认发起后展示数币相关支付入口；页面上以脱敏钱包 ID 表示账户。</td></tr>
+      </table>
+      <h4>移动 H5 付款确认页</h4>
+      <ul>
+        <li>进入页面后，默认选中账户管理中的默认付款账户。</li>
+        <li>付款账户区域默认最多展示 3 个具体账户，超过 3 个通过“更多付款账户”底部弹层选择。</li>
+        <li>账户展示保持简洁：银行/钱包图标、银行名称或数币钱包、尾号后四位或脱敏钱包 ID、当前选中标识；对公账户增加“公户”标签。</li>
+        <li>用户确认发起付款后，本次页面的付款账户锁定，不允许继续切换。</li>
+      </ul>
+      <h4>PC 收银台</h4>
+      <ul>
+        <li>PC 收银台同样展示具体付款账户，默认最多展示 2 个账户，更多账户通过弹窗选择。</li>
+        <li>用户切换付款账户后，当前支付方式和付款引导区域同步更新。</li>
+        <li>确认发起后锁定本次付款账户，避免支付中途误切换。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="scan">
+      <h3>4. 扫码开单到付款流程</h3>
+      <p class="lead">扫码开单只负责快速进入开单页和生成订单，付款账户选择仍在 H5 付款确认页完成。</p>
+      <div class="flow">
+        <div class="step"><b>1</b>农户出示丰收码</div>
+        <div class="step"><b>2</b>微信或邮储 App 扫码</div>
+        <div class="step"><b>3</b>进入开单页并完成开单</div>
+        <div class="step"><b>4</b>跳转 H5 付款确认页选择账户</div>
+      </div>
+      <table>
+        <tr><th>入口</th><th>首次进入</th><th>后续进入</th><th>付款处理</th></tr>
+        <tr><td>微信扫一扫</td><td>需要登录并绑定当前渠道身份</td><td>同设备同渠道可免登</td><td>开单后进入 H5 付款确认页。</td></tr>
+        <tr><td>邮储银行 App 扫一扫</td><td>需要登录并绑定当前渠道身份</td><td>同设备同渠道可免登</td><td>开单后进入 H5 付款确认页。</td></tr>
+        <tr><td>微信小程序内开单</td><td>按小程序登录态判断</td><td>小程序登录态有效时免登</td><td>开单后进入内嵌 H5 付款确认页。</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="miniapp">
+      <h3>5. 小程序内支付限制处理</h3>
+      <p class="lead">由于小程序原生环境不能直接拉起手机银行，本次需要在小程序内嵌 H5 付款确认页，由用户先选择付款账户，再按账户类型进入对应引导。</p>
+      <table>
+        <tr><th>选择账户</th><th>小程序内后续页面</th><th>用户动作</th></tr>
+        <tr><td>个人银行卡</td><td>展示行业支付二维码或支付链接页</td><td>用户手动扫码，或复制链接到浏览器后拉起手机银行。</td></tr>
+        <tr><td>对公账户</td><td>展示订单付付款引导页</td><td>用户按企业网银订单付流程完成付款。</td></tr>
+        <tr><td>数字人民币钱包</td><td>展示数币支付相关入口</td><td>按实际数币支付承载方式完成后续付款。</td></tr>
+      </table>
+      <div class="note warn">小程序、微信 H5、邮储银行 H5、邮储银行 App 的登录态是否互通以渠道身份和技术实现为准；测试时需要分别覆盖首次登录和同渠道免登。</div>
+    </section>
+
+    <section class="card" id="rules">
+      <h3>6. 业务规则</h3>
+      <table>
+        <tr><th>规则</th><th>说明</th></tr>
+        <tr><td>账户可用性</td><td>付款确认页仅展示当前收购商可用于付款的账户；无可用账户时提示先维护付款账户。</td></tr>
+        <tr><td>默认账户</td><td>账户管理中设置的默认付款账户作为付款确认页默认选中账户。</td></tr>
+        <tr><td>默认账户删除</td><td>默认付款账户不支持直接删除。需要先新增或选择另一个可用账户并设为默认付款账户，原默认账户变为普通账户后才允许删除。</td></tr>
+        <tr><td>本次付款账户</td><td>用户在付款确认页选择的账户仅用于本次付款，不自动修改账户管理默认账户。</td></tr>
+        <tr><td>发起后锁定</td><td>用户点击确认发起后，本次支付页面不允许再更换付款账户。</td></tr>
+        <tr><td>订单状态</td><td>付款失败或部分失败仍按订单现有规则停留在付款中，可重新进入付款流程处理。</td></tr>
+        <tr><td>历史订单</td><td>账户管理变更不回写历史已发起付款订单的付款账户信息。</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="acceptance">
+      <h3>7. 验收标准</h3>
+      <ul>
+        <li>收购商端可以新增、查看、删除非默认账户、设置默认付款账户，覆盖个人银行卡、对公账户和数币钱包。</li>
+        <li>默认付款账户不可直接删除，必须先将其他可用账户设为默认后，再删除原默认账户。</li>
+        <li>账户列表中银行卡仅区分“个人账户 / 对公账户”，数币钱包单独展示，且敏感信息脱敏。</li>
+        <li>开单后不进入旧付款确认页，统一进入 H5 付款确认页选择付款账户。</li>
+        <li>H5 付款确认页可默认选中默认付款账户，并支持通过更多账户弹层切换。</li>
+        <li>选择个人银行卡或数币钱包时，当前支付方式为行业支付；选择对公账户时，当前支付方式为订单付。</li>
+        <li>点击确认发起后，付款账户锁定；页面展示对应二维码、支付链接或订单付引导。</li>
+        <li>PC 收银台与移动 H5 付款账户选择规则一致。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="links">
+      <h3>8. 原型入口</h3>
+      <table>
+        <tr><th>页面</th><th>用途</th><th>链接</th></tr>
+        <tr><td>付款账户管理</td><td>查看默认付款账户、银行卡、数币钱包</td><td><a href="account-security.html?source=buyer-my.html" target="_blank">account-security.html?source=buyer-my.html</a></td></tr>
+        <tr><td>新增银行卡账户</td><td>个人 / 对公银行卡新增</td><td><a href="account-add.html?source=buyer" target="_blank">account-add.html?source=buyer</a></td></tr>
+        <tr><td>新增数币钱包</td><td>数币钱包 ID 维护</td><td><a href="account-wallet-add.html?source=buyer" target="_blank">account-wallet-add.html?source=buyer</a></td></tr>
+        <tr><td>移动 H5 付款确认</td><td>移动端选择付款账户并发起</td><td><a href="buyer-bank-h5-pay.html" target="_blank">buyer-bank-h5-pay.html</a></td></tr>
+        <tr><td>PC 收银台</td><td>PC 端选择付款账户并发起</td><td><a href="pc-cashier.html" target="_blank">pc-cashier.html</a></td></tr>
+      </table>
+    </section>
+  </main>
+</div>
+</body>
+</html>

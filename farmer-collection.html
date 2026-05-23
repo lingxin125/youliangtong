@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>丰收云 - 账户码</title>
+    <title>丰收云 - 丰收码</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500,700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -40,11 +40,11 @@
 
     <div class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4" style="padding-bottom:90px;">
 
-        <!-- 账户码展示卡片 (单层 Liquid Glass 风格) -->
+        <!-- 丰收码展示卡片 (单层 Liquid Glass 风格) -->
         <div class="rounded-3xl p-8 mt-4 text-center relative overflow-hidden" style="background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,253,244,0.7)); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 16px 32px -12px rgba(17, 166, 74, 0.15), inset 0 2px 4px rgba(255,255,255,1); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
             <div class="flex items-center justify-center gap-2 mb-6">
                 <i class="fas fa-qrcode text-primary text-xl"></i>
-                <span class="text-lg font-bold text-gray-800">我的账户码</span>
+                <span class="text-lg font-bold text-gray-800">我的丰收码</span>
             </div>
 
             <!-- 二维码主体区域 -->
@@ -64,7 +64,7 @@
         <!-- 保存按钮 -->
         <div class="mt-6 flex justify-center">
             <button class="px-8 py-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold shadow-[0_8px_16px_rgba(16,185,129,0.3)] active:scale-[0.98] transition-transform" onclick="saveQr()">
-                <i class="fas fa-download mr-1.5"></i>保存账户码
+                <i class="fas fa-download mr-1.5"></i>保存丰收码
             </button>
         </div>
 
@@ -118,10 +118,10 @@ var sourcePage = q.get('source') || '';
 var backLink = sourcePage === 'home' ? 'farmer-home.html' : 'farmer-home.html';
 
 document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader('账户码', backLink);
+document.getElementById('navBar').innerHTML = renderHeader('丰收码', backLink);
 document.getElementById('tabBar').innerHTML = renderFarmerTabBar('collection');
 
-// 保存收款码
+// 保存丰收码
 function saveQr() {
     showToast('已保存到相册');
 }

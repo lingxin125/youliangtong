@@ -173,6 +173,97 @@
             line-height: 1.55;
         }
 
+        .doc-group {
+            margin-top: 14px;
+            background: rgba(255,255,255,0.64);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 14px;
+        }
+
+        .doc-group[hidden] {
+            display: none;
+        }
+
+        .prd-tabs {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .prd-tab {
+            flex: none;
+            border: 1px solid rgba(17,166,74,0.16);
+            background: #FFFFFF;
+            color: var(--text-sub);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .prd-tab:hover {
+            color: var(--primary);
+            border-color: rgba(17,166,74,0.32);
+        }
+
+        .prd-tab.active {
+            color: #FFFFFF;
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 8px 18px rgba(17,166,74,0.18);
+        }
+
+        .doc-group-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .doc-group-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .doc-group-title i {
+            color: var(--primary);
+            font-size: 13px;
+        }
+
+        .status-pill {
+            flex: none;
+            border-radius: 999px;
+            padding: 4px 9px;
+            background: #F0FDF4;
+            color: #15803D;
+            border: 1px solid rgba(17,166,74,0.22);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-pill.blue {
+            background: #EFF6FF;
+            color: #2563EB;
+            border-color: rgba(37,99,235,0.18);
+        }
+
+        .doc-subgrid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
         .footer {
             margin-top: 16px;
             background: var(--card);
@@ -200,6 +291,20 @@
 
             .grid {
                 grid-template-columns: 1fr;
+            }
+
+            .doc-group-head {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .doc-subgrid {
+                grid-template-columns: 1fr;
+            }
+
+            .prd-tabs {
+                margin-right: -14px;
+                padding-right: 14px;
             }
         }
     </style>
@@ -291,82 +396,141 @@
     </section>
 
     <section class="section">
-        <h2 class="section-title"><i class="fas fa-qrcode"></i>扫码支付功能</h2>
-        <p class="section-desc">农户提供二维码，收购商扫码后快速查看待支付订单并付款。</p>
-        <div class="grid">
-            <a class="card border-emerald-100 bg-emerald-50/30" href="buyer-scan-pay-list.html" target="_blank" rel="noopener noreferrer">
-                <div class="card-head">
-                    <div class="icon icon-miniapp"><i class="fas fa-list-check"></i></div>
-                    <i class="fas fa-chevron-right arrow"></i>
-                </div>
-                <h2 class="text-emerald-700">扫码待支付列表</h2>
-                <p>扫码后展示针对该农户的所有待支付订单，简单卡片布局，点击去支付。</p>
-            </a>
-            <a class="card border-emerald-100 bg-emerald-50/30" href="buyer-scan-pay-detail.html" target="_blank" rel="noopener noreferrer">
-                <div class="card-head">
-                    <div class="icon icon-miniapp"><i class="fas fa-file-invoice-dollar"></i></div>
-                    <i class="fas fa-chevron-right arrow"></i>
-                </div>
-                <h2 class="text-emerald-700">扫码待支付详情</h2>
-                <p>展示单笔待支付订单的详细信息及付款金额，底部提供确认支付入口。</p>
-            </a>
-        </div>
-    </section>
-
-    <section class="section">
         <h2 class="section-title"><i class="fas fa-book-open"></i>PRD评审资料</h2>
-        <p class="section-desc">用于文字需求对照评审，可与原型页面并行打开。</p>
-        <div class="grid">
-            <a class="card" href="PRD-收粮平台-可视化.html" target="_blank" rel="noopener noreferrer">
-                <div class="card-head">
-                    <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
-                    <i class="fas fa-chevron-right arrow"></i>
-                </div>
-                <h2>PRD 可视化页面</h2>
-                <p>用于产品说明、功能逻辑确认、测试对照验收、流程图和用户故事评审。</p>
-            </a>
+        <p class="section-desc">用于文字需求对照评审，可与原型页面并行打开。有日期的资料按时间倒序排列，长期资料单独归档。</p>
 
-            <a class="card border-blue-100 bg-blue-50/30" href="weekly-518-523-plan.html" target="_blank" rel="noopener noreferrer">
-                <div class="card-head">
-                    <div class="icon icon-doc"><i class="fas fa-calendar-week"></i></div>
-                    <i class="fas fa-chevron-right arrow"></i>
-                </div>
-                <h2 class="text-green-700">本周需求讲解页</h2>
-                <p>5/18-5/23 上线与开发需求可视化总览，适合业务、技术、测试一起评审拆解。</p>
-            </a>
+        <div class="prd-tabs" role="tablist" aria-label="PRD资料分类">
+            <button class="prd-tab active" type="button" role="tab" aria-selected="true" aria-controls="doc-account-test" data-target="doc-account-test">预计5月底-6月初 账户管理提测</button>
+            <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-20260518" data-target="doc-20260518">2026-05-18 至 2026-05-23 小迭代</button>
+            <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-longterm" data-target="doc-longterm">长期资料</button>
+        </div>
 
-            <a class="card border-green-100 bg-green-50/30" href="PRD-003-phase3-billing-upgrade.html" target="_blank" rel="noopener noreferrer">
-                <div class="card-head">
-                    <div class="icon icon-miniapp"><i class="fas fa-file-lines"></i></div>
-                    <i class="fas fa-chevron-right arrow"></i>
-                </div>
-                <h2 class="text-green-700">三期 PRD</h2>
-                <p>三期开单链路升级评审资料，包含开单、订单管理、客户与付款相关需求说明。</p>
-            </a>
+        <div class="doc-group" id="doc-account-test" role="tabpanel">
+            <div class="doc-group-head">
+                <h3 class="doc-group-title"><i class="fas fa-building-columns"></i>预计5月底-6月初 账户管理提测</h3>
+                <span class="status-pill">准备提测</span>
+            </div>
+            <div class="doc-subgrid">
+                <a class="card border-green-100 bg-green-50/30" href="PRD-账户管理与多付款账户支付.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-prd"><i class="fas fa-file-invoice-dollar"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">账户管理与多付款账户支付 PRD</h2>
+                    <p>收购商维护多付款账户后，开单付款、扫码开单和 PC 收银台如何选择账户并分流支付。</p>
+                </a>
 
-            <a class="card border-green-100 bg-green-50/30" href="PRD-003-phase3-live-small-features.html" target="_blank" rel="noopener noreferrer">
-                <div class="card-head">
-                    <div class="icon icon-doc"><i class="fas fa-clipboard-list"></i></div>
-                    <i class="fas fa-chevron-right arrow"></i>
-                </div>
-                <h2 class="text-green-700">三期小迭代 PRD</h2>
-                <p>团队管理、结算信息修改、扫码开单及订单管理关联验收口径。</p>
-            </a>
+                <a class="card border-blue-100 bg-blue-50/30" href="TEST-账户管理与多付款账户支付.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-doc"><i class="fas fa-list-check"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">账户管理与多付款账户支付测试用例</h2>
+                    <p>覆盖账户维护、默认账户、H5 付款确认、扫码开单付款、PC 收银台和渠道登录态。</p>
+                </a>
+            </div>
+        </div>
 
-            <a class="card border-blue-100 bg-blue-50/30" href="TEST-003-phase3-live-small-features.html" target="_blank" rel="noopener noreferrer">
-                <div class="card-head">
-                    <div class="icon icon-doc"><i class="fas fa-vial-circle-check"></i></div>
-                    <i class="fas fa-chevron-right arrow"></i>
-                </div>
-                <h2 class="text-green-700">三期小迭代测试用例</h2>
-                <p>提供给测试执行的用例清单，覆盖首次登录、免登、权限、结算纠错和批量付款。</p>
-            </a>
+        <div class="doc-group" id="doc-20260518" role="tabpanel" hidden>
+            <div class="doc-group-head">
+                <h3 class="doc-group-title"><i class="fas fa-calendar-week"></i>2026-05-18 至 2026-05-23 小迭代</h3>
+                <span class="status-pill blue">已上线 / 验收资料</span>
+            </div>
+            <div class="doc-subgrid">
+                <a class="card border-blue-100 bg-blue-50/30" href="weekly-518-523-plan.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-doc"><i class="fas fa-calendar-week"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">本周需求讲解页</h2>
+                    <p>5/18-5/23 上线与开发需求可视化总览，适合业务、技术、测试一起评审拆解。</p>
+                </a>
+
+                <a class="card border-green-100 bg-green-50/30" href="PRD-003-phase3-live-small-features.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-doc"><i class="fas fa-clipboard-list"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">三期小迭代 PRD</h2>
+                    <p>团队管理、结算信息修改、扫码开单及订单管理关联验收口径。</p>
+                </a>
+
+                <a class="card border-blue-100 bg-blue-50/30" href="TEST-003-phase3-live-small-features.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-doc"><i class="fas fa-vial-circle-check"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">三期小迭代测试用例</h2>
+                    <p>提供给测试执行的用例清单，覆盖首次登录、免登、团队管理、结算纠错和批量付款。</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="doc-group" id="doc-longterm" role="tabpanel" hidden>
+            <div class="doc-group-head">
+                <h3 class="doc-group-title"><i class="fas fa-thumbtack"></i>长期资料</h3>
+                <span class="status-pill">长期可看</span>
+            </div>
+            <div class="doc-subgrid">
+                <a class="card" href="PRD-收粮平台-可视化.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2>PRD 可视化页面</h2>
+                    <p>用于产品说明、功能逻辑确认、测试对照验收、流程图和用户故事评审。</p>
+                </a>
+
+                <a class="card border-green-100 bg-green-50/30" href="PRD-003-phase3-billing-upgrade.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-miniapp"><i class="fas fa-file-lines"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">三期 PRD</h2>
+                    <p>三期开单链路升级评审资料，包含开单、订单管理、客户与付款相关需求说明。</p>
+                </a>
+
+                <a class="card border-emerald-100 bg-emerald-50/30" href="business-flow-overview.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-prd bg-emerald-500 text-white"><i class="fas fa-diagram-project"></i></div>
+                        <i class="fas fa-chevron-right arrow text-emerald-500"></i>
+                    </div>
+                    <h2 class="text-emerald-700">业务流程全景图</h2>
+                    <p>从进件、建档、出码、扫码开单到单笔付款成功的完整流程图和状态图。</p>
+                </a>
+
+                <a class="card border-blue-100 bg-blue-50/30" href="PRD-开单配置与品类管理优化.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-doc"><i class="fas fa-sliders"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">开单配置与品类管理优化</h2>
+                    <p>按二级品类配置开单方式，区分极简快收和标准称重，用于后续配置化评审。</p>
+                </a>
+            </div>
         </div>
     </section>
 
     <!-- <section class="footer">
         当前主线改造范围：<strong>`prototype/` + `Docs/PRD-001-收粮平台.md` + `CLAUDE.md` + `warm-card-ui-style`</strong>
     </section> -->
+    <script>
+        document.querySelectorAll('.prd-tab').forEach((tab) => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.target;
+
+                document.querySelectorAll('.prd-tab').forEach((item) => {
+                    const active = item === tab;
+                    item.classList.toggle('active', active);
+                    item.setAttribute('aria-selected', active ? 'true' : 'false');
+                });
+
+                document.querySelectorAll('.doc-group[role="tabpanel"]').forEach((panel) => {
+                    panel.hidden = panel.id !== target;
+                });
+            });
+        });
+    </script>
 </main>
 </body>
 </html>
