@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 编辑设备</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .toast-msg { position:absolute; left:50%; bottom:88px; transform:translateX(-50%); padding:8px 14px; border-radius:10px; background:rgba(17,24,39,.86); color:#fff; font-size:12px; z-index:90; opacity:0; transition:opacity .2s ease; white-space:nowrap; }
+        .toast-msg.show { opacity:1; }
+        .modal-mask { position:absolute; inset:0; background:rgba(15,23,42,.45); display:flex; align-items:flex-end; opacity:0; pointer-events:none; transition:opacity .2s ease; z-index:80; }
+        .modal-mask.show { opacity:1; pointer-events:auto; }
+        .modal-sheet { width:100%; background:#fff; border-radius:24px 24px 0 0; padding:18px 16px 24px; transform:translateY(20px); transition:transform .2s ease; }
+        .modal-mask.show .modal-sheet { transform:translateY(0); }
+    </style>
+</head>
+<body class="bg-[#F7F8FA]">
+<div class="mobile-container relative bg-[#F7F8FA]">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pt-4 pb-8">
+        <div class="bg-white rounded-2xl p-4 border border-black/[0.04] space-y-4">
+            <div>
+                <label class="block text-[12px] text-gray-500 mb-1.5">设备名称 <span class="text-red-400">*</span></label>
+                <input id="deviceNameInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white">
+            </div>
+            <div>
+                <label class="block text-[12px] text-gray-500 mb-1.5">设备类型</label>
+                <input id="deviceTypeInput" readonly class="w-full h-11 rounded-xl border border-gray-100 bg-gray-100 px-3 text-sm text-gray-500 outline-none">
+            </div>
+            <div>
+                <label class="block text-[12px] text-gray-500 mb-1.5">设备型号</label>
+                <input id="deviceModelInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white">
+            </div>
+            <div>
+                <label class="block text-[12px] text-gray-500 mb-1.5">备注</label>
+                <input id="deviceRemarkInput" class="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white" placeholder="选填">
+            </div>
+            <label class="flex items-center justify-between rounded-2xl bg-gray-50 px-3 py-3 border border-gray-100">
+                <span>
+                    <span class="block text-[14px] font-semibold text-gray-700">启用设备</span>
+                    <span class="block text-[11px] text-gray-400 mt-0.5">停用后不会出现在开单页可选设备中</span>
+                </span>
+                <input id="deviceEnabledInput" type="checkbox" class="accent-[#11A64A] w-5 h-5">
+            </label>
+        </div>
+        <div class="mt-5 grid grid-cols-2 gap-3">
+            <button class="h-12 rounded-2xl border border-red-200 text-red-500 bg-white text-sm font-semibold active:scale-[0.98]" onclick="openDeleteModal()">删除设备</button>
+            <button class="h-12 rounded-2xl bg-primary text-white text-sm font-semibold active:scale-[0.98]" onclick="saveEdit()">保存</button>
+        </div>
+    </div>
+    <div id="deleteModal" class="modal-mask" onclick="closeDeleteModal()">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="text-center">
+                <div class="text-[16px] font-semibold text-gray-800">删除设备</div>
+                <div class="text-[13px] text-gray-500 leading-6 mt-2">删除后该设备将不能继续使用</div>
+            </div>
+            <div class="mt-5 flex gap-3">
+                <button class="flex-1 h-11 rounded-xl border border-gray-200 bg-white text-sm text-gray-600" onclick="closeDeleteModal()">取消</button>
+                <button class="flex-1 h-11 rounded-xl bg-red-500 text-white text-sm font-semibold" onclick="confirmDelete()">确认删除</button>
+            </div>
+        </div>
+    </div>
+    <div id="toastTip" class="toast-msg"></div>
+</div>
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('编辑设备', 'buyer-device-detail.html' + location.search);
+var DEVICE_KEY = 'fsy_buyer_devices';
+var id = new URLSearchParams(location.search).get('id') || '';
+
+function loadDevices() { try { return JSON.parse(localStorage.getItem(DEVICE_KEY)) || []; } catch(e) { return []; } }
+function saveDevices(list) { try { localStorage.setItem(DEVICE_KEY, JSON.stringify(list)); } catch(e) {} }
+function getDevice() { return loadDevices().find(function(d) { return d.id === id; }); }
+function hydrate() {
+    var d = getDevice();
+    if (!d) { showToast('设备不存在'); return; }
+    document.getElementById('deviceNameInput').value = d.name || '';
+    document.getElementById('deviceTypeInput').value = d.type === 'printer' ? '蓝牙打印机' : '蓝牙电子秤';
+    document.getElementById('deviceModelInput').value = d.model || '';
+    document.getElementById('deviceRemarkInput').value = d.remark || '';
+    document.getElementById('deviceEnabledInput').checked = d.enabled !== false && d.status !== 'disabled';
+}
+function saveEdit() {
+    var name = document.getElementById('deviceNameInput').value.trim();
+    if (!name) { showToast('请输入设备名称'); return; }
+    var list = loadDevices().map(function(d) {
+        if (d.id === id) {
+            d.name = name;
+            d.model = document.getElementById('deviceModelInput').value.trim();
+            d.remark = document.getElementById('deviceRemarkInput').value.trim();
+            d.enabled = document.getElementById('deviceEnabledInput').checked;
+            if (!d.enabled) d.status = 'disabled';
+            if (d.enabled && d.status === 'disabled') d.status = 'disconnected';
+        }
+        return d;
+    });
+    saveDevices(list);
+    location.href = 'buyer-device-detail.html?id=' + encodeURIComponent(id);
+}
+function openDeleteModal() { document.getElementById('deleteModal').classList.add('show'); }
+function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('show'); }
+function confirmDelete() {
+    var d = getDevice();
+    if (d && d.status === 'connected') {
+        closeDeleteModal();
+        showToast('请先断开连接再删除');
+        return;
+    }
+    saveDevices(loadDevices().filter(function(item) { return item.id !== id; }));
+    location.href = 'buyer-device-manage.html';
+}
+function showToast(msg) {
+    var el = document.getElementById('toastTip');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() { el.classList.remove('show'); }, 1800);
+}
+hydrate();
+</script>
+</body>
+</html>

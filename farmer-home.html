@@ -145,7 +145,6 @@ function formatHomeMoney(amount) {
 function renderPendingDashboard() {
     const wrap = document.getElementById('pendingDashboard');
     if (!wrap) return;
-    const allFarmerOrders = getFarmerOrders();
     const pendingOrders = getFarmerOrders().filter(function(order) {
         return farmerPendingStatuses.includes(order.status);
     });
@@ -157,8 +156,7 @@ function renderPendingDashboard() {
         draft: pendingOrders.filter(function(o) { return o.status === 'draft'; }).length,
         pending_price: pendingOrders.filter(function(o) { return o.status === 'pending_price'; }).length,
         unpaid: pendingOrders.filter(function(o) { return o.status === 'unpaid' || o.status === 'pending_client'; }).length,
-        paying: pendingOrders.filter(function(o) { return ['pending', 'paying', 'processing'].includes(o.status); }).length,
-        canceled: allFarmerOrders.filter(function(o) { return o.status === 'canceled'; }).length
+        paying: pendingOrders.filter(function(o) { return ['pending', 'paying', 'processing'].includes(o.status); }).length
     };
 
     wrap.innerHTML = `
@@ -178,7 +176,6 @@ function renderPendingDashboard() {
                 ${renderStatusStat('待开价', countMap.pending_price, 'pending', 'pending_price')}
                 ${renderStatusStat('待付款', countMap.unpaid, 'pending', 'unpaid')}
                 ${renderStatusStat('付款中', countMap.paying, 'pending', 'paying')}
-                ${renderStatusStat('已取消', countMap.canceled, 'canceled')}
             </div>
         </div>
     `;

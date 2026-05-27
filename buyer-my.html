@@ -353,6 +353,16 @@
                     </div>
                 </div>
             </div>
+            <a href="buyer-device-manage.html" id="deviceStatusStrip" class="mt-4 mx-1 hidden items-center gap-2 rounded-2xl bg-[#EBF7F0] border border-[#11A64A]/10 px-3 py-2.5 no-underline active:scale-[0.98] transition-transform" style="text-decoration:none;">
+                <div class="w-8 h-8 rounded-xl bg-white/80 text-[#11A64A] flex items-center justify-center shrink-0">
+                    <i class="fas fa-bluetooth-b text-[15px]"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div id="deviceStatusMain" class="text-[13px] font-semibold text-gray-700 truncate">电子秤已连接</div>
+                    <div id="deviceStatusSub" class="text-[11px] text-gray-400 mt-0.5 truncate">打印机未连接</div>
+                </div>
+                <i class="fas fa-chevron-right text-[#11A64A]/50 text-[11px]"></i>
+            </a>
         </div>
 
         <!-- 功能菜单 -->
@@ -412,6 +422,17 @@
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
             <div class="h-px bg-gray-50 mx-4"></div> -->
+            <!-- 设备管理 -->
+            <a href="buyer-device-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
+                        <i class="fas fa-bluetooth-b text-[#11A64A] text-[15px]"></i>
+                    </div>
+                    <span class="text-[15px] font-medium text-gray-700 tracking-wide">设备管理</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <div class="h-px bg-gray-50 mx-4"></div>
             <!-- 附言管理 -->
             <a href="buyer-remark-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
@@ -679,12 +700,39 @@ document.getElementById('statusBar').innerHTML = renderStatusBar();
 document.getElementById('navBar').innerHTML = renderHeader('我的');
 var captureState = new URLSearchParams(window.location.search).get('captureState') || '';
 document.getElementById('tabBar').innerHTML = renderBuyerTabBar('mine');
+renderDeviceStatusStrip();
 
 if (window.__FIGMA_CAPTURE_MODE__) {
     var buyerAvatar = document.getElementById('buyerAvatar');
     if (buyerAvatar) {
         buyerAvatar.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='60' fill='%23DDEFE4'/%3E%3Ccircle cx='60' cy='46' r='22' fill='%2311A64A' fill-opacity='0.22'/%3E%3Cpath d='M24 100c8-18 21-27 36-27s28 9 36 27' fill='%2311A64A' fill-opacity='0.22'/%3E%3C/svg%3E";
     }
+}
+
+function loadBuyerDevicesForMine() {
+    try {
+        var list = JSON.parse(localStorage.getItem('fsy_buyer_devices'));
+        if (Array.isArray(list) && list.length) return list;
+    } catch (e) {}
+    return [
+        { id: 'scale-d100', type: 'scale', name: '德立蓝牙电子秤 D100', status: 'connected', enabled: true },
+        { id: 'printer-58', type: 'printer', name: '便携蓝牙打印机 58mm', status: 'disconnected', enabled: true }
+    ];
+}
+
+function renderDeviceStatusStrip() {
+    var strip = document.getElementById('deviceStatusStrip');
+    if (!strip) return;
+    var devices = loadBuyerDevicesForMine();
+    var scale = devices.find(function(item) { return item.type === 'scale' && item.enabled !== false; });
+    var printer = devices.find(function(item) { return item.type === 'printer' && item.enabled !== false; });
+    if (!scale && !printer) return;
+    var scaleText = scale && scale.status === 'connected' ? '电子秤已连接 · ' + scale.name.replace('蓝牙电子秤 ', '') : '电子秤未连接';
+    var printerText = printer && printer.status === 'connected' ? '打印机已连接 · ' + printer.name.replace('蓝牙打印机 ', '') : '打印机未连接';
+    document.getElementById('deviceStatusMain').textContent = scaleText;
+    document.getElementById('deviceStatusSub').textContent = printerText;
+    strip.classList.remove('hidden');
+    strip.classList.add('flex');
 }
 
 // 微信服务通知开关

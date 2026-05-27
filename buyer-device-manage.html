@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 设备管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .device-tab {
+            height: 34px;
+            border-radius: 999px;
+            padding: 0 18px;
+            font-size: 13px;
+            color: #6B7280;
+            transition: all .18s ease;
+        }
+        .device-tab.active {
+            background: #fff;
+            color: #11A64A;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, .06);
+        }
+        .device-card {
+            background: #fff;
+            border: 1px solid rgba(17, 24, 39, .05);
+            border-radius: 18px;
+            padding: 15px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, .03);
+        }
+        .device-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #EBF7F0;
+            color: #11A64A;
+            border: 1px solid rgba(17, 166, 74, .12);
+            flex-shrink: 0;
+        }
+        .device-icon.printer {
+            background: #F1F5F9;
+            color: #64748B;
+            border-color: rgba(100, 116, 139, .12);
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            height: 20px;
+            padding: 0 7px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .tag-green { background: #EAF8EF; color: #11A64A; }
+        .tag-gray { background: #F3F4F6; color: #6B7280; }
+        .tag-blue { background: #EFF6FF; color: #2563EB; }
+        .tag-orange { background: #FFF7ED; color: #EA580C; }
+        .device-action {
+            height: 30px;
+            border-radius: 10px;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: transform .15s ease;
+        }
+        .device-action:active { transform: scale(.96); }
+        .toast-msg {
+            position: absolute;
+            left: 50%;
+            bottom: 88px;
+            transform: translateX(-50%);
+            padding: 8px 14px;
+            border-radius: 10px;
+            background: rgba(17, 24, 39, .86);
+            color: #fff;
+            font-size: 12px;
+            z-index: 90;
+            opacity: 0;
+            transition: opacity .2s ease;
+            white-space: nowrap;
+        }
+        .toast-msg.show { opacity: 1; }
+    </style>
+</head>
+<body class="bg-[#F7F8FA]">
+<div class="mobile-container relative bg-[#F7F8FA]">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pt-4 pb-8">
+        <div class="flex items-center justify-between mb-3">
+            <div>
+                <div class="text-[13px] text-gray-500">管理当前收购商可用的蓝牙设备</div>
+            </div>
+            <a href="buyer-device-add.html" class="h-9 px-3 rounded-xl bg-primary text-white text-[13px] font-semibold flex items-center gap-1.5 no-underline active:scale-[0.98]" style="text-decoration:none;">
+                <i class="fas fa-plus text-[11px]"></i>
+                新增设备
+            </a>
+        </div>
+
+        <div id="deviceSummary" class="grid grid-cols-2 gap-3 mb-4"></div>
+
+        <div class="bg-gray-100 rounded-full p-1 flex mb-4">
+            <button class="device-tab flex-1 active" data-tab="scale" onclick="setDeviceTab('scale')">电子秤</button>
+            <button class="device-tab flex-1" data-tab="printer" onclick="setDeviceTab('printer')">打印机</button>
+        </div>
+
+        <div id="deviceList" class="space-y-3"></div>
+
+        <div id="emptyState" class="hidden mt-8 text-center px-6">
+            <div class="w-20 h-20 rounded-full bg-gray-100 text-gray-300 mx-auto flex items-center justify-center">
+                <i class="fas fa-scale-balanced text-[34px]"></i>
+            </div>
+            <div class="text-[15px] font-semibold text-gray-700 mt-4">暂无蓝牙设备</div>
+            <div class="text-[12px] text-gray-400 leading-5 mt-1">添加电子秤或打印机后，可在开单时读取重量或打印小票</div>
+            <a href="buyer-device-add.html" class="mt-5 h-11 rounded-xl bg-primary text-white text-sm font-semibold flex items-center justify-center no-underline" style="text-decoration:none;">新增设备</a>
+        </div>
+    </div>
+
+    <div id="toastTip" class="toast-msg"></div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('设备管理', 'buyer-my.html');
+
+var DEVICE_KEY = 'fsy_buyer_devices';
+var DEVICE_PREF_KEY = 'fsy_buyer_device_prefs';
+var activeTab = new URLSearchParams(location.search).get('tab') || 'scale';
+
+function seedDevices() {
+    return [
+        { id: 'scale-d100', type: 'scale', name: '德立蓝牙电子秤 D100', brand: '德立 DELI', model: 'D100', bluetoothName: 'DELI-D100', status: 'connected', enabled: true, isMerchantDefault: true, currentUser: '张老板', addedBy: '张老板', addedAt: '2024-05-20 09:30', lastConnected: '2024-06-01 14:32' },
+        { id: 'scale-t7', type: 'scale', name: '托利多蓝牙电子秤 T7', brand: '托利多', model: 'T7', bluetoothName: 'Scale-T7-001', status: 'disconnected', enabled: true, isMerchantDefault: false, currentUser: '', addedBy: '张老板', addedAt: '2024-05-19 16:10', lastConnected: '2024-05-30 10:15' },
+        { id: 'scale-eb868', type: 'scale', name: '香山蓝牙电子秤 EB868', brand: '香山', model: 'EB868', bluetoothName: 'EB868', status: 'disabled', enabled: false, isMerchantDefault: false, currentUser: '', addedBy: '张老板', addedAt: '2024-05-18 11:20', lastConnected: '2024-05-25 16:20' },
+        { id: 'printer-58', type: 'printer', name: '便携蓝牙打印机 58mm', brand: '芯烨', model: 'XP-58', bluetoothName: 'BT-Printer-5801', status: 'disconnected', enabled: true, isMerchantDefault: true, currentUser: '', addedBy: '张老板', addedAt: '2024-05-18 10:00', lastConnected: '2024-05-28 14:32', paper: '58mm 热敏纸' }
+    ];
+}
+
+function loadDevices() {
+    try {
+        var list = JSON.parse(localStorage.getItem(DEVICE_KEY));
+        if (Array.isArray(list) && list.length) return list;
+    } catch(e) {}
+    var seeded = seedDevices();
+    saveDevices(seeded);
+    return seeded;
+}
+
+function saveDevices(list) {
+    try { localStorage.setItem(DEVICE_KEY, JSON.stringify(list)); } catch(e) {}
+}
+
+function loadPrefs() {
+    try {
+        return Object.assign({ currentScaleId: 'scale-d100', currentPrinterId: 'printer-58' }, JSON.parse(localStorage.getItem(DEVICE_PREF_KEY)) || {});
+    } catch(e) {
+        return { currentScaleId: 'scale-d100', currentPrinterId: 'printer-58' };
+    }
+}
+
+function savePrefs(prefs) {
+    try { localStorage.setItem(DEVICE_PREF_KEY, JSON.stringify(prefs)); } catch(e) {}
+}
+
+function typeLabel(type) { return type === 'printer' ? '打印机' : '电子秤'; }
+function iconClass(type) { return type === 'printer' ? 'fa-print' : 'fa-scale-balanced'; }
+function currentPrefId(type) {
+    var prefs = loadPrefs();
+    return type === 'printer' ? prefs.currentPrinterId : prefs.currentScaleId;
+}
+function statusLabel(device) {
+    if (!device.enabled || device.status === 'disabled') return '<span class="tag tag-gray">已停用</span>';
+    if (device.status === 'connected') return '<span class="tag tag-green">已连接</span>';
+    if (device.status === 'connecting') return '<span class="tag tag-blue">连接中</span>';
+    return '<span class="tag tag-gray">未连接</span>';
+}
+
+function renderSummary() {
+    var devices = loadDevices();
+    var scale = devices.find(function(d) { return d.type === 'scale' && d.status === 'connected' && d.enabled; });
+    var printer = devices.find(function(d) { return d.type === 'printer' && d.status === 'connected' && d.enabled; });
+    document.getElementById('deviceSummary').innerHTML = [
+        { type: 'scale', title: '电子秤', value: scale ? '已连接' : '未连接', icon: 'fa-scale-balanced', active: !!scale },
+        { type: 'printer', title: '打印机', value: printer ? '已连接' : '未连接', icon: 'fa-print', active: !!printer }
+    ].map(function(item) {
+        return '<div class="bg-white rounded-2xl p-3 border border-black/[0.04] flex items-center gap-3">'
+            + '<div class="w-9 h-9 rounded-xl ' + (item.active ? 'bg-[#EBF7F0] text-[#11A64A]' : 'bg-gray-100 text-gray-400') + ' flex items-center justify-center"><i class="fas ' + item.icon + ' text-sm"></i></div>'
+            + '<div><div class="text-[12px] text-gray-400">' + item.title + '</div><div class="text-[14px] font-semibold ' + (item.active ? 'text-[#11A64A]' : 'text-gray-600') + '">' + item.value + '</div></div>'
+            + '</div>';
+    }).join('');
+}
+
+function renderDevices() {
+    document.querySelectorAll('.device-tab').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.tab === activeTab);
+    });
+    var devices = loadDevices().filter(function(d) { return d.type === activeTab; });
+    document.getElementById('emptyState').classList.toggle('hidden', devices.length > 0);
+    document.getElementById('deviceList').innerHTML = devices.map(function(device) {
+        var isCurrent = currentPrefId(device.type) === device.id;
+        var defaultTag = device.isMerchantDefault ? '<span class="tag tag-blue">商户默认</span>' : '';
+        var currentTag = isCurrent ? '<span class="tag tag-green">当前使用</span>' : '';
+        var extra = device.type === 'printer' ? (device.paper || '58mm 热敏纸') : ('型号：' + (device.model || '-'));
+        var primaryAction = device.enabled && device.status !== 'connected'
+            ? '<button class="device-action bg-[#EBF7F0] text-[#11A64A]" onclick="connectDevice(\'' + device.id + '\')">连接</button>'
+            : device.status === 'connected'
+                ? '<button class="device-action bg-gray-100 text-gray-500" onclick="disconnectDevice(\'' + device.id + '\')">断开</button>'
+                : '';
+        return '<div class="device-card">'
+            + '<div class="flex gap-3">'
+            + '<div class="device-icon ' + (device.type === 'printer' ? 'printer' : '') + '"><i class="fas ' + iconClass(device.type) + ' text-[20px]"></i></div>'
+            + '<div class="flex-1 min-w-0">'
+            + '<div class="flex items-start justify-between gap-2">'
+            + '<div class="min-w-0"><div class="text-[15px] font-semibold text-gray-800 truncate">' + device.name + '</div><div class="text-[12px] text-gray-400 mt-1">' + extra + '</div></div>'
+            + '<button class="w-8 h-8 rounded-full text-gray-400 active:bg-gray-100" onclick="location.href=\'buyer-device-detail.html?id=' + encodeURIComponent(device.id) + '\'"><i class="fas fa-ellipsis text-[14px]"></i></button>'
+            + '</div>'
+            + '<div class="text-[12px] text-gray-400 mt-1">最近连接：' + (device.lastConnected || '-') + '</div>'
+            + '<div class="flex flex-wrap gap-1.5 mt-2">' + statusLabel(device) + currentTag + defaultTag + '</div>'
+            + '</div></div>'
+            + '<div class="mt-3 flex justify-end gap-2">'
+            + primaryAction
+            + '<button class="device-action bg-white border border-gray-200 text-gray-500" onclick="setCurrentDevice(\'' + device.id + '\')">设为当前</button>'
+            + '<button class="device-action bg-white border border-gray-200 text-gray-500" onclick="location.href=\'buyer-device-detail.html?id=' + encodeURIComponent(device.id) + '\'">详情</button>'
+            + '</div></div>';
+    }).join('');
+}
+
+function setDeviceTab(tab) {
+    activeTab = tab;
+    renderDevices();
+}
+
+function findDevice(id) {
+    return loadDevices().find(function(d) { return d.id === id; });
+}
+
+function updateDevice(id, updater) {
+    var devices = loadDevices();
+    devices = devices.map(function(d) {
+        if (d.id !== id) return d;
+        var next = Object.assign({}, d);
+        updater(next);
+        return next;
+    });
+    saveDevices(devices);
+    renderSummary();
+    renderDevices();
+}
+
+function connectDevice(id) {
+    var device = findDevice(id);
+    if (!device || !device.enabled) { showToast('设备已停用'); return; }
+    var devices = loadDevices().map(function(d) {
+        if (d.type === device.type && d.status === 'connected') d.status = 'disconnected';
+        if (d.id === id) {
+            d.status = 'connected';
+            d.lastConnected = '刚刚';
+        }
+        return d;
+    });
+    saveDevices(devices);
+    setCurrentDevice(id, true);
+    showToast('已连接：' + device.name);
+}
+
+function disconnectDevice(id) {
+    updateDevice(id, function(d) { d.status = 'disconnected'; });
+    showToast('已断开设备');
+}
+
+function setCurrentDevice(id, silent) {
+    var device = findDevice(id);
+    if (!device || !device.enabled) { showToast('设备已停用'); return; }
+    var prefs = loadPrefs();
+    if (device.type === 'printer') prefs.currentPrinterId = id;
+    else prefs.currentScaleId = id;
+    savePrefs(prefs);
+    renderDevices();
+    if (!silent) showToast('已设为当前使用设备');
+}
+
+function showToast(msg) {
+    var el = document.getElementById('toastTip');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function() { el.classList.remove('show'); }, 1800);
+}
+
+renderSummary();
+renderDevices();
+</script>
+</body>
+</html>

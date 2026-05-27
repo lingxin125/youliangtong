@@ -128,6 +128,50 @@
             box-shadow: 0 2px 8px rgba(239,68,68,0.22);
         }
         .draft-entry-badge.hidden { display: none; }
+        .scale-status-bar {
+            width: 100%; min-height: 42px; border-radius: 14px;
+            background: linear-gradient(180deg, #F4FBF7 0%, #ECF8F1 100%);
+            border: 1px solid rgba(17,166,74,0.14);
+            color: #11A64A; font-size: 12px; font-weight: 600;
+            display: flex; align-items: center; gap: 9px; padding: 9px 11px;
+            box-shadow: 0 4px 14px rgba(17,166,74,0.06);
+        }
+        .scale-status-bar.disconnected {
+            background: linear-gradient(180deg, #FFF7F7 0%, #FEF2F2 100%);
+            border-color: rgba(239,68,68,0.14); color: #EF4444;
+            box-shadow: 0 4px 14px rgba(239,68,68,0.06);
+        }
+        .scale-status-icon-wrap {
+            width: 26px; height: 26px; border-radius: 10px;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: rgba(17,166,74,0.1); flex-shrink: 0;
+        }
+        .scale-status-bar.disconnected .scale-status-icon-wrap {
+            background: rgba(239,68,68,0.1);
+        }
+        .scale-status-title { line-height: 1.2; }
+        .scale-status-desc { font-size: 11px; font-weight: 400; opacity: 0.72; margin-top: 2px; }
+        .scale-status-pill {
+            flex-shrink: 0; height: 24px; padding: 0 8px; border-radius: 999px;
+            background: rgba(17,166,74,0.1); display: inline-flex; align-items: center;
+            font-size: 11px; font-weight: 600;
+        }
+        .scale-status-bar.disconnected .scale-status-pill {
+            background: rgba(239,68,68,0.1);
+        }
+        .scale-read-btn {
+            height: 24px; min-width: 52px; border-radius: 999px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+            background: #EBF7F0; color: #11A64A; border: 1px solid rgba(17,166,74,0.15);
+            font-size: 11px; font-weight: 600; flex-shrink: 0;
+        }
+        .scale-read-btn:active { transform: scale(0.96); }
+        .scale-read-btn.disabled { background: #F3F4F6; color: #9CA3AF; border-color: #E5E7EB; }
+        .scale-record-row {
+            display: flex; align-items: center; gap: 10px; padding: 10px 0;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .scale-record-row:last-child { border-bottom: 0; }
         .scan-trigger-icon {
             position: relative; width: 18px; height: 18px; display: block;
         }
@@ -155,6 +199,16 @@
 
     <!-- 主内容区 -->
     <div class="flex-1 overflow-y-auto hide-scrollbar px-4 pt-3 pb-4">
+        <button id="scaleStatusBar" type="button" class="scale-status-bar mb-3 text-left" onclick="handleScaleStatusClick()">
+            <span class="scale-status-icon-wrap">
+                <i id="scaleStatusIcon" class="fas fa-bluetooth-b text-[13px]"></i>
+            </span>
+            <span class="flex-1 min-w-0">
+                <span id="scaleStatusText" class="scale-status-title block truncate">电子秤已连接 · 德立 D100</span>
+                <span id="scaleStatusDesc" class="scale-status-desc block truncate">开单时可读取毛重和皮重</span>
+            </span>
+            <span id="scaleStatusAction" class="scale-status-pill">读秤可用</span>
+        </button>
 
         <!-- ❶ 品类选择 -->
         <div class="step-card mb-3">
@@ -201,14 +255,20 @@
                     </div>
                     <!-- 毛重 | 皮重 -->
                     <div id="grossField">
-                        <label id="grossLabel" class="block text-[12px] text-gray-500 mb-1">毛重 <span class="text-red-400">*</span></label>
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <label id="grossLabel" class="block text-[12px] text-gray-500">毛重 <span class="text-red-400">*</span></label>
+                            <button type="button" id="grossReadBtn" class="scale-read-btn" onclick="openScaleReadSheet('gross')"><i class="fas fa-scale-balanced text-[10px]"></i>读秤</button>
+                        </div>
                         <div class="flex items-center border border-gray-200 rounded-xl bg-gray-50 focus-within:border-primary focus-within:bg-white transition-all overflow-hidden">
                             <input type="number" id="grossWeightInput" placeholder="0" class="min-w-0 flex-1 h-10 px-3 text-sm font-semibold text-gray-800 outline-none bg-transparent" oninput="calcWeights()">
                             <span id="grossUnit" class="shrink-0 min-w-[28px] text-right text-[12px] text-gray-400 pr-3">斤</span>
                         </div>
                     </div>
                     <div id="tareField">
-                        <label class="block text-[12px] text-gray-500 mb-1">皮重</label>
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <label class="block text-[12px] text-gray-500">皮重</label>
+                            <button type="button" id="tareReadBtn" class="scale-read-btn" onclick="openScaleReadSheet('tare')"><i class="fas fa-scale-balanced text-[10px]"></i>读秤</button>
+                        </div>
                         <div class="flex items-center border border-gray-200 rounded-xl bg-gray-50 focus-within:border-primary focus-within:bg-white transition-all overflow-hidden">
                             <input type="number" id="tareWeightInput" placeholder="0" class="min-w-0 flex-1 h-10 px-3 text-sm font-semibold text-gray-800 outline-none bg-transparent" oninput="calcWeights()">
                             <span id="tareUnit" class="shrink-0 min-w-[28px] text-right text-[12px] text-gray-400 pr-3">斤</span>
@@ -231,6 +291,9 @@
                     </div>
                     <!-- 单价/一口价 -->
                     <div class="col-span-2">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <label id="priceFieldLabel" class="block text-[12px] text-gray-500">单价</label>
+                        </div>
                         <div id="priceModeToggle" class="flex items-center bg-gray-100 rounded-lg p-0.5 mb-1" style="width:fit-content;">
                             <button type="button" id="priceModeUnit" onclick="setPriceMode('unit')" class="px-3 py-1 rounded-md text-[12px] font-medium bg-white text-primary shadow-sm">单价</button>
                             <button type="button" id="priceModeFixed" onclick="setPriceMode('fixed')" class="px-3 py-1 rounded-md text-[12px] font-medium text-gray-500">一口价</button>
@@ -414,6 +477,68 @@
         </div>
     </div>
 
+    <!-- 读秤确认弹窗 -->
+    <div class="billing-sheet-overlay" id="scaleReadOverlay" onclick="closeScaleReadSheet()"></div>
+    <div class="billing-sheet" id="scaleReadSheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-4 pb-5">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <div id="scaleReadTitle" class="text-[16px] font-bold text-gray-800">读取毛重</div>
+                    <div id="scaleReadDevice" class="text-[12px] text-gray-400 mt-1">德立 D100 已连接</div>
+                </div>
+                <button onclick="closeScaleReadSheet()" class="w-8 h-8 flex items-center justify-center text-gray-400">
+                    <i class="fas fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                <div class="flex items-end justify-between">
+                    <div>
+                        <div class="text-[12px] text-gray-400">合计重量</div>
+                        <div class="mt-1">
+                            <span id="scaleReadTotal" class="text-[32px] font-bold text-[#11A64A]" style="font-family:Poppins;">0.00</span>
+                            <span id="scaleReadUnit" class="text-[13px] text-gray-500 ml-1">斤</span>
+                        </div>
+                    </div>
+                    <span id="scaleReadStableTag" class="h-6 px-2 rounded-full bg-[#EAF8EF] text-[#11A64A] text-[11px] font-semibold flex items-center">稳定</span>
+                </div>
+                <div id="scaleReadSummary" class="text-[12px] text-gray-500 mt-2">已计入 1 次</div>
+            </div>
+            <div id="scaleRecordList" class="mt-3 rounded-2xl bg-white border border-gray-100 px-3"></div>
+            <div class="mt-4 grid grid-cols-3 gap-2">
+                <button class="h-11 rounded-xl border border-gray-200 bg-white text-gray-600 text-[13px] font-semibold active:scale-[0.98]" onclick="replaceLastScaleRecord()">重新读取</button>
+                <button class="h-11 rounded-xl border border-[#11A64A]/20 bg-[#EBF7F0] text-[#11A64A] text-[13px] font-semibold active:scale-[0.98]" onclick="addScaleRecord()">继续读秤</button>
+                <button class="h-11 rounded-xl bg-[#11A64A] text-white text-[13px] font-semibold active:scale-[0.98]" onclick="confirmScaleRead()">确认回填</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 重新连接设备弹窗 -->
+    <div class="billing-sheet-overlay" id="scaleReconnectOverlay" onclick="closeScaleReconnectSheet()"></div>
+    <div class="billing-sheet" id="scaleReconnectSheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-4 pb-5">
+            <div class="flex items-center justify-between mb-3">
+                <div class="text-[16px] font-bold text-gray-800">重新连接设备</div>
+                <button onclick="closeScaleReconnectSheet()" class="w-8 h-8 flex items-center justify-center text-gray-400">
+                    <i class="fas fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="text-[12px] text-gray-400 mb-3">最近使用设备</div>
+            <div class="rounded-2xl bg-white border border-gray-100 p-3 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-[#EBF7F0] text-[#11A64A] flex items-center justify-center">
+                    <i class="fas fa-scale-balanced"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div id="reconnectDeviceName" class="text-[14px] font-semibold text-gray-800 truncate">德立蓝牙电子秤 D100</div>
+                    <div class="text-[11px] text-gray-400 mt-0.5">断开后可重新连接</div>
+                </div>
+                <button class="h-9 px-3 rounded-xl bg-[#EBF7F0] text-[#11A64A] text-[12px] font-semibold" onclick="reconnectScaleDevice()">重新连接</button>
+            </div>
+            <button class="mt-4 w-full h-11 rounded-xl bg-gray-50 text-gray-500 text-sm font-semibold" onclick="location.href='buyer-device-manage.html'">选择其他设备</button>
+        </div>
+    </div>
+
     <!-- 应用内弹窗 -->
     <div class="app-modal-overlay" id="appModalOverlay">
         <div class="app-modal">
@@ -579,6 +704,8 @@ function setPriceMode(mode) {
     }
     currentPriceMode = mode;
     var isUnit = mode === 'unit';
+    var priceLabel = document.getElementById('priceFieldLabel');
+    if (priceLabel) priceLabel.textContent = isUnit ? '单价' : '一口价';
     document.getElementById('priceModeUnit').className = 'px-3 py-1 rounded-md text-[12px] font-medium ' + (isUnit ? 'bg-white text-primary shadow-sm' : 'text-gray-500');
     document.getElementById('priceModeFixed').className = 'px-3 py-1 rounded-md text-[12px] font-medium ' + (!isUnit ? 'bg-white text-primary shadow-sm' : 'text-gray-500');
     document.getElementById('priceUnit').textContent = isUnit ? ('元/' + (state.currentUnit || '斤')) : '元';
@@ -959,6 +1086,257 @@ function confirmBilling() {
     window.location.href = buildCashierUrl(order);
 }
 
+// ==================== 蓝牙电子秤读数 ====================
+var SCALE_DEVICE_KEY = 'fsy_buyer_devices';
+var SCALE_PREF_KEY = 'fsy_buyer_device_prefs';
+var scaleReadState = {
+    target: 'gross',
+    records: [],
+    readIndex: 0
+};
+
+function seedScaleDevicesForBilling() {
+    return [
+        { id: 'scale-d100', type: 'scale', name: '德立蓝牙电子秤 D100', brand: '德立 DELI', model: 'D100', bluetoothName: 'DELI-D100', status: 'connected', enabled: true, isMerchantDefault: true, currentUser: '张老板', addedBy: '张老板', addedAt: '2024-05-20 09:30', lastConnected: '2024-06-01 14:32' },
+        { id: 'scale-t7', type: 'scale', name: '托利多蓝牙电子秤 T7', brand: '托利多', model: 'T7', bluetoothName: 'Scale-T7-001', status: 'disconnected', enabled: true, isMerchantDefault: false, currentUser: '', addedBy: '张老板', addedAt: '2024-05-19 16:10', lastConnected: '2024-05-30 10:15' },
+        { id: 'printer-58', type: 'printer', name: '便携蓝牙打印机 58mm', brand: '芯烨', model: 'XP-58', bluetoothName: 'BT-Printer-5801', status: 'disconnected', enabled: true, isMerchantDefault: true, currentUser: '', addedBy: '张老板', addedAt: '2024-05-18 10:00', lastConnected: '2024-05-28 14:32', paper: '58mm 热敏纸' }
+    ];
+}
+
+function loadScaleDevices() {
+    try {
+        var list = JSON.parse(localStorage.getItem(SCALE_DEVICE_KEY));
+        if (Array.isArray(list) && list.length) return list;
+    } catch(e) {}
+    var seeded = seedScaleDevicesForBilling();
+    saveScaleDevices(seeded);
+    return seeded;
+}
+
+function saveScaleDevices(list) {
+    try { localStorage.setItem(SCALE_DEVICE_KEY, JSON.stringify(list)); } catch(e) {}
+}
+
+function loadScalePrefs() {
+    try {
+        return Object.assign({ currentScaleId: 'scale-d100', currentPrinterId: 'printer-58' }, JSON.parse(localStorage.getItem(SCALE_PREF_KEY)) || {});
+    } catch(e) {
+        return { currentScaleId: 'scale-d100', currentPrinterId: 'printer-58' };
+    }
+}
+
+function saveScalePrefs(prefs) {
+    try { localStorage.setItem(SCALE_PREF_KEY, JSON.stringify(prefs)); } catch(e) {}
+}
+
+function getCurrentScaleDevice() {
+    var list = loadScaleDevices().filter(function(d) { return d.type === 'scale' && d.enabled !== false && d.status !== 'disabled'; });
+    if (!list.length) return null;
+    var prefs = loadScalePrefs();
+    return list.find(function(d) { return d.id === prefs.currentScaleId; })
+        || list.find(function(d) { return d.status === 'connected'; })
+        || list.find(function(d) { return d.isMerchantDefault; })
+        || list[0];
+}
+
+function renderScaleStatus() {
+    var bar = document.getElementById('scaleStatusBar');
+    if (!bar) return;
+    var icon = document.getElementById('scaleStatusIcon');
+    var text = document.getElementById('scaleStatusText');
+    var desc = document.getElementById('scaleStatusDesc');
+    var action = document.getElementById('scaleStatusAction');
+    var grossBtn = document.getElementById('grossReadBtn');
+    var tareBtn = document.getElementById('tareReadBtn');
+    var device = getCurrentScaleDevice();
+    var connected = !!(device && device.status === 'connected');
+    bar.classList.toggle('disconnected', !connected);
+    if (icon) icon.className = connected ? 'fas fa-bluetooth-b text-[13px]' : 'fas fa-triangle-exclamation text-[12px]';
+    if (text) text.textContent = device ? ((connected ? '电子秤已连接 · ' : '电子秤未连接 · ') + device.name.replace('蓝牙电子秤 ', '')) : '未添加电子秤';
+    if (desc) desc.textContent = connected ? '开单时可读取毛重和皮重' : (device ? '读秤前请先重新连接设备' : '添加设备后可在开单时读秤');
+    if (action) action.textContent = connected ? '读秤可用' : (device ? '点此连接' : '去添加');
+    [grossBtn, tareBtn].forEach(function(btn) {
+        if (btn) btn.classList.toggle('disabled', !connected);
+    });
+}
+
+function handleScaleStatusClick() {
+    var device = getCurrentScaleDevice();
+    if (!device) {
+        location.href = 'buyer-device-add.html?type=scale';
+        return;
+    }
+    if (device.status === 'connected') {
+        showToast('电子秤已连接，可直接读秤');
+        return;
+    }
+    openScaleReconnectSheet();
+}
+
+function getScaleTargetLabel(target) {
+    if (target === 'tare') return '皮重';
+    return currentBillingConfig && currentBillingConfig.mode === 'quick' ? '总重量' : '毛重';
+}
+
+function getScaleUnit() {
+    return state.currentUnit || '斤';
+}
+
+function nextScaleReading() {
+    var grossSeries = [126.50, 130.00, 88.75, 95.20, 102.60];
+    var tareSeries = [12.50, 10.00, 8.75, 9.20, 11.00];
+    var series = scaleReadState.target === 'tare' ? tareSeries : grossSeries;
+    var value = series[scaleReadState.readIndex % series.length];
+    scaleReadState.readIndex += 1;
+    return {
+        value: value,
+        stable: true,
+        time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+    };
+}
+
+function openScaleReadSheet(target) {
+    var device = getCurrentScaleDevice();
+    if (!device || device.status !== 'connected') {
+        openScaleReconnectSheet();
+        return;
+    }
+    scaleReadState.target = target || 'gross';
+    scaleReadState.records = [nextScaleReading()];
+    var title = document.getElementById('scaleReadTitle');
+    var deviceEl = document.getElementById('scaleReadDevice');
+    if (title) title.textContent = '读取' + getScaleTargetLabel(scaleReadState.target);
+    if (deviceEl) deviceEl.textContent = device.name + ' 已连接';
+    renderScaleReadSheet();
+    document.getElementById('scaleReadOverlay').classList.add('show');
+    document.getElementById('scaleReadSheet').classList.add('show');
+}
+
+function closeScaleReadSheet() {
+    document.getElementById('scaleReadSheet').classList.remove('show');
+    document.getElementById('scaleReadOverlay').classList.remove('show');
+}
+
+function scaleRecordsTotal() {
+    return scaleReadState.records.reduce(function(sum, item) {
+        return sum + (Number(item.value) || 0);
+    }, 0);
+}
+
+function renderScaleReadSheet() {
+    var unit = getScaleUnit();
+    var total = scaleRecordsTotal();
+    var totalEl = document.getElementById('scaleReadTotal');
+    var unitEl = document.getElementById('scaleReadUnit');
+    var summary = document.getElementById('scaleReadSummary');
+    var stable = document.getElementById('scaleReadStableTag');
+    var list = document.getElementById('scaleRecordList');
+    if (totalEl) totalEl.textContent = total.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (unitEl) unitEl.textContent = unit;
+    if (summary) summary.textContent = scaleReadState.records.length ? ('已计入 ' + scaleReadState.records.length + ' 次读数') : '暂无读数';
+    if (stable) stable.textContent = scaleReadState.records.length ? '稳定' : '待读取';
+    if (!list) return;
+    if (!scaleReadState.records.length) {
+        list.innerHTML = '<div class="py-4 text-center text-[12px] text-gray-400">暂无读数，请点击继续读秤</div>';
+        return;
+    }
+    list.innerHTML = scaleReadState.records.map(function(item, index) {
+        return '<div class="scale-record-row">'
+            + '<div class="w-7 h-7 rounded-full bg-[#EBF7F0] text-[#11A64A] flex items-center justify-center text-[12px] font-semibold">' + (index + 1) + '</div>'
+            + '<div class="flex-1 min-w-0"><div class="text-[13px] font-semibold text-gray-800">第 ' + (index + 1) + ' 次读数</div><div class="text-[11px] text-gray-400 mt-0.5">' + (item.time || '刚刚') + ' · ' + (item.stable ? '稳定' : '波动') + '</div></div>'
+            + '<div class="text-[15px] font-bold text-gray-800" style="font-family:Poppins;">' + Number(item.value || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '<span class="text-[11px] text-gray-400 ml-1 font-normal">' + unit + '</span></div>'
+            + '<button class="w-8 h-8 rounded-full text-gray-300 active:bg-gray-100" onclick="deleteScaleRecord(' + index + ')"><i class="fas fa-trash-can text-[12px]"></i></button>'
+            + '</div>';
+    }).join('');
+}
+
+function addScaleRecord() {
+    scaleReadState.records.push(nextScaleReading());
+    renderScaleReadSheet();
+}
+
+function replaceLastScaleRecord() {
+    if (!scaleReadState.records.length) {
+        addScaleRecord();
+        return;
+    }
+    scaleReadState.records[scaleReadState.records.length - 1] = nextScaleReading();
+    renderScaleReadSheet();
+}
+
+function deleteScaleRecord(index) {
+    scaleReadState.records.splice(index, 1);
+    renderScaleReadSheet();
+}
+
+function confirmScaleRead() {
+    var total = scaleRecordsTotal();
+    if (total <= 0) {
+        showToast('请先读取重量');
+        return;
+    }
+    var inputId = scaleReadState.target === 'tare' ? 'tareWeightInput' : 'grossWeightInput';
+    var input = document.getElementById(inputId);
+    if (input) input.value = total.toFixed(2);
+    calcWeights();
+    closeScaleReadSheet();
+    showToast(getScaleTargetLabel(scaleReadState.target) + '已回填');
+}
+
+function openScaleReconnectSheet() {
+    var device = getCurrentScaleDevice();
+    var nameEl = document.getElementById('reconnectDeviceName');
+    if (nameEl) nameEl.textContent = device ? device.name : '暂无电子秤设备';
+    document.getElementById('scaleReconnectOverlay').classList.add('show');
+    document.getElementById('scaleReconnectSheet').classList.add('show');
+}
+
+function closeScaleReconnectSheet() {
+    document.getElementById('scaleReconnectSheet').classList.remove('show');
+    document.getElementById('scaleReconnectOverlay').classList.remove('show');
+}
+
+function reconnectScaleDevice() {
+    var device = getCurrentScaleDevice();
+    if (!device) {
+        location.href = 'buyer-device-add.html?type=scale';
+        return;
+    }
+    var devices = loadScaleDevices().map(function(item) {
+        if (item.type === 'scale' && item.id !== device.id && item.status === 'connected') {
+            return Object.assign({}, item, { status: 'disconnected', currentUser: '' });
+        }
+        if (item.id === device.id) {
+            return Object.assign({}, item, { status: 'connected', currentUser: '张老板', lastConnected: '刚刚' });
+        }
+        return item;
+    });
+    saveScaleDevices(devices);
+    var prefs = loadScalePrefs();
+    prefs.currentScaleId = device.id;
+    saveScalePrefs(prefs);
+    closeScaleReconnectSheet();
+    renderScaleStatus();
+    showToast('电子秤已连接');
+}
+
+function applyScaleQueryState() {
+    var requested = billingQuery.get('scale');
+    if (!requested) {
+        loadScaleDevices();
+        return;
+    }
+    var device = getCurrentScaleDevice();
+    if (!device) return;
+    var devices = loadScaleDevices().map(function(item) {
+        if (item.id !== device.id) return item;
+        if (requested === 'disconnected') return Object.assign({}, item, { status: 'disconnected', currentUser: '' });
+        if (requested === 'connected') return Object.assign({}, item, { status: 'connected', currentUser: '张老板', lastConnected: '刚刚' });
+        return item;
+    });
+    saveScaleDevices(devices);
+}
+
 // ==================== 工具函数 ====================
 function showToast(msg) { var t = document.getElementById('toastTip'); t.textContent = msg; t.classList.add('show'); clearTimeout(showToast.timer); showToast.timer = setTimeout(function() { t.classList.remove('show'); }, 2000); }
 function showAppModal(opts) {
@@ -1031,7 +1409,12 @@ function hydrateFromQuery() {
     }
 }
 
-renderCategoryTags(); renderPhotoGrid(); hydrateFromQuery(); updateDraftEntryBadge();
+applyScaleQueryState();
+renderCategoryTags();
+renderPhotoGrid();
+hydrateFromQuery();
+updateDraftEntryBadge();
+renderScaleStatus();
 </script>
 </body>
 </html>
