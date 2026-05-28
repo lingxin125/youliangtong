@@ -585,7 +585,7 @@
 
         .pc-pay-method-cards {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 10px;
             padding: 0 16px 12px;
             border-bottom: 1px solid var(--line);
@@ -774,6 +774,16 @@
             color: #5b5bd6;
         }
 
+        .pc-pay-account-icon.cash {
+            background: #fff8eb;
+            padding: 2px;
+        }
+
+        .pc-pay-account-icon.cash img {
+            object-fit: contain;
+            border-radius: 0;
+        }
+
         .pc-pay-account-title {
             min-width: 0;
             font-size: 13px;
@@ -814,6 +824,67 @@
         .pay-grid.pc-pay-result-grid .guide-area {
             width: 100%;
             max-width: 420px;
+        }
+
+        .cash-record-area {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            min-height: 403px;
+            border: 1px solid #d6ead6;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #ffffff, #fbfefc);
+            padding: 16px;
+            box-shadow: inset 0 0 0 1px rgba(17, 122, 55, 0.03);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .cash-record-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 22px;
+            background: #fff8eb;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 24px rgba(245, 158, 11, 0.12);
+        }
+
+        .cash-record-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .cash-record-title {
+            margin: 0 0 6px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .cash-record-desc {
+            margin: 0 0 18px;
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.7;
+        }
+
+        .cash-record-success {
+            width: 100%;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
 
         .pc-pay-more-btn {
@@ -872,6 +943,12 @@
             width: 100%;
             max-width: none;
             min-height: 100%;
+        }
+
+        .pay-grid.pc-pay-result-grid .pay-primary-area>.cash-record-area {
+            width: 100%;
+            max-width: none;
+            min-height: 403px;
         }
 
         .pc-pay-confirm-mask.hide {
@@ -2382,13 +2459,17 @@
                                         <div class="pc-pay-confirm-shield">
                                             <svg viewBox="0 0 72 78" aria-hidden="true">
                                                 <defs>
-                                                    <linearGradient id="payShieldGradient1" x1="12" y1="8" x2="60" y2="72" gradientUnits="userSpaceOnUse">
+                                                    <linearGradient id="payShieldGradient1" x1="12" y1="8" x2="60"
+                                                        y2="72" gradientUnits="userSpaceOnUse">
                                                         <stop offset="0" stop-color="#16B85D" />
                                                         <stop offset="1" stop-color="#72C893" />
                                                     </linearGradient>
                                                 </defs>
-                                                <path d="M36 3C47 9 58 12 66 15v22c0 19-12 31-30 38C18 68 6 56 6 37V15c8-3 19-6 30-12z" fill="url(#payShieldGradient1)" />
-                                                <path d="M24 38l9 9 18-20" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+                                                <path
+                                                    d="M36 3C47 9 58 12 66 15v22c0 19-12 31-30 38C18 68 6 56 6 37V15c8-3 19-6 30-12z"
+                                                    fill="url(#payShieldGradient1)" />
+                                                <path d="M24 38l9 9 18-20" fill="none" stroke="#fff" stroke-width="7"
+                                                    stroke-linecap="round" stroke-linejoin="round" />
                                             </svg>
                                         </div>
                                     </div>
@@ -2422,13 +2503,17 @@
                                         <div class="pc-pay-confirm-shield">
                                             <svg viewBox="0 0 72 78" aria-hidden="true">
                                                 <defs>
-                                                    <linearGradient id="payShieldGradient2" x1="12" y1="8" x2="60" y2="72" gradientUnits="userSpaceOnUse">
+                                                    <linearGradient id="payShieldGradient2" x1="12" y1="8" x2="60"
+                                                        y2="72" gradientUnits="userSpaceOnUse">
                                                         <stop offset="0" stop-color="#16B85D" />
                                                         <stop offset="1" stop-color="#72C893" />
                                                     </linearGradient>
                                                 </defs>
-                                                <path d="M36 3C47 9 58 12 66 15v22c0 19-12 31-30 38C18 68 6 56 6 37V15c8-3 19-6 30-12z" fill="url(#payShieldGradient2)" />
-                                                <path d="M24 38l9 9 18-20" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+                                                <path
+                                                    d="M36 3C47 9 58 12 66 15v22c0 19-12 31-30 38C18 68 6 56 6 37V15c8-3 19-6 30-12z"
+                                                    fill="url(#payShieldGradient2)" />
+                                                <path d="M24 38l9 9 18-20" fill="none" stroke="#fff" stroke-width="7"
+                                                    stroke-linecap="round" stroke-linejoin="round" />
                                             </svg>
                                         </div>
                                     </div>
@@ -2486,13 +2571,17 @@
                                         <div class="pc-pay-confirm-shield">
                                             <svg viewBox="0 0 72 78" aria-hidden="true">
                                                 <defs>
-                                                    <linearGradient id="payShieldGradient3" x1="12" y1="8" x2="60" y2="72" gradientUnits="userSpaceOnUse">
+                                                    <linearGradient id="payShieldGradient3" x1="12" y1="8" x2="60"
+                                                        y2="72" gradientUnits="userSpaceOnUse">
                                                         <stop offset="0" stop-color="#16B85D" />
                                                         <stop offset="1" stop-color="#72C893" />
                                                     </linearGradient>
                                                 </defs>
-                                                <path d="M36 3C47 9 58 12 66 15v22c0 19-12 31-30 38C18 68 6 56 6 37V15c8-3 19-6 30-12z" fill="url(#payShieldGradient3)" />
-                                                <path d="M24 38l9 9 18-20" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+                                                <path
+                                                    d="M36 3C47 9 58 12 66 15v22c0 19-12 31-30 38C18 68 6 56 6 37V15c8-3 19-6 30-12z"
+                                                    fill="url(#payShieldGradient3)" />
+                                                <path d="M24 38l9 9 18-20" fill="none" stroke="#fff" stroke-width="7"
+                                                    stroke-linecap="round" stroke-linejoin="round" />
                                             </svg>
                                         </div>
                                     </div>
@@ -2509,6 +2598,50 @@
                                 <div class="action-row qr-action-row">
                                     <button class="btn btn-primary" data-pay-action
                                         onclick="openScanResult('wallet')">查询订单状态</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-cash" class="pay-panel">
+                    <div class="pay-grid pc-pay-result-grid">
+                        <div class="pay-primary-area">
+                            <div class="cash-record-area">
+                                <div id="cashConfirmMask" class="pc-pay-confirm-mask">
+                                    <div class="pc-pay-confirm-card">
+                                        <div class="pc-pay-confirm-visual" aria-hidden="true">
+                                            <div class="pc-pay-confirm-window"></div>
+                                            <div class="pc-pay-confirm-dots"><span></span><span></span><span></span>
+                                            </div>
+                                            <div class="pc-pay-confirm-shield">
+                                                <svg viewBox="0 0 72 78" aria-hidden="true">
+                                                    <defs>
+                                                        <linearGradient id="payShieldGradientCash" x1="12" y1="8"
+                                                            x2="60" y2="72" gradientUnits="userSpaceOnUse">
+                                                            <stop offset="0" stop-color="#16B85D" />
+                                                            <stop offset="1" stop-color="#72C893" />
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <path
+                                                        d="M36 3C47 9 58 12 66 15v22c0 19-12 31-30 38C18 68 6 56 6 37V15c8-3 19-6 30-12z"
+                                                        fill="url(#payShieldGradientCash)" />
+                                                    <path d="M24 38l9 9 18-20" fill="none" stroke="#fff"
+                                                        stroke-width="7" stroke-linecap="round"
+                                                        stroke-linejoin="round" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <h3 class="pc-pay-confirm-title">现金支付</h3>
+                                        <p class="pc-pay-confirm-desc">请确认已完成线下现金支付</p>
+                                        <button class="btn btn-primary" type="button"
+                                            onclick="confirmCashPayment()">确认现金支付</button>
+                                    </div>
+                                </div>
+                                <div class="cash-record-success">
+                                    <div class="cash-record-icon"><img src="./现金支付.png" alt=""></div>
+                                    <h3 class="cash-record-title">现金支付已完成</h3>
+                                    <p class="cash-record-desc">请务必确认已完成线下现金交易</p>
                                 </div>
                             </div>
                         </div>
@@ -2837,6 +2970,7 @@
         const captureState = captureQuery.get('captureState') || '';
         const isFigmaCaptureMode = window.location.hash.indexOf('figmacapture=') !== -1;
         const ACCOUNT_STORAGE_KEY = 'ylt_buyer_payment_accounts';
+        const CASH_PAYMENT_ID = 'cash-payment';
         const DEFAULT_PAYMENT_ACCOUNTS = [
             { id: 'buyer-1', type: 'public', bank: '中国邮政储蓄银行', branch: '烟台市芝罘区支行', cardNo: '6221888800002233', holder: '张三的粮站', accountName: '张三的粮站', isDefault: true },
             { id: 'buyer-2', type: 'self_private', bank: '中国邮政储蓄银行', branch: '烟台市开发区支行', cardNo: '6210987600004321', holder: '张三', mobile: '13700005555', idNo: '370602198608126219', isDefault: false },
@@ -3125,12 +3259,14 @@
 
         function accountMethod(account) {
             if (!account) return '';
+            if (account.type === 'cash') return 'cash';
             if (account.type === 'public') return 'orderpay';
             return 'bank';
         }
 
         function accountTypeIcon(account) {
             if (!account) return './通用银行.png';
+            if (account.type === 'cash') return '';
             if (account.type === 'ecny_wallet') return './数字人民币.png';
             if (String(account.bank || '').includes('邮政储蓄')) return './邮政银行.png';
             return './通用银行.png';
@@ -3147,6 +3283,10 @@
             return paymentAccounts.slice();
         }
 
+        function getCashPaymentAccount() {
+            return { id: CASH_PAYMENT_ID, type: 'cash', bank: '现金支付', holder: '线下现金交易', isDefault: false };
+        }
+
         function cardLastFour(value) {
             const clean = String(value || '').replace(/\D/g, '');
             return clean ? clean.slice(-4) : '--';
@@ -3161,6 +3301,7 @@
 
         function accountSummary(account) {
             if (!account) return '暂无可用账户';
+            if (account.type === 'cash') return '现金支付';
             if (account.type === 'ecny_wallet') {
                 return (account.bank || '中国邮政储蓄银行') + ' · ' + (account.walletLevel || 'III类钱包') + ' · ' + maskWalletId(account.walletId);
             }
@@ -3168,6 +3309,7 @@
         }
 
         function paymentMethodLabel(account) {
+            if (account && account.type === 'cash') return '现金支付';
             return account && account.type === 'public' ? '订单付' : '行业支付';
         }
 
@@ -3194,24 +3336,31 @@
         }
 
         function getSelectedAccount() {
+            if (selectedAccountId === CASH_PAYMENT_ID) return getCashPaymentAccount();
             return paymentAccounts.find(account => account.id === selectedAccountId) || null;
+        }
+
+        function getPaymentCardList() {
+            const cards = [getCashPaymentAccount()].concat(orderedAccounts().slice(0, 2));
+            return cards.slice(0, 3);
         }
 
         function renderPaymentMethods() {
             const wrap = document.getElementById('pcPayMethodCards');
             if (!wrap) return;
-            const visible = orderedAccounts().slice(0, 2);
-            const more = orderedAccounts().length > visible.length;
+            const visible = getPaymentCardList();
+            const more = orderedAccounts().length > 2;
             wrap.innerHTML = visible.map(account => {
                 const active = account.id === selectedAccountId;
-                const title = escapeHtml(account.type === 'ecny_wallet' ? '数字人民币钱包' : (account.bank || '银行卡'));
-                const sub = escapeHtml(account.type === 'ecny_wallet' ? maskWalletId(account.walletId) : ('尾号 ' + cardLastFour(account.cardNo)));
+                const isCash = account.type === 'cash';
+                const title = escapeHtml(isCash ? '现金支付' : account.type === 'ecny_wallet' ? '数字人民币钱包' : (account.bank || '银行卡'));
+                const sub = escapeHtml(isCash ? '线下现金交付' : account.type === 'ecny_wallet' ? maskWalletId(account.walletId) : ('尾号 ' + cardLastFour(account.cardNo)));
                 const publicTag = account.type === 'public' ? '<span class="pc-pay-method-tag public-tag public-inline">公户</span>' : '';
                 return [
                     '<div class="pc-pay-method-card ' + (active ? 'active' : '') + (paymentAccountLocked && !active ? ' disabled' : '') + '" onclick="selectPaymentAccount(\'' + account.id + '\')">',
                     '<div class="pc-pay-method-head">',
                     '<div class="pc-pay-method-title">',
-                    '<div class="pc-pay-account-icon ' + (account.type === 'ecny_wallet' ? 'wallet' : '') + '"><img src="' + accountTypeIcon(account) + '" alt=""></div>',
+                    '<div class="pc-pay-account-icon ' + (isCash ? 'cash' : account.type === 'ecny_wallet' ? 'wallet' : '') + '"><img src="' + (isCash ? './现金支付.png' : accountTypeIcon(account)) + '" alt=""></div>',
                     '<div class="pc-pay-method-account-main">',
                     '<div class="pc-pay-method-account-line">',
                     '<div class="pc-pay-account-title">' + title + '</div>',
@@ -3233,7 +3382,9 @@
             currentChannel = method;
             document.querySelectorAll('.pay-panel').forEach(panel => {
                 panel.classList.toggle('active', panel.id === 'panel-' + method);
-                panel.classList.remove('pc-pay-unlocked');
+                if (!paymentAccountLocked || panel.id !== 'panel-' + confirmedPayChannel) {
+                    panel.classList.remove('pc-pay-unlocked');
+                }
             });
             setText('currentPayMethod', paymentMethodLabel(account));
         }
@@ -3279,9 +3430,11 @@
             const bankMask = document.getElementById('bankConfirmMask');
             const orderMask = document.getElementById('orderConfirmMask');
             const walletMask = document.getElementById('walletConfirmMask');
+            const cashMask = document.getElementById('cashConfirmMask');
             if (bankMask) bankMask.classList.toggle('hide', channel !== 'bank');
             if (orderMask) orderMask.classList.toggle('hide', channel !== 'orderpay');
             if (walletMask) walletMask.classList.toggle('hide', channel !== 'wallet');
+            if (cashMask) cashMask.classList.toggle('hide', channel !== 'cash');
         }
 
         function confirmPayPanel(channel) {
@@ -3295,12 +3448,33 @@
             showToast('已确认当前支付方式');
         }
 
+        function confirmCashPayment() {
+            if (selectedAccountId !== CASH_PAYMENT_ID) {
+                selectedAccountId = CASH_PAYMENT_ID;
+                currentChannel = 'cash';
+            }
+            confirmedPayChannel = 'cash';
+            paymentAccountLocked = true;
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+            Config.paidAt = formatTimeForView(new Date().toISOString());
+            applyState('success');
+            const mask = document.getElementById('cashConfirmMask');
+            if (mask) mask.classList.add('hide');
+            const panel = document.getElementById('panel-cash');
+            if (panel) panel.classList.add('pc-pay-unlocked');
+            renderPaymentMethods();
+            showToast('现金支付已完成');
+        }
+
         function selectPaymentAccount(accountId) {
             if (paymentAccountLocked) {
                 showToast('付款已发起，不能更换付款账户');
                 return;
             }
-            const account = paymentAccounts.find(item => item.id === accountId);
+            const account = accountId === CASH_PAYMENT_ID ? getCashPaymentAccount() : paymentAccounts.find(item => item.id === accountId);
             if (!account) return;
             selectedAccountId = account.id;
             currentChannel = accountMethod(account);
@@ -3355,9 +3529,11 @@
             const bankGrid = document.querySelector('#panel-bank .pay-grid');
             const orderPayGrid = document.querySelector('#panel-orderpay .pay-grid');
             const walletGrid = document.querySelector('#panel-wallet .pay-grid');
+            const cashGrid = document.querySelector('#panel-cash .pay-grid');
             if (bankGrid) bankGrid.classList.toggle('merge-mode', mergeMode);
             if (orderPayGrid) orderPayGrid.classList.toggle('merge-mode', mergeMode);
             if (walletGrid) walletGrid.classList.toggle('merge-mode', mergeMode);
+            if (cashGrid) cashGrid.classList.toggle('merge-mode', mergeMode);
 
             renderOrderItems();
             renderMergeOrderInfo();
@@ -3961,7 +4137,7 @@
                 icon.className = 'modal-icon success';
                 icon.textContent = '✓';
                 title.textContent = '支付成功';
-                desc.textContent = isMergeScenario() ? '合并支付已完成，资金将按收款方分别入账。' : '订单已完成，资金将按交易规则结算。';
+                desc.textContent = reason || (isMergeScenario() ? '合并支付已完成，资金将按收款方分别入账。' : '订单已完成，资金将按交易规则结算。');
             } else if (status === 'failed') {
                 icon.className = 'modal-icon failed';
                 icon.textContent = '!';

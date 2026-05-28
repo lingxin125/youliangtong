@@ -283,13 +283,17 @@
                 <span class="info-label">付款方</span>
                 <span id="payerNameText" class="info-value"></span>
             </div>
-            <div class="info-row">
+            <div id="payerBankRow" class="info-row">
                 <span class="info-label">付款银行</span>
                 <span id="payerBankText" class="info-value"></span>
             </div>
-            <div class="info-row">
+            <div id="payerCardRow" class="info-row">
                 <span class="info-label">付款卡号</span>
                 <span id="payerCardText" class="info-value"></span>
+            </div>
+            <div id="paymentNoteRow" class="info-row" style="display:none;">
+                <span class="info-label">付款说明</span>
+                <span id="paymentNoteText" class="info-value"></span>
             </div>
 
             <!-- 农产品信息 -->
@@ -389,6 +393,7 @@ const state = {
     payerCompany: params.get('payerCompany') || params.get('payerOrg') || (orderFromStore && (orderFromStore.payerCompany || orderFromStore.payerOrg)) || payerProfile.org,
     payerBank: params.get('payerBank') || (orderFromStore && orderFromStore.payerBank) || '中国农业银行',
     payerCard: params.get('payerCard') || (orderFromStore && orderFromStore.payerCard) || '尾号 5678',
+    paymentNote: params.get('paymentNote') || (orderFromStore && orderFromStore.paymentNote) || '',
     summary: params.get('summary') || (orderFromStore && orderFromStore.summary) || '苹果 x 50斤',
     createdAt: params.get('createdAt') || (orderFromStore && orderFromStore.createdAt) || fallbackNow.toISOString(),
     payMethod: params.get('payMethod') || (orderFromStore && orderFromStore.payMethod) || '',
@@ -519,8 +524,11 @@ function buildBankFlowNo(grainOrderNo) {
 }
 
 function shouldShowPaymentOrderNo() {
+    if (isCashPayment()) {
+        return false;
+    }
     if (state.status === 'success') {
-        return true;
+        return !!state.paymentOrderNo;
     }
     if (state.status === 'canceled') {
         return state.cancelSource === 'paying' || state.cancelSource === 'bank';
@@ -530,6 +538,10 @@ function shouldShowPaymentOrderNo() {
 
 function shouldShowOperatorName() {
     return state.status === 'pending' || state.status === 'success' || state.status === 'canceled';
+}
+
+function isCashPayment() {
+    return state.payMethod === 'cash';
 }
 
 function parseItems(raw) {
@@ -736,9 +748,15 @@ function renderInfo() {
     document.getElementById('operatorRow').style.display = shouldShowOperatorName() ? 'flex' : 'none';
     document.getElementById('infoOperatorName').textContent = state.operatorName || state.payerName || '-';
     
-    document.getElementById('payerNameText').textContent = state.payerName;
-    document.getElementById('payerBankText').textContent = state.payerBank;
-    document.getElementById('payerCardText').textContent = state.payerCard;
+    document.getElementById('payerNameText').textContent = isCashPayment() ? (state.payerCompany || state.payerName) : state.payerName;
+    document.getElementById('payerBankRow').style.display = isCashPayment() ? 'none' : 'flex';
+    document.getElementById('payerCardRow').style.display = isCashPayment() ? 'none' : 'flex';
+    document.getElementById('paymentNoteRow').style.display = isCashPayment() ? 'flex' : 'none';
+    document.getElementById('paymentNoteText').textContent = state.paymentNote || '现金支付，已确认线下现金交易完成';
+    if (!isCashPayment()) {
+        document.getElementById('payerBankText').textContent = state.payerBank;
+        document.getElementById('payerCardText').textContent = state.payerCard;
+    }
 
     const paidAtRow = document.getElementById('paidAtRow');
 
@@ -800,6 +818,11 @@ function syncStateToStore() {
         payMethod: state.payMethod,
         paidAt: state.paidAt,
         failReason: state.failReason,
+        payerName: state.payerName,
+        payerCompany: state.payerCompany,
+        payerBank: state.payerBank,
+        payerCard: state.payerCard,
+        paymentNote: state.paymentNote,
         paymentOrderNo: state.paymentOrderNo,
         bankFlowNo: state.bankFlowNo,
         cancelSource: state.cancelSource || '',

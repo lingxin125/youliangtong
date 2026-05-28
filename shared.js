@@ -294,7 +294,7 @@ if (typeof window !== "undefined") {
 // ==================== 收购商模拟数据中心（跨页面共享） ====================
 (function () {
   var ORDER_STORAGE_KEY = "ylt_buyer_orders_mock_v1";
-  var ORDER_DATA_VERSION = "v10"; // Phase 3 v10: 去掉付款失败状态，旧失败单归入付款中
+  var ORDER_DATA_VERSION = "v11"; // Phase 3 v11: 增加现金支付模拟订单与详情展示字段
   var ORDER_VERSION_KEY = "ylt_buyer_orders_version";
 
   // Phase 3: 订单状态常量表（label / color class / icon）
@@ -435,6 +435,11 @@ if (typeof window !== "undefined") {
     clientMobile: "",
     fromClientName: "",
     transferredAt: null,
+    payerName: "",
+    payerCompany: "",
+    payerBank: "",
+    payerCard: "",
+    paymentNote: "",
     photos: [],
     grossWeight: 0,
     tareWeight: 0,
@@ -875,6 +880,46 @@ if (typeof window !== "undefined") {
       ],
     };
 
+    var orderCash1 = {
+      id: buildOrderNo(new Date(Date.now() - 205 * 60 * 1000)),
+      status: "success",
+      payeeName: "郭大姐",
+      payeeMobile: "138****6632",
+      payeeBank: "邮储银行烟台支行",
+      payeeCard: "尾号 6632",
+      summary: "樱桃 x 120斤",
+      amount: 2160,
+      createdAt: isoMinusMinutes(208),
+      payMethod: "cash",
+      paidAt: isoMinusMinutes(205),
+      payerName: "张老板",
+      payerCompany: "张三的粮站",
+      paymentNote: "现金支付，已确认线下现金交易完成",
+      items: [
+        { name: "樱桃", qty: 120, unit: "斤", price: 18, subtotal: 2160 },
+      ],
+    };
+
+    var orderCash2 = {
+      id: buildOrderNo(new Date(Date.now() - 225 * 60 * 1000)),
+      status: "success",
+      payeeName: "孟师傅",
+      payeeMobile: "137****5018",
+      payeeBank: "邮储银行潍坊支行",
+      payeeCard: "尾号 5018",
+      summary: "大蒜 x 300斤",
+      amount: 1350,
+      createdAt: isoMinusMinutes(229),
+      payMethod: "cash",
+      paidAt: isoMinusMinutes(225),
+      payerName: "张老板",
+      payerCompany: "张三的粮站",
+      paymentNote: "现金支付，已确认线下现金交易完成",
+      items: [
+        { name: "大蒜", qty: 300, unit: "斤", price: 4.5, subtotal: 1350 },
+      ],
+    };
+
     var orderL = {
       id: buildOrderNo(new Date(Date.now() - 240 * 60 * 1000)),
       status: "paying",
@@ -1151,6 +1196,8 @@ if (typeof window !== "undefined") {
       orderI,
       orderJ,
       orderK,
+      orderCash1,
+      orderCash2,
       orderL,
       orderM,
       orderN,

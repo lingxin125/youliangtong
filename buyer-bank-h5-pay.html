@@ -164,6 +164,11 @@
             color: #5b5bd6;
         }
 
+        .pay-method-account-icon.cash {
+            background: #fff8eb;
+            padding: 4px;
+        }
+
         .pay-method-account-icon i {
             font-size: 14px;
         }
@@ -173,6 +178,11 @@
             height: 100%;
             object-fit: cover;
             border-radius: 10px;
+        }
+
+        .pay-method-account-icon.cash img {
+            object-fit: contain;
+            border-radius: 0;
         }
 
         .pay-method-title-wrap {
@@ -395,6 +405,79 @@
             color: #5b5bd6;
         }
 
+        .cash-confirm-mask {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 95;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .cash-confirm-mask.show {
+            display: flex;
+        }
+
+        .cash-confirm-card {
+            width: 100%;
+            max-width: 312px;
+            background: #fff;
+            border-radius: 18px;
+            padding: 22px 18px 18px;
+            text-align: center;
+            box-shadow: 0 18px 50px rgba(15, 23, 42, 0.18);
+        }
+
+        .cash-confirm-icon,
+        .cash-success-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 14px;
+            border-radius: 20px;
+            background: #fff8eb;
+            padding: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cash-confirm-icon img,
+        .cash-success-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .cash-success-page {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            z-index: 120;
+            background: #F7F8FA;
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            max-width: 430px;
+            transform: translateX(-50%);
+        }
+
+        .cash-success-page.show {
+            display: flex;
+        }
+
+        .cash-success-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 28px 72px;
+            text-align: center;
+        }
+
         .account-option-title {
             font-size: 14px;
             font-weight: 700;
@@ -607,13 +690,44 @@
             <div id="accountOptionList"></div>
         </div>
 
+        <div id="cashConfirmMask" class="cash-confirm-mask">
+            <div class="cash-confirm-card">
+                <div class="cash-confirm-icon"><img src="./现金支付.png" alt=""></div>
+                <div class="text-[17px] font-bold text-gray-900 mb-2">确认现金支付</div>
+                <div class="text-[13px] text-gray-500 leading-relaxed mb-5">请确认是否已完成线下现金交易</div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" class="h-11 rounded-xl bg-gray-100 text-gray-600 font-bold text-[14px]" onclick="closeCashConfirm()">取消</button>
+                    <button type="button" class="h-11 rounded-xl bg-[#13b15a] text-white font-bold text-[14px]" onclick="confirmCashPayment()">确认</button>
+                </div>
+            </div>
+        </div>
+
         <div id="toastTip" class="toast-tip"></div>
+    </div>
+
+    <div id="cashSuccessPage" class="cash-success-page">
+        <div id="statusBarSuccess" class="relative z-20"></div>
+        <div class="flex items-center justify-between px-4 mt-2 h-[44px] text-gray-800">
+            <div class="w-10 h-10 flex items-center justify-start cursor-pointer" onclick="goCashSuccessBack()">
+                <i class="fas fa-chevron-left text-lg"></i>
+            </div>
+            <div class="text-[17px] font-semibold absolute left-0 right-0 text-center pointer-events-none">支付结果</div>
+            <div class="w-10"></div>
+        </div>
+        <div class="cash-success-content">
+            <div class="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-4">
+                <i class="fas fa-check-circle text-[#13b15a] text-[32px]"></i>
+            </div>
+            <div class="text-[20px] font-bold text-gray-900 mb-2">支付成功</div>
+            <div class="text-[14px] text-gray-500 leading-relaxed max-w-[260px]">现金已完成支付，请务必确认已完成线下交易。</div>
+        </div>
     </div>
 
     <script>
         // 解析参数
         const params = new URLSearchParams(window.location.search);
         const fallbackNow = new Date();
+        const mockStore = window.BuyerMockStore || null;
         const payerProfile = (typeof mockStore !== 'undefined' && mockStore && typeof mockStore.getPayer === 'function')
             ? mockStore.getPayer()
             : { name: '张老板', org: '保定收购站' };
@@ -635,6 +749,7 @@
         state.paymentOrderNo = state.paymentOrderNo || buildPaymentOrderNo(state.grainOrderNo);
 
         const ACCOUNT_STORAGE_KEY = 'ylt_buyer_payment_accounts';
+        const CASH_PAYMENT_ID = 'cash-payment';
         const DEFAULT_ACCOUNTS = [
             { id: 'buyer-1', type: 'public', bank: '中国邮政储蓄银行', branch: '烟台市芝罘区支行', cardNo: '6221888800002233', holder: '张三的粮站', accountName: '张三的粮站', isDefault: true },
             { id: 'buyer-private-2', type: 'self_private', bank: '中国邮政储蓄银行', branch: '烟台市福山区支行', cardNo: '6221888866664321', holder: '张三', mobile: '13700005555', idNo: '370602198608126219', isDefault: false },
@@ -646,6 +761,7 @@
 
         // 渲染基础 UI
         document.getElementById('statusBar').innerHTML = renderStatusBar();
+        document.getElementById('statusBarSuccess').innerHTML = renderStatusBar();
 
         function formatMoney(amount) {
             return amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -740,12 +856,14 @@
 
         function accountTitle(account) {
             if (!account) return '';
+            if (account.type === 'cash') return '现金支付';
             if (account.type === 'ecny_wallet') return '数字人民币钱包';
             return account.bank || '银行卡';
         }
 
         function accountSummary(account) {
             if (!account) return '暂无可用账户';
+            if (account.type === 'cash') return '线下现金交易';
             if (account.type === 'ecny_wallet') {
                 return (account.bank || '中国邮政储蓄银行') + ' · ' + (account.walletLevel || 'III类钱包') + ' · ' + maskWalletId(account.walletId);
             }
@@ -754,6 +872,7 @@
 
         function accountPickerSummary(account) {
             if (!account) return '暂无可用账户';
+            if (account.type === 'cash') return '线下现金交易';
             if (account.type === 'ecny_wallet') {
                 return '钱包ID ' + maskWalletId(account.walletId);
             }
@@ -768,6 +887,7 @@
 
         function accountTypeLabel(account) {
             if (!account) return '';
+            if (account.type === 'cash') return '现金';
             if (account.type === 'public') return '对公';
             if (account.type === 'ecny_wallet') return '数币钱包';
             return '个人';
@@ -775,33 +895,47 @@
 
         function accountTypeIcon(account) {
             if (!account) return './通用银行.png';
+            if (account.type === 'cash') return './现金支付.png';
             if (account.type === 'ecny_wallet') return './数字人民币.png';
             if (String(account.bank || '').includes('邮政储蓄')) return './邮政银行.png';
             return './通用银行.png';
+        }
+
+        function getCashPaymentAccount() {
+            return { id: CASH_PAYMENT_ID, type: 'cash', bank: '现金支付', holder: '线下现金交易', isDefault: false };
         }
 
         function orderedAccounts() {
             return paymentAccounts.slice();
         }
 
+        function allPaymentOptions() {
+            return [getCashPaymentAccount()].concat(orderedAccounts());
+        }
+
+        function getPaymentOption(accountId) {
+            if (accountId === CASH_PAYMENT_ID) return getCashPaymentAccount();
+            return paymentAccounts.find(item => item.id === accountId) || null;
+        }
+
         function visibleAccounts() {
-            return orderedAccounts().slice(0, 3);
+            return allPaymentOptions().slice(0, 3);
         }
 
         function renderPayMethods() {
             const wrap = document.getElementById('payMethodList');
             const visible = visibleAccounts();
-            const hasMore = orderedAccounts().length > visible.length;
+            const hasMore = allPaymentOptions().length > visible.length;
             wrap.innerHTML = visible.map(account => {
                 const selected = account.id === selectedAccountId;
-                const title = account.type === 'ecny_wallet' ? '数字人民币钱包' : (account.bank || '银行卡');
-                const summary = '尾号 ' + cardLastFour(account.type === 'ecny_wallet' ? account.walletId : account.cardNo);
+                const title = accountTitle(account);
+                const summary = account.type === 'cash' ? '线下现金交易' : ('尾号 ' + cardLastFour(account.type === 'ecny_wallet' ? account.walletId : account.cardNo));
                 const badge = account.type === 'public' ? '<span class="pay-method-badge">公户</span>' : '';
                 return '' +
                     '<div class="pay-method-card ' + (selected ? 'selected' : '') + '" onclick="selectAccount(\'' + account.id + '\')">' +
                     '<div class="pay-method-main">' +
                     '<div class="pay-method-title-row">' +
-                    '<div class="pay-method-account-icon ' + (account.type === 'ecny_wallet' ? 'wallet' : 'bank') + '">' +
+                    '<div class="pay-method-account-icon ' + (account.type === 'cash' ? 'cash' : account.type === 'ecny_wallet' ? 'wallet' : 'bank') + '">' +
                     '<img src="' + accountTypeIcon(account) + '" alt="">' +
                     '</div>' +
                     '<div class="pay-method-title-wrap">' +
@@ -813,6 +947,7 @@
                     '<div class="pay-method-radio"></div>' +
                     '</div>';
             }).join('') + (hasMore ? '<div class="pay-method-more-dot" onclick="openAccountSheet()">更多付款账户 <i class="fas fa-angle-right text-[10px]"></i></div>' : '');
+            updatePayButton();
         }
 
         function openAccountSheet() {
@@ -843,7 +978,7 @@
         }
 
         function selectAccount(accountId) {
-            const account = paymentAccounts.find(item => item.id === accountId);
+            const account = getPaymentOption(accountId);
             if (!account) return;
             selectedAccountId = account.id;
             renderPayMethods();
@@ -865,6 +1000,56 @@
         function closeAccountSheet() {
             document.getElementById('sheetMask').classList.remove('show');
             document.getElementById('accountSheet').classList.remove('show');
+        }
+
+        function updatePayButton() {
+            const btn = document.getElementById('payBtn');
+            if (!btn || btn.disabled) return;
+            const account = getPaymentOption(selectedAccountId);
+            btn.textContent = account && account.type === 'cash' ? '确认现金支付' : '确认付款';
+        }
+
+        function openCashConfirm() {
+            document.getElementById('cashConfirmMask').classList.add('show');
+        }
+
+        function closeCashConfirm() {
+            document.getElementById('cashConfirmMask').classList.remove('show');
+        }
+
+        function goCashSuccessBack() {
+            window.location.href = 'buyer-order-manage.html?stage=done&tab=success';
+        }
+
+        function syncCashPaymentToOrder() {
+            if (typeof mockStore === 'undefined' || !mockStore || typeof mockStore.upsertOrder !== 'function') return;
+            mockStore.upsertOrder({
+                id: state.grainOrderNo,
+                status: 'success',
+                payeeName: state.payeeName,
+                payeeBank: state.payeeBank,
+                payeeCard: state.payeeCard,
+                amount: Number(state.amount),
+                createdAt: state.createdAt,
+                payMethod: 'cash',
+                paidAt: new Date().toISOString(),
+                payerName: state.payerName,
+                payerCompany: state.payerCompany,
+                payerBank: '',
+                payerCard: '',
+                paymentNote: '现金支付，已确认线下现金交易完成',
+                paymentOrderNo: state.paymentOrderNo
+            });
+        }
+
+        function showCashSuccessPage() {
+            closeCashConfirm();
+            syncCashPaymentToOrder();
+            document.getElementById('cashSuccessPage').classList.add('show');
+        }
+
+        function confirmCashPayment() {
+            showCashSuccessPage();
         }
 
         function fillPage() {
@@ -894,13 +1079,18 @@
 
         function processPayment() {
             const btn = document.getElementById('payBtn');
-            const selectedAccount = paymentAccounts.find(item => item.id === selectedAccountId);
+            const selectedAccount = getPaymentOption(selectedAccountId);
 
             // 防止重复点击
             if (btn.disabled) return;
 
             if (!selectedAccount) {
                 showToast('请选择付款账户');
+                return;
+            }
+
+            if (selectedAccount.type === 'cash') {
+                openCashConfirm();
                 return;
             }
 
