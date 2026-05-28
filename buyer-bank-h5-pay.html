@@ -451,17 +451,13 @@
         }
 
         .cash-success-page {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 50%;
+            position: absolute;
+            inset: 0;
             z-index: 120;
             background: #F7F8FA;
             display: none;
             flex-direction: column;
             width: 100%;
-            max-width: 430px;
-            transform: translateX(-50%);
         }
 
         .cash-success-page.show {
@@ -473,9 +469,62 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 0 28px 72px;
+            justify-content: flex-start;
+            padding: 88px 28px 72px;
             text-align: center;
+        }
+
+        .cash-success-tag {
+            margin-bottom: 18px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            color: #13b15a;
+        }
+
+        .cash-success-icon-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 36px;
+            background: transparent;
+            padding: 0;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cash-success-icon-large i {
+            font-size: 72px;
+            color: #13b15a;
+        }
+
+        .cash-success-title {
+            margin-bottom: 10px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .cash-success-desc {
+            max-width: 260px;
+            margin-bottom: 28px;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #64748b;
+        }
+
+        .cash-success-btn {
+            width: 100%;
+            max-width: 260px;
+            height: 46px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 14px;
+            background: #13b15a;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
         }
 
         .account-option-title {
@@ -696,30 +745,33 @@
                 <div class="text-[17px] font-bold text-gray-900 mb-2">确认现金支付</div>
                 <div class="text-[13px] text-gray-500 leading-relaxed mb-5">请确认是否已完成线下现金交易</div>
                 <div class="grid grid-cols-2 gap-3">
-                    <button type="button" class="h-11 rounded-xl bg-gray-100 text-gray-600 font-bold text-[14px]" onclick="closeCashConfirm()">取消</button>
-                    <button type="button" class="h-11 rounded-xl bg-[#13b15a] text-white font-bold text-[14px]" onclick="confirmCashPayment()">确认</button>
+                    <button type="button" class="h-11 rounded-xl bg-gray-100 text-gray-600 font-bold text-[14px]"
+                        onclick="closeCashConfirm()">取消</button>
+                    <button type="button" class="h-11 rounded-xl bg-[#13b15a] text-white font-bold text-[14px]"
+                        onclick="confirmCashPayment()">确认</button>
                 </div>
             </div>
         </div>
 
         <div id="toastTip" class="toast-tip"></div>
-    </div>
 
-    <div id="cashSuccessPage" class="cash-success-page">
-        <div id="statusBarSuccess" class="relative z-20"></div>
-        <div class="flex items-center justify-between px-4 mt-2 h-[44px] text-gray-800">
-            <div class="w-10 h-10 flex items-center justify-start cursor-pointer" onclick="goCashSuccessBack()">
-                <i class="fas fa-chevron-left text-lg"></i>
+        <div id="cashSuccessPage" class="cash-success-page">
+            <div id="statusBarSuccess" class="relative z-20"></div>
+            <div class="flex items-center justify-between px-4 mt-2 h-[44px] text-gray-800">
+                <div class="w-10 h-10 flex items-center justify-start cursor-pointer" onclick="goCashSuccessBack()">
+                    <i class="fas fa-chevron-left text-lg"></i>
+                </div>
+                <div class="text-[17px] font-semibold absolute left-0 right-0 text-center pointer-events-none">支付结果</div>
+                <div class="w-10"></div>
             </div>
-            <div class="text-[17px] font-semibold absolute left-0 right-0 text-center pointer-events-none">支付结果</div>
-            <div class="w-10"></div>
-        </div>
-        <div class="cash-success-content">
-            <div class="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-4">
-                <i class="fas fa-check-circle text-[#13b15a] text-[32px]"></i>
+            <div class="cash-success-content">
+                <div class="cash-success-icon-large">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="cash-success-title">现金支付已完成</div>
+                <div class="cash-success-desc">请务必核实已完成线下交易。</div>
+                <button type="button" class="cash-success-btn" onclick="goCashSuccessBack()">返回订单管理</button>
             </div>
-            <div class="text-[20px] font-bold text-gray-900 mb-2">支付成功</div>
-            <div class="text-[14px] text-gray-500 leading-relaxed max-w-[260px]">现金已完成支付，请务必确认已完成线下交易。</div>
         </div>
     </div>
 
@@ -837,6 +889,7 @@
             const defaultAccount = paymentAccounts.find(item => item.isDefault) || paymentAccounts[0];
             if (defaultAccount) {
                 selectedAccountId = defaultAccount.id;
+                promoteAccountToTop(defaultAccount.id);
                 return;
             }
             selectedAccountId = '';
@@ -906,7 +959,30 @@
         }
 
         function orderedAccounts() {
-            return paymentAccounts.slice();
+            return paymentAccounts.slice().sort((a, b) => {
+                if (a.id === selectedAccountId && b.id !== selectedAccountId) return -1;
+                if (b.id === selectedAccountId && a.id !== selectedAccountId) return 1;
+                if (a.isDefault && !b.isDefault) return -1;
+                if (b.isDefault && !a.isDefault) return 1;
+                return 0;
+            });
+        }
+
+        function persistPaymentAccounts() {
+            try {
+                localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(paymentAccounts));
+            } catch (err) {
+                // 静态原型降级：存储失败时仅保持当前页面顺序
+            }
+        }
+
+        function promoteAccountToTop(accountId) {
+            if (!accountId || accountId === CASH_PAYMENT_ID) return;
+            const index = paymentAccounts.findIndex(item => item && item.id === accountId);
+            if (index <= 0) return;
+            const account = paymentAccounts[index];
+            paymentAccounts = [account].concat(paymentAccounts.filter(item => item && item.id !== accountId));
+            persistPaymentAccounts();
         }
 
         function allPaymentOptions() {
@@ -957,7 +1033,13 @@
                 return;
             }
             document.getElementById('accountSheetTitle').textContent = '付款账户';
-            document.getElementById('accountOptionList').innerHTML = accounts.map(account => {
+            renderAccountSheetList();
+            document.getElementById('sheetMask').classList.add('show');
+            document.getElementById('accountSheet').classList.add('show');
+        }
+
+        function renderAccountSheetList() {
+            document.getElementById('accountOptionList').innerHTML = orderedAccounts().map(account => {
                 const checked = account.id === selectedAccountId;
                 const title = account.type === 'ecny_wallet' ? '数字人民币钱包' : (account.bank || '银行卡');
                 const sub = account.type === 'ecny_wallet'
@@ -973,19 +1055,16 @@
                     '<div class="account-option-radio"></div>' +
                     '</div>';
             }).join('');
-            document.getElementById('sheetMask').classList.add('show');
-            document.getElementById('accountSheet').classList.add('show');
         }
 
         function selectAccount(accountId) {
             const account = getPaymentOption(accountId);
             if (!account) return;
             selectedAccountId = account.id;
+            promoteAccountToTop(account.id);
             renderPayMethods();
             if (document.getElementById('accountSheet').classList.contains('show')) {
-                document.getElementById('accountOptionList').querySelectorAll('.account-option').forEach(item => item.classList.remove('selected'));
-                const selected = document.querySelector('#accountOptionList .account-option:nth-child(' + (orderedAccounts().findIndex(item => item.id === accountId) + 1) + ')');
-                if (selected) selected.classList.add('selected');
+                renderAccountSheetList();
             }
         }
 
@@ -993,6 +1072,7 @@
             const account = paymentAccounts.find(item => item.id === accountId);
             if (!account) return;
             selectedAccountId = account.id;
+            promoteAccountToTop(account.id);
             closeAccountSheet();
             renderPayMethods();
         }
@@ -1006,7 +1086,7 @@
             const btn = document.getElementById('payBtn');
             if (!btn || btn.disabled) return;
             const account = getPaymentOption(selectedAccountId);
-            btn.textContent = account && account.type === 'cash' ? '确认现金支付' : '确认付款';
+            btn.textContent = account && account.type === 'cash' ? '确认付款' : '确认付款';
         }
 
         function openCashConfirm() {
