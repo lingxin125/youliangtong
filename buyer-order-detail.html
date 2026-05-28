@@ -752,7 +752,7 @@ function renderInfo() {
     document.getElementById('payerBankRow').style.display = isCashPayment() ? 'none' : 'flex';
     document.getElementById('payerCardRow').style.display = isCashPayment() ? 'none' : 'flex';
     document.getElementById('paymentNoteRow').style.display = isCashPayment() ? 'flex' : 'none';
-    document.getElementById('paymentNoteText').textContent = state.paymentNote || '现金支付，已确认线下现金交易完成';
+    document.getElementById('paymentNoteText').textContent = '现金支付';
     if (!isCashPayment()) {
         document.getElementById('payerBankText').textContent = state.payerBank;
         document.getElementById('payerCardText').textContent = state.payerCard;
