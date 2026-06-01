@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-04 发版小功能 PRD</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2;--slate:#f8fafc}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.7}
+.layout{display:flex;min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:258px;background:#fff;border-right:1px solid var(--line);padding:22px 0;overflow:auto}.brand{padding:0 22px 18px;border-bottom:1px solid var(--line);margin-bottom:10px}.brand .k{font-size:12px;color:var(--primary);font-weight:800;letter-spacing:.4px}.brand h1{margin:6px 0 4px;font-size:18px;line-height:1.35}.brand p{margin:0;color:var(--muted);font-size:12px}.side a{display:block;padding:8px 22px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;font-size:13px}.side a:hover{color:var(--primary);background:rgba(17,166,74,.05);border-left-color:var(--primary)}
+.main{margin-left:258px;width:calc(100% - 258px);padding:28px 34px 70px}.hero{background:linear-gradient(135deg,#11a64a,#0f7f3d);color:#fff;border-radius:24px;padding:34px 36px;box-shadow:0 18px 40px rgba(17,166,74,.18)}.hero h2{margin:0 0 8px;font-size:30px;line-height:1.25}.hero p{margin:0;max-width:900px;opacity:.92;font-size:15px}
+.meta,.grid,.flow{display:grid;gap:12px}.meta{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 24px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.flow{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:12px}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}.item{padding:14px 16px}.label{font-size:12px;color:var(--muted)}.value{margin-top:2px;font-size:15px;font-weight:800}.card{padding:24px;margin-bottom:18px}.card h3{margin:0 0 14px;font-size:20px}.card h4{margin:18px 0 8px;font-size:16px}.lead{color:var(--muted);font-size:14px;margin:0 0 14px}
+.box{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fafafa}.box strong{display:block;font-size:16px;margin-bottom:4px}.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;margin:0 6px 6px 0}.green{background:var(--green);color:#047857}.blue{background:var(--blue);color:#2563eb}.amber{background:var(--amber);color:#b45309}.red{background:var(--red);color:#dc2626}.slate{background:var(--slate);color:#475569}
+table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;color:#374151;font-weight:800}ul{margin:8px 0 0;padding-left:20px}li{margin:5px 0}.step{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcfb}.step b{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-size:12px;margin-right:6px}.note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f0fdf4;color:#166534;font-size:13px}.warn{background:#fffbeb;color:#92400e}.req{margin:10px 0 0;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff}.req b{color:#047857}
+@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.flow{grid-template-columns:1fr}.hero{padding:26px 22px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand"><div class="k">RELEASE PRD</div><h1>2026-06-04 发版小功能</h1><p>功能说明与验收口径</p></div>
+    <nav>
+      <a href="#overview">概览</a>
+      <a href="#photo">拍照留存与水印</a>
+      <a href="#about">关于与协议</a>
+      <a href="#public-card">农户公户修改</a>
+      <a href="#address">地址与种植面积</a>
+      <a href="#rules">业务规则</a>
+      <a href="#acceptance">验收标准</a>
+      <a href="#links">原型入口</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <section class="hero">
+      <h2>2026-06-04 发版小功能 PRD</h2>
+      <p>本次小版本计划在 2026-06-04 上线，范围收敛为拍照留存默认水印、关于页展示版本与协议、农户结算卡公户修改、农户地址与种植面积维护四类轻量能力。</p>
+    </section>
+
+    <section class="meta" id="overview">
+      <div class="item"><div class="label">版本口径</div><div class="value">6月4日小功能发版</div></div>
+      <div class="item"><div class="label">计划时间</div><div class="value">2026-06-04</div></div>
+      <div class="item"><div class="label">适用端</div><div class="value">移动端</div></div>
+      <div class="item"><div class="label">关联角色</div><div class="value">收购商 / 农户</div></div>
+    </section>
+
+    <section class="card">
+      <h3>1. 功能范围</h3>
+      <div class="grid">
+        <div class="box"><strong>拍照留存</strong><span class="tag green">开单</span><p class="lead">开单时支持上传或拍摄照片留存，本期照片统一添加默认“丰收云”水印。</p></div>
+        <div class="box"><strong>关于功能</strong><span class="tag blue">我的</span><p class="lead">我的模块增加关于入口，展示版本号，并支持查看用户协议和隐私协议。</p></div>
+        <div class="box"><strong>农户公户修改</strong><span class="tag amber">结算信息</span><p class="lead">农户结算卡修改从仅个人户扩展为支持公户修改，仅允许修改对公账户名和银行账号。</p></div>
+        <div class="box"><strong>地址与种植面积</strong><span class="tag slate">建档/个人信息</span><p class="lead">农户建档页和农户个人信息页支持维护地址与种植面积，地址必填，种植面积非必填。</p></div>
+      </div>
+      <div class="note">本期只做明确发版范围，不展开未来扩展项。拍照留存的水印暂不支持配置，固定使用“丰收云”。</div>
+    </section>
+
+    <section class="card" id="photo">
+      <h3>2. 拍照留存与默认水印</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>收购商开单时可通过拍照或相册上传交易现场照片，作为订单留存材料。</li>
+        <li>照片留存用于后续订单核对、争议处理和现场凭证追溯。</li>
+        <li>本期只支持默认水印，水印文字固定为“丰收云”。</li>
+      </ul>
+      <h4>功能逻辑</h4>
+      <table>
+        <tr><th>场景</th><th>规则</th><th>说明</th></tr>
+        <tr><td>新增照片</td><td>开单页展示“拍照留存”区域，支持拍照或从相册选择。</td><td>移动端应调用系统相机/相册能力。</td></tr>
+        <tr><td>数量限制</td><td>单笔订单最多上传 9 张照片。</td><td>超过上限应提示并阻止继续添加。</td></tr>
+        <tr><td>水印</td><td>照片保存或上传前叠加“丰收云”水印。</td><td>本期水印文字固定，不支持用户自定义。</td></tr>
+        <tr><td>预览删除</td><td>已选照片应展示缩略图，并支持删除。</td><td>删除后数量同步更新。</td></tr>
+        <tr><td>订单详情</td><td>订单详情展示已留存照片。</td><td>有照片时展示张数；无照片时展示空状态或不展示图片列表。</td></tr>
+      </table>
+      <div class="req"><b>REQ-001</b> 当用户在开单页添加照片时，系统应将照片计入拍照留存，并展示缩略图。</div>
+      <div class="req"><b>REQ-002</b> 当照片保存到订单时，系统应为照片增加默认“丰收云”水印。</div>
+      <div class="req"><b>REQ-003</b> 当照片数量达到 9 张时，系统应禁止继续添加并给出提示。</div>
+      <div class="req"><b>REQ-004</b> 当订单已生成后，订单详情应能查看该订单的拍照留存内容。</div>
+    </section>
+
+    <section class="card" id="about">
+      <h3>3. 关于功能与协议查看</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>登录页已有用户协议与隐私协议勾选能力；本期在“我的”模块补充可随时查看协议的入口。</li>
+        <li>关于页展示产品名称、版本号、用户协议和隐私协议。</li>
+        <li>收购商端和农户端都需要能进入关于页。</li>
+      </ul>
+      <h4>功能逻辑</h4>
+      <table>
+        <tr><th>场景</th><th>规则</th><th>说明</th></tr>
+        <tr><td>入口展示</td><td>收购商端和农户端“我的”模块展示“关于”。</td><td>入口位置跟随现有我的模块菜单样式。</td></tr>
+        <tr><td>关于页</td><td>展示丰收云 Logo、产品名、版本号。</td><td>版本号当前展示 V1.1.0，以实际发版版本为准。</td></tr>
+        <tr><td>协议查看</td><td>关于页提供“用户协议”“隐私协议”两个入口。</td><td>点击后进入对应协议内容页。</td></tr>
+        <tr><td>返回逻辑</td><td>从收购商端进入关于页返回收购商“我的”；从农户端进入返回农户“我的”。</td><td>协议页返回关于页时需要保留来源参数。</td></tr>
+      </table>
+      <div class="req"><b>REQ-005</b> 当用户从“我的”模块进入关于页时，系统应展示版本号、用户协议、隐私协议。</div>
+      <div class="req"><b>REQ-006</b> 当用户点击协议入口时，系统应展示对应协议内容。</div>
+      <div class="req"><b>REQ-007</b> 当用户从协议页返回关于页，再从关于页返回时，应回到原来源端“我的”页。</div>
+    </section>
+
+    <section class="card" id="public-card">
+      <h3>4. 农户结算卡支持公户修改</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>原农户结算信息修改主要支持个人户纠错，本期扩展为支持农户公户信息修改。</li>
+        <li>公户修改范围收敛，只允许修改对公账户名和银行账号。</li>
+        <li>开户行和开户支行在本期仅展示，不提供独立修改入口。</li>
+      </ul>
+      <h4>字段规则</h4>
+      <table>
+        <tr><th>字段</th><th>展示规则</th><th>是否可修改</th><th>说明</th></tr>
+        <tr><td>对公账户名称</td><td>明文或按实际脱敏策略展示</td><td>可修改</td><td>用户点击修改后进入编辑页或弹窗。</td></tr>
+        <tr><td>银行账号</td><td>脱敏展示</td><td>可修改</td><td>修改后需要重新展示脱敏账号。</td></tr>
+        <tr><td>预留手机号</td><td>脱敏展示</td><td>不可修改</td><td>仅展示，不提供修改按钮。</td></tr>
+        <tr><td>开户行</td><td>展示当前开户行</td><td>不可独立修改</td><td>不展示“不可修改”文案。</td></tr>
+        <tr><td>开户支行</td><td>展示当前开户支行</td><td>不可独立修改</td><td>不展示“不可修改”文案。</td></tr>
+      </table>
+      <div class="req"><b>REQ-008</b> 当农户结算信息为公户时，系统应展示公户字段，并允许修改对公账户名称和银行账号。</div>
+      <div class="req"><b>REQ-009</b> 当农户修改公户银行账号时，系统应校验银行账号不能为空且格式合法。</div>
+      <div class="req"><b>REQ-010</b> 当修改成功后，系统应回显最新对公账户名或脱敏银行账号。</div>
+    </section>
+
+    <section class="card" id="address">
+      <h3>5. 农户地址与种植面积维护</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>农户建档时补充地址和种植面积，用于后续农户档案完善和收购业务识别。</li>
+        <li>农户个人信息页支持查看和修改地址、种植面积。</li>
+        <li>本期设计先按地图选点获取地址；如地图能力暂不可用，可降级为文本输入。</li>
+      </ul>
+      <h4>字段规则</h4>
+      <table>
+        <tr><th>字段</th><th>建档页规则</th><th>个人信息页规则</th><th>说明</th></tr>
+        <tr><td>农户地址</td><td>必填，优先通过地图选点确定地址。</td><td>展示当前地址，支持重新地图选点修改。</td><td>地址不能为空；地图不可用时允许手动文本维护。</td></tr>
+        <tr><td>种植面积</td><td>非必填，可填写数值。</td><td>展示当前种植面积，支持修改或清空。</td><td>填写时建议校验为合法数字，可带亩等单位展示。</td></tr>
+      </table>
+      <h4>地图选点交互</h4>
+      <div class="flow">
+        <div class="step"><b>1</b>点击地址字段</div>
+        <div class="step"><b>2</b>打开地图选点</div>
+        <div class="step"><b>3</b>确认地址</div>
+        <div class="step"><b>4</b>回填到页面</div>
+      </div>
+      <div class="req"><b>REQ-011</b> 当农户建档提交时，系统应校验农户地址必填。</div>
+      <div class="req"><b>REQ-012</b> 当种植面积为空时，系统允许提交建档。</div>
+      <div class="req"><b>REQ-013</b> 当用户在个人信息页修改地址或种植面积后，系统应保存并回显最新信息。</div>
+      <div class="note warn">待技术确认：地图选点依赖的宿主能力、地图供应商和定位授权弹窗。若上线前地图能力无法接入，本期可降级为文本输入，但 PRD 口径先按地图选点设计。</div>
+    </section>
+
+    <section class="card" id="rules">
+      <h3>6. 业务规则汇总</h3>
+      <table>
+        <tr><th>编号</th><th>规则</th><th>说明</th></tr>
+        <tr><td>BR-001</td><td>拍照留存水印固定为“丰收云”。</td><td>本期不支持水印配置、时间地点等扩展水印。</td></tr>
+        <tr><td>BR-002</td><td>单笔订单最多 9 张照片。</td><td>超过上限必须拦截。</td></tr>
+        <tr><td>BR-003</td><td>关于页必须能查看用户协议和隐私协议。</td><td>登录页协议勾选能力不替代关于页协议查看。</td></tr>
+        <tr><td>BR-004</td><td>农户公户只允许修改对公账户名和银行账号。</td><td>开户行、支行本期仅展示。</td></tr>
+        <tr><td>BR-005</td><td>农户地址必填，种植面积非必填。</td><td>建档和个人信息页均按此口径维护。</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="acceptance">
+      <h3>7. 验收标准</h3>
+      <ul>
+        <li>开单页可添加、预览、删除拍照留存图片，保存后图片带“丰收云”水印。</li>
+        <li>订单详情能查看拍照留存图片和数量。</li>
+        <li>收购商端和农户端“我的”模块都能进入关于页，关于页展示版本号、用户协议、隐私协议。</li>
+        <li>关于页和协议页返回链路正确，不会从关于页返回到协议页。</li>
+        <li>农户公户结算信息支持修改对公账户名和银行账号，不支持单独修改开户行、开户支行。</li>
+        <li>农户建档页地址必填、种植面积非必填。</li>
+        <li>农户个人信息页可查看并修改地址和种植面积。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="links">
+      <h3>8. 原型入口</h3>
+      <table>
+        <tr><th>功能</th><th>页面</th><th>说明</th></tr>
+        <tr><td>拍照留存</td><td><a href="buyer-billing.html" target="_blank">buyer-billing.html</a></td><td>开单页拍照/相册上传。</td></tr>
+        <tr><td>订单详情照片</td><td><a href="buyer-order-detail.html" target="_blank">buyer-order-detail.html</a></td><td>订单详情拍照留存展示。</td></tr>
+        <tr><td>关于页</td><td><a href="about-us.html?from=buyer" target="_blank">about-us.html</a></td><td>版本号、用户协议、隐私协议。</td></tr>
+        <tr><td>协议页</td><td><a href="user-agreement.html?from=buyer" target="_blank">user-agreement.html</a> / <a href="privacy-policy.html?from=buyer" target="_blank">privacy-policy.html</a></td><td>协议内容查看。</td></tr>
+        <tr><td>农户结算信息修改</td><td><a href="settlement-info-edit.html?role=farmer&source=farmer-my.html" target="_blank">settlement-info-edit.html</a></td><td>个人户/公户结算信息修改。</td></tr>
+        <tr><td>农户建档</td><td><a href="buyer-farmer-add%20-jiandang.html" target="_blank">buyer-farmer-add -jiandang.html</a></td><td>地址、种植面积维护。</td></tr>
+        <tr><td>农户个人信息</td><td><a href="farmer-profile.html" target="_blank">farmer-profile.html</a></td><td>后续用于维护地址与种植面积。</td></tr>
+      </table>
+    </section>
+  </main>
+</div>
+</body>
+</html>

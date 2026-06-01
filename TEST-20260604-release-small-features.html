@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-04 发版小功能测试用例</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.62}.wrap{max-width:1220px;margin:0 auto;padding:28px 18px 60px}.hero{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 8px 24px rgba(15,23,42,.05)}h1{margin:0 0 8px;font-size:28px}p{margin:0;color:var(--muted)}.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 18px rgba(15,23,42,.04)}.item{padding:12px 14px}.label{font-size:12px;color:var(--muted)}.value{font-size:15px;font-weight:800;margin-top:2px}.card{padding:20px;margin-top:16px}h2{font-size:20px;margin:0 0 12px}h3{font-size:15px;margin:18px 0 8px}.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.toc a{text-decoration:none;color:#047857;background:var(--green);border:1px solid rgba(17,166,74,.2);border-radius:999px;padding:6px 10px;font-size:13px;font-weight:700}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;font-weight:800;color:#374151}.p0{background:var(--red);color:#b91c1c;font-weight:800}.p1{background:var(--amber);color:#b45309;font-weight:800}.p2{background:var(--blue);color:#1d4ed8;font-weight:800}.pass{background:var(--green);color:#047857;font-weight:800}.note{margin-top:10px;padding:12px 14px;background:#f0fdf4;color:#166534;border-radius:14px;font-size:13px}.small{font-size:12px;color:var(--muted)}@media(max-width:800px){.meta{grid-template-columns:1fr}.wrap{padding:16px 12px}table{display:block;overflow-x:auto;white-space:nowrap}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <h1>2026-06-04 发版小功能测试用例</h1>
+    <p>覆盖拍照留存默认水印、关于与协议查看、农户公户结算信息修改、农户地址与种植面积维护四类小功能。测试时以提测环境实际实现为准，原型用于交互对照。</p>
+    <div class="toc">
+      <a href="#env">测试准备</a>
+      <a href="#photo">拍照留存</a>
+      <a href="#about">关于协议</a>
+      <a href="#public-card">公户修改</a>
+      <a href="#address">地址面积</a>
+      <a href="#regression">回归检查</a>
+    </div>
+  </section>
+
+  <section class="meta" id="env">
+    <div class="item"><div class="label">版本</div><div class="value">6月4日小功能发版</div></div>
+    <div class="item"><div class="label">计划时间</div><div class="value">2026-06-04</div></div>
+    <div class="item"><div class="label">测试对象</div><div class="value">移动端小程序/H5</div></div>
+    <div class="item"><div class="label">优先级</div><div class="value">P0/P1 优先</div></div>
+  </section>
+
+  <section class="card">
+    <h2>1. 测试准备</h2>
+    <table>
+      <tr><th>准备项</th><th>要求</th></tr>
+      <tr><td>账号</td><td>准备收购商账号、农户个人户账号、农户公户账号。</td></tr>
+      <tr><td>照片</td><td>准备 1 张、9 张、超过 9 张测试图片，并准备相机拍照能力。</td></tr>
+      <tr><td>订单</td><td>准备可新开单订单和已有订单详情，用于验证拍照留存保存与详情展示。</td></tr>
+      <tr><td>协议</td><td>准备从收购商“我的”和农户“我的”分别进入关于页。</td></tr>
+      <tr><td>地图</td><td>准备定位授权允许、定位拒绝、地图不可用三类场景；若地图未接入，按文本输入降级验证。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="photo">
+    <h2>2. 拍照留存与水印测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>PH-001</td><td class="p0">P0</td><td>拍照留存入口展示</td><td>进入开单页。</td><td>页面展示“拍照留存”模块和拍照/相册入口。</td></tr>
+      <tr><td>PH-002</td><td class="p0">P0</td><td>相册添加 1 张照片</td><td>点击拍照/相册，从相册选择 1 张图片。</td><td>页面展示图片缩略图，数量变为 1/9。</td></tr>
+      <tr><td>PH-003</td><td class="p0">P0</td><td>拍照添加照片</td><td>点击拍照/相册，调用相机拍摄并确认。</td><td>照片加入留存列表，数量正确更新。</td></tr>
+      <tr><td>PH-004</td><td class="p0">P0</td><td>默认水印</td><td>添加照片后保存订单或上传照片。</td><td>照片保存结果带“丰收云”水印。</td></tr>
+      <tr><td>PH-005</td><td class="p0">P0</td><td>最多 9 张</td><td>连续选择 9 张照片。</td><td>全部可展示，数量显示 9/9，添加入口隐藏或不可继续添加。</td></tr>
+      <tr><td>PH-006</td><td class="p0">P0</td><td>超过 9 张拦截</td><td>已有 8 张时一次选择多张，使总数超过 9。</td><td>最多只保留到 9 张，并提示最多 9 张照片。</td></tr>
+      <tr><td>PH-007</td><td class="p0">P0</td><td>删除照片</td><td>点击某张照片删除按钮。</td><td>该照片从列表移除，数量同步减少，可继续添加。</td></tr>
+      <tr><td>PH-008</td><td class="p0">P0</td><td>订单详情查看照片</td><td>保存含照片的订单后进入订单详情。</td><td>详情页展示拍照留存照片和数量。</td></tr>
+      <tr><td>PH-009</td><td class="p1">P1</td><td>无照片开单</td><td>不添加照片直接开单。</td><td>不影响开单主流程；详情页不应报错。</td></tr>
+      <tr><td>PH-010</td><td class="p1">P1</td><td>上传失败</td><td>模拟照片上传失败。</td><td>系统提示上传失败，允许重试或删除，不应导致页面崩溃。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="about">
+    <h2>3. 关于功能与协议测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>AB-001</td><td class="p0">P0</td><td>收购商关于入口</td><td>收购商登录后进入“我的”。</td><td>展示“关于”入口。</td></tr>
+      <tr><td>AB-002</td><td class="p0">P0</td><td>农户关于入口</td><td>农户登录后进入“我的”。</td><td>展示“关于”入口。</td></tr>
+      <tr><td>AB-003</td><td class="p0">P0</td><td>关于页内容</td><td>点击“关于”。</td><td>展示丰收云 Logo、产品名、版本号、用户协议、隐私协议。</td></tr>
+      <tr><td>AB-004</td><td class="p0">P0</td><td>用户协议查看</td><td>在关于页点击“用户协议”。</td><td>进入用户协议页，内容正常展示。</td></tr>
+      <tr><td>AB-005</td><td class="p0">P0</td><td>隐私协议查看</td><td>在关于页点击“隐私协议”。</td><td>进入隐私协议页，内容正常展示。</td></tr>
+      <tr><td>AB-006</td><td class="p0">P0</td><td>收购商返回链路</td><td>从收购商“我的”进入关于页，再进入用户协议，返回关于页，再返回。</td><td>最终返回收购商“我的”，不会回到协议页。</td></tr>
+      <tr><td>AB-007</td><td class="p0">P0</td><td>农户返回链路</td><td>从农户“我的”进入关于页，再进入隐私协议，返回关于页，再返回。</td><td>最终返回农户“我的”，不会回到协议页。</td></tr>
+      <tr><td>AB-008</td><td class="p1">P1</td><td>Logo 加载</td><td>打开关于页。</td><td>Logo 正常展示；图片加载失败时有兜底，不展示损坏图标。</td></tr>
+      <tr><td>AB-009</td><td class="p1">P1</td><td>登录页协议不受影响</td><td>进入登录页，不勾选协议尝试登录。</td><td>仍提示需同意用户协议与隐私协议。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="public-card">
+    <h2>4. 农户公户结算信息修改测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>PC-001</td><td class="p0">P0</td><td>农户公户展示</td><td>使用农户公户账号进入结算信息修改页。</td><td>页面展示对公账户名称、预留手机号、银行账号、开户行、开户支行。</td></tr>
+      <tr><td>PC-002</td><td class="p0">P0</td><td>修改对公账户名称</td><td>点击对公账户名称的修改入口，输入新名称并确认。</td><td>修改成功后回显新对公账户名称。</td></tr>
+      <tr><td>PC-003</td><td class="p0">P0</td><td>对公账户名称为空</td><td>修改对公账户名称时清空名称并提交。</td><td>系统拦截并提示对公账户名称不能为空。</td></tr>
+      <tr><td>PC-004</td><td class="p0">P0</td><td>修改银行账号</td><td>点击银行账号修改，输入新银行账号并确认。</td><td>修改成功后回显脱敏后的新银行账号。</td></tr>
+      <tr><td>PC-005</td><td class="p0">P0</td><td>银行账号为空或格式错误</td><td>修改银行账号时输入空值或明显错误账号。</td><td>系统拦截并提示银行账号格式错误或不能为空。</td></tr>
+      <tr><td>PC-006</td><td class="p1">P1</td><td>预留手机号不可修改</td><td>查看预留手机号字段。</td><td>仅展示，不提供修改按钮。</td></tr>
+      <tr><td>PC-007</td><td class="p1">P1</td><td>开户行不可独立修改</td><td>查看开户行字段。</td><td>仅展示当前开户行，不提供独立修改按钮。</td></tr>
+      <tr><td>PC-008</td><td class="p1">P1</td><td>开户支行不可独立修改</td><td>查看开户支行字段。</td><td>仅展示当前开户支行，不提供独立修改按钮。</td></tr>
+      <tr><td>PC-009</td><td class="p1">P1</td><td>个人户修改不受影响</td><td>切换到农户个人户结算信息，修改姓名/身份证号/银行卡号。</td><td>个人户原有修改流程正常。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="address">
+    <h2>5. 地址与种植面积测试用例</h2>
+    <h3>农户建档页</h3>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>AD-001</td><td class="p0">P0</td><td>建档页字段展示</td><td>进入农户建档页。</td><td>展示农户地址和种植面积字段。</td></tr>
+      <tr><td>AD-002</td><td class="p0">P0</td><td>地址地图选点</td><td>点击地址字段，进入地图选点并确认地址。</td><td>地址回填到建档页。</td></tr>
+      <tr><td>AD-003</td><td class="p0">P0</td><td>地址必填拦截</td><td>不维护地址，填写其他必填项后提交建档。</td><td>系统提示请维护农户地址，不允许提交。</td></tr>
+      <tr><td>AD-004</td><td class="p0">P0</td><td>种植面积非必填</td><td>维护地址但不填写种植面积，填写其他必填项后提交。</td><td>提交成功，不因种植面积为空被拦截。</td></tr>
+      <tr><td>AD-005</td><td class="p1">P1</td><td>种植面积格式</td><td>填写非数字种植面积并提交。</td><td>如有格式校验，应提示请输入正确种植面积；如本期不校验，应能保存原输入，需记录实现口径。</td></tr>
+      <tr><td>AD-006</td><td class="p1">P1</td><td>地图定位拒绝</td><td>拒绝定位授权后维护地址。</td><td>系统提示授权失败，并提供手动输入或重新授权路径。</td></tr>
+      <tr><td>AD-007</td><td class="p1">P1</td><td>地图不可用降级</td><td>模拟地图服务异常。</td><td>可降级为文本输入地址，不阻断建档。</td></tr>
+    </table>
+
+    <h3>农户个人信息页</h3>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>FP-001</td><td class="p0">P0</td><td>个人信息展示地址面积</td><td>农户进入“我的”-“个人信息”。</td><td>展示农户地址和种植面积。</td></tr>
+      <tr><td>FP-002</td><td class="p0">P0</td><td>修改地址</td><td>点击地址修改，地图选点或文本输入新地址并保存。</td><td>保存成功后个人信息页回显新地址。</td></tr>
+      <tr><td>FP-003</td><td class="p0">P0</td><td>地址清空拦截</td><td>修改地址时清空地址并保存。</td><td>系统提示地址必填，不能保存为空。</td></tr>
+      <tr><td>FP-004</td><td class="p0">P0</td><td>修改种植面积</td><td>点击种植面积修改，输入新面积并保存。</td><td>保存成功后回显新种植面积。</td></tr>
+      <tr><td>FP-005</td><td class="p0">P0</td><td>清空种植面积</td><td>清空种植面积并保存。</td><td>保存成功，种植面积可为空或展示为未填写。</td></tr>
+      <tr><td>FP-006</td><td class="p1">P1</td><td>建档后信息同步</td><td>建档时维护地址和种植面积后进入个人信息页。</td><td>个人信息页展示建档时保存的地址和种植面积。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="regression">
+    <h2>6. 回归检查</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>回归项</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>RG-001</td><td class="p0">P0</td><td>开单主流程</td><td>不添加照片，正常填写开单信息并提交。</td><td>开单主流程不受拍照留存影响。</td></tr>
+      <tr><td>RG-002</td><td class="p0">P0</td><td>订单详情主信息</td><td>进入含照片和不含照片的订单详情。</td><td>商品信息、收付款信息、状态展示正常。</td></tr>
+      <tr><td>RG-003</td><td class="p0">P0</td><td>登录协议勾选</td><td>登录页勾选和不勾选协议分别登录。</td><td>协议勾选校验仍按原逻辑执行。</td></tr>
+      <tr><td>RG-004</td><td class="p1">P1</td><td>农户个人户结算信息</td><td>进入农户个人户结算信息修改页。</td><td>预留手机号仍不支持修改，姓名、身份证号、银行卡号原流程可用。</td></tr>
+      <tr><td>RG-005</td><td class="p1">P1</td><td>建档出丰收码</td><td>完成农户建档。</td><td>仍能正常展示丰收码。</td></tr>
+      <tr><td>RG-006</td><td class="p1">P1</td><td>移动端适配</td><td>在常见手机尺寸下查看新增和改动页面。</td><td>文字不重叠，按钮可点击，弹窗可正常滚动。</td></tr>
+    </table>
+    <div class="note">建议上线前至少完成所有 P0 用例。地图选点如上线前无法完成，应明确降级为文本输入，并同步修改 PRD 和测试预期。</div>
+  </section>
+</main>
+</body>
+</html>
