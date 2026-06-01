@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-02 发版小功能测试用例</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.62}.wrap{max-width:1220px;margin:0 auto;padding:28px 18px 60px}.hero{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 8px 24px rgba(15,23,42,.05)}h1{margin:0 0 8px;font-size:28px}p{margin:0;color:var(--muted)}.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 18px rgba(15,23,42,.04)}.item{padding:12px 14px}.label{font-size:12px;color:var(--muted)}.value{font-size:15px;font-weight:800;margin-top:2px}.card{padding:20px;margin-top:16px}h2{font-size:20px;margin:0 0 12px}h3{font-size:15px;margin:18px 0 8px}.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.toc a{text-decoration:none;color:#047857;background:var(--green);border:1px solid rgba(17,166,74,.2);border-radius:999px;padding:6px 10px;font-size:13px;font-weight:700}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;font-weight:800;color:#374151}.p0{background:var(--red);color:#b91c1c;font-weight:800}.p1{background:var(--amber);color:#b45309;font-weight:800}.p2{background:var(--blue);color:#1d4ed8;font-weight:800}.pass{background:var(--green);color:#047857;font-weight:800}.note{margin-top:10px;padding:12px 14px;background:#f0fdf4;color:#166534;border-radius:14px;font-size:13px}.small{font-size:12px;color:var(--muted)}@media(max-width:800px){.meta{grid-template-columns:1fr}.wrap{padding:16px 12px}table{display:block;overflow-x:auto;white-space:nowrap}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <h1>2026-06-02 发版小功能测试用例</h1>
+    <p>覆盖开通农户/卖方身份、建档成功展示丰收码、开户行选择优化、收购商/农户首页看板四类小功能。测试时以提测环境实际接口结果为准，原型用于交互对照。</p>
+    <div class="toc">
+      <a href="#env">测试准备</a>
+      <a href="#role">身份开通</a>
+      <a href="#archive">农户建档</a>
+      <a href="#bank">开户行选择</a>
+      <a href="#dashboard">首页看板</a>
+      <a href="#regression">回归检查</a>
+    </div>
+  </section>
+
+  <section class="meta" id="env">
+    <div class="item"><div class="label">版本</div><div class="value">6月初小功能发版</div></div>
+    <div class="item"><div class="label">计划时间</div><div class="value">2026-06-02</div></div>
+    <div class="item"><div class="label">测试对象</div><div class="value">移动端小程序/H5原型</div></div>
+    <div class="item"><div class="label">优先级</div><div class="value">P0/P1 优先</div></div>
+  </section>
+
+  <section class="card">
+    <h2>1. 测试准备</h2>
+    <table>
+      <tr><th>准备项</th><th>要求</th></tr>
+      <tr><td>收购商账号</td><td>准备一个仅买方身份账号、一个买方+卖方双身份账号、一个普通业务员账号。</td></tr>
+      <tr><td>农户账号</td><td>准备一个已建档农户账号、一个未建档手机号。</td></tr>
+      <tr><td>银行卡数据</td><td>准备邮储卡号、可匹配大行卡号、无法自动匹配完整开户行/支行的银行卡号、无效卡号。</td></tr>
+      <tr><td>订单数据</td><td>准备挂单、待开价、待付款、付款中、已取消、付款成功等状态订单，用于首页看板跳转验证。</td></tr>
+      <tr><td>原型页面</td><td>buyer-my.html、buyer-farmer-add.html、buyer-farmer-add -jiandang.html、buyer-home.html、farmer-home.html。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="role">
+    <h2>2. 开通农户/卖方身份测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>RI-001</td><td class="p0">P0</td><td>仅买方身份展示开通入口</td><td>使用仅买方身份的收购商账号登录，进入“我的”页。</td><td>页面展示“开通卖方”入口。</td></tr>
+      <tr><td>RI-002</td><td class="p0">P0</td><td>确认开通卖方身份</td><td>点击“开通卖方”，在确认弹窗点击确认开通。</td><td>系统提示开通成功，并跳转农户端首页。</td></tr>
+      <tr><td>RI-003</td><td class="p0">P0</td><td>开通后身份保留</td><td>完成开通后重新进入“我的”页或重新登录。</td><td>该用户具备买方和卖方双身份，可进行身份切换。</td></tr>
+      <tr><td>RI-004</td><td class="p0">P0</td><td>双身份切换到卖方</td><td>使用双身份账号登录买方端，点击切换到卖方。</td><td>系统跳转农户端首页，底部导航和页面内容按农户端展示。</td></tr>
+      <tr><td>RI-005</td><td class="p0">P0</td><td>双身份切换回买方</td><td>在农户端“我的”页点击切换到买方。</td><td>系统跳转收购商端首页，收购商角色和团队信息不丢失。</td></tr>
+      <tr><td>RI-006</td><td class="p1">P1</td><td>取消开通</td><td>点击“开通卖方”后，在确认弹窗点击取消。</td><td>弹窗关闭，不新增卖方身份，不跳转农户端。</td></tr>
+      <tr><td>RI-007</td><td class="p0">P0</td><td>添加合作农户时输入自己手机号</td><td>进入添加合作农户页，输入当前登录人的手机号并尝试添加。</td><td>系统拦截添加，提示不能添加自己为合作农户。</td></tr>
+      <tr><td>RI-008</td><td class="p1">P1</td><td>添加已存在合作农户</td><td>输入已在合作农户列表中的手机号并尝试添加。</td><td>系统提示该农户已存在，不重复添加。</td></tr>
+      <tr><td>RI-009</td><td class="p1">P1</td><td>输入未建档手机号</td><td>输入未建档手机号搜索。</td><td>展示未检索到结果，并提供邀请农户建档入口。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="archive">
+    <h2>3. 农户建档成功展示丰收码测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>FA-001</td><td class="p0">P0</td><td>建档页基础展示</td><td>进入农户建档页。</td><td>页面展示农户基础信息、银行卡信息维护区域。</td></tr>
+      <tr><td>FA-002</td><td class="p0">P0</td><td>必填项缺失拦截</td><td>不填写姓名、手机号、身份证号、地址、种植面积或银行卡号，点击提交。</td><td>系统提示补全对应必填项，不生成丰收码。</td></tr>
+      <tr><td>FA-003</td><td class="p0">P0</td><td>建档成功展示丰收码</td><td>填写完整有效信息并提交建档。</td><td>建档成功后直接展示丰收码，并提示建档成功。</td></tr>
+      <tr><td>FA-004</td><td class="p0">P0</td><td>丰收码可用于后续扫码</td><td>建档成功后查看丰收码。</td><td>丰收码区域展示完整，不出现空白或加载失败；后续可用于扫码开单链路。</td></tr>
+      <tr><td>FA-005</td><td class="p1">P1</td><td>从邀请入口进入建档</td><td>收购商在添加合作农户页点击邀请农户建档，进入建档页并提交。</td><td>建档成功后展示丰收码，并可返回合作农户相关页面。</td></tr>
+      <tr><td>FA-006</td><td class="p1">P1</td><td>提交中状态</td><td>点击提交建档后观察页面。</td><td>展示提交中/加载态，避免用户重复提交。</td></tr>
+      <tr><td>FA-007</td><td class="p1">P1</td><td>提交失败</td><td>模拟接口失败或网络失败。</td><td>提示建档失败，不生成丰收码，用户可返回修改后重试。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="bank">
+    <h2>4. 开户行选择优化测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>BK-001</td><td class="p0">P0</td><td>邮储卡自动匹配</td><td>在农户建档页输入或 OCR 识别邮储银行卡号。</td><td>自动带出开户行为中国邮政储蓄银行，开户支行为中国邮政储蓄银行总行；用户无需手填。</td></tr>
+      <tr><td>BK-002</td><td class="p0">P0</td><td>邮储卡提交</td><td>使用邮储卡完成其他必填项后提交。</td><td>不因开户行/开户支行未手填而拦截，建档成功并展示丰收码。</td></tr>
+      <tr><td>BK-003</td><td class="p0">P0</td><td>大行卡自动匹配开户行</td><td>输入可识别的大行银行卡号。</td><td>系统自动展示开户行；开户支行不作为强制显眼填写项。</td></tr>
+      <tr><td>BK-004</td><td class="p0">P0</td><td>大行卡提交</td><td>使用已自动匹配开户行的大行卡提交建档。</td><td>按系统匹配结果提交成功，不强制用户补支行。</td></tr>
+      <tr><td>BK-005</td><td class="p0">P0</td><td>无法完整匹配开户信息</td><td>输入其他银行卡号，系统无法匹配开户行/支行。</td><td>页面切换为手动选择开户行和开户支行。</td></tr>
+      <tr><td>BK-006</td><td class="p0">P0</td><td>手动选择缺失拦截</td><td>在无法匹配场景下，不填写开户行或开户支行直接提交。</td><td>系统提示请选择开户行和开户支行，不能提交成功。</td></tr>
+      <tr><td>BK-007</td><td class="p0">P0</td><td>手动选择完整提交</td><td>在无法匹配场景下，手动选择开户行和开户支行后提交。</td><td>提交成功，并展示丰收码。</td></tr>
+      <tr><td>BK-008</td><td class="p1">P1</td><td>修改银行卡号后重新匹配</td><td>先输入邮储卡，再改为其他银行卡号。</td><td>原邮储开户行/支行结果被清空或覆盖，系统按新卡号重新匹配。</td></tr>
+      <tr><td>BK-009</td><td class="p1">P1</td><td>OCR 识别卡号</td><td>上传银行卡照片模拟 OCR。</td><td>识别出银行卡号后自动触发开户行匹配逻辑。</td></tr>
+      <tr><td>BK-010</td><td class="p1">P1</td><td>无效卡号</td><td>输入明显无效或位数不足的卡号。</td><td>提示卡号无效或无法识别，不错误带出开户行。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="dashboard">
+    <h2>5. 首页看板测试用例</h2>
+    <h3>收购商端：首页待办事项</h3>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>HD-001</td><td class="p0">P0</td><td>待办事项看板展示</td><td>收购商登录后进入首页。</td><td>展示待办事项看板。</td></tr>
+      <tr><td>HD-002</td><td class="p0">P0</td><td>挂单数量</td><td>准备挂单状态订单后进入首页。</td><td>挂单卡片数量与订单管理中挂单订单数一致。</td></tr>
+      <tr><td>HD-003</td><td class="p0">P0</td><td>待开价数量</td><td>准备待开价状态订单后进入首页。</td><td>待开价卡片数量与订单管理中待开价订单数一致。</td></tr>
+      <tr><td>HD-004</td><td class="p0">P0</td><td>待付款数量</td><td>准备待付款状态订单后进入首页。</td><td>待付款卡片展示订单数量，不展示金额。</td></tr>
+      <tr><td>HD-005</td><td class="p0">P0</td><td>点击挂单跳转</td><td>点击首页挂单卡片。</td><td>跳转订单管理页，并定位到挂单状态列表。</td></tr>
+      <tr><td>HD-006</td><td class="p0">P0</td><td>点击待开价跳转</td><td>点击首页待开价卡片。</td><td>跳转订单管理页，并定位到待开价状态列表。</td></tr>
+      <tr><td>HD-007</td><td class="p0">P0</td><td>点击待付款跳转</td><td>点击首页待付款卡片。</td><td>跳转订单管理页，并定位到待付款状态列表。</td></tr>
+      <tr><td>HD-008</td><td class="p1">P1</td><td>全部订单入口</td><td>点击待办事项右侧全部订单。</td><td>跳转订单管理页。</td></tr>
+    </table>
+
+    <h3>农户端：首页待收款总览</h3>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>FD-001</td><td class="p0">P0</td><td>待收款总览展示</td><td>农户登录后进入首页。</td><td>展示待收款总览卡片。</td></tr>
+      <tr><td>FD-002</td><td class="p0">P0</td><td>只展示 4 个状态卡片</td><td>查看待收款总览下方小卡片。</td><td>只展示挂单、待开价、待付款、付款中 4 个卡片，不展示已取消。</td></tr>
+      <tr><td>FD-003</td><td class="p0">P0</td><td>待到账金额</td><td>准备待付款、付款中等金额已知订单后进入农户首页。</td><td>待到账金额按有效待收款订单金额汇总展示。</td></tr>
+      <tr><td>FD-004</td><td class="p0">P0</td><td>挂单数量</td><td>准备农户名下挂单订单。</td><td>挂单卡片数量与农户订单列表中挂单数量一致。</td></tr>
+      <tr><td>FD-005</td><td class="p0">P0</td><td>点击待付款跳转</td><td>点击农户首页待付款小卡片。</td><td>跳转农户订单管理页，并定位到待付款相关列表。</td></tr>
+      <tr><td>FD-006</td><td class="p0">P0</td><td>点击付款中跳转</td><td>点击农户首页付款中小卡片。</td><td>跳转农户订单管理页，并定位到付款中相关列表。</td></tr>
+      <tr><td>FD-007</td><td class="p1">P1</td><td>无待收款订单</td><td>农户名下无待收款订单时进入首页。</td><td>总览金额和数量显示为 0，不出现空白或报错。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="regression">
+    <h2>6. 回归检查</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>回归项</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>RG-001</td><td class="p0">P0</td><td>收购商原登录流程</td><td>使用收购商账号登录并进入首页、我的、订单管理。</td><td>原有页面可正常访问。</td></tr>
+      <tr><td>RG-002</td><td class="p0">P0</td><td>农户原登录流程</td><td>使用农户账号登录并进入首页、丰收码、我的。</td><td>原有页面可正常访问。</td></tr>
+      <tr><td>RG-003</td><td class="p0">P0</td><td>扫码开单不受影响</td><td>使用已建档农户丰收码进入扫码开单流程。</td><td>仍可正常带入农户信息并开单。</td></tr>
+      <tr><td>RG-004</td><td class="p1">P1</td><td>合作农户列表不受影响</td><td>添加普通合作农户后返回合作农户列表。</td><td>列表正常展示新增农户。</td></tr>
+      <tr><td>RG-005</td><td class="p1">P1</td><td>订单状态不被首页看板修改</td><td>从首页点击状态卡片进入订单列表后返回。</td><td>订单状态不因点击看板而变化。</td></tr>
+      <tr><td>RG-006</td><td class="p1">P1</td><td>移动端布局</td><td>在常见手机尺寸下查看新增/改动页面。</td><td>文案不重叠，按钮可点击，列表可滚动。</td></tr>
+    </table>
+    <div class="note">建议优先执行所有 P0 用例，再执行 P1 回归项；若上线前时间紧，至少保证身份开通、建档出码、开户行匹配、首页状态跳转四条主链路通过。</div>
+  </section>
+</main>
+</body>
+</html>

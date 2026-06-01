@@ -35,8 +35,8 @@
 
             <!-- Hero Section: Logo & Version -->
             <div class="flex flex-col items-center mt-2 mb-8">
-                <div class="w-28 h-28 rounded-3xl bg-white p-1 mb-3 app-icon-shadow relative">
-                    <img src="丰收云logo.png" alt="丰收云 Logo" class="w-full h-full object-cover rounded-[20px]">
+                <div class="w-28 h-28 rounded-3xl bg-white p-2 mb-3 app-icon-shadow relative">
+                    <img src="丰收云logo新.png" alt="丰收云 Logo" class="w-full h-full object-contain rounded-[20px]" onerror="this.src='logo.svg'">
                     <div class="absolute inset-0 rounded-[24px] border border-black/5 pointer-events-none"></div>
                 </div>
                 <h1 class="text-[22px] font-bold text-gray-800 tracking-wide mb-3" style="font-family: 'Noto Sans SC', sans-serif;">丰收云</h1>
@@ -47,31 +47,28 @@
 
             <!-- 功能列表卡片（毛玻璃效果） -->
             <div class="glass-card rounded-2xl overflow-hidden">
-                <!-- 隐私政策与服务协议 -->
-                <a href="#" class="flex items-center justify-between px-4 py-3.5 active:bg-black/5 transition-colors no-underline" style="text-decoration: none;">
+                <!-- 用户协议 -->
+                <a id="userAgreementLink" href="user-agreement.html" class="flex items-center justify-between px-4 py-3.5 active:bg-black/5 transition-colors no-underline" style="text-decoration: none;">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center border border-green-200/50">
-                            <i class="fas fa-shield-halved text-green-600 text-sm"></i>
+                            <i class="fas fa-file-contract text-green-600 text-sm"></i>
                         </div>
-                        <span class="text-sm text-gray-700 font-medium">隐私政策与服务协议</span>
+                        <span class="text-sm text-gray-700 font-medium">用户协议</span>
                     </div>
                     <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
                 </a>
 
                 <div class="h-px bg-gray-100 mx-4"></div>
 
-                <!-- 更新日志 -->
-                <a href="#" class="flex items-center justify-between px-4 py-3.5 active:bg-black/5 transition-colors no-underline" style="text-decoration: none;">
+                <!-- 隐私协议 -->
+                <a id="privacyPolicyLink" href="privacy-policy.html" class="flex items-center justify-between px-4 py-3.5 active:bg-black/5 transition-colors no-underline" style="text-decoration: none;">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center border border-blue-200/50">
-                            <i class="fas fa-clock-rotate-left text-blue-500 text-sm"></i>
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center border border-emerald-200/50">
+                            <i class="fas fa-shield-halved text-emerald-600 text-sm"></i>
                         </div>
-                        <span class="text-sm text-gray-700 font-medium">更新日志</span>
+                        <span class="text-sm text-gray-700 font-medium">隐私协议</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
-                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
                 </a>
             </div>
 
@@ -86,8 +83,13 @@
 </div>
 
 <script>
+var aboutParams = new URLSearchParams(window.location.search);
+var aboutFrom = aboutParams.get('from') === 'farmer' ? 'farmer' : 'buyer';
+var aboutBackUrl = aboutFrom === 'farmer' ? 'farmer-my.html' : 'buyer-my.html';
 document.getElementById('statusBar').innerHTML = renderStatusBar();
-document.getElementById('navBar').innerHTML = renderHeader('关于', 'javascript:history.back()');
+document.getElementById('navBar').innerHTML = renderHeader('关于', aboutBackUrl);
+document.getElementById('userAgreementLink').href = 'user-agreement.html?from=' + aboutFrom;
+document.getElementById('privacyPolicyLink').href = 'privacy-policy.html?from=' + aboutFrom;
 </script>
 </body>
 </html>

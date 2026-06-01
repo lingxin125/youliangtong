@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 用户协议</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="shared.js"></script>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar bg-[#F7F8FA]">
+        <div class="px-5 py-5">
+            <div class="bg-white rounded-2xl p-5 border border-black/[0.04] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                <h1 class="text-[18px] font-bold text-gray-900 mb-2">丰收云用户协议</h1>
+                <p class="text-[12px] text-gray-400 mb-5">更新日期：2026-06-01</p>
+
+                <div class="space-y-5 text-[13px] leading-7 text-gray-600">
+                    <section>
+                        <h2 class="text-[15px] font-bold text-gray-800 mb-2">一、服务说明</h2>
+                        <p>丰收云为农产品收购、开单、订单管理、付款确认、账户管理等业务提供数字化辅助服务。用户应根据真实交易情况使用本服务。</p>
+                    </section>
+                    <section>
+                        <h2 class="text-[15px] font-bold text-gray-800 mb-2">二、账户使用</h2>
+                        <p>用户应妥善保管登录账号、验证码及设备，不得将账号提供给无关人员使用。因用户主动泄露或违规使用产生的风险，由用户自行承担。</p>
+                    </section>
+                    <section>
+                        <h2 class="text-[15px] font-bold text-gray-800 mb-2">三、交易确认</h2>
+                        <p>用户在发起付款、确认现金支付或提交订单前，应核对订单金额、收付款对象及交易信息。现金支付以线下实际交付和用户确认结果为准。</p>
+                    </section>
+                    <section>
+                        <h2 class="text-[15px] font-bold text-gray-800 mb-2">四、协议变更</h2>
+                        <p>平台可根据业务调整更新协议内容。更新后的协议将在页面展示，用户继续使用即视为接受更新内容。</p>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var agreementFrom = new URLSearchParams(window.location.search).get('from') === 'farmer' ? 'farmer' : 'buyer';
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('用户协议', 'about-us.html?from=' + agreementFrom);
+</script>
+</body>
+</html>

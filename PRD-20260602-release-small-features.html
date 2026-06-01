@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-02 发版小功能 PRD</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2;--slate:#f8fafc}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.7}
+.layout{display:flex;min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:258px;background:#fff;border-right:1px solid var(--line);padding:22px 0;overflow:auto}.brand{padding:0 22px 18px;border-bottom:1px solid var(--line);margin-bottom:10px}.brand .k{font-size:12px;color:var(--primary);font-weight:800;letter-spacing:.4px}.brand h1{margin:6px 0 4px;font-size:18px;line-height:1.35}.brand p{margin:0;color:var(--muted);font-size:12px}.side a{display:block;padding:8px 22px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;font-size:13px}.side a:hover{color:var(--primary);background:rgba(17,166,74,.05);border-left-color:var(--primary)}
+.main{margin-left:258px;width:calc(100% - 258px);padding:28px 34px 70px}.hero{background:linear-gradient(135deg,#11a64a,#0f7f3d);color:#fff;border-radius:24px;padding:34px 36px;box-shadow:0 18px 40px rgba(17,166,74,.18)}.hero h2{margin:0 0 8px;font-size:30px;line-height:1.25}.hero p{margin:0;max-width:900px;opacity:.92;font-size:15px}
+.meta,.grid,.flow{display:grid;gap:12px}.meta{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 24px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.flow{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:12px}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}.item{padding:14px 16px}.label{font-size:12px;color:var(--muted)}.value{margin-top:2px;font-size:15px;font-weight:800}.card{padding:24px;margin-bottom:18px}.card h3{margin:0 0 14px;font-size:20px}.card h4{margin:18px 0 8px;font-size:16px}.lead{color:var(--muted);font-size:14px;margin:0 0 14px}
+.box{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fafafa}.box strong{display:block;font-size:16px;margin-bottom:4px}.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;margin:0 6px 6px 0}.green{background:var(--green);color:#047857}.blue{background:var(--blue);color:#2563eb}.amber{background:var(--amber);color:#b45309}.red{background:var(--red);color:#dc2626}.slate{background:var(--slate);color:#475569}
+table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;color:#374151;font-weight:800}ul{margin:8px 0 0;padding-left:20px}li{margin:5px 0}.step{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcfb}.step b{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-size:12px;margin-right:6px}.note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f0fdf4;color:#166534;font-size:13px}.warn{background:#fffbeb;color:#92400e}.req{margin:10px 0 0;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff}.req b{color:#047857}
+@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.flow{grid-template-columns:1fr}.hero{padding:26px 22px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand"><div class="k">RELEASE PRD</div><h1>2026-06-02 发版小功能</h1><p>功能说明与验收口径</p></div>
+    <nav>
+      <a href="#overview">概览</a>
+      <a href="#role">开通农户/卖方身份</a>
+      <a href="#archive">农户建档与丰收码</a>
+      <a href="#bank">开户行选择优化</a>
+      <a href="#dashboard">首页看板</a>
+      <a href="#rules">业务规则</a>
+      <a href="#acceptance">验收标准</a>
+      <a href="#links">原型入口</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <section class="hero">
+      <h2>2026-06-02 发版小功能 PRD</h2>
+      <p>本次小版本围绕“收购商可开通卖方身份、农户建档后快速出码、开户行选择更省事、首页快速看待办/待收款”四类轻量功能发版，目标是降低现场操作成本，提升收购商和农户的使用效率。</p>
+    </section>
+
+    <section class="meta" id="overview">
+      <div class="item"><div class="label">版本口径</div><div class="value">6月初小功能发版</div></div>
+      <div class="item"><div class="label">计划时间</div><div class="value">2026-06-02</div></div>
+      <div class="item"><div class="label">适用端</div><div class="value">移动端</div></div>
+      <div class="item"><div class="label">关联角色</div><div class="value">收购商 / 农户</div></div>
+    </section>
+
+    <section class="card">
+      <h3>1. 功能范围</h3>
+      <div class="grid">
+        <div class="box"><strong>开通农户/卖方身份</strong><span class="tag green">我的</span><p class="lead">支持收购商在“我的”模块快速开通卖方身份，开通后可切换到农户端进行收款。</p></div>
+        <div class="box"><strong>建档成功展示丰收码</strong><span class="tag blue">农户建档</span><p class="lead">农户建档成功后直接生成并展示丰收码，便于现场立即出示给收购商扫码开单。</p></div>
+        <div class="box"><strong>开户行选择优化</strong><span class="tag amber">农户建档</span><p class="lead">银行卡号录入后自动匹配开户行与支行，大行优先自动匹配，匹配不到时再手动选择。</p></div>
+        <div class="box"><strong>首页看板</strong><span class="tag slate">首页</span><p class="lead">收购商首页展示待办事项，农户首页展示待收款总览，点击可跳转对应状态订单列表。</p></div>
+      </div>
+      <div class="note">本次 PRD 为明日发版说明文档，聚焦业务逻辑和验收口径，不展开技术实现细节。</div>
+    </section>
+
+    <section class="card" id="role">
+      <h3>2. 开通农户/卖方身份</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>部分收购商同时也可能作为农户/卖方收款，需要在同一账号下快速开通卖方身份。</li>
+        <li>入口放在收购商端“我的”模块，用户开通后可切换到卖方/农户端。</li>
+        <li>开通身份不影响原收购商团队、订单、账户等既有数据。</li>
+      </ul>
+      <h4>功能逻辑</h4>
+      <table>
+        <tr><th>场景</th><th>规则</th><th>说明</th></tr>
+        <tr><td>收购商仅有买方身份</td><td>在“我的”模块右上区域展示“开通卖方”入口。</td><td>点击后弹出确认框，用户确认后开通卖方身份并进入农户端首页。</td></tr>
+        <tr><td>收购商已有买方+卖方身份</td><td>展示“切换到卖方/买方”入口。</td><td>点击后切换当前身份，并跳转对应首页。</td></tr>
+        <tr><td>业务员/超管角色</td><td>身份开通是人的维度，不改变团队角色。</td><td>收购商端仍按超管/业务员展示角色；农户端按卖方身份展示。</td></tr>
+        <tr><td>添加合作农户限制</td><td>收购商在“添加合作农户”页不能添加自己为合作农户。</td><td>若输入当前登录人的手机号，应拦截并提示“不能添加自己为合作农户”。</td></tr>
+      </table>
+      <div class="req"><b>REQ-001</b> 当用户当前仅有买方身份且具备开通条件时，系统应展示“开通卖方”入口。</div>
+      <div class="req"><b>REQ-002</b> 当用户确认开通卖方身份后，系统应为当前登录用户增加卖方/农户身份，并跳转农户端首页。</div>
+      <div class="req"><b>REQ-003</b> 当用户已具备买方和卖方身份时，系统应支持在“我的”模块切换身份。</div>
+      <div class="req"><b>REQ-004</b> 当用户在添加合作农户页输入自己的手机号时，系统应拦截添加，避免自己成为自己的合作农户。</div>
+    </section>
+
+    <section class="card" id="archive">
+      <h3>3. 农户建档成功展示丰收码</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>收购商邀请农户建档后，农户完成资料维护即可直接展示丰收码。</li>
+        <li>现场无需再回到其他页面找二维码，建档完成后可立即让收购商扫码开单。</li>
+        <li>建档成功后的二维码统一命名为“丰收码”。</li>
+      </ul>
+      <h4>流程</h4>
+      <div class="flow">
+        <div class="step"><b>1</b>填写农户基础信息</div>
+        <div class="step"><b>2</b>维护收款银行卡</div>
+        <div class="step"><b>3</b>提交建档</div>
+        <div class="step"><b>4</b>成功后展示丰收码</div>
+      </div>
+      <table>
+        <tr><th>节点</th><th>规则</th><th>说明</th></tr>
+        <tr><td>建档提交</td><td>校验姓名、手机号、身份证号、地址、种植面积、银行卡号等必填项。</td><td>若是非邮储卡，还需要按开户行选择规则校验开户行/支行。</td></tr>
+        <tr><td>建档成功</td><td>展示成功状态和丰收码。</td><td>丰收码用于后续收购商扫码开单。</td></tr>
+        <tr><td>后续操作</td><td>支持返回合作农户、继续展示二维码或保存二维码。</td><td>具体以原型当前按钮为准。</td></tr>
+      </table>
+      <div class="req"><b>REQ-005</b> 当农户建档成功后，系统应立即展示丰收码，而不是只提示成功。</div>
+      <div class="req"><b>REQ-006</b> 当建档失败或必填项缺失时，系统不应生成丰收码，并应提示用户补全信息。</div>
+    </section>
+
+    <section class="card" id="bank">
+      <h3>4. 开户行选择优化</h3>
+      <h4>业务目标</h4>
+      <p class="lead">农户建档时，银行卡开户行和开户支行信息容易填写错误。本次优化希望用户录入银行卡号后，系统尽量自动匹配开户行与支行；只有无法自动匹配时，才让用户手动选择。</p>
+      <table>
+        <tr><th>银行卡识别结果</th><th>页面展示</th><th>提交规则</th></tr>
+        <tr><td>邮储卡</td><td>自动匹配开户行：中国邮政储蓄银行；开户支行默认：中国邮政储蓄银行总行。</td><td>开户行、开户支行不要求用户手填。</td></tr>
+        <tr><td>大行银行卡且可自动匹配</td><td>自动匹配开户行；页面仅展示开户行，弱化或不展示开户支行输入。</td><td>按系统匹配结果提交，无需用户手动填写支行。</td></tr>
+        <tr><td>其他银行卡且无法完整匹配</td><td>需要用户手动选择开户行和开户支行。</td><td>开户行、开户支行必填，缺失时不允许提交。</td></tr>
+        <tr><td>卡号无效或无法识别</td><td>提示银行卡号有误或无法识别。</td><td>不自动带出开户行，用户需修正卡号或手动选择。</td></tr>
+      </table>
+      <h4>交互要求</h4>
+      <ul>
+        <li>用户可以通过 OCR 上传银行卡照片识别卡号，也可以手动输入银行卡号。</li>
+        <li>银行卡号变化后，应重新触发开户行匹配，避免沿用上一张卡的开户行信息。</li>
+        <li>系统自动匹配到的信息需要在页面上可见，方便用户核对。</li>
+        <li>匹配不到时不要阻断建档流程，应切换为手动选择开户行和开户支行。</li>
+      </ul>
+      <div class="req"><b>REQ-007</b> 当银行卡号识别为邮储卡时，系统应自动填充邮储开户行和默认支行。</div>
+      <div class="req"><b>REQ-008</b> 当银行卡号可匹配到大行开户行时，系统应自动展示开户行，并减少支行填写负担。</div>
+      <div class="req"><b>REQ-009</b> 当银行卡号无法匹配完整开户信息时，系统应允许用户手动选择开户行和开户支行，并在提交时校验必填。</div>
+    </section>
+
+    <section class="card" id="dashboard">
+      <h3>5. 首页待办/待收款看板</h3>
+      <h4>收购商端：首页待办事项看板</h4>
+      <ul>
+        <li>首页展示待办事项看板，帮助收购商快速查看待处理订单。</li>
+        <li>默认展示挂单、待开价、待付款等关键状态。</li>
+        <li>点击某个状态卡片后，跳转订单管理页对应状态列表。</li>
+        <li>待付款卡片只展示订单数量，不展示金额，避免首页信息过重。</li>
+      </ul>
+      <h4>农户端：首页待收款总览看板</h4>
+      <ul>
+        <li>首页展示待收款总览，帮助农户快速查看待收款订单。</li>
+        <li>展示待到账金额，以及挂单、待开价、待付款、付款中 4 个小卡片。</li>
+        <li>不展示“已取消”小卡片。</li>
+        <li>点击状态卡片后，跳转农户订单管理页对应状态列表。</li>
+      </ul>
+      <table>
+        <tr><th>端</th><th>看板</th><th>点击跳转</th><th>说明</th></tr>
+        <tr><td>收购商端</td><td>待办事项</td><td>订单管理对应状态列表</td><td>用于快速处理挂单、待开价、待付款订单。</td></tr>
+        <tr><td>农户端</td><td>待收款总览</td><td>农户订单管理对应状态列表</td><td>用于快速查看待收款、付款中等订单。</td></tr>
+      </table>
+      <div class="req"><b>REQ-010</b> 当收购商点击待办事项卡片时，系统应跳转订单管理对应状态列表。</div>
+      <div class="req"><b>REQ-011</b> 当农户点击待收款总览小卡片时，系统应跳转农户订单管理对应状态列表。</div>
+    </section>
+
+    <section class="card" id="rules">
+      <h3>6. 业务规则汇总</h3>
+      <table>
+        <tr><th>编号</th><th>规则</th><th>说明</th></tr>
+        <tr><td>BR-001</td><td>身份开通以当前登录用户为维度。</td><td>开通卖方身份不等于新增团队成员。</td></tr>
+        <tr><td>BR-002</td><td>收购商不能添加自己为合作农户。</td><td>按当前登录用户手机号判断。</td></tr>
+        <tr><td>BR-003</td><td>丰收码只在建档成功后生成。</td><td>必填信息缺失或提交失败时不生成。</td></tr>
+        <tr><td>BR-004</td><td>开户行匹配优先自动，匹配不到允许手动。</td><td>不要因为自动匹配失败阻断用户建档。</td></tr>
+        <tr><td>BR-005</td><td>首页看板只做快捷查看和跳转。</td><td>不改变订单状态和订单计算逻辑。</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="acceptance">
+      <h3>7. 验收标准</h3>
+      <ul>
+        <li>收购商可从“我的”模块开通卖方身份，并能进入农户端首页。</li>
+        <li>已开通双身份的用户可在买方/卖方之间切换。</li>
+        <li>添加合作农户时不能添加自己。</li>
+        <li>农户建档成功后能直接展示丰收码。</li>
+        <li>银行卡号录入后能按邮储卡、大行卡、无法匹配三类结果展示不同开户行选择逻辑。</li>
+        <li>收购商首页待办事项可点击跳转对应订单列表，待付款不展示金额。</li>
+        <li>农户首页待收款总览只展示 4 个状态卡片，不展示已取消。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="links">
+      <h3>8. 原型入口</h3>
+      <table>
+        <tr><th>功能</th><th>页面</th><th>说明</th></tr>
+        <tr><td>开通卖方身份</td><td><a href="buyer-my.html" target="_blank">buyer-my.html</a></td><td>收购商“我的”页。</td></tr>
+        <tr><td>添加合作农户</td><td><a href="buyer-farmer-add.html" target="_blank">buyer-farmer-add.html</a></td><td>合作农户手机号检索与添加。</td></tr>
+        <tr><td>农户建档</td><td><a href="buyer-farmer-add%20-jiandang.html" target="_blank">buyer-farmer-add -jiandang.html</a></td><td>建档成功展示丰收码、开户行选择优化。</td></tr>
+        <tr><td>收购商首页</td><td><a href="buyer-home.html" target="_blank">buyer-home.html</a></td><td>待办事项看板。</td></tr>
+        <tr><td>农户首页</td><td><a href="farmer-home.html" target="_blank">farmer-home.html</a></td><td>待收款总览看板。</td></tr>
+      </table>
+    </section>
+  </main>
+</div>
+</body>
+</html>

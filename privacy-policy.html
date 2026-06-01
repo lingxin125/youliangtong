@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 隐私协议</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="shared.js"></script>
+</head>
+<body>
+<div class="mobile-container">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="flex-1 overflow-y-auto no-scrollbar bg-[#F7F8FA]">
+        <div class="px-5 py-5">
+            <div class="bg-white rounded-2xl p-5 border border-black/[0.04] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                <h1 class="text-[18px] font-bold text-gray-900 mb-2">丰收云隐私协议</h1>
+                <p class="text-[12px] text-gray-400 mb-5">更新日期：2026-06-01</p>
+
+                <div class="space-y-5 text-[13px] leading-7 text-gray-600">
+                    <section>
+                        <h2 class="text-[15px] font-bold text-gray-800 mb-2">一、信息收集</h2>
+                        <p>为完成登录、建档、开单、收付款确认和订单管理，平台可能收集用户姓名、手机号、身份信息、银行卡信息、订单信息及设备登录信息。</p>
+                    </section>
+                    <section>
+                        <h2 class="text-[15px] font-bold text-gray-800 mb-2">二、信息使用</h2>
+                        <p>相关信息仅用于身份核验、交易处理、订单展示、风险控制、客户服务及符合法律法规要求的业务场景。</p>
+                    </section>
+                    <section>
+                        <h2 class="text-[15px] font-bold text-gray-800 mb-2">三、信息保护</h2>
+                        <p>平台将采取合理的安全措施保护用户信息，展示银行卡号、身份证号、手机号等敏感信息时默认进行脱敏处理。</p>
+                    </section>
+                    <section>
+                        <h2 class="text-[15px] font-bold text-gray-800 mb-2">四、用户权利</h2>
+                        <p>用户可根据页面能力查看或维护本人相关信息。如需进一步处理个人信息问题，可联系平台服务人员协助处理。</p>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var privacyFrom = new URLSearchParams(window.location.search).get('from') === 'farmer' ? 'farmer' : 'buyer';
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('隐私协议', 'about-us.html?from=' + privacyFrom);
+</script>
+</body>
+</html>
