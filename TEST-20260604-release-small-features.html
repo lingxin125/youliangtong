@@ -81,15 +81,14 @@ table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;ove
     <h2>4. 农户公户结算信息修改测试用例</h2>
     <table>
       <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
-      <tr><td>PC-001</td><td class="p0">P0</td><td>农户公户展示</td><td>使用农户公户账号进入结算信息修改页。</td><td>页面展示对公账户名称、预留手机号、银行账号、开户行、开户支行。</td></tr>
-      <tr><td>PC-002</td><td class="p0">P0</td><td>修改对公账户名称</td><td>点击对公账户名称的修改入口，输入新名称并确认。</td><td>修改成功后回显新对公账户名称。</td></tr>
-      <tr><td>PC-003</td><td class="p0">P0</td><td>对公账户名称为空</td><td>修改对公账户名称时清空名称并提交。</td><td>系统拦截并提示对公账户名称不能为空。</td></tr>
-      <tr><td>PC-004</td><td class="p0">P0</td><td>修改银行账号</td><td>点击银行账号修改，输入新银行账号并确认。</td><td>修改成功后回显脱敏后的新银行账号。</td></tr>
-      <tr><td>PC-005</td><td class="p0">P0</td><td>银行账号为空或格式错误</td><td>修改银行账号时输入空值或明显错误账号。</td><td>系统拦截并提示银行账号格式错误或不能为空。</td></tr>
-      <tr><td>PC-006</td><td class="p1">P1</td><td>预留手机号不可修改</td><td>查看预留手机号字段。</td><td>仅展示，不提供修改按钮。</td></tr>
-      <tr><td>PC-007</td><td class="p1">P1</td><td>开户行不可独立修改</td><td>查看开户行字段。</td><td>仅展示当前开户行，不提供独立修改按钮。</td></tr>
-      <tr><td>PC-008</td><td class="p1">P1</td><td>开户支行不可独立修改</td><td>查看开户支行字段。</td><td>仅展示当前开户支行，不提供独立修改按钮。</td></tr>
-      <tr><td>PC-009</td><td class="p1">P1</td><td>个人户修改不受影响</td><td>切换到农户个人户结算信息，修改姓名/身份证号/银行卡号。</td><td>个人户原有修改流程正常。</td></tr>
+      <tr><td>PC-001</td><td class="p0">P0</td><td>农户公户展示</td><td>使用农户公户账号进入结算信息修改页。</td><td>页面展示对公账户名、账户卡号；开户行、开户支行如已有字段则只读展示。</td></tr>
+      <tr><td>PC-002</td><td class="p0">P0</td><td>修改对公账户名</td><td>点击对公账户名的修改入口，输入新名称并确认。</td><td>修改成功后回显新对公账户名。</td></tr>
+      <tr><td>PC-003</td><td class="p0">P0</td><td>对公账户名为空</td><td>修改对公账户名时清空名称并提交。</td><td>系统拦截并提示对公账户名不能为空。</td></tr>
+      <tr><td>PC-004</td><td class="p0">P0</td><td>修改账户卡号</td><td>点击账户卡号修改，输入新账户卡号并确认。</td><td>修改成功后回显脱敏后的新账户卡号。</td></tr>
+      <tr><td>PC-005</td><td class="p0">P0</td><td>账户卡号为空或格式错误</td><td>修改账户卡号时输入空值或明显错误账号。</td><td>系统拦截并提示账户卡号格式错误或不能为空。</td></tr>
+      <tr><td>PC-006</td><td class="p1">P1</td><td>开户行不可独立修改</td><td>查看开户行字段。</td><td>仅展示当前开户行，不提供独立修改按钮。</td></tr>
+      <tr><td>PC-007</td><td class="p1">P1</td><td>开户支行不可独立修改</td><td>查看开户支行字段。</td><td>仅展示当前开户支行，不提供独立修改按钮。</td></tr>
+      <tr><td>PC-008</td><td class="p1">P1</td><td>个人户修改不受影响</td><td>切换到农户个人户结算信息，修改姓名/身份证号/银行卡号。</td><td>个人户原有修改流程正常。</td></tr>
     </table>
   </section>
 

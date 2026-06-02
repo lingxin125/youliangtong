@@ -12,7 +12,9 @@
 .meta,.grid,.flow{display:grid;gap:12px}.meta{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 24px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.flow{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:12px}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}.item{padding:14px 16px}.label{font-size:12px;color:var(--muted)}.value{margin-top:2px;font-size:15px;font-weight:800}.card{padding:24px;margin-bottom:18px}.card h3{margin:0 0 14px;font-size:20px}.card h4{margin:18px 0 8px;font-size:16px}.lead{color:var(--muted);font-size:14px;margin:0 0 14px}
 .box{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fafafa}.box strong{display:block;font-size:16px;margin-bottom:4px}.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;margin:0 6px 6px 0}.green{background:var(--green);color:#047857}.blue{background:var(--blue);color:#2563eb}.amber{background:var(--amber);color:#b45309}.red{background:var(--red);color:#dc2626}.slate{background:var(--slate);color:#475569}
 table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;color:#374151;font-weight:800}ul{margin:8px 0 0;padding-left:20px}li{margin:5px 0}.step{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcfb}.step b{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-size:12px;margin-right:6px}.note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f0fdf4;color:#166534;font-size:13px}.warn{background:#fffbeb;color:#92400e}.req{margin:10px 0 0;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff}.req b{color:#047857}
-@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.flow{grid-template-columns:1fr}.hero{padding:26px 22px}}
+.map-card{padding:24px 24px 28px;overflow:hidden}.release-map{position:relative;min-height:620px;margin-top:12px;border:1px solid rgba(17,166,74,.14);border-radius:24px;background:radial-gradient(circle at center,rgba(17,166,74,.13),rgba(255,255,255,.8) 34%,rgba(248,250,252,.9) 100%);overflow:hidden}.map-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.map-line{fill:none;stroke:rgba(17,166,74,.24);stroke-width:4;stroke-linecap:round}.map-root{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:190px;min-height:150px;border-radius:28px;background:linear-gradient(135deg,#12a34b,#087338);color:#fff;box-shadow:0 18px 38px rgba(17,166,74,.24);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px;z-index:2}.map-root .root-k{font-size:11px;font-weight:900;letter-spacing:.6px;opacity:.82}.map-root .root-title{font-size:30px;font-weight:900;line-height:1.1;margin-top:6px}.map-root .root-sub{font-size:13px;line-height:1.45;opacity:.9;margin-top:8px}.map-branch{position:absolute;width:270px;background:#fff;border:1px solid rgba(15,23,42,.08);border-radius:20px;padding:16px;box-shadow:0 12px 32px rgba(15,23,42,.08);z-index:3}.branch-photo{left:5%;top:7%}.branch-about{right:5%;top:7%}.branch-card{left:5%;bottom:7%}.branch-address{right:5%;bottom:7%}.branch-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.branch-title{font-size:17px;font-weight:900}.branch-tag{flex:none;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:800}.branch-leaves{display:grid;gap:7px;margin-top:10px}.leaf{position:relative;padding:8px 10px 8px 24px;border-radius:12px;background:#f8fafc;color:#334155;font-size:13px;line-height:1.45}.leaf:before{content:"";position:absolute;left:10px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--primary)}.map-note{margin-top:14px;color:var(--muted);font-size:13px}
+@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.flow{grid-template-columns:1fr}.hero{padding:26px 22px}.release-map{min-height:720px}.map-root{width:158px;min-height:126px;border-radius:24px;padding:16px}.map-root .root-title{font-size:25px}.map-root .root-sub{font-size:12px}.map-branch{width:220px;padding:12px;border-radius:18px}.branch-photo{left:4%;top:5%}.branch-about{right:4%;top:5%}.branch-card{left:4%;bottom:5%}.branch-address{right:4%;bottom:5%}.branch-title{font-size:15px}.branch-tag{font-size:11px}.leaf{font-size:12px;padding:7px 8px 7px 22px}}
+@media(max-width:560px){.release-map{min-height:auto;padding:18px;display:grid;gap:12px}.map-lines{display:none}.map-root,.map-branch{position:static;transform:none;width:auto}.map-root{min-height:auto;border-radius:22px}.branch-photo,.branch-about,.branch-card,.branch-address{left:auto;right:auto;top:auto;bottom:auto}}
 </style>
 </head>
 <body>
@@ -44,15 +46,59 @@ table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border
       <div class="item"><div class="label">关联角色</div><div class="value">收购商 / 农户</div></div>
     </section>
 
-    <section class="card">
-      <h3>1. 功能范围</h3>
-      <div class="grid">
-        <div class="box"><strong>拍照留存</strong><span class="tag green">开单</span><p class="lead">开单时支持上传或拍摄照片留存，本期照片统一添加默认“丰收云”水印。</p></div>
-        <div class="box"><strong>关于功能</strong><span class="tag blue">我的</span><p class="lead">我的模块增加关于入口，展示版本号，并支持查看用户协议和隐私协议。</p></div>
-        <div class="box"><strong>农户公户修改</strong><span class="tag amber">结算信息</span><p class="lead">农户结算卡修改从仅个人户扩展为支持公户修改，仅允许修改对公账户名和银行账号。</p></div>
-        <div class="box"><strong>地址与种植面积</strong><span class="tag slate">建档/个人信息</span><p class="lead">农户建档页和农户个人信息页支持维护地址与种植面积，地址必填，种植面积非必填。</p></div>
+    <section class="card map-card">
+      <h3>1. 功能脑图概览</h3>
+      <p class="lead">本期发版按“四个轻量功能”收敛，从丰收云中心能力向开单、我的、结算信息、农户档案四个场景展开。</p>
+      <div class="release-map" aria-label="2026-06-04 发版小功能脑图">
+        <svg class="map-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <path class="map-line" d="M50 50 C 43 38, 28 28, 18 18"></path>
+          <path class="map-line" d="M50 50 C 57 38, 72 28, 82 18"></path>
+          <path class="map-line" d="M50 50 C 43 62, 28 72, 18 82"></path>
+          <path class="map-line" d="M50 50 C 57 62, 72 72, 82 82"></path>
+        </svg>
+        <div class="map-root">
+          <div class="root-k">2026-06-04</div>
+          <div class="root-title">丰收云</div>
+          <div class="root-sub">小功能发版范围</div>
+        </div>
+        <div class="map-branch branch-photo">
+          <div class="branch-head"><div class="branch-title">拍照留存</div><span class="branch-tag green">开单</span></div>
+          <div class="branch-leaves">
+            <div class="leaf">支持拍照或相册上传</div>
+            <div class="leaf">默认叠加“丰收云”水印</div>
+            <div class="leaf">最多 9 张，支持预览删除</div>
+            <div class="leaf">订单详情可查看留存照片</div>
+          </div>
+        </div>
+        <div class="map-branch branch-about">
+          <div class="branch-head"><div class="branch-title">关于功能</div><span class="branch-tag blue">我的</span></div>
+          <div class="branch-leaves">
+            <div class="leaf">我的模块展示关于入口</div>
+            <div class="leaf">展示 Logo、产品名、版本号</div>
+            <div class="leaf">可查看用户协议与隐私协议</div>
+            <div class="leaf">返回原来源端我的页</div>
+          </div>
+        </div>
+        <div class="map-branch branch-card">
+          <div class="branch-head"><div class="branch-title">农户公户修改</div><span class="branch-tag amber">结算信息</span></div>
+          <div class="branch-leaves">
+            <div class="leaf">个人户能力保持不变</div>
+            <div class="leaf">公户仅修改对公账户名</div>
+            <div class="leaf">公户仅修改账户卡号</div>
+            <div class="leaf">开户行、支行本期只读展示</div>
+          </div>
+        </div>
+        <div class="map-branch branch-address">
+          <div class="branch-head"><div class="branch-title">地址与种植面积</div><span class="branch-tag slate">农户档案</span></div>
+          <div class="branch-leaves">
+            <div class="leaf">建档页新增地址必填</div>
+            <div class="leaf">地址优先按地图选点设计</div>
+            <div class="leaf">种植面积非必填</div>
+            <div class="leaf">个人信息页支持查看和修改</div>
+          </div>
+        </div>
       </div>
-      <div class="note">本期只做明确发版范围，不展开未来扩展项。拍照留存的水印暂不支持配置，固定使用“丰收云”。</div>
+      <div class="map-note">下面保留详细需求、字段规则、业务规则和原型入口，便于开发和测试逐项对照。</div>
     </section>
 
     <section class="card" id="photo">
@@ -104,21 +150,20 @@ table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border
       <h4>业务目标</h4>
       <ul>
         <li>原农户结算信息修改主要支持个人户纠错，本期扩展为支持农户公户信息修改。</li>
-        <li>公户修改范围收敛，只允许修改对公账户名和银行账号。</li>
-        <li>开户行和开户支行在本期仅展示，不提供独立修改入口。</li>
+        <li>公户修改范围收敛，只允许修改对公账户名和账户卡号。</li>
+        <li>开户行和开户支行如页面已有展示，本期仅只读展示，不提供独立修改入口。</li>
       </ul>
       <h4>字段规则</h4>
       <table>
         <tr><th>字段</th><th>展示规则</th><th>是否可修改</th><th>说明</th></tr>
-        <tr><td>对公账户名称</td><td>明文或按实际脱敏策略展示</td><td>可修改</td><td>用户点击修改后进入编辑页或弹窗。</td></tr>
-        <tr><td>银行账号</td><td>脱敏展示</td><td>可修改</td><td>修改后需要重新展示脱敏账号。</td></tr>
-        <tr><td>预留手机号</td><td>脱敏展示</td><td>不可修改</td><td>仅展示，不提供修改按钮。</td></tr>
+        <tr><td>对公账户名</td><td>明文或按实际脱敏策略展示</td><td>可修改</td><td>用户点击修改后进入编辑页或弹窗。</td></tr>
+        <tr><td>账户卡号</td><td>脱敏展示</td><td>可修改</td><td>修改后需要重新展示脱敏账号。</td></tr>
         <tr><td>开户行</td><td>展示当前开户行</td><td>不可独立修改</td><td>不展示“不可修改”文案。</td></tr>
         <tr><td>开户支行</td><td>展示当前开户支行</td><td>不可独立修改</td><td>不展示“不可修改”文案。</td></tr>
       </table>
-      <div class="req"><b>REQ-008</b> 当农户结算信息为公户时，系统应展示公户字段，并允许修改对公账户名称和银行账号。</div>
-      <div class="req"><b>REQ-009</b> 当农户修改公户银行账号时，系统应校验银行账号不能为空且格式合法。</div>
-      <div class="req"><b>REQ-010</b> 当修改成功后，系统应回显最新对公账户名或脱敏银行账号。</div>
+      <div class="req"><b>REQ-008</b> 当农户结算信息为公户时，系统应展示公户字段，并允许修改对公账户名和账户卡号。</div>
+      <div class="req"><b>REQ-009</b> 当农户修改公户账户卡号时，系统应校验账户卡号不能为空且格式合法。</div>
+      <div class="req"><b>REQ-010</b> 当修改成功后，系统应回显最新对公账户名或脱敏账户卡号。</div>
     </section>
 
     <section class="card" id="address">
@@ -155,7 +200,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border
         <tr><td>BR-001</td><td>拍照留存水印固定为“丰收云”。</td><td>本期不支持水印配置、时间地点等扩展水印。</td></tr>
         <tr><td>BR-002</td><td>单笔订单最多 9 张照片。</td><td>超过上限必须拦截。</td></tr>
         <tr><td>BR-003</td><td>关于页必须能查看用户协议和隐私协议。</td><td>登录页协议勾选能力不替代关于页协议查看。</td></tr>
-        <tr><td>BR-004</td><td>农户公户只允许修改对公账户名和银行账号。</td><td>开户行、支行本期仅展示。</td></tr>
+        <tr><td>BR-004</td><td>农户公户只允许修改对公账户名和账户卡号。</td><td>开户行、支行本期仅展示。</td></tr>
         <tr><td>BR-005</td><td>农户地址必填，种植面积非必填。</td><td>建档和个人信息页均按此口径维护。</td></tr>
       </table>
     </section>
@@ -167,7 +212,7 @@ table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border
         <li>订单详情能查看拍照留存图片和数量。</li>
         <li>收购商端和农户端“我的”模块都能进入关于页，关于页展示版本号、用户协议、隐私协议。</li>
         <li>关于页和协议页返回链路正确，不会从关于页返回到协议页。</li>
-        <li>农户公户结算信息支持修改对公账户名和银行账号，不支持单独修改开户行、开户支行。</li>
+        <li>农户公户结算信息支持修改对公账户名和账户卡号，不支持单独修改开户行、开户支行。</li>
         <li>农户建档页地址必填、种植面积非必填。</li>
         <li>农户个人信息页可查看并修改地址和种植面积。</li>
       </ul>
