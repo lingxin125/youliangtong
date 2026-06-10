@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-09 发版小功能测试用例</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.62}.wrap{max-width:1220px;margin:0 auto;padding:28px 18px 60px}.hero{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:0 8px 24px rgba(15,23,42,.05)}h1{margin:0 0 8px;font-size:28px}p{margin:0;color:var(--muted)}.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 18px rgba(15,23,42,.04)}.item{padding:12px 14px}.label{font-size:12px;color:var(--muted)}.value{font-size:15px;font-weight:800;margin-top:2px}.card{padding:20px;margin-top:16px}h2{font-size:20px;margin:0 0 12px}h3{font-size:15px;margin:18px 0 8px}.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.toc a{text-decoration:none;color:#047857;background:var(--green);border:1px solid rgba(17,166,74,.2);border-radius:999px;padding:6px 10px;font-size:13px;font-weight:700}table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;font-weight:800;color:#374151}.p0{background:var(--red);color:#b91c1c;font-weight:800}.p1{background:var(--amber);color:#b45309;font-weight:800}.p2{background:var(--blue);color:#1d4ed8;font-weight:800}.note{margin-top:10px;padding:12px 14px;background:#f0fdf4;color:#166534;border-radius:14px;font-size:13px}@media(max-width:800px){.meta{grid-template-columns:1fr}.wrap{padding:16px 12px}table{display:block;overflow-x:auto;white-space:nowrap}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <h1>2026-06-09 发版小功能测试用例</h1>
+    <p>覆盖农户地址地图定位、公户结算信息修改、双身份登录默认端记忆三项已上线能力；订单处理中页签与支付失败原因展示延期，后续随账户管理一起验收。</p>
+    <div class="toc">
+      <a href="#env">测试准备</a>
+      <a href="#address">农户地址</a>
+      <a href="#public-account">公户修改</a>
+      <a href="#identity">双身份默认端</a>
+      <a href="#processing">延期项</a>
+      <a href="#regression">回归检查</a>
+    </div>
+  </section>
+
+  <section class="meta" id="env">
+    <div class="item"><div class="label">版本</div><div class="value">6月9日小功能发版</div></div>
+    <div class="item"><div class="label">计划时间</div><div class="value">2026-06-09</div></div>
+    <div class="item"><div class="label">测试对象</div><div class="value">移动端小程序/H5</div></div>
+    <div class="item"><div class="label">优先级</div><div class="value">P0/P1 优先</div></div>
+  </section>
+
+  <section class="card">
+    <h2>1. 测试准备</h2>
+    <table>
+      <tr><th>准备项</th><th>要求</th></tr>
+      <tr><td>账号</td><td>准备收购商账号、农户账号、同时具备收购商和农户身份的账号。</td></tr>
+      <tr><td>农户档案</td><td>准备新建农户、已有农户、地址为空和地址已维护的农户数据。</td></tr>
+      <tr><td>结算账户</td><td>准备个人户结算信息和公户结算信息。</td></tr>
+      <tr><td>订单</td><td>准备付款中订单、支付失败订单、再次支付成功订单。</td></tr>
+      <tr><td>地图能力</td><td>准备定位授权允许、拒绝、选点后手动修改地址三类场景。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="address">
+    <h2>2. 农户地址字段测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>AD-001</td><td class="p0">P0</td><td>建档页地址字段展示</td><td>进入农户建档页。</td><td>展示农户地址字段，并有地图选点或定位入口。</td></tr>
+      <tr><td>AD-002</td><td class="p0">P0</td><td>地图选点回填地址</td><td>点击地址字段，打开地图选点，选择位置并确认。</td><td>地址回填到建档页。</td></tr>
+      <tr><td>AD-003</td><td class="p0">P0</td><td>地址手动修改</td><td>地图回填地址后，手动编辑地址文本。</td><td>页面保留用户手动修改后的地址。</td></tr>
+      <tr><td>AD-004</td><td class="p0">P0</td><td>地址必填拦截</td><td>不填写地址，其他必填项完整后提交建档。</td><td>系统提示农户地址必填，不能提交。</td></tr>
+      <tr><td>AD-005</td><td class="p0">P0</td><td>建档成功保存地址</td><td>维护地址后完成建档。</td><td>建档成功，农户档案保存该地址。</td></tr>
+      <tr><td>AD-006</td><td class="p0">P0</td><td>个人信息页展示地址</td><td>进入农户个人信息页。</td><td>展示农户当前地址。</td></tr>
+      <tr><td>AD-007</td><td class="p0">P0</td><td>个人信息页修改地址</td><td>在个人信息页修改地址并保存。</td><td>保存成功后回显新地址。</td></tr>
+      <tr><td>AD-008</td><td class="p1">P1</td><td>拒绝定位授权</td><td>拒绝定位授权后尝试选点。</td><td>系统提示授权失败，并允许重新授权或手动维护地址。</td></tr>
+      <tr><td>AD-009</td><td class="p1">P1</td><td>地址过长</td><td>输入较长地址文本并保存。</td><td>页面不重叠，保存和展示不异常。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="public-account">
+    <h2>3. 农户公户结算信息修改测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>PA-001</td><td class="p0">P0</td><td>公户信息展示</td><td>进入公户结算信息修改页。</td><td>展示对公账户名、银行账号；其他字段按现有页面只读展示。</td></tr>
+      <tr><td>PA-002</td><td class="p0">P0</td><td>修改对公账户名</td><td>输入新的对公账户名并提交。</td><td>保存成功并回显新账户名。</td></tr>
+      <tr><td>PA-003</td><td class="p0">P0</td><td>对公账户名为空</td><td>清空对公账户名并提交。</td><td>系统拦截并提示账户名不能为空。</td></tr>
+      <tr><td>PA-004</td><td class="p0">P0</td><td>修改银行账号</td><td>输入新的银行账号并提交。</td><td>保存成功并按脱敏规则回显新账号。</td></tr>
+      <tr><td>PA-005</td><td class="p0">P0</td><td>银行账号为空或格式错误</td><td>输入空账号或明显错误账号并提交。</td><td>系统拦截并提示账号不能为空或格式错误。</td></tr>
+      <tr><td>PA-006</td><td class="p1">P1</td><td>个人户流程不受影响</td><td>进入个人户结算信息修改页并按原流程修改。</td><td>个人户原有修改能力正常。</td></tr>
+      <tr><td>PA-007</td><td class="p1">P1</td><td>修改失败</td><td>模拟接口返回失败。</td><td>页面提示失败原因，不应回显未保存的新值。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="identity">
+    <h2>4. 双身份登录默认端记忆测试用例</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>ID-001</td><td class="p0">P0</td><td>从收购商端退出</td><td>双身份账号进入收购商端，退出登录，再次登录。</td><td>默认进入收购商端。</td></tr>
+      <tr><td>ID-002</td><td class="p0">P0</td><td>从农户端退出</td><td>双身份账号切换到农户端，退出登录，再次登录。</td><td>默认进入农户端。</td></tr>
+      <tr><td>ID-003</td><td class="p0">P0</td><td>单收购商身份</td><td>仅收购商身份账号退出后再次登录。</td><td>仍进入收购商端。</td></tr>
+      <tr><td>ID-004</td><td class="p0">P0</td><td>单农户身份</td><td>仅农户身份账号退出后再次登录。</td><td>仍进入农户端。</td></tr>
+      <tr><td>ID-005</td><td class="p1">P1</td><td>身份切换后退出</td><td>双身份账号从收购商切到农户后退出，再登录。</td><td>默认进入农户端。</td></tr>
+      <tr><td>ID-006</td><td class="p1">P1</td><td>身份不可用兜底</td><td>上次端身份被关闭后再次登录。</td><td>进入仍可用身份端，不出现空白页或死循环。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="processing">
+    <h2>5. 延期项：处理中页签与支付失败原因测试用例</h2>
+    <div class="note">本功能未随 2026-06-09 上线，后续随账户管理一起上线；以下用例作为后续验收参考，本次上线验收不计入通过范围。</div>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>场景</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>OP-001</td><td class="p0">P0</td><td>大页签文案</td><td>进入订单管理页。</td><td>原“付款中”大页签展示为“处理中”。</td></tr>
+      <tr><td>OP-002</td><td class="p0">P0</td><td>处理中订单范围</td><td>进入“处理中”页签。</td><td>能看到业务状态为付款中的相关订单。</td></tr>
+      <tr><td>OP-003</td><td class="p0">P0</td><td>支付失败列表展示</td><td>准备一笔支付失败但业务状态仍为付款中的订单。</td><td>订单列表卡片展示上次失败原因。</td></tr>
+      <tr><td>OP-004</td><td class="p0">P0</td><td>支付失败详情展示</td><td>进入该订单详情。</td><td>详情页展示上次失败原因，业务状态仍为付款中。</td></tr>
+      <tr><td>OP-005</td><td class="p0">P0</td><td>不新增失败状态</td><td>查看支付失败订单状态字段。</td><td>不出现新的“支付失败”订单状态。</td></tr>
+      <tr><td>OP-006</td><td class="p0">P0</td><td>再次支付成功</td><td>对失败订单重新发起支付并支付成功。</td><td>订单进入成功/已结束口径，不继续展示失败原因误导用户。</td></tr>
+      <tr><td>OP-007</td><td class="p1">P1</td><td>无失败原因</td><td>准备付款中但没有失败记录的订单。</td><td>列表和详情不展示失败原因区域。</td></tr>
+      <tr><td>OP-008</td><td class="p1">P1</td><td>失败原因过长</td><td>模拟较长失败原因。</td><td>列表简短展示不撑破卡片，详情可展示完整原因。</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="regression">
+    <h2>6. 回归检查</h2>
+    <table>
+      <tr><th>ID</th><th>优先级</th><th>回归项</th><th>步骤</th><th>预期结果</th></tr>
+      <tr><td>RG-001</td><td class="p0">P0</td><td>农户建档主流程</td><td>维护地址后完成建档。</td><td>建档成功，丰收码/档案展示不受影响。</td></tr>
+      <tr><td>RG-002</td><td class="p0">P0</td><td>结算信息原流程</td><td>个人户、公户分别进入结算信息页。</td><td>页面展示、修改、返回链路正常。</td></tr>
+      <tr><td>RG-003</td><td class="p0">P0</td><td>登录与身份切换</td><td>登录、退出、切换身份反复操作。</td><td>不出现身份错乱、无法进入、返回异常。</td></tr>
+      <tr><td>RG-004</td><td class="p0">P0</td><td>订单管理其他页签</td><td>查看待处理、已完成、已取消等页签。</td><td>其他页签文案、数量和列表展示不受影响。</td></tr>
+      <tr><td>RG-005</td><td class="p1">P1</td><td>移动端适配</td><td>在常见手机尺寸下查看改动页面。</td><td>文字不重叠，地址长文本不撑破布局。</td></tr>
+    </table>
+    <div class="note">上线前建议至少完成农户地址、公户修改、双身份默认端记忆三项 P0 用例。地图定位若因宿主能力限制无法调用，应明确降级方案并同步测试预期。</div>
+  </section>
+</main>
+</body>
+</html>

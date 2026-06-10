@@ -357,36 +357,6 @@
             margin-top: 14px;
             box-shadow: 0 10px 22px rgba(17,166,74,.22);
         }
-        .config-tag {
-            display: inline-flex;
-            align-items: center;
-            height: 18px;
-            padding: 0 6px;
-            border-radius: 999px;
-            background: #DCFCE7;
-            color: #0E7A38;
-            font-size: 10px;
-            font-weight: 700;
-            margin-right: 4px;
-        }
-        .category-gear {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            color: #7C8797;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: transparent;
-            border: 0;
-            flex-shrink: 0;
-            transition: all .18s;
-        }
-        .category-gear:active {
-            transform: scale(.94);
-            color: #11A64A;
-            background: #F0FDF4;
-        }
     </style>
 </head>
 <body>
@@ -446,7 +416,7 @@
                 </div>
                 
                 <!-- 二级商品网格 -->
-                <div class="grid grid-cols-2 gap-x-2.5 gap-y-3 pb-20" id="itemList">
+                <div class="grid grid-cols-2 gap-x-2.5 gap-y-2.5 pb-20" id="itemList">
                     <!-- 动态渲染明细 -->
                 </div>
             </div> <!-- End of contentArea -->
@@ -482,89 +452,6 @@
         </div>
     </div>
 
-    <div class="app-modal-overlay" id="billingConfigOverlay">
-        <div class="app-modal config-sheet">
-            <button class="sheet-close" onclick="closeBillingConfigSheet()" aria-label="关闭">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-            <div class="app-modal-handle"></div>
-            <h3 class="sheet-title">开单方式设置</h3>
-
-            <div class="config-label">选择开单方式</div>
-            <div class="mode-grid">
-                <button type="button" class="mode-card" id="modeQuickCard" onclick="setDraftConfigMode('quick')">
-                    <span class="mode-check"><i class="fas fa-check"></i></span>
-                    <div class="mode-icon"><i class="fas fa-bolt"></i></div>
-                    <div class="mode-name">极简快收</div>
-                    <div class="mode-desc">只填总重量和价格<br>适合快速收购<br>未填重量不能暂存</div>
-                </button>
-                <button type="button" class="mode-card" id="modeStandardCard" onclick="setDraftConfigMode('standard')">
-                    <span class="mode-check"><i class="fas fa-check"></i></span>
-                    <div class="mode-icon"><i class="fas fa-scale-balanced"></i></div>
-                    <div class="mode-name">标准称重</div>
-                    <div class="mode-desc">填写毛重、皮重<br>支持挂单、待开价<br>待付款</div>
-                </button>
-            </div>
-
-            <div class="config-panel">
-                <div class="config-row">
-                    <span class="row-title">默认单位</span>
-                    <select id="configUnit" class="row-select">
-                        <option value="斤">斤</option>
-                        <option value="公斤">公斤</option>
-                        <option value="吨">吨</option>
-                        <option value="袋">袋</option>
-                        <option value="箱">箱</option>
-                    </select>
-                </div>
-                <div class="config-row">
-                    <span class="row-title">允许计价方式</span>
-                    <div class="segmented three">
-                        <button type="button" id="pricingUnitOnly" class="seg-btn" onclick="setDraftPricingScope('unit')">仅单价</button>
-                        <button type="button" id="pricingFixedOnly" class="seg-btn" onclick="setDraftPricingScope('fixed')">仅一口价</button>
-                        <button type="button" id="pricingBoth" class="seg-btn" onclick="setDraftPricingScope('both')">两者都支持</button>
-                    </div>
-                </div>
-                <div class="config-row" id="defaultPriceModeRow">
-                    <span class="row-title">默认计价方式</span>
-                    <div class="segmented two">
-                        <button type="button" id="defaultPriceUnit" class="seg-btn" onclick="setDraftDefaultPriceMode('unit')">单价</button>
-                        <button type="button" id="defaultPriceFixed" class="seg-btn" onclick="setDraftDefaultPriceMode('fixed')">一口价</button>
-                    </div>
-                </div>
-                <div class="config-row" id="defaultUnitPriceRow">
-                    <span class="row-title">默认单价（元/斤）</span>
-                    <input id="configDefaultPrice" class="row-input" type="number" step="0.001" placeholder="可不填">
-                </div>
-            </div>
-
-            <div id="standardConfigBlock">
-                <div class="config-panel">
-                    <div class="config-row" style="align-items:flex-start; flex-direction:column;">
-                        <span class="row-title">杂重计算方式</span>
-                        <div class="segmented two" style="width:100%;">
-                            <button type="button" id="deductionRatioMode" class="seg-btn" onclick="setDraftDeductionMode('ratio')">按扣减比例计算</button>
-                            <button type="button" id="deductionDirectMode" class="seg-btn" onclick="setDraftDeductionMode('direct')">直接输入杂重</button>
-                        </div>
-                    </div>
-                    <div class="info-hint">
-                        <i class="fas fa-info-circle text-[#11A64A] mt-0.5"></i>
-                        <span id="deductionHint">按比例计算：系统根据扣减比例自动从毛重中扣除杂重，适合杂质比例相对稳定的品类。</span>
-                    </div>
-                    <div class="config-row" id="defaultRatioRow">
-                        <span class="row-title">默认扣减比例（%）</span>
-                        <input id="configDefaultRatio" class="row-input" type="number" step="0.01" placeholder="可不填">
-                    </div>
-                    <div class="config-row hidden" id="defaultMiscRow">
-                        <span class="row-title">默认杂重</span>
-                        <input id="configDefaultMisc" class="row-input" type="number" step="0.01" placeholder="可不填">
-                    </div>
-                </div>
-            </div>
-
-            <button class="config-save-btn" onclick="saveBillingConfig()">保存设置</button>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -632,44 +519,8 @@
 
     let favorites = [];
     let currentTab = '粮食';
-    let billingConfigs = {};
-    let currentConfigItem = '';
-    let draftConfig = null;
-
-    const BILLING_CONFIG_KEY = 'ylt_billing_category_configs';
-    const DEFAULT_BILLING_CONFIGS = {
-        '玉米': { mode: 'standard', unit: '斤', pricingScope: 'both', defaultPriceMode: 'unit', defaultPrice: '1.35', deductionMode: 'ratio', defaultRatio: '2.00', defaultMisc: '' },
-        '小麦': { mode: 'standard', unit: '斤', pricingScope: 'both', defaultPriceMode: 'unit', defaultPrice: '', deductionMode: 'ratio', defaultRatio: '1.50', defaultMisc: '' },
-        '水稻': { mode: 'quick', unit: '斤', pricingScope: 'unit', defaultPriceMode: 'unit', defaultPrice: '', deductionMode: 'ratio', defaultRatio: '', defaultMisc: '' },
-        '大豆': { mode: 'standard', unit: '斤', pricingScope: 'both', defaultPriceMode: 'unit', defaultPrice: '', deductionMode: 'direct', defaultRatio: '', defaultMisc: '' },
-        '苹果': { mode: 'quick', unit: '斤', pricingScope: 'both', defaultPriceMode: 'unit', defaultPrice: '', deductionMode: 'ratio', defaultRatio: '', defaultMisc: '' },
-        '荔枝': { mode: 'quick', unit: '斤', pricingScope: 'fixed', defaultPriceMode: 'fixed', defaultPrice: '', deductionMode: 'ratio', defaultRatio: '', defaultMisc: '' }
-    };
-
-    function loadBillingConfigs() {
-        try {
-            const stored = JSON.parse(localStorage.getItem(BILLING_CONFIG_KEY)) || {};
-            billingConfigs = Object.assign({}, DEFAULT_BILLING_CONFIGS, stored);
-        } catch(e) {
-            billingConfigs = Object.assign({}, DEFAULT_BILLING_CONFIGS);
-        }
-    }
-
-    function persistBillingConfigs() {
-        localStorage.setItem(BILLING_CONFIG_KEY, JSON.stringify(billingConfigs));
-    }
-
-    function getBillingConfig(item) {
-        return billingConfigs[item] || { mode: 'standard', unit: '斤', pricingScope: 'both', defaultPriceMode: 'unit', defaultPrice: '', deductionMode: 'ratio', defaultRatio: '', defaultMisc: '' };
-    }
-
-    function getConfigTags(item) {
-        const cfg = getBillingConfig(item);
-        return [cfg.mode === 'quick' ? '极简快收' : '标准称重'];
-    }
 
     function init() {
-        loadBillingConfigs();
         try {
             const stored = localStorage.getItem('ylt_favorite_categories');
             if (stored) {
@@ -759,40 +610,22 @@
         
         container.innerHTML = config.items.map(item => {
             const isFav = favorites.includes(item);
-            const tags = getConfigTags(item).map(tag => `<span class="config-tag">${tag}</span>`).join('');
             
-            // 恢复实心色背景，并保持防止按钮被文字挤压
             if (isFav) {
                 return `
-                <div onclick="removeFav('${item}')" class="shrink-0 min-h-[82px] flex flex-col justify-between px-3 py-3 rounded-xl border border-primary bg-[#F0FDF4] text-primary active:scale-[0.98] transition-all cursor-pointer overflow-hidden">
-                    <div class="flex items-start justify-between gap-2">
-                        <span class="text-[12px] font-bold truncate flex-1 text-primary">${item}</span>
-                        <button type="button" onclick="openBillingConfigSheet(event, '${item}')" class="category-gear" aria-label="设置${item}">
-                            <i class="far fa-sun text-[12px]"></i>
-                        </button>
-                    </div>
-                    <div class="flex items-end justify-between gap-2">
-                        <div class="min-w-0 flex-1">${tags}</div>
-                        <div class="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center shadow-sm flex-shrink-0">
-                            <i class="fas fa-minus text-white text-[9px]"></i>
-                        </div>
+                <div onclick="removeFav('${item}')" class="h-[42px] flex items-center justify-between gap-2 pl-3 pr-2 rounded-xl border border-primary bg-[#F0FDF4] text-primary active:scale-[0.98] transition-all cursor-pointer overflow-hidden">
+                    <span class="text-[12px] font-bold truncate min-w-0">${item}</span>
+                    <div class="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center shadow-sm flex-shrink-0">
+                        <i class="fas fa-minus text-white text-[9px]"></i>
                     </div>
                 </div>
                 `;
             } else {
                 return `
-                <div onclick="addFav('${item}')" class="shrink-0 min-h-[82px] flex flex-col justify-between px-3 py-3 rounded-xl border border-gray-100 bg-gray-50 text-gray-700 active:scale-[0.98] transition-all cursor-pointer overflow-hidden">
-                    <div class="flex items-start justify-between gap-2">
-                        <span class="text-[12px] font-semibold truncate flex-1 text-gray-700">${item}</span>
-                        <button type="button" onclick="openBillingConfigSheet(event, '${item}')" class="category-gear" aria-label="设置${item}">
-                            <i class="far fa-sun text-[12px]"></i>
-                        </button>
-                    </div>
-                    <div class="flex items-end justify-between gap-2">
-                        <div class="min-w-0 flex-1">${tags}</div>
-                        <div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-sm flex-shrink-0">
-                            <i class="fas fa-plus text-white text-[9px]"></i>
-                        </div>
+                <div onclick="addFav('${item}')" class="h-[42px] flex items-center justify-between gap-2 pl-3 pr-2 rounded-xl border border-gray-100 bg-gray-50 text-gray-700 active:scale-[0.98] transition-all cursor-pointer overflow-hidden">
+                    <span class="text-[12px] font-semibold truncate min-w-0">${item}</span>
+                    <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-sm flex-shrink-0">
+                        <i class="fas fa-plus text-white text-[9px]"></i>
                     </div>
                 </div>
                 `;
@@ -839,79 +672,6 @@
         setTimeout(() => {
             window.location.href = 'buyer-billing.html';
         }, 1200);
-    }
-
-    function openBillingConfigSheet(event, item) {
-        if (event) event.stopPropagation();
-        currentConfigItem = item;
-        draftConfig = Object.assign({}, getBillingConfig(item));
-        normalizeDraftConfig();
-        renderBillingConfigSheet();
-        document.getElementById('billingConfigOverlay').classList.add('show');
-    }
-
-    function closeBillingConfigSheet() {
-        document.getElementById('billingConfigOverlay').classList.remove('show');
-    }
-
-    function normalizeDraftConfig() {
-        if (!draftConfig) draftConfig = {};
-        draftConfig.mode = draftConfig.mode || 'standard';
-        draftConfig.unit = draftConfig.unit || '斤';
-        draftConfig.pricingScope = draftConfig.pricingScope || 'both';
-        draftConfig.defaultPriceMode = draftConfig.defaultPriceMode || 'unit';
-        if (draftConfig.pricingScope === 'unit') draftConfig.defaultPriceMode = 'unit';
-        if (draftConfig.pricingScope === 'fixed') draftConfig.defaultPriceMode = 'fixed';
-        draftConfig.deductionMode = draftConfig.deductionMode || 'ratio';
-        draftConfig.defaultPrice = draftConfig.defaultPrice || '';
-        draftConfig.defaultRatio = draftConfig.defaultRatio || '';
-        draftConfig.defaultMisc = draftConfig.defaultMisc || '';
-    }
-
-    function renderBillingConfigSheet() {
-        normalizeDraftConfig();
-        document.getElementById('modeQuickCard').classList.toggle('active', draftConfig.mode === 'quick');
-        document.getElementById('modeStandardCard').classList.toggle('active', draftConfig.mode === 'standard');
-        document.getElementById('configUnit').value = draftConfig.unit;
-        document.getElementById('configDefaultPrice').value = draftConfig.defaultPrice;
-        document.getElementById('configDefaultRatio').value = draftConfig.defaultRatio;
-        document.getElementById('configDefaultMisc').value = draftConfig.defaultMisc;
-
-        ['pricingUnitOnly','pricingFixedOnly','pricingBoth','defaultPriceUnit','defaultPriceFixed','deductionRatioMode','deductionDirectMode'].forEach(id => {
-            document.getElementById(id).classList.remove('active');
-        });
-        document.getElementById(draftConfig.pricingScope === 'unit' ? 'pricingUnitOnly' : draftConfig.pricingScope === 'fixed' ? 'pricingFixedOnly' : 'pricingBoth').classList.add('active');
-        document.getElementById(draftConfig.defaultPriceMode === 'fixed' ? 'defaultPriceFixed' : 'defaultPriceUnit').classList.add('active');
-        document.getElementById(draftConfig.deductionMode === 'direct' ? 'deductionDirectMode' : 'deductionRatioMode').classList.add('active');
-
-        document.getElementById('defaultPriceModeRow').style.display = draftConfig.pricingScope === 'both' ? 'flex' : 'none';
-        document.getElementById('defaultUnitPriceRow').style.display = draftConfig.defaultPriceMode === 'unit' || draftConfig.pricingScope !== 'fixed' ? 'flex' : 'none';
-        document.getElementById('standardConfigBlock').style.display = draftConfig.mode === 'standard' ? 'block' : 'none';
-        document.getElementById('defaultRatioRow').classList.toggle('hidden', draftConfig.deductionMode !== 'ratio');
-        document.getElementById('defaultMiscRow').classList.toggle('hidden', draftConfig.deductionMode !== 'direct');
-        document.getElementById('deductionHint').textContent = draftConfig.deductionMode === 'direct'
-            ? '直接输入杂重：开单时填写杂重，系统用毛重、皮重、杂重计算净重。'
-            : '按比例计算：系统根据扣减比例自动从毛重中扣除杂重，适合杂质比例相对稳定的品类。';
-    }
-
-    function setDraftConfigMode(mode) { draftConfig.mode = mode; renderBillingConfigSheet(); }
-    function setDraftPricingScope(scope) { draftConfig.pricingScope = scope; normalizeDraftConfig(); renderBillingConfigSheet(); }
-    function setDraftDefaultPriceMode(mode) { draftConfig.defaultPriceMode = mode; normalizeDraftConfig(); renderBillingConfigSheet(); }
-    function setDraftDeductionMode(mode) { draftConfig.deductionMode = mode; renderBillingConfigSheet(); }
-
-    function saveBillingConfig() {
-        if (!currentConfigItem) return;
-        draftConfig.unit = document.getElementById('configUnit').value || '斤';
-        draftConfig.defaultPrice = document.getElementById('configDefaultPrice').value.trim();
-        draftConfig.defaultRatio = document.getElementById('configDefaultRatio').value.trim();
-        draftConfig.defaultMisc = document.getElementById('configDefaultMisc').value.trim();
-        normalizeDraftConfig();
-        billingConfigs[currentConfigItem] = Object.assign({}, draftConfig);
-        persistBillingConfigs();
-        renderFavs();
-        renderList(currentTab);
-        closeBillingConfigSheet();
-        showToast('开单方式已保存', 'success');
     }
 
     // 初始化页面

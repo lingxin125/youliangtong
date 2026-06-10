@@ -33,6 +33,34 @@
             margin-top: 10px;
             border: 1px solid rgba(17, 166, 74, 0.12);
         }
+        .order-status-card {
+            position: relative;
+        }
+        .status-print-chip {
+            position: absolute;
+            right: 14px;
+            top: 14px;
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(17, 166, 74, 0.18);
+            background: #F4FBF7;
+            color: #11A64A;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            transition: all 0.18s ease;
+        }
+        .status-print-chip.hidden {
+            display: none;
+        }
+        .status-print-chip:active {
+            transform: scale(0.97);
+            background: #EBF7F0;
+        }
         .summary-label {
             font-size: 11px;
             color: #6B7280;
@@ -294,6 +322,21 @@
             border-color: #11A64A;
             background: #EBF7F0;
         }
+        .printer-device-card {
+            width: 100%;
+            border-radius: 16px;
+            border: 1px solid #F3F4F6;
+            background: #FFFFFF;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+        }
+        .printer-device-card.connected {
+            border-color: rgba(17, 166, 74, 0.22);
+            background: #F4FBF7;
+        }
         .toast-tip {
             position: fixed;
             top: 50%;
@@ -332,7 +375,11 @@
     </div>
 
     <div id="contentArea" class="flex-1 overflow-y-auto no-scrollbar p-4" style="padding-bottom:96px; background:#F7F8FA;">
-        <div class="info-card text-center">
+        <div class="info-card text-center order-status-card">
+            <button id="editPrintChip" type="button" class="status-print-chip hidden" onclick="openEditPrintReceipt()">
+                <i class="fas fa-print text-[10px]"></i>
+                <span>打印小票</span>
+            </button>
             <div id="statusChip" class="status-chip mx-auto w-fit">
                 <i id="statusIcon" class="fas fa-file-pen"></i>
                 <span id="statusTitle">挂单中</span>
@@ -462,6 +509,23 @@
         </div>
     </div>
 
+    <div class="billing-sheet-overlay" id="printerSheetOverlay" onclick="closePrinterSheet()"></div>
+    <div class="billing-sheet" id="printerSheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-4 pb-2 flex items-center justify-between">
+            <div>
+                <div class="text-[16px] font-bold text-gray-800">连接蓝牙打印机</div>
+                <div class="text-[12px] text-gray-400 mt-1">连接成功后继续打印当前小票</div>
+            </div>
+            <button class="w-8 h-8 flex items-center justify-center text-gray-400" onclick="closePrinterSheet()"><i class="fas fa-xmark text-lg"></i></button>
+        </div>
+        <div class="px-4 pb-2 text-[12px] text-gray-400">附近设备</div>
+        <div id="printerDeviceList" class="px-4 space-y-2.5"></div>
+        <div class="px-4 py-4">
+            <button class="w-full h-11 rounded-xl bg-gray-50 text-gray-500 text-sm font-semibold" onclick="refreshPrinterDevices()">重新搜索</button>
+        </div>
+    </div>
+
     <div id="lightboxOverlay" class="lightbox-overlay" onclick="closeLightbox()">
         <img id="lightboxImage" src="" alt="图片预览">
     </div>
@@ -475,11 +539,14 @@ const orderNo = params.get('orderNo');
 const backHref = params.get('back') || 'buyer-order-manage.html?tab=draft';
 const mockStore = window.BuyerMockStore || null;
 const clientStore = window.ClientMockStore || null;
+const DEVICE_STORAGE_KEY = 'fsy_buyer_devices';
+const DEVICE_PREF_KEY = 'fsy_buyer_device_prefs';
 
 let order = null;
 let state = {
     status: '',
     selectedClientId: null,
+    pendingPrintOrderId: null,
     productName: '',
     grossWeight: 0,
     tareWeight: 0,
@@ -619,6 +686,7 @@ function renderStatus() {
     const desc = document.getElementById('statusDesc');
     const icon = document.getElementById('statusIcon');
     document.getElementById('amountText').textContent = fmtMoney(calcAmount());
+    updateEditPrintChip();
 
     if (state.status === 'draft') {
         chip.className = 'status-chip mx-auto w-fit bg-gray-100 text-gray-600';
@@ -736,6 +804,16 @@ function renderBottomActions() {
     el.innerHTML = `
         <button onclick="openClientSheet()" class="flex-1 h-[48px] bg-white border border-primary text-primary rounded-[20px] text-sm font-semibold active:scale-95 transition-all">转给客户</button>
         <button onclick="goPayNow()" class="flex-1 h-[48px] bg-primary text-white rounded-[20px] text-sm font-semibold active:scale-95 transition-all shadow-[0_8px_20px_-6px_rgba(17,166,74,0.4)]">立即付款</button>`;
+}
+
+function canPrintEditReceipt() {
+    return ['draft', 'pending_price', 'unpaid', 'pending_client'].includes(state.status);
+}
+
+function updateEditPrintChip() {
+    const chip = document.getElementById('editPrintChip');
+    if (!chip) return;
+    chip.classList.toggle('hidden', !canPrintEditReceipt());
 }
 
 function onGrossWeightChange(value) {
@@ -909,6 +987,136 @@ function openLightbox(url) {
 
 function closeLightbox() {
     document.getElementById('lightboxOverlay').classList.remove('show');
+}
+
+function seedPrinterDevices() {
+    return [
+        { id: 'printer-58', type: 'printer', name: '便携蓝牙打印机 58mm', status: 'disconnected', enabled: true },
+        { id: 'printer-80', type: 'printer', name: '蓝牙打印机 80X', status: 'disconnected', enabled: true }
+    ];
+}
+
+function loadPrinterDevices() {
+    let list = [];
+    try {
+        const stored = JSON.parse(localStorage.getItem(DEVICE_STORAGE_KEY));
+        if (Array.isArray(stored)) list = stored;
+    } catch(e) {}
+    const ids = new Set(list.map(function(item) { return item.id; }));
+    seedPrinterDevices().forEach(function(item) {
+        if (!ids.has(item.id)) list.push(item);
+    });
+    return list;
+}
+
+function savePrinterDevices(list) {
+    try { localStorage.setItem(DEVICE_STORAGE_KEY, JSON.stringify(list)); } catch(e) {}
+}
+
+function loadDevicePrefs() {
+    try {
+        return Object.assign({ currentPrinterId: 'printer-58' }, JSON.parse(localStorage.getItem(DEVICE_PREF_KEY)) || {});
+    } catch(e) {
+        return { currentPrinterId: 'printer-58' };
+    }
+}
+
+function saveDevicePrefs(prefs) {
+    try { localStorage.setItem(DEVICE_PREF_KEY, JSON.stringify(prefs)); } catch(e) {}
+}
+
+function getCurrentPrinter() {
+    const prefs = loadDevicePrefs();
+    const printers = loadPrinterDevices().filter(function(item) {
+        return item.type === 'printer' && item.enabled !== false && item.status !== 'disabled';
+    });
+    return printers.find(function(item) { return item.id === prefs.currentPrinterId; })
+        || printers.find(function(item) { return item.status === 'connected'; })
+        || printers[0];
+}
+
+function openEditPrintReceipt() {
+    if (!canPrintEditReceipt()) {
+        showToast('当前订单不支持打印');
+        return;
+    }
+    state.pendingPrintOrderId = order && (order.id || orderNo);
+    const printer = getCurrentPrinter();
+    if (printer && printer.status === 'connected') {
+        simulateEditPrintReceipt();
+        return;
+    }
+    openPrinterSheet();
+}
+
+function simulateEditPrintReceipt() {
+    state.pendingPrintOrderId = null;
+    closePrinterSheet();
+    showToast('打印小票已发送到打印机');
+}
+
+function openPrinterSheet() {
+    renderPrinterDeviceList();
+    document.getElementById('printerSheetOverlay').classList.add('show');
+    document.getElementById('printerSheet').classList.add('show');
+}
+
+function closePrinterSheet() {
+    const sheet = document.getElementById('printerSheet');
+    const overlay = document.getElementById('printerSheetOverlay');
+    if (sheet) sheet.classList.remove('show');
+    if (overlay) overlay.classList.remove('show');
+}
+
+function renderPrinterDeviceList() {
+    const box = document.getElementById('printerDeviceList');
+    if (!box) return;
+    const printers = loadPrinterDevices().filter(function(item) {
+        return item.type === 'printer' && item.enabled !== false && item.status !== 'disabled';
+    });
+    box.innerHTML = printers.map(function(item) {
+        const connected = item.status === 'connected';
+        return '<div class="printer-device-card ' + (connected ? 'connected' : '') + '">'
+            + '<div class="w-10 h-10 rounded-xl bg-[#EBF7F0] text-[#11A64A] flex items-center justify-center shrink-0"><i class="fas fa-print"></i></div>'
+            + '<div class="flex-1 min-w-0"><div class="text-[14px] font-semibold text-gray-800 truncate">' + escapeHtml(item.name) + '</div><div class="text-[11px] text-gray-400 mt-0.5">' + (connected ? '当前设备' : '附近设备') + '</div></div>'
+            + (connected
+                ? '<div class="flex items-center gap-2 shrink-0"><span class="h-8 px-3 rounded-xl bg-[#EAF8EF] text-[#11A64A] text-[12px] font-semibold flex items-center">已连接</span><button type="button" class="h-8 px-3 rounded-xl bg-white border border-red-100 text-red-500 text-[12px] font-semibold active:scale-[0.98]" onclick="disconnectPrinterDevice(&quot;' + item.id + '&quot;)">断开</button></div>'
+                : '<button type="button" class="h-8 px-3 rounded-xl bg-[#EBF7F0] text-[#11A64A] text-[12px] font-semibold active:scale-[0.98]" onclick="connectPrinterDevice(&quot;' + item.id + '&quot;)">连接</button>')
+            + '</div>';
+    }).join('');
+}
+
+function refreshPrinterDevices() {
+    showToast('已重新搜索附近打印机');
+    renderPrinterDeviceList();
+}
+
+function connectPrinterDevice(id) {
+    const list = loadPrinterDevices().map(function(item) {
+        if (item.type !== 'printer') return item;
+        if (item.id === id) return Object.assign({}, item, { status: 'connected', lastConnected: '刚刚' });
+        return Object.assign({}, item, { status: 'disconnected' });
+    });
+    savePrinterDevices(list);
+    const prefs = loadDevicePrefs();
+    prefs.currentPrinterId = id;
+    saveDevicePrefs(prefs);
+    showToast('打印机已连接');
+    if (state.pendingPrintOrderId) {
+        simulateEditPrintReceipt();
+        return;
+    }
+    renderPrinterDeviceList();
+}
+
+function disconnectPrinterDevice(id) {
+    const list = loadPrinterDevices().map(function(item) {
+        if (item.type === 'printer' && item.id === id) return Object.assign({}, item, { status: 'disconnected' });
+        return item;
+    });
+    savePrinterDevices(list);
+    renderPrinterDeviceList();
+    showToast('打印机已断开');
 }
 
 function openClientSheet() {

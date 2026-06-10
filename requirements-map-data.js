@@ -4,7 +4,7 @@ window.FSY_REQUIREMENT_MAP = {
     "wiki": "https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd",
     "spreadsheetToken": "GwZNsIWXthkMfAtHY3Pc98Xcn8b",
     "sheetId": "7ONhrG",
-    "generatedAt": "2026-06-01"
+    "generatedAt": "2026-06-09"
   },
   "modules": [
     {
@@ -49,7 +49,7 @@ window.FSY_REQUIREMENT_MAP = {
           "title": "收购商自主开通农户（卖方）身份",
           "description": "能快捷让收购商快速开通农户身份",
           "owner": "潘恒",
-          "status": "测试中",
+          "status": "已上线",
           "start": "2026-05-25",
           "end": "2026-06-02",
           "note": "开通卖方身份功能已做",
@@ -77,7 +77,7 @@ window.FSY_REQUIREMENT_MAP = {
           "title": "首页收购商待办/农户收款概览",
           "description": "首页待办卡片已做；农户端收款概览卡片已做，用于在首页快速查看待处理事项和收款相关概览信息。",
           "owner": "潘恒",
-          "status": "测试中",
+          "status": "已上线",
           "start": "2026-05-25",
           "end": "2026-06-02",
           "note": "",
@@ -151,15 +151,29 @@ window.FSY_REQUIREMENT_MAP = {
           "id": "REQ-007",
           "module": "首页、我的与用户体验",
           "title": "双身份登录默认端记忆",
-          "description": "同一用户同时开通收购商和农户身份时，登录后应进入上一次退出时所在的端。例如用户切换到收购商端后退出，下次登录应默认进入收购商端，而不是固定进入首次登录或登录时默认端...",
+          "description": "同一用户同时开通收购商和农户身份时，退出登录后再次登录应按照上一次退出所在身份的端进入，单身份用户保持现有登录逻辑。",
           "owner": "潘恒",
-          "status": "待排期",
+          "status": "已上线",
           "start": "2026-05-25",
-          "end": "",
-          "note": "后续拆细方案：需评估端身份记忆、退出时端状态保存、重新登录默认端判断规则",
-          "hasLocalDoc": false,
-          "hasFeishuLink": false,
-          "links": []
+          "end": "2026-06-09",
+          "note": "6月9日发版口径：记录退出时所在端，再次登录默认进入上次退出所在身份端。",
+          "hasLocalDoc": true,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "0609小功能 PRD",
+              "href": "PRD-20260609-release-small-features.html"
+            },
+            {
+              "label": "0609测试用例",
+              "href": "TEST-20260609-release-small-features.html"
+            },
+            {
+              "label": "飞书PRD",
+              "href": "https://congmingpay.feishu.cn/wiki/RCXvwq44QiFrylkxHk8cesRgnne",
+              "external": true
+            }
+          ]
         },
         {
           "id": "REQ-008",
@@ -191,10 +205,10 @@ window.FSY_REQUIREMENT_MAP = {
           "title": "用户与隐私协议",
           "description": "小程序或h5端需要明确展示用户协议与隐私协议，建议放到我的模块单独入口",
           "owner": "潘恒",
-          "status": "开发中",
+          "status": "已上线",
           "start": "2026-05-30",
-          "end": "",
-          "note": "",
+          "end": "2026-06-04",
+          "note": "关于模块已上线，可在我的模块查看版本号、用户协议和隐私协议。",
           "hasLocalDoc": true,
           "hasFeishuLink": false,
           "links": [
@@ -205,6 +219,26 @@ window.FSY_REQUIREMENT_MAP = {
             {
               "label": "0604测试用例",
               "href": "TEST-20260604-release-small-features.html"
+            }
+          ]
+        },
+        {
+          "id": "REQ-085",
+          "module": "首页、我的与用户体验",
+          "title": "收购商首页统计卡片与品类明细优化",
+          "description": "收购商首页顶部统计卡片在今日收购金额基础上补充本月、本年收购统计金额及笔数；下方品类明细去掉价值较低的今日页签，仅保留本月和本年。",
+          "owner": "潘恒",
+          "status": "需求记录",
+          "start": "2026-06-06",
+          "end": "",
+          "note": "轻量优化项，先记录需求；暂不单独输出PRD/测试用例，后续排期时再细化。",
+          "hasLocalDoc": false,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "飞书总览表",
+              "href": "https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd",
+              "external": true
             }
           ]
         }
@@ -243,7 +277,7 @@ window.FSY_REQUIREMENT_MAP = {
           "title": "开户行与开户支行选择优化",
           "description": "开户行与开户支行选择优化（主要是农户建档的开户行与支行选择）",
           "owner": "潘恒",
-          "status": "测试中",
+          "status": "已上线",
           "start": "2026-04-18",
           "end": "2026-06-02",
           "note": "【进行中】农户建档开户行/支行选择优化已在做，需继续跟进联动校验与页面体验",
@@ -388,23 +422,48 @@ window.FSY_REQUIREMENT_MAP = {
         {
           "id": "REQ-017",
           "module": "进件与农户建档",
-          "title": "农户建档地址定位与种植面积",
-          "description": "农户建档时需新增农户地址和种植面积字段：农户地址需支持定位并作为必填项提交；种植面积作为非必填项提交。建档完成后，农户个人信息页面也需要展示农户地址和种植面积。并支...",
+          "title": "农户建档地址定位",
+          "description": "农户建档新增农户地址字段，支持地图选点定位并支持手动修改；农户个人信息页展示并支持修改地址。",
           "owner": "潘恒",
-          "status": "待排期",
+          "status": "已上线",
           "start": "",
-          "end": "",
-          "note": "后续拆细方案：需明确定位授权、地址手动修正、种植面积单位、存量农户补录和个人信息页展示规则",
+          "end": "2026-06-09",
+          "note": "6月9日发版口径：本期收敛为农户地址字段，支持地图选点定位和手动修改。",
           "hasLocalDoc": true,
-          "hasFeishuLink": false,
+          "hasFeishuLink": true,
           "links": [
             {
-              "label": "0604小功能 PRD",
-              "href": "PRD-20260604-release-small-features.html"
+              "label": "0609小功能 PRD",
+              "href": "PRD-20260609-release-small-features.html"
             },
             {
-              "label": "0604测试用例",
-              "href": "TEST-20260604-release-small-features.html"
+              "label": "0609测试用例",
+              "href": "TEST-20260609-release-small-features.html"
+            },
+            {
+              "label": "飞书PRD",
+              "href": "https://congmingpay.feishu.cn/wiki/RCXvwq44QiFrylkxHk8cesRgnne",
+              "external": true
+            }
+          ]
+        },
+        {
+          "id": "REQ-087",
+          "module": "进件与农户建档",
+          "title": "农户建档身份证号正则校验",
+          "description": "农户建档页身份证号字段补充格式校验，录入身份证号时按居民身份证号码规则校验，格式不正确时拦截提交并提示用户修改。",
+          "owner": "潘恒",
+          "status": "需求记录",
+          "start": "2026-06-09",
+          "end": "",
+          "note": "小需求记录：飞书总表序号 86；仅补充校验规则，不单独输出PRD/测试用例；后续开发时需同步覆盖建档提交和编辑保存链路。",
+          "hasLocalDoc": false,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "飞书需求总表",
+              "href": "https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd",
+              "external": true
             }
           ]
         },
@@ -679,7 +738,7 @@ window.FSY_REQUIREMENT_MAP = {
           "title": "快捷农户建档与二维码展示",
           "description": "支持开单时快捷农户建档，并优化建档完成后展示农户二维码，提升开单效率",
           "owner": "潘恒",
-          "status": "测试中",
+          "status": "已上线",
           "start": "2026-05-07",
           "end": "2026-06-02",
           "note": "【已完成】农户建档后展示二维码功能已做",
@@ -731,10 +790,10 @@ window.FSY_REQUIREMENT_MAP = {
           "title": "拍照留证",
           "description": "新增拍照留证功能，支持最多上传多张照片留存",
           "owner": "潘恒",
-          "status": "开发中",
+          "status": "延期",
           "start": "2026-04-20",
           "end": "2026-06-04",
-          "note": "",
+          "note": "6月4日未上线，拍照留存功能先延期。",
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
@@ -757,12 +816,12 @@ window.FSY_REQUIREMENT_MAP = {
           "id": "REQ-031",
           "module": "开单与品类管理",
           "title": "开单配置与品类管理优化",
-          "description": "按二级品类配置开单方式，支持极简快收/标准称重、字段显示、默认值和订单状态联动——待优化",
+          "description": "开单配置改为收购商主体级配置，超管在“我的 > 开单配置”维护称重模式、计价方式、扣杂、拍照和入库仓库；业务员开单时自动使用当前生效配置。",
           "owner": "潘恒",
           "status": "需求设计",
           "start": "2026-04-20",
           "end": "",
-          "note": "详细文档：https://congmingpay.feishu.cn/wiki/OIe0w3wV4iTA8SkFkhFc...",
+          "note": "V3方案：不再按二级品类配置，改为主体级单一生效配置；默认标准称重收购，内置模板只读可启用，自定义配置从空白创建；收购价不在开单配置中维护。",
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
@@ -959,6 +1018,34 @@ window.FSY_REQUIREMENT_MAP = {
           ]
         },
         {
+          "id": "REQ-084",
+          "module": "订单管理",
+          "title": "处理中页签与支付失败原因展示",
+          "description": "订单管理“付款中”大页签改为“处理中”；支付失败后业务状态仍为付款中，但在列表卡片和详情页展示上次失败原因。",
+          "owner": "潘恒",
+          "status": "延期",
+          "start": "2026-06-06",
+          "end": "2026-06-09",
+          "note": "未随6月9日上线，后续随账户管理一起上线；不新增支付失败业务状态，只优化页签文案和失败原因展示。",
+          "hasLocalDoc": true,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "0609小功能 PRD",
+              "href": "PRD-20260609-release-small-features.html"
+            },
+            {
+              "label": "0609测试用例",
+              "href": "TEST-20260609-release-small-features.html"
+            },
+            {
+              "label": "飞书PRD",
+              "href": "https://congmingpay.feishu.cn/wiki/RCXvwq44QiFrylkxHk8cesRgnne",
+              "external": true
+            }
+          ]
+        },
+        {
           "id": "REQ-040",
           "module": "订单管理",
           "title": "订单分阶段付款/定金尾款",
@@ -1104,6 +1191,26 @@ window.FSY_REQUIREMENT_MAP = {
               "external": true
             }
           ]
+        },
+        {
+          "id": "REQ-082",
+          "module": "支付与收付款",
+          "title": "支付电子回执批量下载与移动端展示",
+          "description": "PC端支持收购商在付款完成后批量下载银行电子回执，便于发给农户确认付款；移动端后续可考虑在订单详情、收款记录或消息通知中展示/预览银行电子回执。",
+          "owner": "潘恒",
+          "status": "需求记录",
+          "start": "",
+          "end": "",
+          "note": "PC端为主，移动端先记录后续方向；依赖银行侧返回交易流水号、订单回执、交易回执等信息",
+          "hasLocalDoc": false,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "飞书需求",
+              "href": "https://congmingpay.feishu.cn/wiki/WtaywfK7WihxbqkMPbCczux1nPf",
+              "external": true
+            }
+          ]
         }
       ]
     },
@@ -1162,6 +1269,34 @@ window.FSY_REQUIREMENT_MAP = {
             {
               "label": "飞书需求",
               "href": "https://congmingpay.feishu.cn/wiki/ZfvlwhFLWihUpZkekVwc4QQ8nPf",
+              "external": true
+            }
+          ]
+        },
+        {
+          "id": "REQ-083",
+          "module": "结算与账户管理",
+          "title": "农户结算卡支持公户修改",
+          "description": "农户结算信息修改从仅支持个人户扩展为支持公户修改，公户仅允许修改对公账户名和账户卡号。",
+          "owner": "潘恒",
+          "status": "已上线",
+          "start": "2026-05-30",
+          "end": "2026-06-09",
+          "note": "6月9日发版口径：农户结算信息修改支持公户信息修改，个人户修改能力保持原已上线口径。",
+          "hasLocalDoc": true,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "0609小功能 PRD",
+              "href": "PRD-20260609-release-small-features.html"
+            },
+            {
+              "label": "0609测试用例",
+              "href": "TEST-20260609-release-small-features.html"
+            },
+            {
+              "label": "飞书PRD",
+              "href": "https://congmingpay.feishu.cn/wiki/RCXvwq44QiFrylkxHk8cesRgnne",
               "external": true
             }
           ]
@@ -1426,22 +1561,22 @@ window.FSY_REQUIREMENT_MAP = {
           "id": "REQ-076",
           "module": "商户管理与注销",
           "title": "蓝牙电子秤直接称重",
-          "description": "移动端连接蓝牙电子秤，直接读取称重数据并回填开单字段，记录重量来源和设备信息",
+          "description": "移动端在开单读秤场景内即时连接蓝牙电子秤，支持连接、主动断开、切换设备、稳定读数确认、多次称重明细和重量回填",
           "owner": "潘恒",
           "status": "需求设计",
           "start": "",
           "end": "",
-          "note": "详细文档：https://congmingpay.feishu.cn/wiki/RGl5w3YnPiUoIxkqJxhc...",
+          "note": "V2评估版：不走重型设备管理，改为开单场景内即时连接；已连接设备可主动断开或切换。详细文档：https://congmingpay.feishu.cn/wiki/JZVgw86c3iPfqbkw8UFcksernPb",
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
             {
-              "label": "业务流程全景",
-              "href": "business-flow-overview.html"
+              "label": "即时连接PRD",
+              "href": "PRD-蓝牙设备即时连接重构方案.html"
             },
             {
-              "label": "飞书需求",
-              "href": "https://congmingpay.feishu.cn/wiki/RGl5w3YnPiUoIxkqJxhcPtTHnfg；https://congmingpay.feishu.cn/wiki/JZVgw86c3iPfqbkw8UFcksernPb",
+              "label": "飞书PRD",
+              "href": "https://congmingpay.feishu.cn/wiki/JZVgw86c3iPfqbkw8UFcksernPb",
               "external": true
             }
           ]
@@ -1450,22 +1585,26 @@ window.FSY_REQUIREMENT_MAP = {
           "id": "REQ-077",
           "module": "商户管理与注销",
           "title": "蓝牙打印小票",
-          "description": "移动端连接蓝牙小票打印机，在开单完成、付款成功、订单详情或现金支付完成后打印交易凭证",
+          "description": "移动端在挂单、待开价、待付款、付款成功等场景内即时连接蓝牙打印机，支持连接、主动断开、切换设备、连接成功后继续打印当前小票；小票模板由PC后台统一配置",
           "owner": "潘恒",
           "status": "需求设计",
           "start": "",
           "end": "",
-          "note": "详细文档：https://congmingpay.feishu.cn/wiki/RGl5w3YnPiUoIxkqJxhc...",
+          "note": "V2评估版：挂单、待开价、待付款、付款成功均可打印小票；开单暂存成功后可直接打印，已连接打印机可主动断开或切换；模板字段和打印规则由PC后台控制。详细文档：https://congmingpay.feishu.cn/wiki/JZVgw86c3iPfqbkw8UFcksernPb",
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
             {
-              "label": "业务流程全景",
-              "href": "business-flow-overview.html"
+              "label": "即时连接PRD",
+              "href": "PRD-蓝牙设备即时连接重构方案.html"
             },
             {
-              "label": "飞书需求",
-              "href": "https://congmingpay.feishu.cn/wiki/RGl5w3YnPiUoIxkqJxhcPtTHnfg",
+              "label": "PC模板配置原型",
+              "href": "pc-receipt-template-config.html"
+            },
+            {
+              "label": "飞书PRD",
+              "href": "https://congmingpay.feishu.cn/wiki/JZVgw86c3iPfqbkw8UFcksernPb",
               "external": true
             }
           ]
@@ -1546,15 +1685,25 @@ window.FSY_REQUIREMENT_MAP = {
           "id": "REQ-081",
           "module": "扩展能力与待探索",
           "title": "库存管理",
-          "description": "对接PC端库存管理，我们仅出前端页面，后端洛道出接口",
+          "description": "移动端对接PC端库存管理：开单可选入库仓库并形成预入库，库存管理入口收口到我的模块，提供库存概览、库存台账、库存明细、农户存粮只读查询与汇总；仓库维护、调整、出库、盘点、存转销仍在PC端处理。",
           "owner": "",
-          "status": "需求记录",
+          "status": "需求设计",
           "start": "",
           "end": "",
-          "note": "",
-          "hasLocalDoc": false,
-          "hasFeishuLink": false,
-          "links": []
+          "note": "入口放在我的 > 库存管理，仅超管和有权限账号可见；首页展示库存概览和三Tab最近5条。库存台账不汇总、不下钻；库存明细支持汇总统计和非汇总详情弹层；农户存粮支持汇总展示、非汇总详情弹层和汇总分组明细。",
+          "hasLocalDoc": true,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "库存管理移动端方案",
+              "href": "PRD-库存管理移动端方案.html"
+            },
+            {
+              "label": "飞书方案",
+              "href": "https://www.feishu.cn/wiki/Ut74wR1pJiMcb7kZTUfcnLRrnTh",
+              "external": true
+            }
+          ]
         }
       ]
     },
@@ -1670,6 +1819,34 @@ window.FSY_REQUIREMENT_MAP = {
           "hasLocalDoc": false,
           "hasFeishuLink": false,
           "links": []
+        },
+        {
+          "id": "REQ-086",
+          "module": "管理端与后台能力",
+          "title": "小票模板配置（PC后台）",
+          "description": "PC后台统一维护过磅单、待开价小票、待付款确认单、付款成功小票的字段、纸张规格、默认份数、自动打印规则和模板预览，移动端按生效模板打印",
+          "owner": "潘恒",
+          "status": "需求设计",
+          "start": "",
+          "end": "",
+          "note": "作为蓝牙打印小票的后台配置能力；移动端不编辑模板，只读取PC后台生效配置。详细文档：https://congmingpay.feishu.cn/wiki/JZVgw86c3iPfqbkw8UFcksernPb",
+          "hasLocalDoc": true,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "PC模板配置原型",
+              "href": "pc-receipt-template-config.html"
+            },
+            {
+              "label": "即时连接PRD",
+              "href": "PRD-蓝牙设备即时连接重构方案.html"
+            },
+            {
+              "label": "飞书PRD",
+              "href": "https://congmingpay.feishu.cn/wiki/JZVgw86c3iPfqbkw8UFcksernPb",
+              "external": true
+            }
+          ]
         }
       ]
     }

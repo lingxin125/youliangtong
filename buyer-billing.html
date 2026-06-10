@@ -128,37 +128,6 @@
             box-shadow: 0 2px 8px rgba(239,68,68,0.22);
         }
         .draft-entry-badge.hidden { display: none; }
-        .scale-status-bar {
-            width: 100%; min-height: 42px; border-radius: 14px;
-            background: linear-gradient(180deg, #F4FBF7 0%, #ECF8F1 100%);
-            border: 1px solid rgba(17,166,74,0.14);
-            color: #11A64A; font-size: 12px; font-weight: 600;
-            display: flex; align-items: center; gap: 9px; padding: 9px 11px;
-            box-shadow: 0 4px 14px rgba(17,166,74,0.06);
-        }
-        .scale-status-bar.disconnected {
-            background: linear-gradient(180deg, #FFF7F7 0%, #FEF2F2 100%);
-            border-color: rgba(239,68,68,0.14); color: #EF4444;
-            box-shadow: 0 4px 14px rgba(239,68,68,0.06);
-        }
-        .scale-status-icon-wrap {
-            width: 26px; height: 26px; border-radius: 10px;
-            display: inline-flex; align-items: center; justify-content: center;
-            background: rgba(17,166,74,0.1); flex-shrink: 0;
-        }
-        .scale-status-bar.disconnected .scale-status-icon-wrap {
-            background: rgba(239,68,68,0.1);
-        }
-        .scale-status-title { line-height: 1.2; }
-        .scale-status-desc { font-size: 11px; font-weight: 400; opacity: 0.72; margin-top: 2px; }
-        .scale-status-pill {
-            flex-shrink: 0; height: 24px; padding: 0 8px; border-radius: 999px;
-            background: rgba(17,166,74,0.1); display: inline-flex; align-items: center;
-            font-size: 11px; font-weight: 600;
-        }
-        .scale-status-bar.disconnected .scale-status-pill {
-            background: rgba(239,68,68,0.1);
-        }
         .scale-read-btn {
             height: 24px; min-width: 52px; border-radius: 999px;
             display: inline-flex; align-items: center; justify-content: center; gap: 4px;
@@ -190,6 +159,33 @@
         .scan-trigger-modules span {
             width: 3px; height: 3px; background: #11A64A; border-radius: 1px;
         }
+        .billing-print-chip {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            height: 28px;
+            padding: 0 9px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #FFFFFF;
+            border: 1px solid rgba(17,166,74,0.14);
+            color: #11A64A;
+            font-size: 11px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(17,166,74,0.08);
+            z-index: 1;
+        }
+        .billing-print-chip.hidden { display: none; }
+        .billing-print-chip i { font-size: 10px; }
+        .billing-print-chip:active {
+            transform: scale(0.97);
+            background: #EBF7F0;
+        }
+        .billing-print-chip:not(.hidden) + .billing-amount-row {
+            padding-top: 22px;
+        }
     </style>
 </head>
 <body>
@@ -199,17 +195,6 @@
 
     <!-- 主内容区 -->
     <div class="flex-1 overflow-y-auto hide-scrollbar px-4 pt-3 pb-4">
-        <button id="scaleStatusBar" type="button" class="scale-status-bar mb-3 text-left" onclick="handleScaleStatusClick()">
-            <span class="scale-status-icon-wrap">
-                <i id="scaleStatusIcon" class="fas fa-bluetooth-b text-[13px]"></i>
-            </span>
-            <span class="flex-1 min-w-0">
-                <span id="scaleStatusText" class="scale-status-title block truncate">电子秤已连接 · 德立 D100</span>
-                <span id="scaleStatusDesc" class="scale-status-desc block truncate">开单时可读取毛重和皮重</span>
-            </span>
-            <span id="scaleStatusAction" class="scale-status-pill">读秤可用</span>
-        </button>
-
         <!-- ❶ 品类选择 -->
         <div class="step-card mb-3">
             <div class="p-4">
@@ -242,6 +227,8 @@
                             <option value="吨">吨</option>
                             <option value="袋">袋</option>
                             <option value="箱">箱</option>
+                            <option value="筐">筐</option>
+                            <option value="件">件</option>
                         </select>
                         <i class="fas fa-chevron-down text-gray-400 text-[10px] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
                     </div>
@@ -305,14 +292,18 @@
                     </div>
                 </div>
                 <!-- 备注 -->
-                <div class="mt-3">
+                <div class="mt-3" id="remarkSection">
                     <label class="block text-[12px] text-gray-500 mb-1">备注</label>
                     <input type="text" id="remarkInput" placeholder="选填" class="w-full h-10 rounded-xl border border-gray-200 bg-gray-50 px-3 text-sm text-gray-800 outline-none focus:border-primary focus:bg-white">
                 </div>
             </div>
             <div class="border-t border-gray-100"></div>
-            <div class="p-4 bg-gray-50/50">
-                <div class="flex items-center justify-between">
+            <div class="p-4 bg-gray-50/50 relative">
+                <button id="billingPrintChip" type="button" class="billing-print-chip hidden" onclick="openBillingPrintReceipt()">
+                    <i class="fas fa-print"></i>
+                    <span>打印小票</span>
+                </button>
+                <div class="billing-amount-row flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <i class="fas fa-coins text-gray-400 text-sm"></i>
                         <span class="text-sm font-medium text-gray-800">应付金额</span>
@@ -323,7 +314,7 @@
         </div>
 
         <!-- ❸ 拍照留存 -->
-        <div class="step-card mb-3">
+        <div class="step-card mb-3" id="photoSection">
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <div class="w-1 h-4 bg-primary rounded-full"></div>
@@ -376,7 +367,31 @@
             </div>
         </div>
 
-        <!-- ❺ 底部操作栏 (灵动岛悬浮设计) -->
+        <!-- ❺ 入库处理 -->
+        <div class="step-card mb-3" id="inventorySection">
+            <div class="p-4">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-1 h-4 bg-primary rounded-full"></div>
+                    <span class="text-sm font-medium text-gray-800">入库处理</span>
+                    <span class="text-xs text-gray-400">选填</span>
+                </div>
+                <div id="warehouseSelectCard" onclick="openWarehouseSheet()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
+                    <div class="w-10 h-10 rounded-[12px] bg-gradient-to-br from-[#EBF7F0] to-[#F4FBF6] border border-[#11A64A]/10 flex items-center justify-center shrink-0">
+                        <i class="fas fa-warehouse text-[#11A64A] text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div id="warehouseNameText" class="text-sm font-medium text-gray-800">暂不入库</div>
+                        <div id="warehouseHintText" class="text-[11px] text-gray-500 mt-0.5">后续可在 PC 端处理入库</div>
+                    </div>
+                    <button id="warehouseClearBtn" type="button" onclick="event.stopPropagation(); clearWarehouse();" class="hidden w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- ❻ 底部操作栏 (灵动岛悬浮设计) -->
         <div class="mb-2 mt-1">
             <div class="flex items-center bg-white border border-gray-100 shadow-sm rounded-[24px] p-1.5">
                 
@@ -452,6 +467,31 @@
         <div id="payeeListContainer" class="px-4 space-y-2 overflow-y-auto" style="max-height:400px;padding-bottom:20px;"></div>
     </div>
 
+    <!-- 选择入库仓库弹窗 -->
+    <div class="billing-sheet-overlay" id="warehouseSheetOverlay" onclick="closeWarehouseSheet()"></div>
+    <div class="billing-sheet" id="warehouseSheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-4 pb-5">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <div class="text-[16px] font-bold text-gray-800">选择入库仓库</div>
+                    <div class="text-[12px] text-gray-400 mt-1">仅展示启用状态仓库</div>
+                </div>
+                <button onclick="closeWarehouseSheet()" class="w-8 h-8 flex items-center justify-center text-gray-400">
+                    <i class="fas fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <button type="button" onclick="clearWarehouse(); closeWarehouseSheet();" class="w-full rounded-2xl border border-gray-100 bg-gray-50 p-3 flex items-center gap-3 text-left active:scale-[0.99] transition-transform mb-2">
+                <div class="w-10 h-10 rounded-xl bg-white text-gray-400 flex items-center justify-center shrink-0 border border-gray-100"><i class="fas fa-ban"></i></div>
+                <div class="flex-1 min-w-0">
+                    <div class="text-[14px] font-semibold text-gray-800">暂不入库</div>
+                    <div class="text-[11px] text-gray-400 mt-0.5">本单不生成库存信息</div>
+                </div>
+            </button>
+            <div id="warehouseListContainer" class="space-y-2"></div>
+        </div>
+    </div>
+
     <!-- 建档二维码弹窗 -->
     <div class="billing-sheet-overlay" id="inviteQrOverlay" onclick="closeInviteQrModal()"></div>
     <div class="billing-sheet" id="inviteQrSheet">
@@ -513,29 +553,76 @@
         </div>
     </div>
 
-    <!-- 重新连接设备弹窗 -->
+    <!-- 连接蓝牙电子秤抽屉 -->
     <div class="billing-sheet-overlay" id="scaleReconnectOverlay" onclick="closeScaleReconnectSheet()"></div>
     <div class="billing-sheet" id="scaleReconnectSheet">
         <div class="billing-sheet-handle"></div>
         <div class="px-4 pb-5">
             <div class="flex items-center justify-between mb-3">
-                <div class="text-[16px] font-bold text-gray-800">重新连接设备</div>
+                <div>
+                    <div class="text-[16px] font-bold text-gray-800">连接蓝牙电子秤</div>
+                    <div class="text-[12px] text-gray-400 mt-1">选择附近设备连接</div>
+                </div>
                 <button onclick="closeScaleReconnectSheet()" class="w-8 h-8 flex items-center justify-center text-gray-400">
                     <i class="fas fa-xmark text-lg"></i>
                 </button>
             </div>
-            <div class="text-[12px] text-gray-400 mb-3">最近使用设备</div>
-            <div class="rounded-2xl bg-white border border-gray-100 p-3 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-[#EBF7F0] text-[#11A64A] flex items-center justify-center">
-                    <i class="fas fa-scale-balanced"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div id="reconnectDeviceName" class="text-[14px] font-semibold text-gray-800 truncate">德立蓝牙电子秤 D100</div>
-                    <div class="text-[11px] text-gray-400 mt-0.5">断开后可重新连接</div>
-                </div>
-                <button class="h-9 px-3 rounded-xl bg-[#EBF7F0] text-[#11A64A] text-[12px] font-semibold" onclick="reconnectScaleDevice()">重新连接</button>
+            <div class="text-[12px] text-gray-400 mb-2">附近设备</div>
+            <div id="scaleNearbyDeviceList" class="space-y-2"></div>
+            <button class="mt-4 w-full h-11 rounded-xl bg-gray-50 text-gray-500 text-sm font-semibold" onclick="refreshScaleReconnectList()">重新搜索</button>
+        </div>
+    </div>
+
+    <!-- 暂存结果与小票打印 -->
+    <div class="billing-sheet-overlay" id="saveResultOverlay" onclick="closeSaveResultSheet()"></div>
+    <div class="billing-sheet" id="saveResultSheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-4 pb-5">
+            <div class="w-12 h-12 rounded-2xl bg-[#EBF7F0] text-[#11A64A] flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-circle-check text-xl"></i>
             </div>
-            <button class="mt-4 w-full h-11 rounded-xl bg-gray-50 text-gray-500 text-sm font-semibold" onclick="location.href='buyer-device-manage.html'">选择其他设备</button>
+            <div id="saveResultTitle" class="text-center text-[17px] font-bold text-gray-900">已暂存</div>
+            <div id="saveResultDesc" class="text-center text-[12px] text-gray-400 mt-1">可立即打印小票交给农户</div>
+            <div class="rounded-2xl bg-gray-50 border border-gray-100 p-3 mt-4">
+                <div class="flex items-center justify-between gap-3">
+                    <span class="text-[12px] text-gray-400">小票类型</span>
+                    <span id="saveReceiptType" class="text-[13px] font-semibold text-gray-800">收粮小票</span>
+                </div>
+                <div class="flex items-center justify-between gap-3 mt-2">
+                    <span class="text-[12px] text-gray-400">订单编号</span>
+                    <span id="saveResultOrderNo" class="text-[13px] font-semibold text-gray-800 font-poppins truncate">--</span>
+                </div>
+                <div id="saveResultSummary" class="text-[12px] text-gray-500 mt-2 truncate">--</div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mt-4">
+                <button type="button" class="h-11 rounded-xl bg-[#11A64A] text-white text-[14px] font-semibold active:scale-[0.98] transition-transform" onclick="openBillingPrintReceipt()">
+                    <i class="fas fa-print mr-1"></i>打印小票
+                </button>
+                <a id="saveResultDetailLink" href="buyer-order-manage.html" class="h-11 rounded-xl bg-white border border-[#11A64A]/20 text-[#11A64A] text-[14px] font-semibold active:scale-[0.98] transition-transform flex items-center justify-center no-underline" style="text-decoration:none;">
+                    查看订单
+                </a>
+            </div>
+            <button type="button" class="mt-3 w-full h-11 rounded-xl bg-gray-50 text-gray-500 text-[14px] font-semibold active:scale-[0.98] transition-transform" onclick="closeSaveResultSheet()">继续开单</button>
+        </div>
+    </div>
+
+    <!-- 蓝牙打印机即时连接 -->
+    <div class="billing-sheet-overlay" id="billingPrinterOverlay" onclick="closeBillingPrinterSheet()"></div>
+    <div class="billing-sheet" id="billingPrinterSheet">
+        <div class="billing-sheet-handle"></div>
+        <div class="px-4 pb-5">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <div class="text-[16px] font-bold text-gray-800">连接蓝牙打印机</div>
+                    <div class="text-[12px] text-gray-400 mt-1">连接后继续打印</div>
+                </div>
+                <button class="w-8 h-8 flex items-center justify-center text-gray-400" onclick="closeBillingPrinterSheet()">
+                    <i class="fas fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="text-[12px] text-gray-400 mb-2">附近设备</div>
+            <div id="billingPrinterDeviceList" class="space-y-2"></div>
+            <button class="mt-4 w-full h-11 rounded-xl bg-gray-50 text-gray-500 text-sm font-semibold" onclick="refreshBillingPrinterList()">重新搜索</button>
         </div>
     </div>
 
@@ -585,6 +672,7 @@ const state = {
     productName: '',
     currentUnit: '斤',
     payee: null,
+    warehouse: null,
     photos: [],
     editingOrderId: billingQuery.get('editOrder') || '',
     payeePool: mockStore ? mockStore.getFrequentContacts() : [
@@ -617,7 +705,7 @@ function selectCategory(cat) {
         var productNameInput = document.getElementById('productNameInput');
         if (productNameInput) productNameInput.value = cat;
     }
-    applyBillingCategoryConfig(cat);
+    applyBillingSceneConfig();
     renderCategoryTags();
 }
 
@@ -629,62 +717,56 @@ function syncProductName(value) {
 var currentPriceMode = 'unit'; // 'unit' or 'fixed'
 var currentBillingConfig = null;
 
-const BILLING_CONFIG_KEY = 'ylt_billing_category_configs';
-const DEFAULT_BILLING_CONFIGS = {
-    '玉米': { mode: 'standard', unit: '斤', pricingScope: 'both', defaultPriceMode: 'unit', defaultPrice: '1.35', deductionMode: 'ratio', defaultRatio: '2.00', defaultMisc: '' },
-    '小麦': { mode: 'standard', unit: '斤', pricingScope: 'both', defaultPriceMode: 'unit', defaultPrice: '', deductionMode: 'ratio', defaultRatio: '1.50', defaultMisc: '' },
-    '水稻': { mode: 'quick', unit: '斤', pricingScope: 'unit', defaultPriceMode: 'unit', defaultPrice: '', deductionMode: 'ratio', defaultRatio: '', defaultMisc: '' },
-    '大豆': { mode: 'standard', unit: '斤', pricingScope: 'both', defaultPriceMode: 'unit', defaultPrice: '', deductionMode: 'direct', defaultRatio: '', defaultMisc: '' },
-    '苹果': { mode: 'quick', unit: '斤', pricingScope: 'both', defaultPriceMode: 'unit', defaultPrice: '', deductionMode: 'ratio', defaultRatio: '', defaultMisc: '' },
-    '荔枝': { mode: 'quick', unit: '斤', pricingScope: 'fixed', defaultPriceMode: 'fixed', defaultPrice: '', deductionMode: 'ratio', defaultRatio: '', defaultMisc: '' }
-};
-
-function loadBillingCategoryConfigs() {
-    try {
-        var stored = JSON.parse(localStorage.getItem(BILLING_CONFIG_KEY)) || {};
-        return Object.assign({}, DEFAULT_BILLING_CONFIGS, stored);
-    } catch(e) {
-        return Object.assign({}, DEFAULT_BILLING_CONFIGS);
-    }
-}
-
 function normalizeBillingConfig(config) {
-    var cfg = Object.assign({ mode: 'standard', unit: '斤', pricingScope: 'both', defaultPriceMode: 'unit', defaultPrice: '', deductionMode: 'ratio', defaultRatio: '', defaultMisc: '' }, config || {});
+    var cfg = Object.assign({ mode: 'standard', unit: '斤', pricingScope: 'both', defaultPriceMode: 'unit', deductionMode: 'ratio', defaultRatio: '', defaultMisc: '', fields: { tare: true, deduction: true, photo: true, remark: true, warehouse: true } }, config || {});
+    cfg.fields = Object.assign({ tare: cfg.mode !== 'quick', deduction: cfg.mode !== 'quick', photo: true, remark: true, warehouse: cfg.mode !== 'quick' }, cfg.fields || {});
+    if (cfg.mode === 'quick') {
+        cfg.fields.tare = false;
+    }
+    cfg.fields.remark = true;
+    cfg.defaultRatio = '';
+    cfg.defaultMisc = '';
     if (cfg.pricingScope === 'unit') cfg.defaultPriceMode = 'unit';
     if (cfg.pricingScope === 'fixed') cfg.defaultPriceMode = 'fixed';
     return cfg;
 }
 
-function getBillingCategoryConfig(cat) {
-    var configs = loadBillingCategoryConfigs();
-    return normalizeBillingConfig(configs[cat]);
+function getActiveBillingSceneConfig() {
+    if (window.BillingSceneConfigStore && BillingSceneConfigStore.getActiveScene) {
+        return normalizeBillingConfig(BillingSceneConfigStore.getActiveScene());
+    }
+    return normalizeBillingConfig();
 }
 
-function applyBillingCategoryConfig(cat) {
-    var cfg = getBillingCategoryConfig(cat);
+function applyBillingSceneConfig() {
+    var cfg = getActiveBillingSceneConfig();
     currentBillingConfig = cfg;
     setUnit(cfg.unit || '斤');
-    if (cfg.defaultPrice) document.getElementById('unitPriceInput').value = cfg.defaultPrice;
 
     var isQuick = cfg.mode === 'quick';
+    var hasDeduction = cfg.fields && cfg.fields.deduction !== false;
     document.getElementById('grossField').classList.toggle('col-span-2', isQuick);
     document.getElementById('grossLabel').innerHTML = (isQuick ? '总重量' : '毛重') + ' <span class="text-red-400">*</span>';
-    document.getElementById('tareField').classList.toggle('hidden', isQuick);
-    document.getElementById('deductionField').classList.toggle('hidden', isQuick);
-    document.getElementById('netField').classList.toggle('hidden', isQuick);
+    document.getElementById('tareField').classList.toggle('hidden', isQuick || !cfg.fields.tare);
+    document.getElementById('deductionField').classList.toggle('hidden', !hasDeduction);
+    document.getElementById('netField').classList.toggle('hidden', isQuick && !hasDeduction);
+    document.getElementById('photoSection').classList.toggle('hidden', !cfg.fields.photo);
+    document.getElementById('remarkSection').classList.toggle('hidden', !cfg.fields.remark);
+    document.getElementById('inventorySection').classList.toggle('hidden', !cfg.fields.warehouse);
     document.getElementById('deductionLabel').textContent = cfg.deductionMode === 'direct' ? '杂重' : '扣减比例';
     document.getElementById('deductUnit').textContent = cfg.deductionMode === 'direct' ? (cfg.unit || '斤') : '%';
 
-    if (!isQuick) {
-        if (cfg.deductionMode === 'ratio' && cfg.defaultRatio && !document.getElementById('deductionInput').value) {
-            document.getElementById('deductionInput').value = cfg.defaultRatio;
-        }
-        if (cfg.deductionMode === 'direct' && cfg.defaultMisc && !document.getElementById('deductionInput').value) {
-            document.getElementById('deductionInput').value = cfg.defaultMisc;
-        }
-    } else {
+    if (isQuick || !cfg.fields.tare) {
         document.getElementById('tareWeightInput').value = '';
+    }
+
+    if (!hasDeduction) {
         document.getElementById('deductionInput').value = '';
+    }
+
+    if (!cfg.fields.warehouse) {
+        state.warehouse = null;
+        renderWarehouseCard();
     }
 
     var toggle = document.getElementById('priceModeToggle');
@@ -716,16 +798,18 @@ function setPriceMode(mode) {
 // ==================== 称重计价 ====================
 function calcWeights() {
     var gross = parseFloat(document.getElementById('grossWeightInput').value) || 0;
-    var tare = parseFloat(document.getElementById('tareWeightInput').value) || 0;
-    var deductionRaw = parseFloat(document.getElementById('deductionInput').value) || 0;
     var cfg = currentBillingConfig || {};
     var isQuick = cfg.mode === 'quick';
+    var hasTareField = !isQuick && cfg.fields && cfg.fields.tare !== false;
+    var hasDeductionField = cfg.fields && cfg.fields.deduction !== false;
+    var tare = hasTareField ? (parseFloat(document.getElementById('tareWeightInput').value) || 0) : 0;
+    var deductionRaw = hasDeductionField ? (parseFloat(document.getElementById('deductionInput').value) || 0) : 0;
     var deduct = 0;
-    if (!isQuick) {
+    if (hasDeductionField) {
         deduct = cfg.deductionMode === 'ratio' ? Math.round(gross * deductionRaw) / 100 : deductionRaw;
     }
     var price = parseFloat(document.getElementById('unitPriceInput').value) || 0;
-    var net = isQuick ? gross : Math.max(gross - tare - deduct, 0);
+    var net = Math.max(gross - tare - deduct, 0);
     var amount;
     if (currentPriceMode === 'fixed') {
         amount = price; // 一口价：金额直接等于输入值
@@ -738,7 +822,7 @@ function calcWeights() {
 }
 
 function setUnit(unit) {
-    var allowedUnits = ['斤', '公斤', '吨', '袋', '箱'];
+    var allowedUnits = ['斤', '公斤', '吨', '袋', '箱', '筐', '件'];
     if (allowedUnits.indexOf(unit) === -1) unit = '斤';
     state.currentUnit = unit;
     var unitSelect = document.getElementById('unitSelect');
@@ -747,7 +831,7 @@ function setUnit(unit) {
         document.getElementById(id).textContent = unit;
     });
     var cfg = currentBillingConfig || {};
-    document.getElementById('deductUnit').textContent = cfg.deductionMode === 'ratio' && cfg.mode !== 'quick' ? '%' : unit;
+    document.getElementById('deductUnit').textContent = cfg.deductionMode === 'ratio' ? '%' : unit;
     document.getElementById('priceUnit').textContent = currentPriceMode === 'fixed' ? '元' : ('元/' + unit);
     calcWeights();
 }
@@ -760,14 +844,16 @@ function getProductFromForm() {
     if (!productName) productName = state.productName || state.currentSubCategory || state.currentCategory || '';
     state.productName = productName;
     var gross = parseFloat(document.getElementById('grossWeightInput').value) || 0;
-    var tare = parseFloat(document.getElementById('tareWeightInput').value) || 0;
-    var deductionRaw = parseFloat(document.getElementById('deductionInput').value) || 0;
     var price = parseFloat(document.getElementById('unitPriceInput').value) || 0;
     var cfg = currentBillingConfig || {};
     var isQuick = cfg.mode === 'quick';
+    var hasTareField = !isQuick && cfg.fields && cfg.fields.tare !== false;
+    var hasDeductionField = cfg.fields && cfg.fields.deduction !== false;
+    var tare = hasTareField ? (parseFloat(document.getElementById('tareWeightInput').value) || 0) : 0;
+    var deductionRaw = hasDeductionField ? (parseFloat(document.getElementById('deductionInput').value) || 0) : 0;
     var deduct = 0;
-    if (!isQuick) deduct = cfg.deductionMode === 'ratio' ? Math.round(gross * deductionRaw) / 100 : deductionRaw;
-    var net = isQuick ? gross : Math.max(gross - tare - deduct, 0);
+    if (hasDeductionField) deduct = cfg.deductionMode === 'ratio' ? Math.round(gross * deductionRaw) / 100 : deductionRaw;
+    var net = Math.max(gross - tare - deduct, 0);
     var amount;
     if (currentPriceMode === 'fixed') {
         amount = price;
@@ -831,6 +917,67 @@ function setPayee(payee) {
     if(card) { card.classList.remove('hidden'); document.getElementById('payeeName').textContent = payee.name + '（' + payee.mobile + '）'; document.getElementById('payeeMeta').textContent = (payee.bank||'') + ' · ' + (payee.card||''); }
 }
 function clearPayee() { state.payee = null; document.getElementById('payeeOptions').classList.remove('hidden'); document.getElementById('payeeCard').classList.add('hidden'); }
+
+function renderWarehouseCard() {
+    var nameEl = document.getElementById('warehouseNameText');
+    var hintEl = document.getElementById('warehouseHintText');
+    var clearBtn = document.getElementById('warehouseClearBtn');
+    if (!nameEl || !hintEl || !clearBtn) return;
+    if (state.warehouse) {
+        nameEl.textContent = state.warehouse.name;
+        hintEl.textContent = '开单后生成预入库记录';
+        clearBtn.classList.remove('hidden');
+    } else {
+        nameEl.textContent = '暂不入库';
+        hintEl.textContent = '后续可在 PC 端处理入库';
+        clearBtn.classList.add('hidden');
+    }
+}
+
+function setWarehouse(warehouse) {
+    state.warehouse = warehouse || null;
+    renderWarehouseCard();
+}
+
+function clearWarehouse() {
+    setWarehouse(null);
+}
+
+function openWarehouseSheet() {
+    renderWarehouseList();
+    document.getElementById('warehouseSheetOverlay').classList.add('show');
+    document.getElementById('warehouseSheet').classList.add('show');
+}
+
+function closeWarehouseSheet() {
+    document.getElementById('warehouseSheet').classList.remove('show');
+    document.getElementById('warehouseSheetOverlay').classList.remove('show');
+}
+
+function renderWarehouseList() {
+    var container = document.getElementById('warehouseListContainer');
+    if (!container) return;
+    var list = mockStore && typeof mockStore.getEnabledWarehouses === 'function' ? mockStore.getEnabledWarehouses() : [];
+    if (!list.length) {
+        container.innerHTML = '<div class="text-center py-6 text-[12px] text-gray-400">暂无可用仓库</div>';
+        return;
+    }
+    container.innerHTML = list.map(function(item) {
+        var active = state.warehouse && state.warehouse.id === item.id;
+        return '<button type="button" class="w-full rounded-2xl border ' + (active ? 'border-[#11A64A]/20 bg-[#F4FBF7]' : 'border-gray-100 bg-white') + ' p-3 flex items-center gap-3 text-left active:scale-[0.99] transition-transform" onclick="selectWarehouseById(\'' + item.id + '\')">'
+            + '<div class="w-10 h-10 rounded-xl bg-[#EBF7F0] text-[#11A64A] flex items-center justify-center shrink-0"><i class="fas fa-warehouse"></i></div>'
+            + '<div class="flex-1 min-w-0"><div class="text-[14px] font-semibold text-gray-800 truncate">' + item.name + '</div><div class="text-[11px] text-gray-400 mt-0.5">可用于开单预入库</div></div>'
+            + (active ? '<span class="h-8 px-3 rounded-xl bg-[#11A64A] text-white text-[12px] font-semibold flex items-center">已选</span>' : '<i class="fas fa-chevron-right text-gray-300 text-xs"></i>')
+            + '</button>';
+    }).join('');
+}
+
+function selectWarehouseById(id) {
+    var warehouse = mockStore && typeof mockStore.getWarehouseById === 'function' ? mockStore.getWarehouseById(id) : null;
+    if (!warehouse) { showToast('仓库不可用'); return; }
+    setWarehouse(warehouse);
+    closeWarehouseSheet();
+}
 
 function openPayeeSheet() {
     document.getElementById('payeeSearchInput').value = '';
@@ -979,6 +1126,9 @@ function resolveDraftStatusFromForm() {
         if (p.grossWeight <= 0) return 'invalid_weight';
         return p.amount > 0 ? 'unpaid' : 'pending_price';
     }
+    if (cfg.fields && cfg.fields.tare === false) {
+        return p.amount > 0 ? 'unpaid' : 'pending_price';
+    }
     var hasTare = (parseFloat(document.getElementById('tareWeightInput').value) || 0) > 0 || document.getElementById('tareWeightInput').value.trim() !== '';
     var hasPrice = p.amount > 0;
     if (!hasTare) return 'draft';
@@ -1001,7 +1151,9 @@ function saveOrderByStatus(status) {
     };
     var cfg = messages[status];
     showToast(state.editingOrderId ? cfg.update : cfg.create);
+    lastSavedOrder = order;
     resetBillingForm();
+    openSaveResultSheet(order, status);
 }
 
 function handleTempSave() {
@@ -1030,7 +1182,12 @@ function buildOrderData(status) {
         summary: p.name ? (p.name + ' × ' + p.netWeight.toLocaleString() + p.unit) : '',
         payeeName: state.payee ? state.payee.name : '', payeeMobile: state.payee ? state.payee.mobile : '',
         payeeBank: state.payee ? (state.payee.bank||'') : '', payeeCard: state.payee ? (state.payee.card||'') : '',
-        photos: state.photos.slice(),
+        warehouseId: state.warehouse ? state.warehouse.id : '',
+        warehouseName: state.warehouse ? state.warehouse.name : '',
+        inventoryStatus: state.warehouse ? 'pre_in' : '',
+        inventoryFlowNo: state.warehouse && mockStore && typeof mockStore.buildOrderNo === 'function' ? ('RK' + orderNo.replace(/^SL/, '')) : '',
+        inventoryInAt: '',
+        photos: currentBillingConfig && currentBillingConfig.fields && currentBillingConfig.fields.photo === false ? [] : state.photos.slice(),
         items: p.name ? [{ name: p.name, qty: p.netWeight, unit: p.unit, price: p.unitPrice, subtotal: Number(p.amount.toFixed(2)) }] : [],
         category: state.currentCategory || '',
         createdAt: new Date().toISOString(), payMethod: '', remark: p.remark || ''
@@ -1063,6 +1220,62 @@ function buildCashierUrl(order) {
     return 'buyer-cashier.html?' + p.toString();
 }
 
+function getReceiptTypeByStatus(status) {
+    if (status === 'draft') return '过磅单';
+    if (status === 'pending_price') return '待开价小票';
+    if (status === 'unpaid') return '待付款小票';
+    return '收粮小票';
+}
+
+function getOrderDetailUrl(order) {
+    var p = new URLSearchParams({
+        source: 'manage',
+        orderNo: order.id,
+        status: order.status || '',
+        back: 'buyer-billing.html'
+    });
+    return 'buyer-order-detail.html?' + p.toString();
+}
+
+function openSaveResultSheet(order, status) {
+    if (!order) return;
+    var titleMap = {
+        draft: '已暂存到挂单',
+        pending_price: '已暂存到待开价',
+        unpaid: '已暂存到待付款'
+    };
+    var descMap = {
+        draft: '可立即打印过磅单交给农户',
+        pending_price: '可先打印待开价小票，后续补价',
+        unpaid: '可立即打印待付款小票'
+    };
+    var title = document.getElementById('saveResultTitle');
+    var desc = document.getElementById('saveResultDesc');
+    var type = document.getElementById('saveReceiptType');
+    var orderNo = document.getElementById('saveResultOrderNo');
+    var summary = document.getElementById('saveResultSummary');
+    var detailLink = document.getElementById('saveResultDetailLink');
+    if (title) title.textContent = titleMap[status] || '已暂存';
+    if (desc) desc.textContent = descMap[status] || '可立即打印小票交给农户';
+    if (type) type.textContent = getReceiptTypeByStatus(status);
+    if (orderNo) orderNo.textContent = order.id || '--';
+    if (summary) {
+        summary.textContent = [
+            order.payeeName || '未选择农户',
+            order.productName || order.categorySecondary || '农产品',
+            (Number(order.netWeight || order.grossWeight || 0).toLocaleString() + (order.unit || '斤'))
+        ].join(' · ');
+    }
+    if (detailLink) detailLink.href = getOrderDetailUrl(order);
+    document.getElementById('saveResultOverlay').classList.add('show');
+    document.getElementById('saveResultSheet').classList.add('show');
+}
+
+function closeSaveResultSheet() {
+    document.getElementById('saveResultSheet').classList.remove('show');
+    document.getElementById('saveResultOverlay').classList.remove('show');
+}
+
 // ==================== 确认开单 ====================
 function confirmBilling() {
     if (!state.currentCategory) { showToast('请先选择开单品类'); return; }
@@ -1091,9 +1304,12 @@ var SCALE_DEVICE_KEY = 'fsy_buyer_devices';
 var SCALE_PREF_KEY = 'fsy_buyer_device_prefs';
 var scaleReadState = {
     target: 'gross',
+    pendingTarget: '',
     records: [],
     readIndex: 0
 };
+var lastSavedOrder = null;
+var pendingBillingPrintAfterConnect = false;
 
 function seedScaleDevicesForBilling() {
     return [
@@ -1140,21 +1356,10 @@ function getCurrentScaleDevice() {
 }
 
 function renderScaleStatus() {
-    var bar = document.getElementById('scaleStatusBar');
-    if (!bar) return;
-    var icon = document.getElementById('scaleStatusIcon');
-    var text = document.getElementById('scaleStatusText');
-    var desc = document.getElementById('scaleStatusDesc');
-    var action = document.getElementById('scaleStatusAction');
     var grossBtn = document.getElementById('grossReadBtn');
     var tareBtn = document.getElementById('tareReadBtn');
     var device = getCurrentScaleDevice();
     var connected = !!(device && device.status === 'connected');
-    bar.classList.toggle('disconnected', !connected);
-    if (icon) icon.className = connected ? 'fas fa-bluetooth-b text-[13px]' : 'fas fa-triangle-exclamation text-[12px]';
-    if (text) text.textContent = device ? ((connected ? '电子秤已连接 · ' : '电子秤未连接 · ') + device.name.replace('蓝牙电子秤 ', '')) : '未添加电子秤';
-    if (desc) desc.textContent = connected ? '开单时可读取毛重和皮重' : (device ? '读秤前请先重新连接设备' : '添加设备后可在开单时读秤');
-    if (action) action.textContent = connected ? '读秤可用' : (device ? '点此连接' : '去添加');
     [grossBtn, tareBtn].forEach(function(btn) {
         if (btn) btn.classList.toggle('disabled', !connected);
     });
@@ -1198,6 +1403,7 @@ function nextScaleReading() {
 function openScaleReadSheet(target) {
     var device = getCurrentScaleDevice();
     if (!device || device.status !== 'connected') {
+        scaleReadState.pendingTarget = target || 'gross';
         openScaleReconnectSheet();
         return;
     }
@@ -1284,9 +1490,7 @@ function confirmScaleRead() {
 }
 
 function openScaleReconnectSheet() {
-    var device = getCurrentScaleDevice();
-    var nameEl = document.getElementById('reconnectDeviceName');
-    if (nameEl) nameEl.textContent = device ? device.name : '暂无电子秤设备';
+    renderScaleReconnectList();
     document.getElementById('scaleReconnectOverlay').classList.add('show');
     document.getElementById('scaleReconnectSheet').classList.add('show');
 }
@@ -1302,22 +1506,194 @@ function reconnectScaleDevice() {
         location.href = 'buyer-device-add.html?type=scale';
         return;
     }
+    connectScaleDeviceById(device.id);
+}
+
+function getScaleCandidateDevices() {
+    var list = loadScaleDevices().filter(function(item) {
+        return item.type === 'scale' && item.enabled !== false && item.status !== 'disabled';
+    });
+    var exists = new Set(list.map(function(item) { return item.id; }));
+    seedScaleDevicesForBilling().filter(function(item) { return item.type === 'scale'; }).forEach(function(item) {
+        if (!exists.has(item.id)) list.push(item);
+    });
+    return list;
+}
+
+function renderScaleReconnectList() {
+    var list = document.getElementById('scaleNearbyDeviceList');
+    if (!list) return;
+    var devices = getScaleCandidateDevices();
+    list.innerHTML = devices.map(function(item) {
+        var connected = item.status === 'connected';
+        return '<div class="w-full rounded-2xl border ' + (connected ? 'border-[#11A64A]/20 bg-[#F4FBF7]' : 'border-gray-100 bg-white') + ' p-3 flex items-center gap-3 text-left">'
+            + '<div class="w-10 h-10 rounded-xl bg-[#EBF7F0] text-[#11A64A] flex items-center justify-center shrink-0"><i class="fas fa-scale-balanced"></i></div>'
+            + '<div class="flex-1 min-w-0"><div class="text-[14px] font-semibold text-gray-800 truncate">' + item.name + '</div><div class="text-[11px] text-gray-400 mt-0.5">' + (connected ? '当前设备' : '附近设备') + '</div></div>'
+            + (connected
+                ? '<div class="flex items-center gap-2 shrink-0"><span class="h-8 px-3 rounded-xl bg-[#EAF8EF] text-[#11A64A] text-[12px] font-semibold flex items-center">已连接</span><button type="button" class="h-8 px-3 rounded-xl bg-white border border-red-100 text-red-500 text-[12px] font-semibold active:scale-[0.98]" onclick="disconnectScaleDeviceById(\'' + item.id + '\')">断开</button></div>'
+                : '<button type="button" class="h-8 px-3 rounded-xl bg-[#EBF7F0] text-[#11A64A] text-[12px] font-semibold active:scale-[0.98]" onclick="connectScaleDeviceById(\'' + item.id + '\')">连接</button>')
+            + '</div>';
+    }).join('');
+}
+
+function refreshScaleReconnectList() {
+    showToast('已重新搜索附近电子秤');
+    renderScaleReconnectList();
+}
+
+function connectScaleDeviceById(deviceId) {
     var devices = loadScaleDevices().map(function(item) {
-        if (item.type === 'scale' && item.id !== device.id && item.status === 'connected') {
+        if (item.type === 'scale' && item.id !== deviceId && item.status === 'connected') {
             return Object.assign({}, item, { status: 'disconnected', currentUser: '' });
         }
-        if (item.id === device.id) {
+        if (item.id === deviceId) {
             return Object.assign({}, item, { status: 'connected', currentUser: '张老板', lastConnected: '刚刚' });
         }
         return item;
     });
     saveScaleDevices(devices);
     var prefs = loadScalePrefs();
-    prefs.currentScaleId = device.id;
+    prefs.currentScaleId = deviceId;
     saveScalePrefs(prefs);
     closeScaleReconnectSheet();
     renderScaleStatus();
     showToast('电子秤已连接');
+    if (scaleReadState.pendingTarget) {
+        var target = scaleReadState.pendingTarget;
+        scaleReadState.pendingTarget = '';
+        openScaleReadSheet(target);
+    }
+}
+
+function disconnectScaleDeviceById(deviceId) {
+    var devices = loadScaleDevices().map(function(item) {
+        if (item.type === 'scale' && item.id === deviceId) {
+            return Object.assign({}, item, { status: 'disconnected', currentUser: '' });
+        }
+        return item;
+    });
+    saveScaleDevices(devices);
+    renderScaleReconnectList();
+    renderScaleStatus();
+    showToast('电子秤已断开');
+}
+
+function getCurrentBillingPrinter() {
+    var prefs = loadScalePrefs();
+    var printers = loadScaleDevices().filter(function(item) {
+        return item.type === 'printer' && item.enabled !== false && item.status !== 'disabled';
+    });
+    return printers.find(function(item) { return item.id === prefs.currentPrinterId; })
+        || printers.find(function(item) { return item.status === 'connected'; })
+        || printers[0];
+}
+
+function getBillingPrinterCandidates() {
+    var list = loadScaleDevices().filter(function(item) {
+        return item.type === 'printer' && item.enabled !== false && item.status !== 'disabled';
+    });
+    var exists = new Set(list.map(function(item) { return item.id; }));
+    [
+        { id: 'printer-58', type: 'printer', name: '便携蓝牙打印机 58mm', brand: '芯烨', model: 'XP-58', bluetoothName: 'BT-Printer-5801', status: 'disconnected', enabled: true, isMerchantDefault: true, lastConnected: '2024-05-28 14:32', paper: '58mm 热敏纸' },
+        { id: 'printer-80', type: 'printer', name: '蓝牙打印机 80X', brand: '芯烨', model: 'XP-80', bluetoothName: 'BT-Printer-8001', status: 'disconnected', enabled: true, isMerchantDefault: false, lastConnected: '', paper: '80mm 热敏纸' }
+    ].forEach(function(item) {
+        if (!exists.has(item.id)) list.push(item);
+    });
+    return list;
+}
+
+function openBillingPrintReceipt() {
+    if (!lastSavedOrder) {
+        showToast('暂无可打印订单');
+        return;
+    }
+    var printer = getCurrentBillingPrinter();
+    if (printer && printer.status === 'connected') {
+        simulateBillingPrintReceipt();
+        return;
+    }
+    pendingBillingPrintAfterConnect = true;
+    openBillingPrinterSheet();
+}
+
+function simulateBillingPrintReceipt() {
+    showToast('打印小票已发送到打印机');
+}
+
+function renderBillingPrintChip() {
+    var chip = document.getElementById('billingPrintChip');
+    if (!chip) return;
+    if (lastSavedOrder && state.editingOrderId) {
+        chip.classList.remove('hidden');
+    } else {
+        chip.classList.add('hidden');
+    }
+}
+
+function openBillingPrinterSheet() {
+    renderBillingPrinterList();
+    document.getElementById('billingPrinterOverlay').classList.add('show');
+    document.getElementById('billingPrinterSheet').classList.add('show');
+}
+
+function closeBillingPrinterSheet() {
+    document.getElementById('billingPrinterSheet').classList.remove('show');
+    document.getElementById('billingPrinterOverlay').classList.remove('show');
+}
+
+function renderBillingPrinterList() {
+    var list = document.getElementById('billingPrinterDeviceList');
+    if (!list) return;
+    var printers = getBillingPrinterCandidates();
+    list.innerHTML = printers.map(function(item) {
+        var connected = item.status === 'connected';
+        return '<div class="w-full rounded-2xl border ' + (connected ? 'border-[#11A64A]/20 bg-[#F4FBF7]' : 'border-gray-100 bg-white') + ' p-3 flex items-center gap-3 text-left">'
+            + '<div class="w-10 h-10 rounded-xl bg-[#EBF7F0] text-[#11A64A] flex items-center justify-center shrink-0"><i class="fas fa-print"></i></div>'
+            + '<div class="flex-1 min-w-0"><div class="text-[14px] font-semibold text-gray-800 truncate">' + item.name + '</div><div class="text-[11px] text-gray-400 mt-0.5">' + (connected ? '当前设备' : '附近设备') + '</div></div>'
+            + (connected
+                ? '<div class="flex items-center gap-2 shrink-0"><span class="h-8 px-3 rounded-xl bg-[#EAF8EF] text-[#11A64A] text-[12px] font-semibold flex items-center">已连接</span><button type="button" class="h-8 px-3 rounded-xl bg-white border border-red-100 text-red-500 text-[12px] font-semibold active:scale-[0.98]" onclick="disconnectBillingPrinterDevice(\'' + item.id + '\')">断开</button></div>'
+                : '<button type="button" class="h-8 px-3 rounded-xl bg-[#EBF7F0] text-[#11A64A] text-[12px] font-semibold active:scale-[0.98]" onclick="connectBillingPrinterDevice(\'' + item.id + '\')">连接</button>')
+            + '</div>';
+    }).join('');
+}
+
+function refreshBillingPrinterList() {
+    showToast('已重新搜索附近打印机');
+    renderBillingPrinterList();
+}
+
+function connectBillingPrinterDevice(deviceId) {
+    var candidateMap = {};
+    getBillingPrinterCandidates().forEach(function(item) { candidateMap[item.id] = item; });
+    var devices = loadScaleDevices();
+    if (!devices.some(function(item) { return item.id === deviceId; }) && candidateMap[deviceId]) {
+        devices.push(candidateMap[deviceId]);
+    }
+    devices = devices.map(function(item) {
+        if (item.type !== 'printer') return item;
+        if (item.id === deviceId) return Object.assign({}, item, { status: 'connected', lastConnected: '刚刚' });
+        return Object.assign({}, item, { status: 'disconnected' });
+    });
+    saveScaleDevices(devices);
+    var prefs = loadScalePrefs();
+    prefs.currentPrinterId = deviceId;
+    saveScalePrefs(prefs);
+    closeBillingPrinterSheet();
+    showToast('打印机已连接');
+    if (pendingBillingPrintAfterConnect) {
+        pendingBillingPrintAfterConnect = false;
+        simulateBillingPrintReceipt();
+    }
+}
+
+function disconnectBillingPrinterDevice(deviceId) {
+    var devices = loadScaleDevices().map(function(item) {
+        if (item.type === 'printer' && item.id === deviceId) return Object.assign({}, item, { status: 'disconnected' });
+        return item;
+    });
+    saveScaleDevices(devices);
+    renderBillingPrinterList();
+    showToast('打印机已断开');
 }
 
 function applyScaleQueryState() {
@@ -1350,6 +1726,7 @@ function showAppModal(opts) {
 function closeAppModal() { document.getElementById('appModalOverlay').classList.remove('show'); }
 function resetBillingForm() {
     state.payee = null; state.photos = []; state.editingOrderId = '';
+    state.warehouse = null;
     state.currentCategory = null; state.currentSubCategory = null; state.productName = '';
     document.getElementById('grossWeightInput').value = '';
     document.getElementById('tareWeightInput').value = '';
@@ -1361,7 +1738,8 @@ function resetBillingForm() {
     document.getElementById('totalAmount').textContent = '0.00';
     currentBillingConfig = null;
     setUnit('斤');
-    clearPayee(); renderPhotoGrid(); renderCategoryTags();
+    applyBillingSceneConfig();
+    clearPayee(); renderWarehouseCard(); renderPhotoGrid(); renderCategoryTags(); renderBillingPrintChip();
 }
 
 // ==================== 页面初始化 ====================
@@ -1375,12 +1753,11 @@ function hydrateFromQuery() {
         var order = mockStore.findOrderById(editOrderId);
         if (order) {
             state.editingOrderId = editOrderId;
+            lastSavedOrder = order;
             state.currentCategory = order.categoryPrimary || order.category || null;
             state.currentSubCategory = order.categorySecondary || null;
             state.productName = order.productName || order.categorySecondary || '';
-            if (state.currentSubCategory || state.currentCategory) {
-                applyBillingCategoryConfig(state.currentSubCategory || state.currentCategory);
-            }
+            applyBillingSceneConfig();
             // Populate inline fields
             document.getElementById('grossWeightInput').value = order.grossWeight || '';
             document.getElementById('tareWeightInput').value = order.tareWeight || '';
@@ -1397,6 +1774,11 @@ function hydrateFromQuery() {
             if (order.payeeName) {
                 setPayee({ name: order.payeeName, mobile: order.payeeMobile || '', bank: order.payeeBank || '', card: order.payeeCard || '' });
             } else { clearPayee(); }
+            if (order.warehouseName || order.warehouseId) {
+                setWarehouse({ id: order.warehouseId || '', name: order.warehouseName || '未命名仓库' });
+            } else {
+                clearWarehouse();
+            }
             var backHref = params.get('back') || 'buyer-order-manage.html?tab=draft';
             var editTitle = '编辑订单';
             var toastText = '已回填订单信息';
@@ -1404,15 +1786,18 @@ function hydrateFromQuery() {
             else if (order.status === 'pending_price') { editTitle = '补充单价'; toastText = '已回填待开价信息'; }
             else if (order.status === 'unpaid' || order.status === 'pending_client') { editTitle = '订单详情'; }
             document.getElementById('navBar').innerHTML = renderHeader(editTitle, backHref);
-            renderCategoryTags(); renderPhotoGrid(); showToast(toastText);
+            renderCategoryTags(); renderPhotoGrid(); renderBillingPrintChip(); showToast(toastText);
         }
     }
 }
 
 applyScaleQueryState();
 renderCategoryTags();
+applyBillingSceneConfig();
 renderPhotoGrid();
+renderWarehouseCard();
 hydrateFromQuery();
+renderBillingPrintChip();
 updateDraftEntryBadge();
 renderScaleStatus();
 </script>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-09 发版小功能 PRD</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2;--slate:#f8fafc}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.7}.layout{display:flex;min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:258px;background:#fff;border-right:1px solid var(--line);padding:22px 0;overflow:auto}.brand{padding:0 22px 18px;border-bottom:1px solid var(--line);margin-bottom:10px}.brand .k{font-size:12px;color:var(--primary);font-weight:800;letter-spacing:.4px}.brand h1{margin:6px 0 4px;font-size:18px;line-height:1.35}.brand p{margin:0;color:var(--muted);font-size:12px}.side a{display:block;padding:8px 22px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;font-size:13px}.side a:hover{color:var(--primary);background:rgba(17,166,74,.05);border-left-color:var(--primary)}.main{margin-left:258px;width:calc(100% - 258px);padding:28px 34px 70px}.hero{background:linear-gradient(135deg,#11a64a,#0f7f3d);color:#fff;border-radius:24px;padding:34px 36px;box-shadow:0 18px 40px rgba(17,166,74,.18)}.hero h2{margin:0 0 8px;font-size:30px;line-height:1.25}.hero p{margin:0;max-width:920px;opacity:.92;font-size:15px}.meta,.grid,.flow{display:grid;gap:12px}.meta{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 24px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.flow{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:12px}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}.item{padding:14px 16px}.label{font-size:12px;color:var(--muted)}.value{margin-top:2px;font-size:15px;font-weight:800}.card{padding:24px;margin-bottom:18px}.card h3{margin:0 0 14px;font-size:20px}.card h4{margin:18px 0 8px;font-size:16px}.lead{color:var(--muted);font-size:14px;margin:0 0 14px}.box{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fafafa}.box strong{display:block;font-size:16px;margin-bottom:4px}.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;margin:0 6px 6px 0}.green{background:var(--green);color:#047857}.blue{background:var(--blue);color:#2563eb}.amber{background:var(--amber);color:#b45309}.red{background:var(--red);color:#dc2626}.slate{background:var(--slate);color:#475569}table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;color:#374151;font-weight:800}ul{margin:8px 0 0;padding-left:20px}li{margin:5px 0}.step{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcfb}.step b{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-size:12px;margin-right:6px}.note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f0fdf4;color:#166534;font-size:13px}.warn{background:#fffbeb;color:#92400e}.req{margin:10px 0 0;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff}.req b{color:#047857}@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.flow{grid-template-columns:1fr}.hero{padding:26px 22px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand"><div class="k">RELEASE PRD</div><h1>2026-06-09 发版小功能</h1><p>功能说明与验收口径</p></div>
+    <nav>
+      <a href="#overview">概览</a>
+      <a href="#address">农户地址</a>
+      <a href="#public-account">公户修改</a>
+      <a href="#identity">双身份默认端</a>
+      <a href="#processing">处理中与失败原因</a>
+      <a href="#rules">业务规则</a>
+      <a href="#acceptance">验收标准</a>
+      <a href="#links">原型入口</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <section class="hero">
+      <h2>2026-06-09 发版小功能 PRD</h2>
+      <p>本次小版本在 2026-06-09 上线，范围收敛为农户地址地图定位、公户结算信息修改、双身份登录默认端记忆三类能力；订单处理中页签与支付失败原因展示延期，随账户管理一起上线。</p>
+    </section>
+
+    <section class="meta" id="overview">
+      <div class="item"><div class="label">版本口径</div><div class="value">6月9日小功能发版</div></div>
+      <div class="item"><div class="label">计划时间</div><div class="value">2026-06-09</div></div>
+      <div class="item"><div class="label">适用端</div><div class="value">移动端</div></div>
+      <div class="item"><div class="label">当前状态</div><div class="value">部分已上线 / 失败原因延期</div></div>
+    </section>
+
+    <section class="card">
+      <h3>1. 功能范围</h3>
+      <div class="grid">
+        <div class="box"><strong>农户地址字段</strong><span class="tag green">进件与农户建档</span><p class="lead">农户建档新增地址字段，支持地图选点定位并允许手动修改。</p></div>
+        <div class="box"><strong>农户公户修改</strong><span class="tag blue">结算与账户管理</span><p class="lead">农户结算信息修改扩展支持公户信息修改，个人户原逻辑保持不变。</p></div>
+        <div class="box"><strong>双身份默认端记忆</strong><span class="tag amber">首页、我的与用户体验</span><p class="lead">同一人同时具备收购商和农户身份时，退出后再次登录进入上次退出所在端。</p></div>
+        <div class="box"><strong>处理中与失败原因</strong><span class="tag red">订单管理</span><p class="lead">本项未随 2026-06-09 上线，后续随账户管理一起上线；原业务口径暂作为延期需求保留。</p></div>
+      </div>
+      <div class="note">本期已上线农户地址、公户修改和双身份默认端记忆；支付失败原因展示延期，不纳入本次上线范围。</div>
+    </section>
+
+    <section class="card" id="address">
+      <h3>2. 农户建档新增地址字段</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>农户建档时补充地址信息，便于后续识别农户所在地、经营区域和线下服务范围。</li>
+        <li>地址优先通过地图选点定位获取，降低手动输入成本。</li>
+        <li>用户仍可对地图带出的地址进行手动修改。</li>
+      </ul>
+      <h4>页面与字段</h4>
+      <table>
+        <tr><th>页面</th><th>字段</th><th>规则</th><th>说明</th></tr>
+        <tr><td>农户建档页</td><td>农户地址</td><td>必填</td><td>点击后进入地图选点；确认后回填地址，支持手动修改。</td></tr>
+        <tr><td>农户个人信息页</td><td>农户地址</td><td>展示并可修改</td><td>从建档信息带入，后续可重新选点或手动修改。</td></tr>
+      </table>
+      <h4>地图选点流程</h4>
+      <div class="flow">
+        <div class="step"><b>1</b>点击地址字段</div>
+        <div class="step"><b>2</b>打开地图选点</div>
+        <div class="step"><b>3</b>确认定位地址</div>
+        <div class="step"><b>4</b>回填并允许手动编辑</div>
+      </div>
+      <div class="req"><b>REQ-001</b> 建档提交时，农户地址不能为空。</div>
+      <div class="req"><b>REQ-002</b> 地图选点返回地址后，页面应回填地址文本，并允许继续手动修改。</div>
+      <div class="req"><b>REQ-003</b> 农户个人信息页应展示并支持修改农户地址。</div>
+    </section>
+
+    <section class="card" id="public-account">
+      <h3>3. 农户结算信息修改支持公户</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>原结算信息修改已覆盖个人户，本期补齐公户修改能力。</li>
+        <li>公户修改范围保持收敛，仅修改对公账户名和银行账号。</li>
+        <li>修改成功后，列表和详情展示最新脱敏信息。</li>
+      </ul>
+      <table>
+        <tr><th>账户类型</th><th>可修改字段</th><th>不可修改字段</th><th>说明</th></tr>
+        <tr><td>个人户</td><td>按现有个人户规则执行</td><td>按现有规则执行</td><td>本期不改变个人户逻辑。</td></tr>
+        <tr><td>公户</td><td>对公账户名、银行账号</td><td>开户行、开户支行等其他字段</td><td>如页面展示其他字段，仅做只读展示。</td></tr>
+      </table>
+      <div class="req"><b>REQ-004</b> 公户修改时，对公账户名和银行账号不能为空。</div>
+      <div class="req"><b>REQ-005</b> 银行账号应做格式校验，保存后按脱敏规则展示。</div>
+      <div class="req"><b>REQ-006</b> 个人户结算信息修改流程不受本次变更影响。</div>
+    </section>
+
+    <section class="card" id="identity">
+      <h3>4. 双身份登录默认端记忆</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>同一用户同时具备收购商和农户身份时，退出登录后再次登录，应进入上一次退出所在身份的端。</li>
+        <li>减少用户每次登录后重新切换身份的操作成本。</li>
+        <li>单身份用户保持现有登录逻辑不变。</li>
+      </ul>
+      <table>
+        <tr><th>场景</th><th>规则</th><th>说明</th></tr>
+        <tr><td>双身份用户从收购商端退出</td><td>下次登录默认进入收购商端</td><td>记录退出时所在端。</td></tr>
+        <tr><td>双身份用户从农户端退出</td><td>下次登录默认进入农户端</td><td>记录退出时所在端。</td></tr>
+        <tr><td>用户未主动退出，仅切换身份</td><td>以实际实现口径记录最近使用端</td><td>建议在切换成功时更新最近端。</td></tr>
+        <tr><td>某身份被关闭或注销</td><td>进入仍可用身份</td><td>不可进入已失效端。</td></tr>
+      </table>
+      <div class="req"><b>REQ-007</b> 系统应在退出登录时记录当前身份端。</div>
+      <div class="req"><b>REQ-008</b> 双身份用户再次登录时，应优先进入上一次退出所在身份端。</div>
+      <div class="req"><b>REQ-009</b> 当上次端身份不可用时，应进入可用身份端并提示或静默兜底。</div>
+    </section>
+
+    <section class="card" id="processing">
+      <h3>5. 订单管理“付款中”改“处理中”并展示失败原因</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>订单管理大页签中，“付款中”改为“处理中”，降低用户对支付状态和业务状态的混淆。</li>
+        <li>支付失败后，订单业务状态仍保持付款中，不新增失败状态。</li>
+        <li>在列表卡片和详情页展示上次支付失败原因，帮助收购商判断下一步处理动作。</li>
+      </ul>
+      <table>
+        <tr><th>位置</th><th>调整</th><th>规则</th></tr>
+        <tr><td>订单管理大页签</td><td>付款中改为处理中</td><td>筛选范围仍对应业务状态付款中及支付处理相关订单。</td></tr>
+        <tr><td>订单列表卡片</td><td>展示上次失败原因</td><td>仅支付失败且订单仍需继续处理时展示，例如“上次失败：余额不足”。</td></tr>
+        <tr><td>订单详情页</td><td>展示失败原因详情</td><td>展示失败原因、失败时间或失败渠道等可用信息。</td></tr>
+        <tr><td>业务状态</td><td>保持付款中</td><td>不新增“支付失败”订单状态。</td></tr>
+      </table>
+      <div class="req"><b>REQ-010</b> 订单管理大页签文案应由“付款中”改为“处理中”。</div>
+      <div class="req"><b>REQ-011</b> 支付失败后，列表卡片应展示上次失败原因。</div>
+      <div class="req"><b>REQ-012</b> 支付失败后，订单详情页应展示上次失败原因，业务状态仍为付款中。</div>
+      <div class="req"><b>REQ-013</b> 再次发起支付成功后，不应继续展示误导性的失败提示。</div>
+    </section>
+
+    <section class="card" id="rules">
+      <h3>6. 业务规则汇总</h3>
+      <table>
+        <tr><th>编号</th><th>规则</th><th>说明</th></tr>
+        <tr><td>BR-001</td><td>农户地址为必填字段。</td><td>地图选点和手动修改都应落到同一地址字段。</td></tr>
+        <tr><td>BR-002</td><td>公户仅允许修改对公账户名和银行账号。</td><td>个人户修改逻辑不变。</td></tr>
+        <tr><td>BR-003</td><td>双身份用户再次登录进入上次退出所在端。</td><td>单身份用户不受影响。</td></tr>
+        <tr><td>BR-004</td><td>“处理中”只是页签文案和筛选表达。</td><td>后端业务状态仍沿用付款中。</td></tr>
+        <tr><td>BR-005</td><td>失败原因来自最近一次支付失败记录。</td><td>列表展示简短原因，详情展示更完整信息。</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="acceptance">
+      <h3>7. 验收标准</h3>
+      <ul>
+        <li>农户建档页新增地址字段，未填写地址不能提交。</li>
+        <li>地图选点确认后地址能回填，且支持手动修改。</li>
+        <li>农户个人信息页能展示并修改地址。</li>
+        <li>农户公户结算信息能修改对公账户名和银行账号，个人户流程不受影响。</li>
+        <li>双身份用户从哪个端退出，下次登录默认进入哪个端。</li>
+        <li>订单管理“处理中”与支付失败原因展示未随本次上线，后续随账户管理一起上线。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="links">
+      <h3>8. 原型入口</h3>
+      <table>
+        <tr><th>功能</th><th>建议对照页面</th></tr>
+        <tr><td>农户地址字段</td><td>buyer-farmer-add.html、farmer-profile.html</td></tr>
+        <tr><td>公户结算信息修改</td><td>settlement-info-edit.html、farmer-profile.html</td></tr>
+        <tr><td>双身份默认端记忆</td><td>buyer-my.html、farmer-my.html、登录/身份切换相关页面</td></tr>
+        <tr><td>处理中与失败原因</td><td>buyer-order-manage.html、buyer-order-detail.html</td></tr>
+      </table>
+    </section>
+  </main>
+</div>
+</body>
+</html>

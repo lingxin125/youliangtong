@@ -326,6 +326,12 @@
         return map[type] || map.self_private;
     }
 
+    function getAccountIconSrc(account) {
+        if ((account.type || '') === 'ecny_wallet') return './数字人民币.png';
+        if (String(account.bank || '').indexOf('邮政') > -1 || String(account.bank || '').indexOf('邮储') > -1) return './邮政银行.png';
+        return './通用银行.png';
+    }
+
     function setAccountType(type) {
         currentAccountType = type;
         var sel = document.getElementById('accountTypeSelect');
@@ -458,6 +464,7 @@
         var type = account.type || 'self_private';
         var meta = getAccountTypeMeta(type);
         var isPublicAccount = type === 'public';
+        var iconSrc = getAccountIconSrc(account);
         var defaultMark = isDefault
             ? '<div class="pointer-events-none absolute -right-7 top-2 z-10 h-5 w-20 rotate-45 bg-emerald-500 text-center text-[9px] font-semibold leading-5 text-white shadow-[0_4px_10px_rgba(17,166,74,0.16)]">' +
                 '默认' +
@@ -500,8 +507,8 @@
                 defaultMark +
                 '<div class="flex items-center justify-between gap-3 mb-4">' +
                     '<div class="flex items-center gap-3 min-w-0 flex-1' + (isDefault ? ' pr-9' : '') + '">' +
-                        '<div class="w-10 h-10 rounded-full bg-[#11A64A]/10 flex items-center justify-center shrink-0">' +
-                            '<i class="fas ' + meta.icon + ' text-[#11A64A] text-lg"></i>' +
+                        '<div class="w-10 h-10 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center shrink-0 overflow-hidden">' +
+                            '<img src="' + iconSrc + '" alt="' + (account.bank || '银行') + '" class="w-8 h-8 object-contain">' +
                         '</div>' +
                         '<div class="min-w-0 flex-1">' +
                             '<div class="flex flex-wrap items-center gap-1.5 leading-5">' +
@@ -540,6 +547,7 @@
 
     function renderWalletCard(account, isDefault) {
         var meta = getAccountTypeMeta('ecny_wallet');
+        var iconSrc = getAccountIconSrc(account);
         var actionHtml = isDefault
             ? ''
             : '<div class="flex gap-2.5 mt-4 pt-1">' +
@@ -552,8 +560,8 @@
                 '<div class="absolute right-0 top-0 w-24 h-24 rounded-bl-full bg-emerald-50/70"></div>' +
                 '<div class="relative flex items-center justify-between gap-3 mb-4">' +
                     '<div class="flex items-center gap-3 min-w-0 flex-1">' +
-                        '<div class="w-10 h-10 rounded-full bg-[#11A64A]/10 flex items-center justify-center shrink-0">' +
-                            '<i class="fas ' + meta.icon + ' text-[#11A64A] text-lg"></i>' +
+                        '<div class="w-10 h-10 rounded-full bg-white border border-gray-100 shadow-sm flex items-center justify-center shrink-0 overflow-hidden">' +
+                            '<img src="' + iconSrc + '" alt="数字人民币钱包" class="w-8 h-8 object-contain">' +
                         '</div>' +
                         '<div class="min-w-0 flex-1">' +
                             '<div class="flex items-center gap-2 min-w-0">' +

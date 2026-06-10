@@ -45,6 +45,20 @@
                     <span class="text-[10px] text-white/60">笔</span>
                 </span>
             </div>
+
+            <!-- 本月 & 本年统计 -->
+            <div class="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-white/10">
+                <div>
+                    <div class="text-[10px] text-white/50 mb-1">本月累计收购</div>
+                    <div class="text-base font-bold text-white" style="font-family:Poppins;">¥475,400</div>
+                    <div class="text-[11px] text-white/70 mt-0.5">共 <span class="text-white" style="font-family:Poppins;">320</span> 笔</div>
+                </div>
+                <div class="border-l border-white/10 pl-4">
+                    <div class="text-[10px] text-white/50 mb-1">本年累计收购</div>
+                    <div class="text-base font-bold text-white" style="font-family:Poppins;">¥7,640,000</div>
+                    <div class="text-[11px] text-white/70 mt-0.5">共 <span class="text-white" style="font-family:Poppins;">4,952</span> 笔</div>
+                </div>
+            </div>
         </div>
 
         <!-- 待办事项 工作台面板 (大厂质感融合版) -->
@@ -149,8 +163,7 @@
                     <span class="text-sm font-medium text-gray-700">品类明细</span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <span class="filter-chip active text-[10px] px-2 py-0.5" onclick="switchPeriod('today')">今日</span>
-                    <span class="filter-chip text-[10px] px-2 py-0.5" onclick="switchPeriod('month')">本月</span>
+                    <span class="filter-chip active text-[10px] px-2 py-0.5" onclick="switchPeriod('month')">本月</span>
                     <span class="filter-chip text-[10px] px-2 py-0.5" onclick="switchPeriod('year')">本年</span>
                     <!-- <i class="fas fa-chevron-right text-[10px] text-gray-400 ml-1"></i> -->
                 </div>
@@ -430,14 +443,6 @@ function toggleMask() {
 
 // ==================== 品类明细时间切换 ====================
 var categoryData = {
-    today: [
-        { name: '水果', amount: '¥12,400', count: '8笔', color: 'red', cat: 'fruit' },
-        { name: '蔬菜', amount: '¥9,800', count: '6笔', color: 'green', cat: 'vegetable' },
-        { name: '粮食', amount: '¥11,250', count: '7笔', color: 'amber', cat: 'grain' },
-        // { name: '禽蛋', amount: '¥5,200', count: '3笔', color: 'violet', cat: 'egg' },
-        // { name: '肉类', amount: '¥3,200', count: '2笔', color: 'rose', cat: 'meat' },
-        { name: '其他', amount: '¥1,800', count: '1笔', color: 'gray', cat: 'other' }
-    ],
     month: [
         { name: '水果', amount: '¥186,500', count: '124笔', color: 'red', cat: 'fruit' },
         { name: '蔬菜', amount: '¥142,300', count: '98笔', color: 'green', cat: 'vegetable' },
@@ -468,9 +473,10 @@ var _icons = { '水果': 'fa-apple-whole', '蔬菜': 'fa-carrot', '粮食': 'fa-
     };
 
     function switchPeriod(period) {
+        if (!categoryData[period]) period = 'month';
         var chips = document.querySelectorAll('#categorySummaryPanel .filter-chip');
         chips.forEach(function(chip, i) {
-            chip.classList.toggle('active', ['today', 'month', 'year'][i] === period);
+            chip.classList.toggle('active', ['month', 'year'][i] === period);
         });
         var container = document.getElementById('categoryList');
         var data = categoryData[period];
@@ -652,6 +658,7 @@ function clearUnreadCount() {
 
 // 页面加载时渲染
 document.addEventListener('DOMContentLoaded', function() {
+    switchPeriod('month');
     updateMessageBadges();
 
     // Update pending item counts

@@ -527,6 +527,40 @@
             font-weight: 700;
         }
 
+        .cash-print-btn {
+            width: 100%;
+            max-width: 260px;
+            height: 46px;
+            margin-top: 18px;
+            border: 1px solid rgba(19, 177, 90, 0.22);
+            border-radius: 14px;
+            background: #fff;
+            color: #13b15a;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .printer-sheet-mask {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 140;
+            display: none;
+            align-items: flex-end;
+        }
+
+        .printer-sheet-mask.show {
+            display: flex;
+        }
+
+        .printer-sheet-panel {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+
         .account-option-title {
             font-size: 14px;
             font-weight: 700;
@@ -770,7 +804,27 @@
                 </div>
                 <div class="cash-success-title">现金支付已完成</div>
                 <div class="cash-success-desc">请务必核实已完成线下交易。</div>
+                <button type="button" class="cash-print-btn" onclick="openCashPrinterSheet()">
+                    <i class="fas fa-print mr-1"></i>打印小票
+                </button>
                 <button type="button" class="cash-success-btn" onclick="goCashSuccessBack()">返回订单管理</button>
+            </div>
+        </div>
+
+        <div id="cashPrinterSheet" class="printer-sheet-mask" onclick="closeCashPrinterSheet()">
+            <div class="printer-sheet-panel" onclick="event.stopPropagation()">
+                <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <div class="text-[16px] font-bold text-gray-800">连接蓝牙打印机</div>
+                        <div class="text-[12px] text-gray-400 mt-1">连接成功后继续打印当前小票</div>
+                    </div>
+                    <button onclick="closeCashPrinterSheet()" class="w-8 h-8 flex items-center justify-center text-gray-400">
+                        <i class="fas fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <div id="cashPrinterList" class="space-y-2"></div>
+                <button class="mt-4 w-full h-11 rounded-xl bg-gray-50 text-gray-500 text-sm font-semibold" onclick="refreshCashPrinterList()">重新搜索附近打印机</button>
             </div>
         </div>
     </div>
@@ -1126,6 +1180,106 @@
             closeCashConfirm();
             syncCashPaymentToOrder();
             document.getElementById('cashSuccessPage').classList.add('show');
+        }
+
+        const CASH_PRINTER_DEVICE_KEY = 'fsy_buyer_devices';
+        const CASH_PRINTER_PREF_KEY = 'fsy_buyer_device_prefs';
+        let pendingCashPrintAfterConnect = false;
+
+        function seedCashPrinters() {
+            return [
+                { id: 'printer-58', type: 'printer', name: '便携蓝牙打印机 58mm', status: 'disconnected', enabled: true },
+                { id: 'printer-80', type: 'printer', name: '蓝牙打印机 80X', status: 'disconnected', enabled: true }
+            ];
+        }
+
+        function loadCashPrinters() {
+            let list = [];
+            try {
+                const stored = JSON.parse(localStorage.getItem(CASH_PRINTER_DEVICE_KEY));
+                if (Array.isArray(stored)) list = stored;
+            } catch(e) {}
+            const ids = new Set(list.map(item => item.id));
+            seedCashPrinters().forEach(item => {
+                if (!ids.has(item.id)) list.push(item);
+            });
+            return list;
+        }
+
+        function saveCashPrinters(list) {
+            try { localStorage.setItem(CASH_PRINTER_DEVICE_KEY, JSON.stringify(list)); } catch(e) {}
+        }
+
+        function loadCashPrinterPrefs() {
+            try {
+                return Object.assign({ currentPrinterId: 'printer-58' }, JSON.parse(localStorage.getItem(CASH_PRINTER_PREF_KEY)) || {});
+            } catch(e) {
+                return { currentPrinterId: 'printer-58' };
+            }
+        }
+
+        function saveCashPrinterPrefs(prefs) {
+            try { localStorage.setItem(CASH_PRINTER_PREF_KEY, JSON.stringify(prefs)); } catch(e) {}
+        }
+
+        function getCurrentCashPrinter() {
+            const prefs = loadCashPrinterPrefs();
+            const printers = loadCashPrinters().filter(item => item.type === 'printer' && item.enabled !== false && item.status !== 'disabled');
+            return printers.find(item => item.id === prefs.currentPrinterId)
+                || printers.find(item => item.status === 'connected')
+                || printers[0];
+        }
+
+        function openCashPrinterSheet() {
+            const printer = getCurrentCashPrinter();
+            if (printer && printer.status === 'connected') {
+                showToast('付款成功小票已发送到打印机');
+                return;
+            }
+            pendingCashPrintAfterConnect = true;
+            renderCashPrinterList();
+            document.getElementById('cashPrinterSheet').classList.add('show');
+        }
+
+        function closeCashPrinterSheet() {
+            document.getElementById('cashPrinterSheet').classList.remove('show');
+        }
+
+        function renderCashPrinterList() {
+            const box = document.getElementById('cashPrinterList');
+            if (!box) return;
+            const printers = loadCashPrinters().filter(item => item.type === 'printer' && item.enabled !== false && item.status !== 'disabled');
+            box.innerHTML = printers.map(item => {
+                const connected = item.status === 'connected';
+                return '<button type="button" class="w-full rounded-2xl border ' + (connected ? 'border-[#13b15a]/20 bg-[#F4FBF7]' : 'border-gray-100 bg-white') + ' p-3 flex items-center gap-3 text-left active:scale-[0.99] transition-transform" onclick="connectCashPrinter(\'' + item.id + '\')">'
+                    + '<div class="w-10 h-10 rounded-xl bg-[#EBF7F0] text-[#13b15a] flex items-center justify-center shrink-0"><i class="fas fa-print"></i></div>'
+                    + '<div class="flex-1 min-w-0"><div class="text-[14px] font-semibold text-gray-800 truncate">' + item.name + '</div><div class="text-[11px] text-gray-400 mt-0.5">' + (connected ? '当前已连接' : '附近设备 · 可连接') + '</div></div>'
+                    + '<span class="h-8 px-3 rounded-xl ' + (connected ? 'bg-[#13b15a] text-white' : 'bg-[#EBF7F0] text-[#13b15a]') + ' text-[12px] font-semibold flex items-center">' + (connected ? '已连接' : '连接') + '</span>'
+                    + '</button>';
+            }).join('');
+        }
+
+        function refreshCashPrinterList() {
+            showToast('已重新搜索附近打印机');
+            renderCashPrinterList();
+        }
+
+        function connectCashPrinter(id) {
+            const list = loadCashPrinters().map(item => {
+                if (item.type !== 'printer') return item;
+                if (item.id === id) return Object.assign({}, item, { status: 'connected', lastConnected: '刚刚' });
+                return Object.assign({}, item, { status: 'disconnected' });
+            });
+            saveCashPrinters(list);
+            const prefs = loadCashPrinterPrefs();
+            prefs.currentPrinterId = id;
+            saveCashPrinterPrefs(prefs);
+            closeCashPrinterSheet();
+            showToast('打印机已连接');
+            if (pendingCashPrintAfterConnect) {
+                pendingCashPrintAfterConnect = false;
+                showToast('付款成功小票已发送到打印机');
+            }
         }
 
         function confirmCashPayment() {

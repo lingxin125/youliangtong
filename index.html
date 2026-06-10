@@ -258,6 +258,12 @@
             border-color: rgba(37,99,235,0.18);
         }
 
+        .status-pill.amber {
+            background: #FFFBEB;
+            color: #B45309;
+            border-color: rgba(245,158,11,0.22);
+        }
+
         .doc-subgrid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1075,17 +1081,53 @@
         <p class="section-desc">用于文字需求对照评审，可与原型页面并行打开。有日期的资料按时间倒序排列，长期资料单独归档。</p>
 
         <div class="prd-tabs" role="tablist" aria-label="PRD资料分类">
-            <button class="prd-tab active" type="button" role="tab" aria-selected="true" aria-controls="doc-20260604" data-target="doc-20260604">2026-06-04 发版小功能</button>
+            <button class="prd-tab active" type="button" role="tab" aria-selected="true" aria-controls="doc-20260609" data-target="doc-20260609">2026-06-09 发版小功能</button>
+            <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-20260604" data-target="doc-20260604">2026-06-04 发版小功能</button>
             <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-20260602" data-target="doc-20260602">2026-06-02 发版小功能</button>
             <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-account-test" data-target="doc-account-test">预计5月底-6月初 账户管理提测</button>
             <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-20260518" data-target="doc-20260518">2026-05-18 至 2026-05-23 小迭代</button>
             <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-longterm" data-target="doc-longterm">长期资料</button>
         </div>
 
-        <div class="doc-group" id="doc-20260604" role="tabpanel">
+        <div class="doc-group" id="doc-20260609" role="tabpanel">
+            <div class="doc-group-head">
+                <h3 class="doc-group-title"><i class="fas fa-calendar-day"></i>2026-06-09 发版小功能</h3>
+                <span class="status-pill">部分已上线 / 延期 / 小需求记录</span>
+            </div>
+            <div class="doc-subgrid">
+                <a class="card border-green-100 bg-green-50/30" href="PRD-20260609-release-small-features.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">2026-06-09 发版小功能 PRD</h2>
+                    <p>农户地址地图定位、公户结算信息修改、双身份默认端记忆已上线；支付失败原因展示延期，随账户管理一起上线。</p>
+                </a>
+
+                <a class="card border-blue-100 bg-blue-50/30" href="TEST-20260609-release-small-features.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-doc"><i class="fas fa-vial-circle-check"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">2026-06-09 发版小功能测试用例</h2>
+                    <p>覆盖已上线三项能力的回归检查；失败原因展示后续随账户管理统一验收。</p>
+                </a>
+
+                <a class="card border-amber-100 bg-amber-50/30" href="#requirementMap">
+                    <div class="card-head">
+                        <div class="icon icon-doc"><i class="fas fa-list-check"></i></div>
+                        <i class="fas fa-chevron-down arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">2026-06-09 小需求记录</h2>
+                    <p>新增农户建档身份证号正则校验，已维护到飞书需求总表；需求较小，不单独输出 PRD/测试用例。</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="doc-group" id="doc-20260604" role="tabpanel" hidden>
             <div class="doc-group-head">
                 <h3 class="doc-group-title"><i class="fas fa-calendar-day"></i>2026-06-04 发版小功能</h3>
-                <span class="status-pill">本周四预计上线</span>
+                <span class="status-pill amber">部分上线 / 部分延期</span>
             </div>
             <div class="doc-subgrid">
                 <a class="card border-green-100 bg-green-50/30" href="PRD-20260604-release-small-features.html" target="_blank" rel="noopener noreferrer">
@@ -1094,7 +1136,7 @@
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">2026-06-04 发版小功能 PRD</h2>
-                    <p>覆盖拍照留存默认丰收云水印、关于与协议、农户公户修改、地址与种植面积维护。</p>
+                    <p>关于模块已上线；拍照留存、农户公户修改、地址与种植面积未上线，后续延期处理。</p>
                 </a>
 
                 <a class="card border-blue-100 bg-blue-50/30" href="TEST-20260604-release-small-features.html" target="_blank" rel="noopener noreferrer">
@@ -1103,7 +1145,7 @@
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">2026-06-04 发版小功能测试用例</h2>
-                    <p>按 P0/P1 覆盖拍照水印、协议返回、公户修改、地图选点、地址必填和种植面积非必填。</p>
+                    <p>保留拍照水印、协议返回、公户修改、地图选点等测试口径；当前仅关于模块按上线口径更新。</p>
                 </a>
             </div>
         </div>
@@ -1111,7 +1153,7 @@
         <div class="doc-group" id="doc-20260602" role="tabpanel" hidden>
             <div class="doc-group-head">
                 <h3 class="doc-group-title"><i class="fas fa-calendar-day"></i>2026-06-02 发版小功能</h3>
-                <span class="status-pill">明日发版</span>
+                <span class="status-pill">已上线</span>
             </div>
             <div class="doc-subgrid">
                 <a class="card border-green-100 bg-green-50/30" href="PRD-20260602-release-small-features.html" target="_blank" rel="noopener noreferrer">
@@ -1234,7 +1276,34 @@
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">开单配置与品类管理优化</h2>
-                    <p>按二级品类配置开单方式，区分极简快收和标准称重，用于后续配置化评审。</p>
+                    <p>收购商主体级开单配置，超管维护称重模式、计价方式、扣杂、拍照和入库仓库；收购价不在开单配置中维护。</p>
+                </a>
+
+                <a class="card border-green-100 bg-green-50/30" href="PRD-库存管理移动端方案.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-miniapp"><i class="fas fa-warehouse"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">库存管理移动端方案</h2>
+                    <p>入口收口到我的模块，覆盖开单可选入库仓库、预入库状态，以及库存概览、库存台账、库存明细、农户存粮查询与汇总。</p>
+                </a>
+
+                <a class="card border-green-100 bg-green-50/30" href="PRD-蓝牙设备即时连接重构方案.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-miniapp"><i class="fas fa-bluetooth-b"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">蓝牙设备即时连接 V2</h2>
+                    <p>评估版 PRD：电子秤读秤、蓝牙打印小票、业务场景内即时连接、主动断开、小票状态规则与 PC 后台模板配置。</p>
+                </a>
+
+                <a class="card border-emerald-100 bg-emerald-50/30" href="pc-receipt-template-config.html" target="_blank" rel="noopener noreferrer">
+                    <div class="card-head">
+                        <div class="icon icon-cashier-h5"><i class="fas fa-receipt"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">小票模板配置（PC后台）</h2>
+                    <p>PC 端维护过磅单、待开价小票、待付款确认单、付款成功小票的字段、纸张、份数与打印规则。</p>
                 </a>
             </div>
         </div>

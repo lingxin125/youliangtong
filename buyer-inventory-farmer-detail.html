@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 农户存粮详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        #statusBar,#navBar{background:#F7F8FA}.card{background:#fff;border:1px solid rgba(15,23,42,.05);border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(15,23,42,.02)}.row{min-height:42px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #F1F5F9}.row:last-child{border-bottom:0}.label{font-size:12px;color:#64748B}.value{font-size:13px;color:#111827;font-weight:800;text-align:right}.qty{font-family:Poppins,sans-serif;font-weight:700;color:#11A64A}.avatar{width:40px;height:40px;border-radius:999px;background:#EAF8EF;color:#11A64A;display:flex;align-items:center;justify-content:center;font-weight:800}
+    </style>
+</head>
+<body class="bg-[#F7F8FA]">
+<div class="mobile-container relative bg-[#F7F8FA]">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3 pb-8">
+        <div id="detail"></div>
+    </div>
+</div>
+<script>
+document.getElementById('statusBar').innerHTML=renderStatusBar('light');
+document.getElementById('navBar').innerHTML=renderHeader('农户存粮详情','buyer-inventory-farmer.html');
+var store=window.BuyerMockStore||{};
+var params=new URLSearchParams(location.search);
+function escapeHtml(v){return String(v||'').replace(/[&<>"']/g,function(ch){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch];});}
+function fmtQty(v,u){return Number(v||0).toLocaleString('zh-CN')+(u||'斤');}
+function fmtTime(v){var d=new Date(v);return Number.isNaN(d.getTime())?'-':String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function row(k,v){return '<div class="row"><span class="label">'+escapeHtml(k)+'</span><span class="value">'+escapeHtml(v)+'</span></div>';}
+var farmer=params.get('farmer')||'';
+var category=params.get('category')||'';
+var warehouse=params.get('warehouse')||'';
+var item=(store.getFarmerStorageList?store.getFarmerStorageList():[]).find(function(i){return i.farmerName===farmer&&(i.productName===category||category.indexOf('多')===0)&&(i.warehouseName===warehouse||warehouse.indexOf('多')===0);})||{};
+var initial=String(item.farmerName||farmer||'农').charAt(0);
+document.getElementById('detail').innerHTML='<div class="card mb-3"><div class="flex items-center gap-3"><div class="avatar">'+escapeHtml(initial)+'</div><div class="min-w-0"><div class="text-[18px] font-bold text-gray-900">'+escapeHtml(item.farmerName||farmer||'农户')+'</div><div class="text-[12px] text-gray-400 mt-1">'+escapeHtml(item.status||'存粮中')+'</div></div></div><div class="qty text-[28px] mt-4">'+fmtQty(item.quantity,item.unit)+'</div><div class="text-[11px] text-gray-400 mt-1">存粮数量</div></div><div class="card">'+row('农户姓名',item.farmerName||farmer||'-')+row('农户电话',item.farmerMobile||'-')+row('订单编号',item.orderNo||'存粮记录')+row('存粮时间',fmtTime(item.latestAt))+row('存粮种类',item.productName||category||'-')+row('存粮数量',fmtQty(item.quantity,item.unit))+row('存粮状态',item.status||'存粮中')+row('存放仓库',item.warehouseName||warehouse||'-')+'</div>';
+</script>
+</body>
+</html>

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>开单配置概念稿 - 收购场景模板</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #eef2f3;
+      color: #1f2937;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    .board {
+      width: 100%;
+      min-height: 100vh;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: repeat(3, 390px);
+      gap: 22px;
+      align-items: start;
+    }
+    .frame-wrap { width: 390px; }
+    .caption {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .phone {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      overflow: hidden;
+      border-radius: 32px;
+      background: #f7f8fa;
+      border: 1px solid #d9dee5;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.14);
+    }
+    .status {
+      height: 44px;
+      padding: 12px 22px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #111827;
+      background: #fff;
+    }
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #111827;
+      font-size: 11px;
+    }
+    .battery {
+      width: 22px;
+      height: 10px;
+      border: 1.4px solid #111827;
+      border-radius: 3px;
+      position: relative;
+    }
+    .battery::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: 2px;
+      width: 2px;
+      height: 4px;
+      background: #111827;
+      border-radius: 1px;
+    }
+    .nav {
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      position: relative;
+    }
+    .back,
+    .menu {
+      position: absolute;
+      top: 0;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      color: #9ca3af;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    .back { left: 16px; }
+    .menu { right: 16px; gap: 8px; }
+    .menu-pill {
+      width: 70px;
+      height: 30px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      color: #111827;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      font-size: 14px;
+    }
+    .content {
+      height: calc(100% - 92px);
+      overflow: hidden;
+      padding: 14px 16px 24px;
+    }
+    .section-title {
+      margin: 18px 0 9px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #111827;
+    }
+    .section-title::before {
+      content: "";
+      width: 4px;
+      height: 15px;
+      border-radius: 999px;
+      background: #11a64a;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid rgba(15, 23, 42, 0.05);
+      border-radius: 16px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+    }
+    .current-card {
+      padding: 16px;
+      border-color: rgba(17, 166, 74, 0.22);
+      background: #fff;
+    }
+    .current-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 800;
+      color: #11a64a;
+      margin-bottom: 5px;
+    }
+    .main-name {
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 850;
+      color: #111827;
+      letter-spacing: 0;
+    }
+    .desc {
+      margin-top: 6px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #64748b;
+    }
+    .status-tag {
+      flex: none;
+      height: 28px;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: #e8f8ef;
+      color: #0f8a3d;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 13px;
+    }
+    .chip {
+      min-height: 26px;
+      padding: 5px 9px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: #f0fdf4;
+      color: #16803d;
+      border: 1px solid rgba(17, 166, 74, 0.14);
+      font-size: 12px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+    .choice-card {
+      padding: 15px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .choice-head {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .choice-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: #ebf7f0;
+      color: #11a64a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 900;
+      flex: none;
+    }
+    .choice-name {
+      font-size: 17px;
+      font-weight: 850;
+      color: #111827;
+      line-height: 1.25;
+    }
+    .choice-desc {
+      margin-top: 3px;
+      font-size: 13px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+    .choice-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 13px;
+    }
+    .button {
+      height: 42px;
+      min-width: 112px;
+      padding: 0 15px;
+      border-radius: 13px;
+      border: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .button.primary {
+      background: #11a64a;
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(17, 166, 74, 0.16);
+    }
+    .button.light {
+      background: #f0fdf4;
+      color: #0f8a3d;
+      border: 1px solid rgba(17, 166, 74, 0.16);
+    }
+    .empty {
+      padding: 20px 16px;
+      text-align: center;
+    }
+    .empty-icon {
+      width: 46px;
+      height: 46px;
+      margin: 0 auto 10px;
+      border-radius: 17px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f1f5f9;
+      color: #94a3b8;
+      font-size: 21px;
+    }
+    .empty-title {
+      font-size: 15px;
+      font-weight: 850;
+      color: #111827;
+    }
+    .empty-desc {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .list-card {
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .list-name {
+      font-size: 17px;
+      font-weight: 850;
+      color: #111827;
+    }
+    .list-desc {
+      margin-top: 4px;
+      color: #64748b;
+      font-size: 13px;
+    }
+    .arrow {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: none;
+      font-size: 18px;
+    }
+    .guide-card {
+      padding: 15px;
+      border-color: rgba(17, 166, 74, 0.18);
+      background: #f8fffb;
+    }
+    .guide-title {
+      font-size: 16px;
+      font-weight: 850;
+      color: #111827;
+    }
+    .guide-desc {
+      margin-top: 5px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #64748b;
+    }
+    .preview-card {
+      padding: 15px;
+      margin-top: 12px;
+    }
+    .preview-title {
+      font-size: 16px;
+      font-weight: 850;
+    }
+    .preview-grid {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .field-pill {
+      min-height: 38px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 750;
+      color: #334155;
+    }
+    .field-pill.green {
+      background: #f0fdf4;
+      border-color: rgba(17, 166, 74, 0.16);
+      color: #0f8a3d;
+    }
+    .sheet-mask {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.38);
+      display: flex;
+      align-items: flex-end;
+      z-index: 8;
+    }
+    .sheet {
+      width: 100%;
+      background: #fff;
+      border-radius: 24px 24px 0 0;
+      padding: 10px 16px 22px;
+      box-shadow: 0 -16px 34px rgba(15, 23, 42, 0.16);
+    }
+    .handle {
+      width: 42px;
+      height: 4px;
+      background: #d1d5db;
+      border-radius: 999px;
+      margin: 0 auto 16px;
+    }
+    .sheet-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .sheet-title {
+      font-size: 19px;
+      font-weight: 850;
+      color: #111827;
+    }
+    .sheet-sub {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .close {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex: none;
+    }
+    .step-row {
+      min-height: 58px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .step-row:last-child { border-bottom: 0; }
+    .step-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ebf7f0;
+      color: #11a64a;
+      font-size: 13px;
+      font-weight: 900;
+      flex: none;
+    }
+    .step-title {
+      font-size: 15px;
+      font-weight: 850;
+      color: #111827;
+    }
+    .step-value {
+      margin-top: 2px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .step-action {
+      color: #11a64a;
+      font-size: 13px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .sheet-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .screen-note {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 15px;
+      min-height: 44px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(15,23,42,0.06);
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 12px;
+      line-height: 1.4;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="board">
+    <div class="frame-wrap">
+      <div class="caption">01 首屏：先告诉用户现在用哪套</div>
+      <div class="phone">
+        <div class="status">
+          <span>9:41</span>
+          <span class="status-icons">● ● <span class="battery"></span></span>
+        </div>
+        <div class="nav">
+          <div class="back">‹</div>
+          开单配置
+          <div class="menu"><div class="menu-pill">··· ◌</div></div>
+        </div>
+        <div class="content">
+          <div class="current-card card">
+            <div class="current-top">
+              <div>
+                <div class="eyebrow">当前使用</div>
+                <div class="main-name">标准称重收购</div>
+                <div class="desc">适合粮食、玉米、小麦</div>
+              </div>
+              <div class="status-tag">使用中</div>
+            </div>
+            <div class="chip-row">
+              <span class="chip">毛重皮重</span>
+              <span class="chip">自动算净重</span>
+              <span class="chip">可挂单</span>
+            </div>
+          </div>
+
+          <div class="section-title">选择一种开单方式开始</div>
+          <div class="choice-card card">
+            <div class="choice-head">
+              <div class="choice-icon">称</div>
+              <div>
+                <div class="choice-name">标准称重收购</div>
+                <div class="choice-desc">称毛重、皮重，适合粮食</div>
+              </div>
+            </div>
+            <div class="chip-row">
+              <span class="chip">可挂单</span>
+              <span class="chip">可拍照</span>
+              <span class="chip">可备注</span>
+            </div>
+            <div class="choice-actions">
+              <span></span>
+              <div class="button primary">按这个改</div>
+            </div>
+          </div>
+
+          <div class="choice-card card">
+            <div class="choice-head">
+              <div class="choice-icon">快</div>
+              <div>
+                <div class="choice-name">快速收购</div>
+                <div class="choice-desc">只填总重量和价格，适合水果蔬菜</div>
+              </div>
+            </div>
+            <div class="chip-row">
+              <span class="chip">少填写</span>
+              <span class="chip">不挂单</span>
+              <span class="chip">开单快</span>
+            </div>
+            <div class="choice-actions">
+              <span></span>
+              <div class="button light">按这个改</div>
+            </div>
+          </div>
+
+          <div class="section-title">我的方式</div>
+          <div class="empty card">
+            <div class="empty-icon">＋</div>
+            <div class="empty-title">还没有自己的方式</div>
+            <div class="empty-desc">可以先从上面选一种</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="caption">02 选择后：确认这套适不适合</div>
+      <div class="phone">
+        <div class="status">
+          <span>9:41</span>
+          <span class="status-icons">● ● <span class="battery"></span></span>
+        </div>
+        <div class="nav">
+          <div class="back">‹</div>
+          开单配置
+          <div class="menu"><div class="menu-pill">··· ◌</div></div>
+        </div>
+        <div class="content">
+          <div class="guide-card card">
+            <div class="guide-title">快速收购适合什么？</div>
+            <div class="guide-desc">现场只想快点开单时用。比如桃子、蔬菜，只填总重量和价格。</div>
+          </div>
+
+          <div class="preview-card card">
+            <div class="preview-title">开单时会看到这些</div>
+            <div class="preview-grid">
+              <div class="field-pill green">总重量</div>
+              <div class="field-pill green">单价</div>
+              <div class="field-pill">一口价</div>
+              <div class="field-pill">拍照</div>
+              <div class="field-pill">备注</div>
+              <div class="field-pill">收款人</div>
+            </div>
+          </div>
+
+          <div class="preview-card card">
+            <div class="preview-title">不会出现这些</div>
+            <div class="preview-grid">
+              <div class="field-pill">皮重</div>
+              <div class="field-pill">净重</div>
+              <div class="field-pill">扣减</div>
+              <div class="field-pill">挂单</div>
+            </div>
+          </div>
+
+          <div class="section-title">下一步</div>
+          <div class="list-card card">
+            <div>
+              <div class="list-name">桃子快收</div>
+              <div class="list-desc">名称可以改，价格可以先不填</div>
+            </div>
+            <div class="arrow">›</div>
+          </div>
+          <div class="button primary" style="width:100%;margin-top:12px;">保存并使用</div>
+        </div>
+        <div class="screen-note">这一屏只回答一个问题：这套方式开单时会出现什么，不出现什么。</div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="caption">03 调整：只保留三步，减少开关压迫感</div>
+      <div class="phone">
+        <div class="status">
+          <span>9:41</span>
+          <span class="status-icons">● ● <span class="battery"></span></span>
+        </div>
+        <div class="nav">
+          <div class="back">‹</div>
+          开单配置
+          <div class="menu"><div class="menu-pill">··· ◌</div></div>
+        </div>
+        <div class="content">
+          <div class="current-card card">
+            <div class="current-top">
+              <div>
+                <div class="eyebrow">当前使用</div>
+                <div class="main-name">桃子快收</div>
+                <div class="desc">适合水果蔬菜现场快收</div>
+              </div>
+              <div class="status-tag">使用中</div>
+            </div>
+            <div class="chip-row">
+              <span class="chip">总重量</span>
+              <span class="chip">单价</span>
+              <span class="chip">不挂单</span>
+            </div>
+          </div>
+
+          <div class="section-title">我的方式</div>
+          <div class="list-card card">
+            <div>
+              <div class="list-name">桃子快收</div>
+              <div class="list-desc">总重量、单价、拍照、备注</div>
+            </div>
+            <div class="arrow">›</div>
+          </div>
+          <div class="list-card card">
+            <div>
+              <div class="list-name">玉米称重</div>
+              <div class="list-desc">毛重、皮重、净重、可挂单</div>
+            </div>
+            <div class="arrow">›</div>
+          </div>
+        </div>
+
+        <div class="sheet-mask">
+          <div class="sheet">
+            <div class="handle"></div>
+            <div class="sheet-head">
+              <div>
+                <div class="sheet-title">调整桃子快收</div>
+                <div class="sheet-sub">只影响以后新开的单</div>
+              </div>
+              <div class="close">×</div>
+            </div>
+
+            <div class="step-row">
+              <div class="step-left">
+                <div class="step-num">1</div>
+                <div>
+                  <div class="step-title">名称</div>
+                  <div class="step-value">桃子快收</div>
+                </div>
+              </div>
+              <div class="step-action">去改</div>
+            </div>
+            <div class="step-row">
+              <div class="step-left">
+                <div class="step-num">2</div>
+                <div>
+                  <div class="step-title">怎么计价</div>
+                  <div class="step-value">单价，也可改一口价</div>
+                </div>
+              </div>
+              <div class="step-action">去改</div>
+            </div>
+            <div class="step-row">
+              <div class="step-left">
+                <div class="step-num">3</div>
+                <div>
+                  <div class="step-title">开单要填什么</div>
+                  <div class="step-value">总重量、价格、拍照、备注</div>
+                </div>
+              </div>
+              <div class="step-action">去改</div>
+            </div>
+
+            <div class="sheet-buttons">
+              <div class="button light">保存</div>
+              <div class="button primary">保存并使用</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

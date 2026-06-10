@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>开单配置概念稿 V2 - 标准配置页</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #eef2f3;
+      color: #1f2937;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    .board {
+      min-height: 100vh;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: repeat(3, 390px);
+      gap: 22px;
+      align-items: start;
+    }
+    .frame-wrap { width: 390px; }
+    .caption {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .phone {
+      width: 390px;
+      height: 844px;
+      overflow: hidden;
+      position: relative;
+      border-radius: 32px;
+      background: #f7f8fa;
+      border: 1px solid #d9dee5;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.14);
+    }
+    .status {
+      height: 44px;
+      padding: 12px 22px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      color: #111827;
+      font-size: 12px;
+    }
+    .status-icons { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+    .battery {
+      width: 22px;
+      height: 10px;
+      border: 1.4px solid #111827;
+      border-radius: 3px;
+      position: relative;
+    }
+    .battery::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: 2px;
+      width: 2px;
+      height: 4px;
+      border-radius: 1px;
+      background: #111827;
+    }
+    .nav {
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: #fff;
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .back,
+    .menu {
+      position: absolute;
+      top: 0;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      color: #9ca3af;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    .back { left: 16px; }
+    .menu { right: 16px; }
+    .menu-pill {
+      width: 70px;
+      height: 30px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      color: #111827;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      font-size: 14px;
+    }
+    .content {
+      height: calc(100% - 92px);
+      overflow: hidden;
+      padding: 14px 16px 84px;
+    }
+    .section-title {
+      margin: 14px 0 9px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #111827;
+    }
+    .section-title::before {
+      content: "";
+      width: 4px;
+      height: 15px;
+      border-radius: 999px;
+      background: #11a64a;
+    }
+    .section-sub {
+      margin: -4px 0 9px 11px;
+      color: #94a3b8;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .template-card {
+      margin-bottom: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid rgba(15, 23, 42, 0.05);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+    }
+    .template-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+    }
+    .template-icon {
+      width: 42px;
+      height: 42px;
+      flex: none;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ebf7f0;
+      color: #11a64a;
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .template-main { flex: 1; min-width: 0; }
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .template-name {
+      color: #111827;
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.25;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .state-pill {
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: none;
+      background: #e8f8ef;
+      color: #0f8a3d;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .type-pill {
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: none;
+      background: #f1f5f9;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .template-desc {
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    .button-row {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      height: 34px;
+      min-width: 64px;
+      padding: 0 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 11px;
+      border: 0;
+      font-size: 13px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+    .btn.primary {
+      background: #11a64a;
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(17, 166, 74, 0.16);
+    }
+    .btn.soft {
+      background: #f1f5f9;
+      color: #475569;
+    }
+    .btn.green-soft {
+      background: #f0fdf4;
+      color: #0f8a3d;
+      border: 1px solid rgba(17, 166, 74, 0.16);
+    }
+    .btn.danger {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+    .empty-card {
+      padding: 22px 16px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px dashed #dbe3ec;
+      text-align: center;
+    }
+    .empty-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #111827;
+    }
+    .empty-desc {
+      margin-top: 4px;
+      color: #94a3b8;
+      font-size: 12.5px;
+    }
+    .bottom-action {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 10px 16px 22px;
+      background: rgba(255,255,255,0.96);
+      border-top: 1px solid rgba(15,23,42,0.06);
+      box-shadow: 0 -8px 24px rgba(15,23,42,0.05);
+    }
+    .full-btn {
+      width: 100%;
+      height: 46px;
+      border-radius: 14px;
+      background: #11a64a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      box-shadow: 0 10px 22px rgba(17,166,74,0.2);
+    }
+    .detail-head {
+      padding: 15px;
+      margin-bottom: 12px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid rgba(17,166,74,0.18);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+    }
+    .detail-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #111827;
+      font-size: 18px;
+      font-weight: 850;
+      line-height: 1.25;
+    }
+    .detail-desc {
+      margin-top: 8px;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .config-block {
+      margin-bottom: 12px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid rgba(15,23,42,0.05);
+      box-shadow: 0 4px 14px rgba(15,23,42,0.03);
+    }
+    .block-title {
+      min-height: 42px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #111827;
+      font-size: 14px;
+      font-weight: 800;
+      border-bottom: 1px solid #f1f5f9;
+      background: #fff;
+    }
+    .block-title::before {
+      content: "";
+      width: 3px;
+      height: 14px;
+      border-radius: 999px;
+      background: #11a64a;
+    }
+    .config-row {
+      min-height: 48px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .config-row:last-child { border-bottom: 0; }
+    .row-left { min-width: 0; }
+    .row-name {
+      color: #111827;
+      font-size: 13.5px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .row-help {
+      margin-top: 3px;
+      color: #94a3b8;
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+    .row-value {
+      flex: none;
+      color: #374151;
+      font-size: 13px;
+      font-weight: 750;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .row-value.green { color: #0f8a3d; }
+    .switch {
+      width: 42px;
+      height: 24px;
+      padding: 2px;
+      border-radius: 999px;
+      background: #11a64a;
+    }
+    .switch::after {
+      content: "";
+      display: block;
+      width: 20px;
+      height: 20px;
+      margin-left: 18px;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.16);
+    }
+    .switch.off {
+      background: #cbd5e1;
+    }
+    .switch.off::after { margin-left: 0; }
+    .radio-row {
+      display: flex;
+      gap: 8px;
+      padding: 12px 14px;
+      background: #fff;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .radio {
+      flex: 1;
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: #f3f4f6;
+      color: #475569;
+      font-size: 12.5px;
+      font-weight: 750;
+    }
+    .radio.active {
+      background: #11a64a;
+      color: #fff;
+      box-shadow: 0 6px 14px rgba(17,166,74,0.16);
+    }
+    .footer-actions {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 10px 16px 22px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: rgba(255,255,255,0.96);
+      border-top: 1px solid rgba(15,23,42,0.06);
+    }
+  </style>
+</head>
+<body>
+  <div class="board">
+    <div class="frame-wrap">
+      <div class="caption">01 列表页：内置模板 / 自定义模板</div>
+      <div class="phone">
+        <div class="status">
+          <span>9:41</span>
+          <span class="status-icons">● ● <span class="battery"></span></span>
+        </div>
+        <div class="nav">
+          <div class="back">‹</div>
+          开单配置
+          <div class="menu"><div class="menu-pill">··· ◌</div></div>
+        </div>
+        <div class="content">
+          <div class="section-title">内置模板</div>
+          <div class="section-sub">系统提供两种常用开单配置，可直接启用或查看配置。</div>
+
+          <div class="template-card">
+            <div class="template-top">
+              <div class="template-icon">称</div>
+              <div class="template-main">
+                <div class="title-row">
+                  <div class="template-name">标准称重收购</div>
+                  <span class="state-pill">已启用</span>
+                </div>
+                <div class="template-desc">适用于粮食、玉米、小麦等需要毛重、皮重、净重的收购场景。</div>
+              </div>
+            </div>
+            <div class="button-row">
+              <div class="btn soft">查看</div>
+            </div>
+          </div>
+
+          <div class="template-card">
+            <div class="template-top">
+              <div class="template-icon">快</div>
+              <div class="template-main">
+                <div class="title-row">
+                  <div class="template-name">快速收购</div>
+                  <span class="type-pill">内置</span>
+                </div>
+                <div class="template-desc">适用于水果、蔬菜等只需记录总重量和价格的快速收购场景。</div>
+              </div>
+            </div>
+            <div class="button-row">
+              <div class="btn soft">查看</div>
+              <div class="btn green-soft">启用</div>
+            </div>
+          </div>
+
+          <div class="section-title">自定义开单配置</div>
+          <div class="empty-card">
+            <div class="empty-title">暂无自定义模板</div>
+            <div class="empty-desc">可根据实际收购习惯新增自定义模板</div>
+          </div>
+        </div>
+        <div class="bottom-action">
+          <div class="full-btn">新增自定义模板</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="caption">02 详情页：内置模板仅查看 / 启用</div>
+      <div class="phone">
+        <div class="status">
+          <span>9:41</span>
+          <span class="status-icons">● ● <span class="battery"></span></span>
+        </div>
+        <div class="nav">
+          <div class="back">‹</div>
+          模板详情
+          <div class="menu"><div class="menu-pill">··· ◌</div></div>
+        </div>
+        <div class="content">
+          <div class="detail-head">
+            <div class="detail-name">
+              标准称重收购
+              <span class="state-pill">已启用</span>
+            </div>
+            <div class="detail-desc">适用于粮食、玉米、小麦等称重收购场景。内置模板不可编辑，仅支持查看配置或启用。</div>
+          </div>
+
+          <div class="config-block">
+            <div class="block-title">基础配置</div>
+            <div class="config-row">
+              <div class="row-left">
+                <div class="row-name">开单模式</div>
+                <div class="row-help">决定开单页展示的称重字段</div>
+              </div>
+              <div class="row-value green">标准称重</div>
+            </div>
+            <div class="config-row">
+              <div class="row-left">
+                <div class="row-name">默认单位</div>
+              </div>
+              <div class="row-value">斤</div>
+            </div>
+          </div>
+
+          <div class="config-block">
+            <div class="block-title">称重字段</div>
+            <div class="config-row">
+              <div class="row-left">
+                <div class="row-name">毛重</div>
+                <div class="row-help">开单时必填</div>
+              </div>
+              <div class="switch"></div>
+            </div>
+            <div class="config-row">
+              <div class="row-left">
+                <div class="row-name">皮重</div>
+                <div class="row-help">用于计算净重</div>
+              </div>
+              <div class="switch"></div>
+            </div>
+            <div class="config-row">
+              <div class="row-left">
+                <div class="row-name">扣杂 / 扣减</div>
+                <div class="row-help">支持扣减比例或杂重</div>
+              </div>
+              <div class="switch"></div>
+            </div>
+          </div>
+
+          <div class="config-block">
+            <div class="block-title">计价与留存</div>
+            <div class="radio-row">
+              <div class="radio active">单价</div>
+              <div class="radio">一口价</div>
+              <div class="radio">都支持</div>
+            </div>
+            <div class="config-row">
+              <div class="row-left">
+                <div class="row-name">拍照留存</div>
+              </div>
+              <div class="switch"></div>
+            </div>
+            <div class="config-row">
+              <div class="row-left">
+                <div class="row-name">备注</div>
+              </div>
+              <div class="switch"></div>
+            </div>
+          </div>
+
+          <div class="config-block">
+            <div class="block-title">库存配置</div>
+            <div class="config-row">
+              <div class="row-left">
+                <div class="row-name">开单时选择仓库</div>
+                <div class="row-help">用于生成预入库记录</div>
+              </div>
+              <div class="switch"></div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-action">
+          <div class="full-btn">启用该模板</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap">
+      <div class="caption">03 自定义模板：可查看 / 编辑 / 删除</div>
+      <div class="phone">
+        <div class="status">
+          <span>9:41</span>
+          <span class="status-icons">● ● <span class="battery"></span></span>
+        </div>
+        <div class="nav">
+          <div class="back">‹</div>
+          开单配置
+          <div class="menu"><div class="menu-pill">··· ◌</div></div>
+        </div>
+        <div class="content">
+          <div class="section-title">内置模板</div>
+          <div class="template-card">
+            <div class="template-top">
+              <div class="template-icon">称</div>
+              <div class="template-main">
+                <div class="title-row">
+                  <div class="template-name">标准称重收购</div>
+                  <span class="type-pill">内置</span>
+                </div>
+                <div class="template-desc">适用于粮食、玉米、小麦等需要称重的收购场景。</div>
+              </div>
+            </div>
+            <div class="button-row">
+              <div class="btn soft">查看</div>
+              <div class="btn green-soft">启用</div>
+            </div>
+          </div>
+
+          <div class="section-title">自定义开单配置</div>
+          <div class="template-card">
+            <div class="template-top">
+              <div class="template-icon">桃</div>
+              <div class="template-main">
+                <div class="title-row">
+                  <div class="template-name">桃子快收</div>
+                  <span class="state-pill">已启用</span>
+                </div>
+                <div class="template-desc">适用于桃子、李子等水果类快速收购场景。</div>
+              </div>
+            </div>
+            <div class="button-row">
+              <div class="btn soft">查看</div>
+              <div class="btn soft">编辑</div>
+              <div class="btn danger">删除</div>
+            </div>
+          </div>
+
+          <div class="template-card">
+            <div class="template-top">
+              <div class="template-icon">玉</div>
+              <div class="template-main">
+                <div class="title-row">
+                  <div class="template-name">玉米收购</div>
+                  <span class="type-pill">自定义</span>
+                </div>
+                <div class="template-desc">适用于玉米称重收购，可填写皮重、扣杂和仓库。</div>
+              </div>
+            </div>
+            <div class="button-row">
+              <div class="btn soft">查看</div>
+              <div class="btn soft">编辑</div>
+              <div class="btn green-soft">启用</div>
+              <div class="btn danger">删除</div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-action">
+          <div class="full-btn">新增自定义模板</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

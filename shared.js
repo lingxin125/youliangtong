@@ -294,7 +294,7 @@ if (typeof window !== "undefined") {
 // ==================== 收购商模拟数据中心（跨页面共享） ====================
 (function () {
   var ORDER_STORAGE_KEY = "ylt_buyer_orders_mock_v1";
-  var ORDER_DATA_VERSION = "v11"; // Phase 3 v11: 增加现金支付模拟订单与详情展示字段
+  var ORDER_DATA_VERSION = "v13"; // Phase 3 v13: 增加库存预入库字段
   var ORDER_VERSION_KEY = "ylt_buyer_orders_version";
 
   // Phase 3: 订单状态常量表（label / color class / icon）
@@ -355,6 +355,19 @@ if (typeof window !== "undefined") {
     name: "张老板",
     org: "保定收购站",
     mobile: "138****8888",
+  };
+  var WAREHOUSES = [
+    { id: "wh01", name: "一号粮仓", enabled: true },
+    { id: "wh02", name: "北区周转仓", enabled: true },
+    { id: "wh03", name: "南库临储仓", enabled: true },
+    { id: "wh04", name: "旧库房", enabled: false },
+  ];
+  var INVENTORY_STATUS = {
+    none: { label: "未入库", color: "text-gray-500", bg: "bg-gray-100" },
+    pre_in: { label: "预入库", color: "text-blue-600", bg: "bg-blue-50" },
+    in_stock: { label: "已入库", color: "text-green-600", bg: "bg-green-50" },
+    failed: { label: "入库失败", color: "text-red-600", bg: "bg-red-50" },
+    reversed: { label: "已冲销", color: "text-gray-500", bg: "bg-gray-100" },
   };
 
   function cloneData(data) {
@@ -451,6 +464,12 @@ if (typeof window !== "undefined") {
     productName: "",
     categoryPrimary: "",
     categorySecondary: "",
+    warehouseId: "",
+    warehouseName: "",
+    inventoryStatus: "",
+    inventoryFlowNo: "",
+    inventoryInAt: "",
+    inventoryUpdatedAt: "",
   };
 
   function ensureOrderFields(order) {
@@ -494,7 +513,25 @@ if (typeof window !== "undefined") {
     if (order.status === "draft") {
       patchDraftPayee(order);
     }
+    if (order.warehouseName || order.warehouseId) {
+      order.inventoryStatus = order.inventoryStatus || "pre_in";
+      order.inventoryFlowNo = order.inventoryFlowNo || buildInventoryFlowNo(order.createdAt || new Date());
+    }
     return order;
+  }
+
+  function buildInventoryFlowNo(date) {
+    var d = date ? new Date(date) : new Date();
+    if (Number.isNaN(d.getTime())) d = new Date();
+    return (
+      "RK" +
+      d.getFullYear() +
+      pad2(d.getMonth() + 1) +
+      pad2(d.getDate()) +
+      pad2(d.getHours()) +
+      pad2(d.getMinutes()) +
+      pad2(d.getSeconds())
+    );
   }
 
   function patchDraftPayee(order) {
@@ -667,6 +704,7 @@ if (typeof window !== "undefined") {
       amount: 22400,
       createdAt: isoMinusMinutes(26),
       payMethod: "industry",
+      failReason: "银行卡余额不足，请更换付款账户后重试",
       paymentOrderNo: "ZF202604261026180001",
       bankFlowNo: "YH202604261026180001",
       items: [{ name: "小麦", qty: 16000, unit: "斤", price: 1.4, subtotal: 22400 }],
@@ -746,7 +784,7 @@ if (typeof window !== "undefined") {
       amount: 1890,
       createdAt: "2026-02-11T10:48:33+08:00",
       payMethod: "industry",
-      failReason: "",
+      failReason: "银行卡余额不足，请更换付款账户后重试",
       items: [
         {
           name: "有机西红柿",
@@ -1554,6 +1592,90 @@ if (typeof window !== "undefined") {
     return cloneData(order);
   }
 
+  function getEnabledWarehouses() {
+    return cloneData(WAREHOUSES.filter(function (item) { return item.enabled !== false; }));
+  }
+
+  function getWarehouseById(id) {
+    if (!id) return null;
+    var item = WAREHOUSES.find(function (warehouse) { return warehouse.id === id && warehouse.enabled !== false; });
+    return item ? cloneData(item) : null;
+  }
+
+  function getInventoryStatusInfo(status) {
+    return INVENTORY_STATUS[status] || INVENTORY_STATUS.none;
+  }
+
+  function getInventoryFlows() {
+    var orderFlows = getOrders()
+      .filter(function (order) { return !!(order.warehouseName || order.warehouseId); })
+      .map(function (order) {
+        var status = order.inventoryStatus || "pre_in";
+        return {
+          id: order.inventoryFlowNo || buildInventoryFlowNo(order.createdAt),
+          type: status,
+          typeLabel: getInventoryStatusInfo(status).label,
+          productName: order.productName || order.categorySecondary || "农产品",
+          warehouseId: order.warehouseId || "",
+          warehouseName: order.warehouseName || "未命名仓库",
+          quantity: Number(order.netWeight || (order.items && order.items[0] && order.items[0].qty) || 0),
+          unit: order.unit || "斤",
+          sourceOrderNo: order.id || "",
+          occurredAt: order.inventoryInAt || order.inventoryUpdatedAt || order.createdAt || new Date().toISOString(),
+          farmerName: order.payeeName || "",
+          status: status,
+        };
+      });
+    var baseFlows = [
+      { id: "RK202606070008", type: "in_stock", typeLabel: "已入库", productName: "小麦", warehouseId: "wh02", warehouseName: "北区周转仓", quantity: 5000, unit: "斤", sourceOrderNo: "PC20260607008", occurredAt: isoMinusMinutes(95), farmerName: "王大哥", status: "in_stock" },
+      { id: "CK202606070002", type: "out", typeLabel: "出库", productName: "玉米", warehouseId: "wh01", warehouseName: "一号粮仓", quantity: -1200, unit: "斤", sourceOrderNo: "XS20260607002", occurredAt: isoMinusMinutes(150), farmerName: "", status: "out" },
+      { id: "RK202606060015", type: "in_stock", typeLabel: "已入库", productName: "大豆", warehouseId: "wh01", warehouseName: "一号粮仓", quantity: 3200, unit: "斤", sourceOrderNo: "PC20260606015", occurredAt: isoMinusMinutes(800), farmerName: "刘师傅", status: "in_stock" },
+    ];
+    return baseFlows.concat(orderFlows).sort(function (a, b) {
+      return new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime();
+    });
+  }
+
+  function getInventoryLedger() {
+    var map = {};
+    getInventoryFlows().forEach(function (flow) {
+      var key = flow.warehouseName + "|" + flow.productName;
+      if (!map[key]) {
+        map[key] = {
+          productName: flow.productName,
+          warehouseName: flow.warehouseName,
+          currentQty: 0,
+          preInQty: 0,
+          inQty: 0,
+          outQty: 0,
+          unit: flow.unit || "斤",
+          latestAt: flow.occurredAt,
+        };
+      }
+      if (flow.status === "pre_in") {
+        map[key].preInQty += Math.max(Number(flow.quantity) || 0, 0);
+      } else if (flow.status === "in_stock") {
+        map[key].currentQty += Math.max(Number(flow.quantity) || 0, 0);
+        map[key].inQty += Math.max(Number(flow.quantity) || 0, 0);
+      } else if (flow.type === "out") {
+        map[key].currentQty += Number(flow.quantity) || 0;
+        map[key].outQty += Math.abs(Number(flow.quantity) || 0);
+      }
+      if (new Date(flow.occurredAt).getTime() > new Date(map[key].latestAt).getTime()) {
+        map[key].latestAt = flow.occurredAt;
+      }
+    });
+    return Object.keys(map).map(function (key) { return map[key]; });
+  }
+
+  function getFarmerStorageList() {
+    return [
+      { farmerName: "李大姐", productName: "玉米", quantity: 3000, unit: "斤", warehouseName: "一号粮仓", latestAt: isoMinusMinutes(260), status: "存粮中" },
+      { farmerName: "王大哥", productName: "小麦", quantity: 1800, unit: "斤", warehouseName: "北区周转仓", latestAt: isoMinusMinutes(980), status: "存粮中" },
+      { farmerName: "刘师傅", productName: "大豆", quantity: 1200, unit: "斤", warehouseName: "一号粮仓", latestAt: isoMinusMinutes(1440), status: "存粮中" },
+    ];
+  }
+
   // Phase 3: 获取状态信息（label, color, bg, icon）
   function getStatusInfo(status) {
     return ORDER_STATUS[status] || { label: "未知", color: "text-gray-400", bg: "bg-gray-50", icon: "fa-question" };
@@ -1572,6 +1694,12 @@ if (typeof window !== "undefined") {
     updateOrder: updateOrder,
     markExpiredOrders: markExpiredOrders,
     getOrderRemainingMs: getOrderRemainingMs,
+    getEnabledWarehouses: getEnabledWarehouses,
+    getWarehouseById: getWarehouseById,
+    getInventoryStatusInfo: getInventoryStatusInfo,
+    getInventoryFlows: getInventoryFlows,
+    getInventoryLedger: getInventoryLedger,
+    getFarmerStorageList: getFarmerStorageList,
     normalizeStatus: normalizeStatus,
     getStatusLabel: getStatusLabel,
     getStatusInfo: getStatusInfo,
@@ -3679,6 +3807,201 @@ function renderUnifiedTabBar(active) {
     switchAccount: switchAccount,
     searchPlatformFarmers: searchPlatformFarmers,
     MOCK_USERS: MOCK_USERS,
+  };
+})();
+
+// ==================== 开单场景配置 Store ====================
+(function () {
+  var STORAGE_KEY = "ylt_billing_scene_configs";
+  var STANDARD_ID = "standard";
+  var QUICK_ID = "quick";
+
+  function _storage() {
+    try {
+      return window.localStorage;
+    } catch (e) {
+      return {
+        getItem: function () { return null; },
+        setItem: function () {},
+        removeItem: function () {}
+      };
+    }
+  }
+
+  function cloneData(data) {
+    return JSON.parse(JSON.stringify(data));
+  }
+
+  var DEFAULT_SCENES = [
+    {
+      id: STANDARD_ID,
+      builtIn: true,
+      name: "标准称重收购",
+      desc: "适合粮食等需要毛重、皮重、净重的标准收购。",
+      mode: "standard",
+      unit: "斤",
+      pricingScope: "both",
+      defaultPriceMode: "unit",
+      deductionMode: "ratio",
+      fields: { tare: true, deduction: true, photo: true, remark: true, warehouse: true }
+    },
+    {
+      id: QUICK_ID,
+      builtIn: true,
+      name: "快速收购",
+      desc: "适合水果、蔬菜等快速收购，只填总重量和价格。",
+      mode: "quick",
+      unit: "斤",
+      pricingScope: "both",
+      defaultPriceMode: "unit",
+      deductionMode: "ratio",
+      fields: { tare: false, deduction: false, photo: true, remark: true, warehouse: false }
+    }
+  ];
+
+  function getDefaultState() {
+    return { activeSceneId: STANDARD_ID, scenes: cloneData(DEFAULT_SCENES) };
+  }
+
+  function normalizeScene(scene) {
+    var src = scene || {};
+    var mode = src.mode === "quick" ? "quick" : "standard";
+    var pricingScope = ["unit", "fixed", "both"].indexOf(src.pricingScope) >= 0 ? src.pricingScope : "both";
+    var defaultPriceMode = src.defaultPriceMode === "fixed" ? "fixed" : "unit";
+    if (pricingScope === "unit") defaultPriceMode = "unit";
+    if (pricingScope === "fixed") defaultPriceMode = "fixed";
+    var fields = Object.assign({ tare: mode !== "quick", deduction: mode !== "quick", photo: true, remark: true, warehouse: mode !== "quick" }, src.fields || {});
+    if (mode === "quick") {
+      fields.tare = false;
+    }
+    fields.remark = true;
+    return {
+      id: src.id || ("scene-" + Date.now()),
+      builtIn: !!src.builtIn,
+      name: String(src.name || (mode === "quick" ? "快速收购" : "标准称重收购")).trim(),
+      desc: String(src.desc || "").trim(),
+      mode: mode,
+      unit: src.unit || "斤",
+      pricingScope: pricingScope,
+      defaultPriceMode: defaultPriceMode,
+      deductionMode: src.deductionMode === "direct" ? "direct" : "ratio",
+      defaultRatio: "",
+      defaultMisc: "",
+      fields: fields
+    };
+  }
+
+  function normalizeState(state) {
+    var base = getDefaultState();
+    var incoming = state && Array.isArray(state.scenes) ? state.scenes : [];
+    var byId = {};
+    base.scenes.forEach(function (scene) { byId[scene.id] = normalizeScene(scene); });
+    incoming.forEach(function (scene) {
+      var next = normalizeScene(scene);
+      if (next.id === STANDARD_ID || next.id === QUICK_ID) next.builtIn = true;
+      byId[next.id] = next;
+    });
+    var scenes = Object.keys(byId).map(function (id) { return byId[id]; });
+    scenes.sort(function (a, b) {
+      if (a.id === STANDARD_ID) return -1;
+      if (b.id === STANDARD_ID) return 1;
+      if (a.id === QUICK_ID) return -1;
+      if (b.id === QUICK_ID) return 1;
+      return String(a.name).localeCompare(String(b.name), "zh-CN");
+    });
+    var activeSceneId = state && state.activeSceneId ? state.activeSceneId : STANDARD_ID;
+    if (!byId[activeSceneId]) activeSceneId = STANDARD_ID;
+    return { activeSceneId: activeSceneId, scenes: scenes };
+  }
+
+  function readState() {
+    try {
+      return normalizeState(JSON.parse(_storage().getItem(STORAGE_KEY)));
+    } catch (e) {
+      return getDefaultState();
+    }
+  }
+
+  function writeState(state) {
+    var next = normalizeState(state);
+    _storage().setItem(STORAGE_KEY, JSON.stringify(next));
+    return next;
+  }
+
+  function findScene(state, id) {
+    var list = state && Array.isArray(state.scenes) ? state.scenes : [];
+    for (var i = 0; i < list.length; i += 1) {
+      if (list[i] && list[i].id === id) return list[i];
+    }
+    return null;
+  }
+
+  window.BillingSceneConfigStore = {
+    STANDARD_ID: STANDARD_ID,
+    QUICK_ID: QUICK_ID,
+    read: readState,
+    save: writeState,
+    getActiveScene: function () {
+      var state = readState();
+      return cloneData(findScene(state, state.activeSceneId) || findScene(state, STANDARD_ID) || DEFAULT_SCENES[0]);
+    },
+    setActive: function (id) {
+      var state = readState();
+      if (!findScene(state, id)) return state;
+      state.activeSceneId = id;
+      return writeState(state);
+    },
+    upsertScene: function (scene, activate) {
+      var state = readState();
+      var next = normalizeScene(scene);
+      var replaced = false;
+      state.scenes = state.scenes.map(function (item) {
+        if (item.id !== next.id) return item;
+        replaced = true;
+        return next;
+      });
+      if (!replaced) state.scenes.push(next);
+      if (activate) state.activeSceneId = next.id;
+      return writeState(state);
+    },
+    createBlankScene: function () {
+      var scene = normalizeScene({
+        id: "scene-" + Date.now(),
+        builtIn: false,
+        name: "",
+        desc: "",
+        mode: "standard",
+        unit: "斤",
+        pricingScope: "both",
+        defaultPriceMode: "unit",
+        deductionMode: "ratio",
+        fields: { tare: true, deduction: true, photo: true, remark: true, warehouse: true }
+      });
+      scene.name = "";
+      return scene;
+    },
+    deleteScene: function (id) {
+      var state = readState();
+      state.scenes = state.scenes.filter(function (item) {
+        return item.id !== id || item.builtIn;
+      });
+      if (state.activeSceneId === id) state.activeSceneId = STANDARD_ID;
+      return writeState(state);
+    },
+    normalizeScene: normalizeScene,
+    getFieldSummary: function (scene) {
+      var cfg = normalizeScene(scene);
+      var parts = [];
+      parts.push(cfg.mode === "quick" ? "总重量" : "毛重");
+      if (cfg.fields.tare) parts.push("皮重");
+      if (cfg.fields.deduction) parts.push(cfg.deductionMode === "direct" ? "杂重" : "扣减比例");
+      parts.push(cfg.unit || "斤");
+      parts.push(cfg.pricingScope === "fixed" ? "一口价" : cfg.pricingScope === "unit" ? "单价" : "单价/一口价");
+      if (cfg.fields.photo) parts.push("拍照留存");
+      if (cfg.fields.remark) parts.push("备注");
+      if (cfg.fields.warehouse) parts.push("入库仓库");
+      return parts.join("、");
+    }
   };
 })();
 

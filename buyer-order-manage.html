@@ -284,6 +284,24 @@
         .order-time-text {
             font-size: 11px; color: #9CA3AF; white-space: nowrap;
         }
+        .order-print-link {
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #F4FBF7;
+            border: 1px solid rgba(17,166,74,0.14);
+            color: #11A64A;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .order-print-link:active {
+            transform: scale(0.97);
+            background: #EBF7F0;
+        }
         .order-flow-row {
             display: flex; align-items: center; justify-content: space-between;
             gap: 10px; padding-top: 8px; margin-top: 8px;
@@ -429,6 +447,21 @@
             max-height: 70%; display: flex; flex-direction: column;
         }
         .sheet-panel.show { transform: translateY(0); }
+        .printer-device-card {
+            width: 100%;
+            border-radius: 16px;
+            border: 1px solid #F3F4F6;
+            background: #FFFFFF;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+        }
+        .printer-device-card.connected {
+            border-color: rgba(17,166,74,0.22);
+            background: #F4FBF7;
+        }
 
         /* ========== 状态标签 ========== */
         .status-badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 500; white-space: nowrap; }
@@ -542,7 +575,7 @@
     <div class="shrink-0 sticky top-0 z-40 bg-white">
         <div class="tab-container relative">
             <div class="tab-item active" id="stageTodo" onclick="switchStage('todo')">待处理 <span class="tab-badge" id="countTodo">0</span></div>
-            <div class="tab-item" id="stagePaying" onclick="switchStage('paying')">付款中 <span class="tab-badge" id="countPaying">0</span></div>
+            <div class="tab-item" id="stagePaying" onclick="switchStage('paying')">处理中 <span class="tab-badge" id="countPaying">0</span></div>
             <div class="tab-item" id="stageDone" onclick="switchStage('done')">已结束 <span class="tab-badge" id="countDone">0</span></div>
             <div class="tab-indicator" id="tabIndicator">
                 <div class="mx-auto w-10 h-full bg-[#11A64A] rounded-t-md"></div>
@@ -668,6 +701,25 @@
         </div>
     </div>
 
+    <!-- 蓝牙打印机连接面板 -->
+    <div class="sheet-overlay" id="printerSheetOverlay" onclick="closePrinterSheet()"></div>
+    <div class="sheet-panel" id="printerSheet">
+        <div class="flex justify-center pt-2 pb-1"><div class="w-10 h-1 bg-gray-300 rounded-full"></div></div>
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between shrink-0">
+            <div>
+                <div class="text-[16px] font-semibold text-gray-800">连接蓝牙打印机</div>
+                <div id="printerSheetDesc" class="text-[12px] text-gray-400 mt-1">连接成功后继续打印当前小票</div>
+            </div>
+            <button class="w-8 h-8 flex items-center justify-center text-gray-400" onclick="closePrinterSheet()">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+        <div class="px-4 py-3">
+            <div id="printerDeviceList" class="space-y-2"></div>
+            <button class="mt-4 w-full h-11 rounded-xl bg-gray-50 text-gray-500 text-sm font-semibold" onclick="refreshPrinterDevices()">重新搜索附近打印机</button>
+        </div>
+    </div>
+
     <!-- 筛选面板 -->
     <div class="sheet-overlay" id="filterOverlay" onclick="FilterPanel.close()"></div>
     <div class="sheet-panel" id="filterSheet">
@@ -720,6 +772,8 @@ const TODO_TABS = ['draft', 'pending_price', 'unpaid'];
 const DONE_TABS = ['all', 'success', 'canceled'];
 const PAYING_STATUSES = ['pending', 'paying', 'processing'];
 const DONE_STATUSES = ['success', 'canceled'];
+const DEVICE_STORAGE_KEY = 'fsy_buyer_devices';
+const DEVICE_PREF_KEY = 'fsy_buyer_device_prefs';
 const state = {
     currentStage: normalizeInitialStage(urlQs.get('stage'), urlQs.get('tab')),
     currentTab: normalizeInitialTab(urlQs.get('tab')),
@@ -732,6 +786,7 @@ const state = {
     sortOrder: 'created_desc',
     selectedClientId: null,
     swipedId: null,
+    pendingPrintOrderId: null,
 };
 
 function normalizeInitialStage(stage, tab) {
@@ -978,6 +1033,22 @@ function renderMissingValue(text) {
 function renderStatusPill(text) {
     return `<span class="order-status-pill">${text}</span>`;
 }
+function getReceiptTypeByStatus(status) {
+    if (status === 'draft') return '过磅单';
+    if (status === 'pending_price') return '待开价小票';
+    if (status === 'unpaid' || status === 'pending_client') return '待付款确认单';
+    if (status === 'success') return '付款成功小票';
+    if (PAYING_STATUSES.includes(status)) return '待付款确认单';
+    return '业务过程单';
+}
+function canPrintOrder(order) {
+    return order && order.status !== 'canceled' && !PAYING_STATUSES.includes(order.status);
+}
+function renderPrintLink(orderId, status, label) {
+    return `<button type="button" class="order-print-link" onclick="event.stopPropagation();openOrderPrint('${orderId}')">
+        <i class="fas fa-print text-[10px]"></i>打印小票
+    </button>`;
+}
 function renderOrderFooter(payee, createdAt) {
     return `<div class="order-footer-row">
         <div class="min-w-0">
@@ -1027,7 +1098,7 @@ function renderEmpty() {
         draft: { title: '暂无挂单', desc: '开单时选择「挂单」可暂存未完成的单据' },
         pending_price: { title: '暂无待开价订单', desc: '价格未定时选择「待开价」，后续统一定价' },
         unpaid: { title: '暂无待付款订单', desc: '稍后结算和客户转来的订单会出现在这里' },
-        paying: { title: '暂无付款中订单', desc: '发起付款后，未完成的订单会出现在这里' },
+        paying: { title: '暂无处理中订单', desc: '发起付款后，未完成的订单会出现在这里' },
         all: { title: '暂无已结束订单', desc: '付款成功或取消后的订单会出现在这里' },
         success: { title: '暂无付款成功订单', desc: '完成付款的订单会出现在这里' },
         canceled: { title: '暂无已取消订单', desc: '已取消的订单会出现在这里' },
@@ -1055,6 +1126,9 @@ function renderResultLikeCard(o, info) {
     const selectable = !!info.selectable;
     const checked = state.selectedIds.has(o.id);
     const cardClick = selectable ? `toggleSelect('${o.id}')` : `goPayingDetail('${o.id}')`;
+    const failReason = info.showFailReason ? (info.failReason || o.failReason || '') : '';
+    const inlineAmountTime = !!failReason;
+    const printLink = canPrintOrder(o) ? renderPrintLink(o.id, o.status, '打印小票') : '';
     return `<div class="order-card mb-3 ${checked?'selected':''}">
         <div class="py-3 px-3.5 flex items-stretch gap-0">
             ${selectable ? `<button type="button" class="check-box ${checked?'checked':''} mt-0.5 mr-3 shrink-0" onclick="event.stopPropagation();toggleSelect('${o.id}')"><i class="fas fa-check"></i></button>` : ``}
@@ -1079,18 +1153,25 @@ function renderResultLikeCard(o, info) {
                         </div>
                     </div>
                     <div class="mt-3">
-                        <div class="text-[18px] leading-none font-bold ${info.amountClass} font-poppins">¥${fmt(o.amount)}</div>
+                        <div class="flex items-end justify-between gap-3">
+                            <div class="text-[18px] leading-none font-bold ${info.amountClass} font-poppins">¥${fmt(o.amount)}</div>
+                            ${inlineAmountTime ? `<div class="text-[11px] text-gray-400 shrink-0">${smartTime(time)}</div>` : ``}
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="result-card-meta">
                 <span class="result-status-tag ${info.cls}">${info.label}</span>
-                <span class="text-[11px] text-gray-400 shrink-0">${smartTime(time)}</span>
+                ${inlineAmountTime ? `` : `<span class="text-[11px] text-gray-400 shrink-0">${smartTime(time)}</span>`}
             </div>
             <button type="button" class="done-card-enter" onclick="event.stopPropagation();goPayingDetail('${o.id}')">
                 <i class="fas fa-chevron-right"></i>
             </button>
         </div>
+        ${failReason ? `<div class="px-4 pb-3 -mt-1" onclick="${cardClick}">
+            <div class="text-[11px] leading-4 text-red-500">上次失败原因：${failReason}</div>
+        </div>` : ``}
+        ${printLink ? `<div class="px-4 pb-3 -mt-1 flex justify-start">${printLink}</div>` : ``}
     </div>`;
 }
 
@@ -1102,7 +1183,8 @@ function renderPayingCard(o) {
         label: statusText,
         amountClass: 'text-primary',
         time: o.updatedAt || o.createdAt,
-        selectable: true
+        selectable: true,
+        showFailReason: true
     });
 }
 
@@ -1154,7 +1236,8 @@ function renderDraftCard(o) {
                     </div>
                 </div>
                 
-                <div class="text-right mt-0.5">
+                <div class="mt-2 flex items-center justify-between gap-2">
+                    ${renderPrintLink(o.id, o.status, '过磅单')}
                     <span class="text-[10px] text-gray-400">${smartTime(o.createdAt)}</span>
                 </div>
             </div>
@@ -1203,7 +1286,8 @@ function renderPriceCard(o) {
                         </div>
                     </div>
                     
-                    <div class="text-right mt-0.5">
+                    <div class="mt-2 flex items-center justify-between gap-2">
+                        ${renderPrintLink(o.id, o.status, '待开价小票')}
                         <span class="text-[10px] text-gray-400">${smartTime(o.createdAt)}</span>
                     </div>
                 </div>
@@ -1298,12 +1382,155 @@ function renderUnpaidCard(o) {
 		                            <span class="flow-text">${flow.text}</span>
 		                        </div>
 		                        ` : ``}
+                                <div class="mt-2 flex justify-start">
+                                    ${renderPrintLink(o.id, o.status, '待付款确认单')}
+                                </div>
 		                    </div>
                 </div>
             </div>
         </div>
         ${deleteBtn}
     </div>`;
+}
+
+// ==================== 小票打印 ====================
+function findOrderById(orderId) {
+    if (!mockStore) return null;
+    if (typeof mockStore.findOrderById === 'function') return mockStore.findOrderById(orderId);
+    return (mockStore.getOrders ? mockStore.getOrders() : []).find(function(order) { return order.id === orderId; }) || null;
+}
+
+function seedPrinterDevices() {
+    return [
+        { id: 'printer-58', type: 'printer', name: '便携蓝牙打印机 58mm', status: 'disconnected', enabled: true },
+        { id: 'printer-80', type: 'printer', name: '蓝牙打印机 80X', status: 'disconnected', enabled: true }
+    ];
+}
+
+function loadPrinterDevices() {
+    var list = [];
+    try {
+        var stored = JSON.parse(localStorage.getItem(DEVICE_STORAGE_KEY));
+        if (Array.isArray(stored)) list = stored;
+    } catch(e) {}
+    var ids = new Set(list.map(function(item) { return item.id; }));
+    seedPrinterDevices().forEach(function(item) {
+        if (!ids.has(item.id)) list.push(item);
+    });
+    return list;
+}
+
+function savePrinterDevices(list) {
+    try { localStorage.setItem(DEVICE_STORAGE_KEY, JSON.stringify(list)); } catch(e) {}
+}
+
+function loadDevicePrefs() {
+    try {
+        return Object.assign({ currentPrinterId: 'printer-58' }, JSON.parse(localStorage.getItem(DEVICE_PREF_KEY)) || {});
+    } catch(e) {
+        return { currentPrinterId: 'printer-58' };
+    }
+}
+
+function saveDevicePrefs(prefs) {
+    try { localStorage.setItem(DEVICE_PREF_KEY, JSON.stringify(prefs)); } catch(e) {}
+}
+
+function getCurrentPrinter() {
+    var prefs = loadDevicePrefs();
+    var printers = loadPrinterDevices().filter(function(item) { return item.type === 'printer' && item.enabled !== false && item.status !== 'disabled'; });
+    return printers.find(function(item) { return item.id === prefs.currentPrinterId; })
+        || printers.find(function(item) { return item.status === 'connected'; })
+        || printers[0];
+}
+
+function openOrderPrint(orderId) {
+    var order = findOrderById(orderId);
+    if (!canPrintOrder(order)) {
+        showToast('当前订单不支持打印');
+        return;
+    }
+    state.pendingPrintOrderId = orderId;
+    var printer = getCurrentPrinter();
+    if (printer && printer.status === 'connected') {
+        simulateOrderPrint();
+        return;
+    }
+    openPrinterSheet();
+}
+
+function simulateOrderPrint() {
+    var order = findOrderById(state.pendingPrintOrderId);
+    if (!order) {
+        showToast('订单不存在');
+        return;
+    }
+    var type = getReceiptTypeByStatus(order.status);
+    state.pendingPrintOrderId = null;
+    closePrinterSheet();
+    showToast(type + '已发送到打印机');
+}
+
+function openPrinterSheet() {
+    renderPrinterDeviceList();
+    var desc = document.getElementById('printerSheetDesc');
+    if (desc) desc.textContent = '连接成功后继续打印当前小票';
+    document.getElementById('printerSheetOverlay').classList.add('show');
+    document.getElementById('printerSheet').classList.add('show');
+}
+
+function closePrinterSheet() {
+    document.getElementById('printerSheet').classList.remove('show');
+    document.getElementById('printerSheetOverlay').classList.remove('show');
+}
+
+function renderPrinterDeviceList() {
+    var box = document.getElementById('printerDeviceList');
+    if (!box) return;
+    var printers = loadPrinterDevices().filter(function(item) { return item.type === 'printer' && item.enabled !== false && item.status !== 'disabled'; });
+    box.innerHTML = printers.map(function(item) {
+        var connected = item.status === 'connected';
+        return '<div class="printer-device-card ' + (connected ? 'connected' : '') + '">'
+            + '<div class="w-10 h-10 rounded-xl bg-[#EBF7F0] text-[#11A64A] flex items-center justify-center shrink-0"><i class="fas fa-print"></i></div>'
+            + '<div class="flex-1 min-w-0"><div class="text-[14px] font-semibold text-gray-800 truncate">' + item.name + '</div><div class="text-[11px] text-gray-400 mt-0.5">' + (connected ? '当前设备' : '附近设备') + '</div></div>'
+            + (connected
+                ? '<div class="flex items-center gap-2 shrink-0"><span class="h-8 px-3 rounded-xl bg-[#EAF8EF] text-[#11A64A] text-[12px] font-semibold flex items-center">已连接</span><button type="button" class="h-8 px-3 rounded-xl bg-white border border-red-100 text-red-500 text-[12px] font-semibold active:scale-[0.98]" onclick="disconnectPrinterDevice(&quot;' + item.id + '&quot;)">断开</button></div>'
+                : '<button type="button" class="h-8 px-3 rounded-xl bg-[#EBF7F0] text-[#11A64A] text-[12px] font-semibold active:scale-[0.98]" onclick="connectPrinterDevice(&quot;' + item.id + '&quot;)">连接</button>')
+            + '</div>';
+    }).join('');
+}
+
+function refreshPrinterDevices() {
+    showToast('已重新搜索附近打印机');
+    renderPrinterDeviceList();
+}
+
+function connectPrinterDevice(id) {
+    var list = loadPrinterDevices().map(function(item) {
+        if (item.type !== 'printer') return item;
+        if (item.id === id) return Object.assign({}, item, { status: 'connected', lastConnected: '刚刚' });
+        return Object.assign({}, item, { status: 'disconnected' });
+    });
+    savePrinterDevices(list);
+    var prefs = loadDevicePrefs();
+    prefs.currentPrinterId = id;
+    saveDevicePrefs(prefs);
+    showToast('打印机已连接');
+    if (state.pendingPrintOrderId) {
+        simulateOrderPrint();
+        return;
+    }
+    renderPrinterDeviceList();
+}
+
+function disconnectPrinterDevice(id) {
+    var list = loadPrinterDevices().map(function(item) {
+        if (item.type === 'printer' && item.id === id) return Object.assign({}, item, { status: 'disconnected' });
+        return item;
+    });
+    savePrinterDevices(list);
+    renderPrinterDeviceList();
+    showToast('打印机已断开');
 }
 
 // ==================== 选择 & 批量操作 ====================

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>丰收云 - 库存明细</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        #statusBar,#navBar { background:#F7F8FA; }
+        .search-box { height:42px; border-radius:12px; background:#fff; border:1px solid rgba(15,23,42,.05); display:flex; align-items:center; gap:8px; padding:0 12px; }
+        .filter-btn { width:42px; height:42px; border-radius:12px; background:#fff; border:1px solid #E5E7EB; color:#64748B; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(15,23,42,.03); }
+        .checkline { display:flex; align-items:center; gap:8px; font-size:12px; color:#475569; font-weight:800; }
+        .checkline input { width:16px; height:16px; accent-color:#11A64A; }
+        .list-card { background:#fff; border:1px solid rgba(15,23,42,.05); border-radius:16px; padding:16px; box-shadow:0 2px 10px rgba(15,23,42,.02); }
+        .tag { display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap; }
+        .tag-green { background:#EAF8EF; color:#11A64A; }
+        .tag-blue { background:#DBEAFE; color:#2563EB; }
+        .tag-red { background:#FEE2E2; color:#DC2626; }
+        .tag-orange { background:#FEF3C7; color:#D97706; }
+        .tag-gray { background:#F1F5F9; color:#64748B; }
+        .info-icon { color:#CBD5E1; font-size:12px; flex-shrink:0; }
+        .qty { font-family:Poppins, sans-serif; font-weight:700; letter-spacing:-.01em; }
+        .field-box { border-radius:12px; background:#F8FAFC; padding:10px; min-width:0; }
+        .sheet-mask { position:absolute; inset:0; background:rgba(15,23,42,.4); backdrop-filter:blur(4px); opacity:0; visibility:hidden; z-index:400; transition:.22s ease; }
+        .sheet-mask.show { opacity:1; visibility:visible; }
+        .sheet { position:absolute; left:0; right:0; bottom:0; max-height:84%; overflow-y:auto; background:#fff; border-radius:24px 24px 0 0; padding:10px 16px calc(20px + env(safe-area-inset-bottom)); z-index:410; transform:translateY(100%); transition:.28s cubic-bezier(.4,0,.2,1); }
+        .sheet.show { transform:translateY(0); }
+        .handle { width:40px; height:4px; border-radius:999px; background:#D1D5DB; margin:0 auto 14px; }
+        .filter-chip { min-height:36px; padding:0 12px; border-radius:999px; background:#F1F5F9; color:#475569; font-size:12px; font-weight:700; display:inline-flex; align-items:center; }
+        .filter-chip.active { background:#EAF8EF; color:#11A64A; }
+        .detail-row { min-height:42px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid #F1F5F9; }
+        .detail-row:last-child { border-bottom:0; }
+        .detail-label { font-size:12px; color:#64748B; flex-shrink:0; }
+        .detail-value { font-size:13px; color:#111827; font-weight:700; text-align:right; min-width:0; word-break:break-all; }
+    </style>
+</head>
+<body class="bg-[#F7F8FA]">
+<div class="mobile-container relative bg-[#F7F8FA]">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+    <div class="flex-1 overflow-y-auto no-scrollbar px-4 pt-3 pb-8">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="search-box flex-1 min-w-0">
+                <i class="fas fa-search text-gray-400 text-sm"></i>
+                <input id="q" class="flex-1 bg-transparent outline-none text-[13px]" placeholder="搜索流水/农产品/仓库/单号" oninput="renderFlows()">
+            </div>
+            <button type="button" class="filter-btn" onclick="openFilterSheet()"><i class="fas fa-filter"></i></button>
+        </div>
+        <div class="flex items-center justify-between mb-3 px-1">
+            <label class="checkline"><input id="summaryToggle" type="checkbox" onchange="renderFlows()"><span>汇总统计</span></label>
+            <span id="countText" class="text-[11px] text-gray-400"></span>
+        </div>
+        <div id="flowList" class="space-y-3"></div>
+    </div>
+    <div id="sheetMask" class="sheet-mask" onclick="closeSheets()"></div>
+    <div id="filterSheet" class="sheet no-scrollbar">
+        <div class="handle"></div>
+        <div class="flex items-center justify-between mb-3">
+            <div class="text-[17px] font-bold text-gray-900">筛选</div>
+            <button type="button" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500" onclick="closeSheets()"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="filterBody"></div>
+    </div>
+    <div id="detailSheet" class="sheet no-scrollbar">
+        <div class="handle"></div>
+        <div id="detailBody"></div>
+    </div>
+</div>
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar('light');
+document.getElementById('navBar').innerHTML = renderHeader('库存明细', 'buyer-inventory.html');
+var store = window.BuyerMockStore || {};
+var state = { warehouse:'all', category:'all', type:'all', status:'all' };
+
+function escapeHtml(value){return String(value||'').replace(/[&<>"']/g,function(ch){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch];});}
+function fmtQty(v,u){return (Number(v)>0?'+':'')+(Number(v||0)).toLocaleString('zh-CN')+(u||'斤');}
+function fmtPlainQty(v,u){return Number(v||0).toLocaleString('zh-CN')+(u||'斤');}
+function fmtTime(v){var d=new Date(v);return Number.isNaN(d.getTime())?'-':d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');}
+function statusLabel(i){return i.type==='out'?'出库':'入库';}
+function ledgerBalance(productName, warehouseName, inventoryType){
+    if(inventoryType==='存粮'){
+        return (store.getFarmerStorageList?store.getFarmerStorageList():[]).filter(function(i){return i.productName===productName&&i.warehouseName===warehouseName;}).reduce(function(sum,i){return sum+Number(i.quantity||0);},0);
+    }
+    var item=(store.getInventoryLedger?store.getInventoryLedger():[]).find(function(i){return i.productName===productName&&i.warehouseName===warehouseName;});
+    return item?Number(item.currentQty||0):0;
+}
+function rows(){
+    var list=(store.getInventoryFlows?store.getInventoryFlows():[]).map(function(i){
+        var inventoryType=i.inventoryType||'收粮';
+        return { id:i.id||'', productName:i.productName, warehouseName:i.warehouseName, inventoryType:inventoryType, status:statusLabel(i), quantity:Number(i.quantity||0), balanceQty:ledgerBalance(i.productName,i.warehouseName,inventoryType), unit:i.unit||'斤', sourceOrderNo:i.sourceOrderNo||'-', occurredAt:i.occurredAt, remark:i.typeLabel||statusLabel(i), farmerName:i.farmerName||'' };
+    });
+    (store.getFarmerStorageList?store.getFarmerStorageList():[]).forEach(function(i,index){
+        list.push({ id:'CL'+String(index+1).padStart(4,'0'), productName:i.productName, warehouseName:i.warehouseName, inventoryType:'存粮', status:'入库', quantity:Number(i.quantity||0), balanceQty:ledgerBalance(i.productName,i.warehouseName,'存粮'), unit:i.unit||'斤', sourceOrderNo:i.orderNo||'存粮记录', occurredAt:i.latestAt, remark:'农户存粮', farmerName:i.farmerName||'' });
+    });
+    return list.sort(function(a,b){return new Date(b.occurredAt).getTime()-new Date(a.occurredAt).getTime();});
+}
+function filteredRows(){
+  var q=(document.getElementById('q').value||'').trim().toLowerCase();
+  return rows().filter(function(i){
+    if(state.warehouse!=='all'&&i.warehouseName!==state.warehouse)return false;
+    if(state.category!=='all'&&i.productName!==state.category)return false;
+    if(state.type!=='all'&&i.inventoryType!==state.type)return false;
+    if(state.status!=='all'&&i.status!==state.status)return false;
+    return !q||[i.id,i.productName,i.warehouseName,i.sourceOrderNo,i.farmerName,i.inventoryType,i.status].join(' ').toLowerCase().indexOf(q)>=0;
+  });
+}
+function displayRows(){
+  var list=filteredRows();
+  if(!document.getElementById('summaryToggle').checked)return list;
+  var map={};
+  list.forEach(function(i){
+    var key=i.inventoryType+'|'+i.productName+'|'+i.warehouseName+'|'+i.status;
+    if(!map[key])map[key]={productName:i.productName,warehouseName:i.warehouseName,inventoryType:i.inventoryType,status:i.status,quantity:0,unit:i.unit,count:0,summary:true};
+    map[key].quantity+=Number(i.quantity||0);
+    map[key].count+=1;
+  });
+  return Object.keys(map).map(function(key){return map[key];});
+}
+function renderFlows(){
+  var list=displayRows();
+  document.getElementById('countText').textContent='共 '+list.length+' 条';
+  document.getElementById('flowList').innerHTML=list.map(function(i){
+    var isOut=i.status==='出库';
+    var tag=isOut?'tag-red':'tag-green';
+    var sourceTag=i.inventoryType==='存粮'?'tag-blue':'tag-gray';
+    var qtyColor=isOut?'text-[#DC2626]':'text-[#11A64A]';
+    var clickAttr=i.summary?'':' onclick="openDetail(&quot;'+escapeHtml(i.id||i.sourceOrderNo||'')+'&quot;)"';
+    var secondBox=i.summary
+      ? '<div class="field-box flex items-center justify-between gap-3"><div class="text-[11px] text-gray-400 shrink-0">合并笔数</div><div class="qty text-[16px] text-gray-900 text-right truncate">'+escapeHtml(i.count+'笔')+'</div></div>'
+      : '<div class="field-box flex items-center justify-between gap-3"><div class="text-[11px] text-gray-400 shrink-0">结存量</div><div class="qty text-[16px] text-gray-900 text-right truncate">'+fmtPlainQty(i.balanceQty,i.unit)+'</div></div>';
+    var orderLine=i.summary
+      ? ''
+      : '<div class="text-[12px] text-gray-500 mt-1 truncate flex items-center gap-1.5"><i class="fas fa-hashtag info-icon text-[11px]"></i><span class="font-mono text-gray-600 truncate">'+escapeHtml(i.sourceOrderNo||'-')+'</span></div>';
+    var foot='<div class="mt-3 flex items-center justify-between gap-3"><span class="tag '+sourceTag+'">'+escapeHtml(i.inventoryType)+'</span>'+(i.summary?'<span class="text-[11px] text-gray-400">汇总统计</span>':'<span class="text-[11px] text-gray-500">'+fmtTime(i.occurredAt)+'</span>')+'</div>';
+    return '<article class="list-card"'+clickAttr+'><div class="flex items-start justify-between gap-3"><div class="flex-1 min-w-0"><div class="flex items-center gap-1.5 min-w-0"><i class="fas fa-box info-icon"></i><div class="text-[16px] font-bold text-gray-900 truncate">'+escapeHtml(i.productName)+'</div></div><div class="text-[12px] text-gray-500 mt-0.5 truncate flex items-center gap-1.5"><i class="fas fa-warehouse info-icon text-[11px]"></i><span class="truncate text-gray-600">'+escapeHtml(i.warehouseName)+'</span></div>'+orderLine+'</div><div class="flex items-center gap-1.5 shrink-0"><span class="tag '+tag+'">'+escapeHtml(i.status)+'</span>'+(i.summary?'':'<span class="text-[#94A3B8] inline-flex items-center justify-center w-4 h-6"><i class="fas fa-chevron-right text-[13px]"></i></span>')+'</div></div><div class="border-t border-gray-100 mt-3 pt-3"><div class="grid grid-cols-2 gap-3"><div class="field-box flex items-center justify-between gap-3"><div class="text-[11px] text-gray-400 shrink-0">变动重量</div><div class="qty text-[16px] '+qtyColor+' text-right truncate">'+fmtQty(i.quantity,i.unit)+'</div></div>'+secondBox+'</div>'+foot+'</div></article>';
+  }).join('')||'<div class="list-card text-center py-10 text-[13px] text-gray-500">暂无库存明细</div>';
+}
+function optionValues(key){
+    var map={};
+    rows().forEach(function(i){var v=key==='warehouseName'?i.warehouseName:key==='productName'?i.productName:key==='inventoryType'?i.inventoryType:i.status;if(v)map[v]=true;});
+    return Object.keys(map);
+}
+function openFilterSheet(){
+    var groups=[['warehouse','仓库名称',['all'].concat(optionValues('warehouseName'))],['category','农产品种类',['all'].concat(optionValues('productName'))],['type','库存类型',['all'].concat(optionValues('inventoryType'))],['status','出入库状态',['all'].concat(optionValues('status'))]];
+    document.getElementById('filterBody').innerHTML=groups.map(function(group){
+        return '<div class="mb-4"><div class="text-[13px] font-bold text-gray-800 mb-2">'+group[1]+'</div><div class="flex flex-wrap gap-2">'+group[2].map(function(value){var active=state[group[0]]===value;return '<button type="button" class="filter-chip '+(active?'active':'')+'" onclick="setFilter(&quot;'+group[0]+'&quot;,&quot;'+escapeHtml(value)+'&quot;)">'+escapeHtml(value==='all'?'全部':value)+'</button>';}).join('')+'</div></div>';
+    }).join('')+'<button type="button" class="w-full h-11 rounded-xl bg-[#11A64A] text-white text-[14px] font-bold mt-5" onclick="closeSheets()">确定</button>';
+    openSheet('filterSheet');
+}
+function setFilter(key,value){state[key]=value;openFilterSheet();renderFlows();}
+function openSheet(id){document.getElementById('sheetMask').classList.add('show');document.getElementById(id).classList.add('show');}
+function detailRows(items){return '<div class="rounded-2xl bg-[#FAFAFA] border border-gray-100 px-4">'+items.map(function(row){return '<div class="detail-row"><span class="detail-label">'+escapeHtml(row[0])+'</span><span class="detail-value">'+escapeHtml(row[1])+'</span></div>';}).join('')+'</div>';}
+function openDetail(id){
+    var row=rows().find(function(i){return String(i.id||i.sourceOrderNo||'')===String(id);});
+    if(!row)return;
+    document.getElementById('detailBody').innerHTML='<div class="flex items-center justify-between mb-4"><div class="text-[18px] font-bold text-gray-900">库存明细详情</div><button type="button" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500" onclick="closeSheets()"><i class="fas fa-times"></i></button></div>'+detailRows([
+        ['农产品名称',row.productName],
+        ['仓库名称',row.warehouseName],
+        ['库存类型',row.inventoryType],
+        ['出入库状态',row.status],
+        ['变动重量',fmtQty(row.quantity,row.unit)],
+        ['结存量',fmtPlainQty(row.balanceQty,row.unit)],
+        ['订单编号',row.sourceOrderNo||'-'],
+        ['库存流水号',row.id||'-'],
+        ['库存变动时间',fmtTime(row.occurredAt)],
+        ['操作备注',row.remark||'-']
+    ]);
+    openSheet('detailSheet');
+}
+function closeSheets(){document.getElementById('sheetMask').classList.remove('show');document.getElementById('filterSheet').classList.remove('show');document.getElementById('detailSheet').classList.remove('show');}
+renderFlows();
+</script>
+</body>
+</html>

@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRD：开单配置与品类管理优化</title>
+<title>PRD：开单配置与品类管理优化（主体级开单配置）</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
 :root {
   --bg: #F6F8F6;
@@ -22,7 +23,7 @@
   --radius: 18px;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: 20px; }
 body {
   margin: 0;
   font-family: "Noto Sans SC", "Poppins", sans-serif;
@@ -60,21 +61,9 @@ body {
   border-radius: 24px;
   padding: 34px 36px;
   box-shadow: 0 18px 40px rgba(17, 166, 74, .18);
-  overflow: hidden;
-  position: relative;
 }
-.hero::after {
-  content: "";
-  position: absolute;
-  width: 320px;
-  height: 320px;
-  right: -110px;
-  top: -120px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.08);
-}
-.hero h2 { font-size: 30px; margin: 0 0 8px; position: relative; z-index: 1; }
-.hero p { max-width: 820px; margin: 0; opacity: .9; font-size: 15px; position: relative; z-index: 1; }
+.hero h2 { font-size: 30px; margin: 0 0 8px; }
+.hero p { max-width: 900px; margin: 0; opacity: .92; font-size: 15px; }
 .meta {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -94,29 +83,37 @@ body {
 .card h3 { margin: 0 0 14px; font-size: 20px; display: flex; align-items: center; gap: 10px; }
 .card h3 i { color: var(--primary); font-size: 18px; }
 .lead { color: var(--muted); margin: 0 0 14px; }
-.tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px; font-size: 12px; font-weight: 800; }
-.tag.green { background: var(--soft); color: var(--primary-dark); }
-.tag.blue { background: #EFF6FF; color: var(--blue); }
-.tag.amber { background: #FFFBEB; color: #B45309; }
-.tag.gray { background: #F3F4F6; color: #4B5563; }
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .box { background: #FAFAFA; border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
 .box h4 { margin: 0 0 8px; font-size: 16px; }
 .box p { margin: 0; color: var(--muted); font-size: 13px; }
-.flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: stretch; }
-.step { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px; min-height: 96px; }
-.step .num { color: var(--primary); font-weight: 900; font-size: 13px; }
-.step .title { font-weight: 900; margin-top: 4px; }
-.step .desc { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.box .mini { margin-top: 8px; color: var(--muted); font-size: 12px; }
 table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 14px; border: 1px solid var(--line); background: #fff; }
 th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; font-size: 14px; vertical-align: top; }
 th { background: #F9FAFB; font-weight: 900; }
 tr:last-child td { border-bottom: none; }
 ul { margin: 8px 0 0 18px; padding: 0; }
 li { margin: 5px 0; }
-.mock-wrap { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+.tag.green { background: var(--soft); color: var(--primary-dark); }
+.tag.blue { background: #EFF6FF; color: var(--blue); }
+.tag.amber { background: #FFFBEB; color: #B45309; }
+.tag.gray { background: #F3F4F6; color: #4B5563; }
+.note { background: #FFFBEB; color: #92400E; border: 1px solid rgba(245,158,11,.24); border-radius: 14px; padding: 14px 16px; font-size: 14px; }
+.mermaid-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: #fff; padding: 12px; margin-top: 12px; }
+pre.mermaid { margin: 0; text-align: center; background: transparent; }
+pre.code {
+  white-space: pre-wrap;
+  background: #0F172A;
+  color: #E5E7EB;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-x: auto;
+}
 .phone {
   width: 360px;
   background: #F7F8FA;
@@ -125,60 +122,24 @@ li { margin: 5px 0; }
   padding: 14px;
   box-shadow: 0 16px 40px rgba(15,23,42,.08);
 }
-.phone-screen { background: #fff; border-radius: 22px; overflow: hidden; min-height: 650px; border: 1px solid rgba(15,23,42,.06); }
-.phone-head { height: 48px; display: flex; align-items: center; justify-content: center; font-weight: 900; border-bottom: 1px solid rgba(15,23,42,.06); position: relative; }
-.phone-back { position: absolute; left: 16px; color: #6B7280; }
-.fav-card { padding: 16px; border-bottom: 10px solid #F6F8F6; }
-.section-title { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 900; margin-bottom: 12px; }
-.bar { width: 4px; height: 16px; background: var(--primary); border-radius: 999px; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { border: 1px solid rgba(17,166,74,.22); background: #F0FDF4; color: #0E7A38; border-radius: 999px; padding: 7px 10px; font-size: 12px; font-weight: 800; }
-.category-body { display: grid; grid-template-columns: 82px 1fr; min-height: 360px; }
-.left-tabs { background: #F7F8FA; }
-.left-tabs div { padding: 18px 0; text-align: center; font-size: 13px; color: #6B7280; }
-.left-tabs .active { color: var(--primary); background: #fff; font-weight: 900; border-left: 4px solid var(--primary); }
-.right-list { padding: 14px; }
-.cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.cat-card { position: relative; min-height: 76px; border-radius: 14px; border: 1px solid #E5E7EB; background: #F9FAFB; padding: 12px 10px; }
-.cat-card.active { border-color: rgba(17,166,74,.35); background: #F0FDF4; }
-.cat-name { font-size: 13px; font-weight: 900; padding-right: 26px; line-height: 1.35; }
-.gear { position: absolute; right: 8px; top: 8px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; color: var(--primary); border: 1px solid rgba(17,166,74,.16); }
-.mini-tag { position: absolute; left: 10px; bottom: 8px; font-size: 10px; font-weight: 900; color: var(--primary-dark); background: #DCFCE7; padding: 2px 6px; border-radius: 999px; }
-.plus { position: absolute; right: 10px; bottom: 8px; width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; }
-.sheet {
-  margin-top: -250px;
-  margin-left: 22px;
-  margin-right: 22px;
-  background: #fff;
-  border-radius: 22px 22px 0 0;
-  border: 1px solid rgba(15,23,42,.08);
-  box-shadow: 0 -12px 28px rgba(15,23,42,.16);
-  padding: 14px;
-  position: relative;
-}
-.handle { width: 42px; height: 4px; border-radius: 999px; background: #D1D5DB; margin: 0 auto 12px; }
-.template { border: 1px solid #E5E7EB; border-radius: 14px; padding: 12px; margin-bottom: 8px; }
-.template.active { border-color: rgba(17,166,74,.5); background: #F0FDF4; }
-.template .name { font-weight: 900; font-size: 14px; }
-.template .txt { color: #6B7280; font-size: 12px; margin-top: 2px; }
-.settings-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
-.setting-pill { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px; padding: 8px; font-size: 12px; }
-.prompt {
-  white-space: pre-wrap;
-  background: #0F172A;
-  color: #E5E7EB;
-  border-radius: 14px;
-  padding: 16px;
-  font-size: 13px;
-  line-height: 1.7;
-}
-.note { background: #FFFBEB; color: #92400E; border: 1px solid rgba(245,158,11,.24); border-radius: 14px; padding: 14px 16px; font-size: 14px; }
+.phone-screen { background: #fff; border-radius: 22px; overflow: hidden; min-height: 520px; border: 1px solid rgba(15,23,42,.06); }
+.phone-head { height: 48px; display: flex; align-items: center; justify-content: center; font-weight: 900; border-bottom: 1px solid rgba(15,23,42,.06); }
+.phone-body { padding: 14px; background: #F7F8FA; min-height: 472px; }
+.scene-card { display: flex; gap: 12px; background:#fff; border:1px solid rgba(0,0,0,.04); border-radius:16px; padding:14px; margin-bottom: 10px; box-shadow:0 4px 14px rgba(0,0,0,.035); }
+.scene-icon { width: 38px; height: 38px; border-radius: 12px; background:#E8F8EF; color:#0F8A3D; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+.scene-card h4 { margin: 0 0 4px; font-size: 15px; }
+.scene-card p { margin: 0; color:#6B7280; font-size:12px; line-height: 1.55; }
+.btn-row { display:flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.btn { height: 28px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(17,166,74,.25); color: #0F8A3D; background: #fff; font-size: 12px; font-weight: 800; display:inline-flex; align-items:center; }
+.btn.primary { background: #11A64A; color:#fff; border-color:#11A64A; }
+.btn.danger { color:#DC2626; border-color:rgba(220,38,38,.22); }
+.mock-wrap { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
 .footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 28px; }
 a { color: var(--primary-dark); }
 @media (max-width: 980px) {
   .side { display: none; }
   .main { margin-left: 0; width: 100%; padding: 16px; }
-  .meta, .grid-2, .grid-3, .mock-wrap, .flow { grid-template-columns: 1fr; }
+  .meta, .grid-2, .grid-3, .mock-wrap { grid-template-columns: 1fr; }
   .phone { width: 100%; max-width: 360px; margin: 0 auto; }
   .hero { padding: 28px 24px; }
   .hero h2 { font-size: 24px; }
@@ -191,375 +152,511 @@ a { color: var(--primary-dark); }
     <div class="brand">
       <div class="kicker">FENGSHOUYUN PRD</div>
       <h1>开单配置与品类管理优化</h1>
-      <p>三期小版本候选功能</p>
+      <p>主体级开单配置</p>
     </div>
     <a href="#background">背景目标</a>
-    <a href="#current">当前逻辑</a>
-    <a href="#solution">推荐方案</a>
-    <a href="#config">配置内容</a>
+    <a href="#solution">方案总览</a>
+    <a href="#roles">入口权限</a>
+    <a href="#pages">页面清单</a>
+    <a href="#flows">业务流程图</a>
+    <a href="#templates">内置模板</a>
+    <a href="#fields">配置字段</a>
+    <a href="#list-detail">列表与详情</a>
     <a href="#billing">开单页套用</a>
-    <a href="#mock">概念图结构</a>
+    <a href="#model">数据模型</a>
+    <a href="#scope">不做范围</a>
     <a href="#acceptance">验收点</a>
-    <a href="#prompt">概念图提示词</a>
   </aside>
 
   <main class="main">
     <section class="hero">
-      <h2>开单配置与品类管理优化</h2>
-      <p>把复杂度放在品类配置里，把一线开单页变简单。配置只影响新开单的字段展示和默认值，不改变订单状态机，不影响历史订单。</p>
+      <h2>开单配置调整为主体级配置</h2>
+      <p>旧方案把开单方式放在二级品类下，入口过深且配置成本偏高。新方案收口到“我的 > 开单配置”，由超管维护一个当前生效配置，业务员开单时自动套用。</p>
     </section>
 
     <section class="meta">
       <div class="item">
         <div class="label">配置入口</div>
-        <div class="value">品类管理</div>
+        <div class="value">我的 > 开单配置</div>
       </div>
       <div class="item">
         <div class="label">配置维度</div>
-        <div class="value">二级品类</div>
+        <div class="value">收购商主体级</div>
+      </div>
+      <div class="item">
+        <div class="label">默认生效</div>
+        <div class="value">标准称重收购</div>
       </div>
       <div class="item">
         <div class="label">生效范围</div>
-        <div class="value">新开单</div>
-      </div>
-      <div class="item">
-        <div class="label">订单状态</div>
-        <div class="value">保持不变</div>
+        <div class="value">仅影响新开单</div>
       </div>
     </section>
 
     <section class="card" id="background">
       <h3><i class="fa-solid fa-seedling"></i>背景目标</h3>
-      <p class="lead">不同农产品的收购方式差异很大，但一线业务员和农户年龄偏大，开单页越简单越好。本方案用“按二级品类配置开单方式”的办法，让超管提前配置，业务员现场只填写必要信息。</p>
-      <div class="grid-3">
-        <div class="box">
-          <h4>水果快收</h4>
-          <p>例如荔枝，通常只需要重量、单价或一口价、收款人。</p>
-        </div>
-        <div class="box">
-          <h4>粮食称重</h4>
-          <p>例如玉米，需要毛重、皮重、净重、单价，并可按需展示杂重或扣减比例。</p>
-        </div>
-        <div class="box">
-          <h4>状态分流</h4>
-          <p>极简快收不产生挂单；标准称重才会因“有毛重无皮重”进入挂单。</p>
-        </div>
+      <p class="lead">收购商常用收购品类通常有限，配置入口需要更浅、更清楚。开单配置只负责控制开单页字段和计价方式，不承担价格体系配置。</p>
+      <div class="tag-row">
+        <span class="tag green">主体共用</span>
+        <span class="tag blue">超管维护</span>
+        <span class="tag amber">业务员使用</span>
+        <span class="tag gray">历史订单不回写</span>
       </div>
     </section>
 
-    <section class="card" id="current">
-      <h3><i class="fa-solid fa-route"></i>当前原型逻辑</h3>
-      <p class="lead">当前开单页底部保留“暂存”和“立即付款”。暂存后按开单方式与字段完整度自动判断状态。</p>
+    <section class="card" id="solution">
+      <h3><i class="fa-solid fa-sliders"></i>方案总览</h3>
+      <div class="grid-3">
+        <div class="box">
+          <h4>内置模板</h4>
+          <p>提供标准称重收购、快速收购。内置模板只能查看和启用，不支持编辑、删除。</p>
+        </div>
+        <div class="box">
+          <h4>自定义配置</h4>
+          <p>从空白新增，支持编辑、删除、启用。列表中不提供查看按钮。</p>
+        </div>
+        <div class="box">
+          <h4>单一生效</h4>
+          <p>同一时间只允许一个配置生效；删除当前生效自定义配置后回退到标准称重收购。</p>
+        </div>
+      </div>
+      <div class="note" style="margin-top:14px;">品类管理只保留品类维护能力，不再承担开单方式配置。收购价不在开单配置中维护，后续应归入品类/农产品名称/收购价管理。</div>
+    </section>
+
+    <section class="card" id="roles">
+      <h3><i class="fa-solid fa-users-gear"></i>入口与权限</h3>
       <table>
         <thead>
           <tr>
-            <th>条件</th>
-            <th>暂存后状态</th>
+            <th>角色</th>
+            <th>能力</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>超管</td>
+            <td>查看开单配置入口；查看内置模板详情；新增、编辑、删除、启用自定义配置。</td>
+          </tr>
+          <tr>
+            <td>业务员</td>
+            <td>不展示开单配置入口；直接访问配置页时提示暂无配置权限；开单时自动使用当前生效配置。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="lead" style="margin-top:14px;">我的模块快捷入口顺序：团队管理 -> 品类管理 -> 账户管理 -> 开单配置 -> 库存管理。</p>
+    </section>
+
+    <section class="card" id="pages">
+      <h3><i class="fa-solid fa-file-lines"></i>页面清单</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>页面</th>
+            <th>原型文件</th>
             <th>说明</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>极简快收：未填写总重量</td>
-            <td><strong>不可暂存</strong></td>
-            <td>提示先填写重量；极简快收不产生挂单。</td>
+            <td>我的页入口</td>
+            <td>prototype/buyer-my.html</td>
+            <td>超管展示“开单配置”入口，业务员不展示。</td>
           </tr>
           <tr>
-            <td>极简快收：已填写总重量，但未填写当前计价方式要求的价格</td>
-            <td><strong>待开价</strong></td>
-            <td>适合快速收货后再补价格。</td>
+            <td>开单配置列表</td>
+            <td>prototype/buyer-billing-config.html</td>
+            <td>展示内置模板和自定义配置，支持启用、编辑、删除。</td>
           </tr>
           <tr>
-            <td>极简快收：总重量和价格完整</td>
-            <td><strong>待付款</strong></td>
-            <td>可进入付款链路。</td>
+            <td>模板详情</td>
+            <td>prototype/buyer-billing-config-detail.html</td>
+            <td>编辑页的只读态，仅查看配置，底部只有返回。</td>
           </tr>
           <tr>
-            <td>标准称重：有毛重，无皮重</td>
-            <td><strong>挂单</strong></td>
-            <td>这才是挂单的核心定义。</td>
+            <td>新增/编辑配置</td>
+            <td>prototype/buyer-billing-config-edit.html</td>
+            <td>自定义配置表单，保存后返回列表。</td>
           </tr>
           <tr>
-            <td>标准称重：毛重、皮重完整，但未填写当前计价方式要求的价格</td>
-            <td><strong>待开价</strong></td>
-            <td>称重完成，价格后补。</td>
-          </tr>
-          <tr>
-            <td>标准称重：重量和价格完整</td>
-            <td><strong>待付款</strong></td>
-            <td>可进入付款链路。</td>
+            <td>开单页</td>
+            <td>prototype/buyer-billing.html</td>
+            <td>自动读取当前生效配置，调整字段展示和计价方式。</td>
           </tr>
         </tbody>
       </table>
     </section>
 
-    <section class="card" id="solution">
-      <h3><i class="fa-solid fa-layer-group"></i>推荐方案</h3>
-      <p class="lead">不新建独立配置页，在现有品类管理里给二级品类增加“开单方式设置”。二级品类最贴近真实收购动作，理解成本最低。</p>
-      <div class="flow">
-        <div class="step">
-          <div class="num">01</div>
-          <div class="title">进入品类管理</div>
-          <div class="desc">从开单页右上角或我的模块进入。</div>
-        </div>
-        <div class="step">
-          <div class="num">02</div>
-          <div class="title">选择二级品类</div>
-          <div class="desc">保持现有一二级分类结构。</div>
-        </div>
-        <div class="step">
-          <div class="num">03</div>
-          <div class="title">点击设置</div>
-          <div class="desc">从二级品类卡片进入底部弹窗。</div>
-        </div>
-        <div class="step">
-          <div class="num">04</div>
-          <div class="title">保存方式</div>
-          <div class="desc">选择开单方式、默认值和称重字段。</div>
-        </div>
-        <div class="step">
-          <div class="num">05</div>
-          <div class="title">开单自动套用</div>
-          <div class="desc">业务员只看到需要填写的字段。</div>
-        </div>
+    <section class="card" id="flows">
+      <h3><i class="fa-solid fa-diagram-project"></i>业务流程图</h3>
+      <h4>超管配置流程</h4>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">flowchart TD
+  A[超管进入 我的] --> B[点击 开单配置]
+  B --> C[查看内置模板和自定义配置]
+  C --> D{操作对象}
+  D -->|内置模板| E[查看模板详情]
+  E --> F[返回列表]
+  C -->|自定义配置| G{选择操作}
+  G -->|新增| H[填写基础配置]
+  G -->|编辑| H
+  H --> I[设置称重配置]
+  I --> J[设置计价配置]
+  J --> K[设置其他配置]
+  K --> L[保存]
+  L --> C
+  G -->|启用| M[设为当前生效配置]
+  M --> C
+  G -->|删除| N[底部弹窗确认删除]
+  N --> O{是否为当前生效}
+  O -->|是| P[删除并回退标准称重收购]
+  O -->|否| Q[删除自定义配置]
+  P --> C
+  Q --> C</pre>
       </div>
-      <div class="tag-row">
-        <span class="tag green"><i class="fa-solid fa-check"></i>不改订单状态</span>
-        <span class="tag blue"><i class="fa-solid fa-sliders"></i>按二级品类配置</span>
-        <span class="tag amber"><i class="fa-solid fa-user-check"></i>适合一线快速操作</span>
+
+      <h4 style="margin-top:18px;">业务员开单套用流程</h4>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">flowchart TD
+  A[业务员进入开单页] --> B[读取 ylt_billing_scene_configs]
+  B --> C{是否存在当前生效配置}
+  C -->|否| D[使用标准称重收购]
+  C -->|是| E[使用当前生效配置]
+  D --> F[渲染称重字段]
+  E --> F
+  F --> G[渲染计价方式]
+  G --> H[渲染拍照留存和入库仓库]
+  H --> I[业务员填写开单信息]
+  I --> J{暂存或提交}
+  J -->|暂存| K[按当前配置判断订单状态]
+  J -->|提交| L[生成待付款或进入付款流程]</pre>
+      </div>
+
+      <h4 style="margin-top:18px;">自定义配置字段流程</h4>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">flowchart LR
+  A[基础配置] --> B[称重配置]
+  B --> C[计价配置]
+  C --> D[其他配置]
+  D --> E[保存]
+  A1[模板名称] --> A
+  A2[适用说明] --> A
+  B1[称重模式] --> B
+  B2[默认单位] --> B
+  B3[扣杂开关] --> B
+  B4[扣杂方式] --> B
+  C1[计价方式] --> C
+  C2[默认计价方式] --> C
+  D1[拍照留存] --> D
+  D2[入库仓库] --> D</pre>
       </div>
     </section>
 
-    <section class="card" id="config">
-      <h3><i class="fa-solid fa-gear"></i>配置内容</h3>
+    <section class="card" id="templates">
+      <h3><i class="fa-solid fa-layer-group"></i>内置模板</h3>
       <div class="grid-2">
         <div class="box">
-          <h4>极简快收</h4>
-          <p>适合荔枝、水果、蔬菜等快速收购。显示总重量和价格，可配置仅单价、仅一口价或两者都支持。</p>
-          <div class="tag-row"><span class="tag green">快收</span><span class="tag amber">一口价</span></div>
+          <h4>标准称重收购</h4>
+          <table>
+            <tbody>
+              <tr><td>称重模式</td><td>毛重 / 皮重</td></tr>
+              <tr><td>默认单位</td><td>斤</td></tr>
+              <tr><td>扣杂</td><td>启用，默认扣杂方式为扣减比例</td></tr>
+              <tr><td>计价方式</td><td>两者都支持，默认单价</td></tr>
+              <tr><td>拍照留存</td><td>启用</td></tr>
+              <tr><td>入库仓库</td><td>启用</td></tr>
+              <tr><td>备注</td><td>默认展示，不作为配置项</td></tr>
+            </tbody>
+          </table>
+          <p class="mini">支持挂单、待开价、待付款。</p>
         </div>
         <div class="box">
-          <h4>标准称重</h4>
-          <p>适合玉米、小麦、水稻。固定显示毛重、皮重、净重，可配置计价方式和杂重计算方式。</p>
-          <div class="tag-row"><span class="tag blue">称重</span><span class="tag gray">按比例算杂重</span><span class="tag gray">直接输杂重</span></div>
+          <h4>快速收购</h4>
+          <table>
+            <tbody>
+              <tr><td>称重模式</td><td>总重量</td></tr>
+              <tr><td>默认单位</td><td>斤</td></tr>
+              <tr><td>扣杂</td><td>不启用</td></tr>
+              <tr><td>计价方式</td><td>两者都支持，默认单价</td></tr>
+              <tr><td>拍照留存</td><td>启用</td></tr>
+              <tr><td>入库仓库</td><td>不启用</td></tr>
+              <tr><td>备注</td><td>默认展示，不作为配置项</td></tr>
+            </tbody>
+          </table>
+          <p class="mini">不产生挂单，只进入待开价或待付款。</p>
         </div>
       </div>
-      <table style="margin-top:14px;">
-        <thead>
-          <tr>
-            <th>配置项</th>
-            <th>内容</th>
-            <th>开单页影响</th>
-          </tr>
-        </thead>
+    </section>
+
+    <section class="card" id="fields">
+      <h3><i class="fa-solid fa-list-check"></i>自定义配置字段</h3>
+      <h4>基础配置</h4>
+      <table>
         <tbody>
-          <tr>
-            <td>默认单位</td>
-            <td>斤、公斤、吨、袋、箱</td>
-            <td>选择品类后自动带出，开单时可改。</td>
-          </tr>
-          <tr>
-            <td>允许计价方式</td>
-            <td>仅单价、仅一口价、两者都支持</td>
-            <td>决定开单页展示单价输入、一口价输入，还是保留切换。</td>
-          </tr>
-          <tr>
-            <td>默认计价方式</td>
-            <td>单价、一口价</td>
-            <td>当允许两者都支持时，用于默认选中。</td>
-          </tr>
-          <tr>
-            <td>默认单价 / 杂重计算方式</td>
-            <td>可填，可为空</td>
-            <td>减少重复录入，但现场允许修改。</td>
-          </tr>
-          <tr>
-            <td>标准称重杂重</td>
-            <td>按扣减比例计算、直接输入杂重</td>
-            <td>仅标准称重支持配置；极简快收不展示杂重。</td>
-          </tr>
+          <tr><td>模板名称</td><td>模板标题，用于区分不同开单配置。</td></tr>
+          <tr><td>适用说明</td><td>展示在配置列表中，备注此配置的适用场景或范围。</td></tr>
         </tbody>
       </table>
+      <h4 style="margin-top:16px;">称重配置</h4>
+      <table>
+        <tbody>
+          <tr><td>称重模式</td><td>设置开单时的过磅方式：毛重、皮重，或总重量。</td></tr>
+          <tr><td>默认单位</td><td>设置开单时默认的重量单位，使用下拉选择。</td></tr>
+          <tr><td>扣杂</td><td>设置是否启用扣杂。</td></tr>
+          <tr><td>扣杂方式</td><td>选择开单时计算扣杂的方式：扣减比例或直接填杂重。</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>称重模式为“毛重 / 皮重”时，毛重和皮重必然展示，不再提供皮重开关。</li>
+        <li>称重模式为“总重量”时，隐藏皮重。</li>
+        <li>扣杂只有启用/不启用，以及扣减比例/直接填杂重两类方式，不支持默认扣减比例或默认杂重。</li>
+      </ul>
+      <h4 style="margin-top:16px;">计价配置</h4>
+      <table>
+        <tbody>
+          <tr><td>计价方式</td><td>设置开单时允许的计价方式：仅单价、仅一口价、两者都支持。</td></tr>
+          <tr><td>默认计价方式</td><td>仅当“两者都支持”时展示，用于设置开单时默认的计价方式。</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>开单配置不维护收购价。</li>
+        <li>单价下的具体收购价后续应在品类/农产品名称/收购价管理中维护。</li>
+        <li>一口价与重量无关，由业务员开单时直接填写，不配置默认一口价。</li>
+      </ul>
+      <h4 style="margin-top:16px;">其他配置</h4>
+      <table>
+        <tbody>
+          <tr><td>拍照留存</td><td>设置开单时是否启用拍照留存。</td></tr>
+          <tr><td>入库仓库</td><td>设置开单时是否启用入库仓库。</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>备注默认展示，不作为配置项。</li>
+        <li>拍照留存关闭时，开单页不展示照片上传区。</li>
+        <li>入库仓库关闭时，开单页不展示仓库选择区，也不生成预入库信息。</li>
+      </ul>
     </section>
 
-    <section class="card" id="billing">
-      <h3><i class="fa-solid fa-file-invoice-yen"></i>开单页套用规则</h3>
-      <p class="lead">业务员选择开单品类后，页面自动套用该二级品类配置。页面不展示复杂配置，只展示当前品类要填的内容。</p>
-      <div class="grid-2">
-        <div class="box">
-          <h4>荔枝示例</h4>
-          <ul>
-            <li>开单方式：极简快收</li>
-            <li>默认单位：斤</li>
-            <li>允许计价：仅单价、仅一口价、两者都支持</li>
-            <li>显示总重量，隐藏毛重、皮重、杂重、扣减比例</li>
-            <li>未填总重量不允许暂存</li>
-            <li>已填重量但未填当前计价方式要求的价格为待开价，填全为待付款</li>
-            <li>不产生挂单</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h4>玉米示例</h4>
-          <ul>
-            <li>开单方式：标准称重</li>
-            <li>默认单位：斤</li>
-            <li>显示毛重、皮重、净重和允许的计价输入</li>
-            <li>可配置杂重计算方式：按扣减比例计算或直接输入杂重</li>
-            <li>有毛重无皮重为挂单；重量完整但未填当前计价方式要求的价格为待开价；填全为待付款</li>
-          </ul>
-        </div>
-      </div>
-      <div class="note" style="margin-top:14px;">
-        配置只影响新开单页面。订单保存后的状态、订单管理列表、订单详情字段，仍按当前原型规则展示。
-      </div>
-    </section>
-
-    <section class="card" id="mock">
-      <h3><i class="fa-solid fa-mobile-screen-button"></i>概念图结构</h3>
+    <section class="card" id="list-detail">
+      <h3><i class="fa-solid fa-mobile-screen"></i>列表、详情与删除交互</h3>
       <div class="mock-wrap">
         <div class="phone">
           <div class="phone-screen">
-            <div class="phone-head"><span class="phone-back"><i class="fa-solid fa-chevron-left"></i></span>品类管理</div>
-            <div class="fav-card">
-              <div class="section-title"><span class="bar"></span>我的品类</div>
-              <div class="chips">
-                <span class="chip">玉米</span>
-                <span class="chip">荔枝</span>
-                <span class="chip">苹果</span>
-              </div>
-            </div>
-            <div class="category-body">
-              <div class="left-tabs">
-                <div class="active">粮食</div>
-                <div>水果</div>
-                <div>蔬菜</div>
-                <div>其他</div>
-              </div>
-              <div class="right-list">
-                <div class="section-title"><span class="bar"></span>粮食细分</div>
-                <div class="cat-grid">
-                  <div class="cat-card active">
-                    <div class="gear"><i class="fa-solid fa-gear"></i></div>
-                    <div class="cat-name">玉米</div>
-                    <div class="mini-tag">称重</div>
-                    <div class="plus"><i class="fa-solid fa-check"></i></div>
-                  </div>
-                  <div class="cat-card">
-                    <div class="gear"><i class="fa-solid fa-gear"></i></div>
-                    <div class="cat-name">小麦</div>
-                    <div class="mini-tag">称重</div>
-                    <div class="plus"><i class="fa-solid fa-plus"></i></div>
-                  </div>
-                  <div class="cat-card">
-                    <div class="gear"><i class="fa-solid fa-gear"></i></div>
-                    <div class="cat-name">水稻</div>
-                    <div class="plus"><i class="fa-solid fa-plus"></i></div>
-                  </div>
-                  <div class="cat-card active">
-                    <div class="gear"><i class="fa-solid fa-gear"></i></div>
-                    <div class="cat-name">大豆</div>
-                    <div class="mini-tag">称重</div>
-                    <div class="plus"><i class="fa-solid fa-check"></i></div>
-                  </div>
+            <div class="phone-head">开单配置</div>
+            <div class="phone-body">
+              <div style="font-size:15px;font-weight:900;margin:0 0 8px;">内置模板</div>
+              <div class="scene-card">
+                <div class="scene-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                <div>
+                  <h4>标准称重收购</h4>
+                  <p>适合粮食等需要毛重、皮重、净重的标准收购。</p>
+                  <div class="btn-row"><span class="btn">查看</span><span class="btn primary">已启用</span></div>
                 </div>
               </div>
-            </div>
-            <div class="sheet">
-              <div class="handle"></div>
-              <div class="section-title"><span class="bar"></span>开单方式设置</div>
-              <div class="template active">
-                <div class="name">标准称重</div>
-                <div class="txt">适合玉米、小麦等需要毛重、皮重，可配置杂重计算方式。</div>
+              <div class="scene-card">
+                <div class="scene-icon"><i class="fa-solid fa-bolt"></i></div>
+                <div>
+                  <h4>快速收购</h4>
+                  <p>适合水果、蔬菜等只填总重量和价格的快速收购。</p>
+                  <div class="btn-row"><span class="btn">查看</span><span class="btn">启用</span></div>
+                </div>
               </div>
-              <div class="template">
-                <div class="name">极简快收</div>
-                <div class="txt">只填总重量和价格，未填重量不能暂存。</div>
-              </div>
-              <div class="settings-row">
-                <div class="setting-pill">默认单位：斤</div>
-                <div class="setting-pill">计价：两者都支持</div>
-                <div class="setting-pill">默认：单价</div>
-                <div class="setting-pill">杂重方式：按比例</div>
-                <div class="setting-pill">默认扣减：2%</div>
+              <div style="font-size:15px;font-weight:900;margin:14px 0 8px;">自定义开单配置</div>
+              <div class="scene-card">
+                <div class="scene-icon"><i class="fa-solid fa-pen-ruler"></i></div>
+                <div>
+                  <h4>桃子快收</h4>
+                  <p>适合桃子现场收购，按总重量快速录入。</p>
+                  <div class="btn-row"><span class="btn">编辑</span><span class="btn danger">删除</span><span class="btn">启用</span></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
         <div>
-          <div class="box">
-            <h4>交互重点</h4>
-            <ul>
-              <li>点击品类卡片主体：仍然添加或移除常用品类。</li>
-              <li>点击齿轮：打开该二级品类的开单方式设置。</li>
-              <li>已配置品类显示小标签，让超管能一眼知道开单方式。</li>
-              <li>业务员开单时不需要理解配置，只选择品类即可。</li>
-            </ul>
-          </div>
-          <div class="box" style="margin-top:14px;">
-            <h4>适老化要求</h4>
-            <ul>
-              <li>配置弹窗用大按钮，不做复杂表格。</li>
-              <li>开单方式名称直接用业务语言：快收、称重。</li>
-              <li>开单页不出现“配置项”字样，只保留实际要填的字段。</li>
-            </ul>
-          </div>
+          <h4>列表页规则</h4>
+          <ul>
+            <li>列表分为内置模板和自定义开单配置。</li>
+            <li>卡片展示主题色图标、模板名称和一句适用说明。</li>
+            <li>不展示字段标签，不展示“内置/自定义”标签。</li>
+            <li>内置模板操作为查看、启用/已启用。</li>
+            <li>自定义配置操作为编辑、删除、启用/已启用，不提供查看按钮。</li>
+          </ul>
+          <h4 style="margin-top:18px;">详情与删除</h4>
+          <ul>
+            <li>详情页是新增/编辑页的只读态，分组、字段名称、提示文案保持一致。</li>
+            <li>内置模板和自定义配置详情页底部只展示返回。</li>
+            <li>自定义配置删除使用底部弹窗确认，不使用浏览器原生确认框。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="billing">
+      <h3><i class="fa-solid fa-file-invoice"></i>开单页套用规则</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>配置项</th>
+            <th>开单页表现</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>标准称重</td>
+            <td>展示毛重、皮重、净重。</td>
+          </tr>
+          <tr>
+            <td>快速收购</td>
+            <td>毛重字段文案切换为总重量，隐藏皮重。</td>
+          </tr>
+          <tr>
+            <td>扣杂</td>
+            <td>启用时展示扣杂字段，扣杂方式控制字段单位和计算方式；不启用时隐藏。</td>
+          </tr>
+          <tr>
+            <td>计价方式</td>
+            <td>控制单价、一口价或切换按钮；不从开单配置自动带出收购价。</td>
+          </tr>
+          <tr>
+            <td>拍照留存</td>
+            <td>关闭时不展示照片上传区。</td>
+          </tr>
+          <tr>
+            <td>入库仓库</td>
+            <td>关闭时不展示仓库选择区，也不生成预入库信息。</td>
+          </tr>
+          <tr>
+            <td>备注</td>
+            <td>始终展示。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="model">
+      <h3><i class="fa-solid fa-database"></i>数据模型</h3>
+      <p class="lead">原型层面新增主体级配置存储：localStorage key 为 ylt_billing_scene_configs。</p>
+      <pre class="code">{
+  "activeSceneId": "standard",
+  "scenes": [
+    {
+      "id": "standard",
+      "builtIn": true,
+      "name": "标准称重收购",
+      "desc": "适合粮食等需要毛重、皮重、净重的标准收购。",
+      "mode": "standard",
+      "unit": "斤",
+      "pricingScope": "both",
+      "defaultPriceMode": "unit",
+      "deductionMode": "ratio",
+      "fields": {
+        "tare": true,
+        "deduction": true,
+        "photo": true,
+        "remark": true,
+        "warehouse": true
+      }
+    }
+  ]
+}</pre>
+      <table style="margin-top:14px;">
+        <tbody>
+          <tr><td>activeSceneId</td><td>当前生效配置 ID。</td></tr>
+          <tr><td>builtIn</td><td>是否内置模板。</td></tr>
+          <tr><td>mode</td><td>standard 标准称重；quick 快速收购。</td></tr>
+          <tr><td>pricingScope</td><td>unit 仅单价；fixed 仅一口价；both 两者都支持。</td></tr>
+          <tr><td>deductionMode</td><td>ratio 扣减比例；direct 直接填杂重。</td></tr>
+          <tr><td>fields.remark</td><td>固定为 true，备注默认展示。</td></tr>
+        </tbody>
+      </table>
+      <div class="note" style="margin-top:14px;">旧的 ylt_billing_category_configs 不做迁移，原型直接启用新的主体级配置模型。</div>
+    </section>
+
+    <section class="card" id="scope">
+      <h3><i class="fa-solid fa-ban"></i>不做范围</h3>
+      <div class="grid-2">
+        <div class="box">
+          <h4>配置能力暂不扩展</h4>
+          <ul>
+            <li>不做按品类自动匹配开单配置。</li>
+            <li>不做字段排序、字段别名、必填规则自定义。</li>
+            <li>不做发布/审批流。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>价格和默认值暂不维护</h4>
+          <ul>
+            <li>不在开单配置维护收购价。</li>
+            <li>不在开单配置维护默认一口价。</li>
+            <li>不在开单配置维护默认扣减比例或默认杂重。</li>
+          </ul>
         </div>
       </div>
     </section>
 
     <section class="card" id="acceptance">
-      <h3><i class="fa-solid fa-list-check"></i>验收点</h3>
+      <h3><i class="fa-solid fa-clipboard-check"></i>验收点</h3>
       <div class="grid-2">
         <div class="box">
-          <h4>品类管理</h4>
+          <h4>权限与入口</h4>
           <ul>
-            <li>二级品类可进入开单方式设置。</li>
-            <li>已配置二级品类能展示配置标签。</li>
-            <li>点击品类主体仍是添加或移除常用品类。</li>
+            <li>超管在“我的”页能看到开单配置。</li>
+            <li>业务员不可见或不可进入配置。</li>
+            <li>首次进入开单页默认使用标准称重收购。</li>
           </ul>
         </div>
         <div class="box">
-          <h4>开单页</h4>
+          <h4>模板与列表</h4>
           <ul>
-            <li>选择不同二级品类后，自动套用字段和默认值。</li>
-            <li>极简快收展示总重量和允许的计价输入，不展示毛重、皮重、杂重、扣减比例；未填总重量时不允许暂存。</li>
-            <li>标准称重固定展示毛重、皮重、净重，可配置允许计价方式和杂重计算方式。</li>
+            <li>内置模板不可编辑、不可删除，只能查看和启用。</li>
+            <li>自定义配置从空白创建，可编辑、删除、启用。</li>
+            <li>自定义配置列表不展示查看按钮。</li>
           </ul>
         </div>
         <div class="box">
-          <h4>订单状态</h4>
+          <h4>字段规则</h4>
           <ul>
-            <li>只有标准称重支持挂单；极简快收不产生挂单。</li>
-            <li>立即付款仍进入确认付款页。</li>
-            <li>不新增订单状态。</li>
+            <li>选择“毛重 / 皮重”时，毛重和皮重均展示，不存在皮重开关。</li>
+            <li>扣杂启用后只选择扣减比例或直接填杂重，不配置默认值。</li>
+            <li>开单配置不展示收购价相关字段，备注默认展示。</li>
           </ul>
         </div>
         <div class="box">
-          <h4>历史数据</h4>
+          <h4>开单与删除</h4>
           <ul>
-            <li>历史订单不回写。</li>
-            <li>订单管理展示不变。</li>
-            <li>订单详情字段结构不变。</li>
+            <li>当前生效配置切换后，新开单立即按新配置展示。</li>
+            <li>历史订单不受新配置影响。</li>
+            <li>删除当前生效自定义配置后，回退到标准称重收购。</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <section class="card" id="prompt">
-      <h3><i class="fa-solid fa-wand-magic-sparkles"></i>概念图提示词</h3>
-      <div class="prompt">移动端小程序原型界面，丰收云农产品收购系统，绿色主色调，简洁适老化设计。页面为“品类管理”，上方是“我的品类”标签区，下方是左右双栏品类选择，左侧一级品类：粮食、水果、蔬菜、其他；右侧展示二级品类卡片。每个二级品类卡片右上角有小齿轮“设置”入口，已配置的品类显示小标签：快收、称重、一口价。点击设置后从底部弹出“开单方式设置”弹窗，包含两个大号开单方式按钮：极简快收、标准称重；极简快收说明为“只填总重量和价格，适合快速收购，未填重量不能暂存”；标准称重说明为“填写毛重、皮重，支持挂单、待开价、待付款”。下方有默认单位、允许计价方式分段控件，三个选项为“仅单价”“仅一口价”“两者都支持”；当选择两者都支持时，再展示默认计价方式“单价 / 一口价”；可填写默认单价。仅标准称重下展示“杂重计算方式”分段控件，两个选项为“按扣减比例计算”和“直接输入杂重”，选择按比例时展示默认扣减比例输入，选择直接输入时展示默认杂重输入。整体风格和微信小程序类似，白底、浅灰分区、绿色强调色，字体清晰，大按钮，适合中老年用户使用。</div>
-    </section>
-
     <section class="card">
-      <h3><i class="fa-solid fa-book-open"></i>参考依据</h3>
-      <ul>
-        <li>Shopify POS Smart Grid：通过前置配置把常用操作变成前台快捷入口，减少一线操作步骤。<a href="https://help.shopify.com/en/manual/sell-in-person/shopify-pos/smart-grid-management" target="_blank">查看参考</a></li>
-        <li>Lightspeed POS Option Sets：把商品相关选项提前配置，前台按商品引导操作，减少临场判断。<a href="https://o-series-support.lightspeedhq.com/hc/en-us/articles/31329349913243-What-is-the-difference-between-Products-Modifiers-Variants-Option-Sets" target="_blank">查看参考</a></li>
-      </ul>
+      <h3><i class="fa-solid fa-book-open"></i>后续建议</h3>
+      <p class="lead">收购价管理建议独立设计，不放在开单配置内。后续可以在品类管理中维护具体农产品名称和收购价，或单独新增“收购价管理”。</p>
     </section>
 
     <div class="footer">丰收云三期小版本候选功能文档 · 开单配置与品类管理优化</div>
   </main>
 </div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#D1FAE5',
+      primaryTextColor: '#1F2937',
+      primaryBorderColor: '#11A64A',
+      lineColor: '#6B7280',
+      secondaryColor: '#FEF3C7',
+      tertiaryColor: '#DBEAFE',
+      fontFamily: '"Noto Sans SC", "Poppins", sans-serif',
+      fontSize: '13px'
+    },
+    flowchart: { curve: 'basis', padding: 16 }
+  });
+</script>
 </body>
 </html>

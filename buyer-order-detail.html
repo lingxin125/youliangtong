@@ -203,6 +203,70 @@
             padding: 10px 14px; border-radius: 12px;
             background: #EFF6FF; color: #2563EB; font-size: 12px;
         }
+        .print-sheet-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 98;
+            display: flex;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .print-sheet-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .print-sheet {
+            width: 100%;
+            background: #fff;
+            border-radius: 22px 22px 0 0;
+            padding: 16px 16px calc(18px + env(safe-area-inset-bottom));
+            transform: translateY(18px);
+            transition: transform 0.22s ease;
+            box-shadow: 0 -12px 30px rgba(15, 23, 42, 0.2);
+        }
+        .print-sheet-overlay.show .print-sheet {
+            transform: translateY(0);
+        }
+        .receipt-voucher-chip {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            max-width: 118px;
+            height: 28px;
+            padding: 0 9px;
+            border-radius: 999px;
+            background: #FFFFFF;
+            border: 1px solid rgba(17,166,74,0.12);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #11A64A;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1;
+            box-shadow: 0 4px 12px rgba(17,166,74,0.08);
+            z-index: 1;
+        }
+        .receipt-voucher-chip.hidden {
+            display: none;
+        }
+        .receipt-voucher-chip span {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .receipt-voucher-chip i {
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+        .receipt-voucher-chip:active {
+            transform: scale(0.97);
+            background: #EBF7F0;
+        }
     </style>
 </head>
 <body>
@@ -222,9 +286,16 @@
                 <div id="statusDesc" class="text-[10px] text-gray-400">订单已完成，感谢您的使用</div>
             </div>
             <!-- 金额区域 -->
-            <div class="p-4 text-center bg-gradient-to-b from-white to-gray-50/50">
+            <div class="p-4 text-center bg-gradient-to-b from-white to-gray-50/50 relative">
+                <button id="receiptVoucherRow" type="button" class="receipt-voucher-chip hidden" onclick="openPrintReceipt()">
+                    <i class="fas fa-print"></i>
+                    <span id="receiptVoucherType">过磅单</span>
+                </button>
                 <div class="text-[11px] text-gray-400 mb-1">付款金额</div>
                 <div id="amountText" class="text-3xl font-bold text-gray-800" style="font-family:Poppins;">¥ 0.00</div>
+                <div id="lastFailReasonRow" class="hidden mt-2 text-[11px] leading-4 text-red-500 px-3">
+                    上次失败原因：<span id="lastFailReasonText"></span>
+                </div>
             </div>
         </div>
 
@@ -339,6 +410,34 @@
             </div>
         </div>
 
+        <!-- 卡片3：入库信息（仅已选择仓库的订单展示） -->
+        <div id="inventoryCard" class="glass-panel rounded-2xl p-4 mb-3" style="display:none;">
+            <div class="section-title" style="padding-top:0;border-top:none;">
+                <div class="section-dot"></div>
+                <span>入库信息</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">入库状态</span>
+                <span id="inventoryStatusText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">入库仓库</span>
+                <span id="inventoryWarehouseText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">库存流水号</span>
+                <span id="inventoryFlowText" class="info-value font-mono"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">入库时间</span>
+                <span id="inventoryTimeText" class="info-value"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">来源单号</span>
+                <span id="inventorySourceText" class="info-value font-mono"></span>
+            </div>
+        </div>
+
         <!-- 卡片3：拍照留存 -->
         <div id="photosCard" class="glass-panel rounded-2xl p-4 mb-3 photos-card-gap" style="display:none;">
             <div class="section-title" style="padding-top:0;border-top:none;">
@@ -363,6 +462,23 @@
     <div id="toastTip" class="toast-tip"></div>
     <div id="lightbox" class="lightbox-overlay" onclick="closeLightbox()">
         <img id="lightboxImg" src="" alt="预览">
+    </div>
+    <div id="printerSheetOverlay" class="print-sheet-overlay" onclick="closePrinterSheet()">
+        <div class="print-sheet" onclick="event.stopPropagation()">
+            <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto mb-5 mt-1"></div>
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <div class="text-[16px] font-bold text-gray-800">连接蓝牙打印机</div>
+                    <div class="text-[12px] text-gray-400 mt-1">连接后继续打印</div>
+                </div>
+                <button onclick="closePrinterSheet()" class="w-8 h-8 flex items-center justify-center text-gray-400">
+                    <i class="fas fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="text-[12px] text-gray-400 mb-2">附近设备</div>
+            <div id="printerDeviceList" class="space-y-2"></div>
+            <button class="mt-4 w-full h-11 rounded-xl bg-gray-50 text-gray-500 text-sm font-semibold" onclick="refreshPrinterDevices()">重新搜索</button>
+        </div>
     </div>
 </div>
 
@@ -419,6 +535,12 @@ const state = {
     unitPriceRaw: params.get('unitPriceRaw') !== null ? String(params.get('unitPriceRaw') || '') : (orderFromStore && orderFromStore.unitPriceRaw !== undefined ? String(orderFromStore.unitPriceRaw ?? '') : ''),
     priceMode: params.get('priceMode') || (orderFromStore && orderFromStore.priceMode) || 'unit',
     unit: params.get('unit') || (orderFromStore && orderFromStore.unit) || '斤',
+    warehouseId: params.get('warehouseId') || (orderFromStore && orderFromStore.warehouseId) || '',
+    warehouseName: params.get('warehouseName') || (orderFromStore && orderFromStore.warehouseName) || '',
+    inventoryStatus: params.get('inventoryStatus') || (orderFromStore && orderFromStore.inventoryStatus) || '',
+    inventoryFlowNo: params.get('inventoryFlowNo') || (orderFromStore && orderFromStore.inventoryFlowNo) || '',
+    inventoryInAt: params.get('inventoryInAt') || (orderFromStore && orderFromStore.inventoryInAt) || '',
+    inventoryUpdatedAt: params.get('inventoryUpdatedAt') || (orderFromStore && orderFromStore.inventoryUpdatedAt) || '',
     photos: (orderFromStore && orderFromStore.photos) || [],
     clientId: (orderFromStore && orderFromStore.clientId) || '',
     clientName: (orderFromStore && orderFromStore.clientName) || '',
@@ -433,14 +555,14 @@ state.cancelSource = normalizeCancelSource(state.cancelSource) || inferCancelSou
 
 const backLink = (state.source === 'orders' || state.source === 'manage' || state.source === 'cashier') ? getOrderManageBackLink() : 'buyer-home.html';
 
-if (state.status === 'unpaid' || state.status === 'paying' || state.status === 'processing') {
+if (state.status === 'paying' || state.status === 'processing') {
     state.status = 'pending';
 }
 if (state.status === 'failed') {
     state.status = 'pending';
-    state.failReason = '';
+    state.failReason = state.failReason || '支付失败，请重新发起支付';
 }
-if (state.status !== 'pending' && state.status !== 'success' && state.status !== 'canceled') {
+if (!['draft', 'pending_price', 'unpaid', 'pending', 'success', 'canceled'].includes(state.status)) {
     state.status = 'pending';
 }
 
@@ -463,11 +585,17 @@ function normalizeStatus(status) {
     }
     const map = {
         pending: 'pending',
+        draft: 'draft',
+        pending_price: 'pending_price',
+        unpaid: 'unpaid',
         paying: 'pending',
         processing: 'pending',
         success: 'success',
         failed: 'pending',
         canceled: 'canceled',
+        '挂单': 'draft',
+        '待开价': 'pending_price',
+        '待付款': 'unpaid',
         '待支付': 'pending',
         '支付中': 'pending',
         '支付成功': 'success',
@@ -606,6 +734,9 @@ function getOrderManageBackLink() {
     if (state.status === 'success' || state.status === 'canceled') {
         return 'buyer-order-manage.html?stage=done&tab=' + encodeURIComponent(state.status);
     }
+    if (state.status === 'draft' || state.status === 'pending_price' || state.status === 'unpaid') {
+        return 'buyer-order-manage.html?stage=todo&tab=' + encodeURIComponent(state.status);
+    }
     if (state.status === 'pending' || state.status === 'paying' || state.status === 'processing') {
         return 'buyer-order-manage.html?stage=paying';
     }
@@ -668,12 +799,39 @@ function renderStatus() {
     const title = document.getElementById('statusTitle');
     const desc = document.getElementById('statusDesc');
 
+    if (state.status === 'draft') {
+        iconWrap.className = 'w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center mx-auto mb-2';
+        icon.className = 'fas fa-file-pen text-orange-500 text-2xl';
+        title.className = 'text-base font-bold text-orange-600 mb-1';
+        title.textContent = '挂单';
+        desc.textContent = '已形成过磅单，可继续编辑';
+        return;
+    }
+
+    if (state.status === 'pending_price') {
+        iconWrap.className = 'w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-2';
+        icon.className = 'fas fa-tag text-blue-500 text-2xl';
+        title.className = 'text-base font-bold text-blue-600 mb-1';
+        title.textContent = '待开价';
+        desc.textContent = '重量已记录，可补充单价';
+        return;
+    }
+
+    if (state.status === 'unpaid') {
+        iconWrap.className = 'w-14 h-14 rounded-full bg-yellow-50 flex items-center justify-center mx-auto mb-2';
+        icon.className = 'fas fa-clock text-yellow-500 text-2xl';
+        title.className = 'text-base font-bold text-yellow-600 mb-1';
+        title.textContent = '待付款';
+        desc.textContent = '单据信息已完整，可继续付款';
+        return;
+    }
+
     if (state.status === 'pending') {
         iconWrap.className = 'w-14 h-14 rounded-full bg-yellow-50 flex items-center justify-center mx-auto mb-2';
         icon.className = 'fas fa-clock text-yellow-500 text-2xl';
         title.className = 'text-base font-bold text-yellow-600 mb-1';
         title.textContent = '付款中';
-        desc.innerHTML = '付款尚未完成，可继续支付或取消订单，剩余 <span class="text-red-500 font-semibold" id="statusCountdown">' + getCountdownText() + '</span>';
+        desc.textContent = '付款尚未完成，可继续支付或取消订单';
         return;
     }
 
@@ -732,6 +890,13 @@ function renderInfo() {
     if (state.amount <= 0) {
         document.getElementById('amountText').className = 'text-3xl font-bold text-gray-400';
     }
+    var lastFailReasonRow = document.getElementById('lastFailReasonRow');
+    var lastFailReasonText = document.getElementById('lastFailReasonText');
+    var shouldShowFailReason = state.status === 'pending' && !!state.failReason;
+    if (lastFailReasonRow && lastFailReasonText) {
+        lastFailReasonText.textContent = state.failReason || '';
+        lastFailReasonRow.classList.toggle('hidden', !shouldShowFailReason);
+    }
     
     document.getElementById('payeeNameText').textContent = state.payeeName;
     document.getElementById('payeeBankNameText').textContent = state.payeeBank;
@@ -766,6 +931,23 @@ function renderInfo() {
     } else {
         paidAtRow.style.display = 'none';
     }
+    renderInventoryInfo();
+}
+
+function renderInventoryInfo() {
+    var card = document.getElementById('inventoryCard');
+    if (!card) return;
+    var hasInventory = !!(state.warehouseName || state.warehouseId);
+    card.style.display = hasInventory ? '' : 'none';
+    if (!hasInventory) return;
+    var info = mockStore && typeof mockStore.getInventoryStatusInfo === 'function'
+        ? mockStore.getInventoryStatusInfo(state.inventoryStatus || 'pre_in')
+        : { label: '预入库' };
+    document.getElementById('inventoryStatusText').textContent = info.label || '预入库';
+    document.getElementById('inventoryWarehouseText').textContent = state.warehouseName || '-';
+    document.getElementById('inventoryFlowText').textContent = state.inventoryFlowNo || '待生成';
+    document.getElementById('inventoryTimeText').textContent = state.inventoryInAt ? formatTime(state.inventoryInAt) : '待确认';
+    document.getElementById('inventorySourceText').textContent = state.grainOrderNo || '-';
 }
 
 function buildCashierHref(isRetry) {
@@ -801,6 +983,156 @@ function buildCashierHref(isRetry) {
         photos: JSON.stringify(state.photos || [])
     });
     return 'buyer-cashier.html?' + p.toString();
+}
+
+const DEVICE_STORAGE_KEY = 'fsy_buyer_devices';
+const DEVICE_PREF_KEY = 'fsy_buyer_device_prefs';
+let pendingPrintAfterConnect = false;
+
+function seedPrinterDevices() {
+    return [
+        { id: 'printer-58', type: 'printer', name: '便携蓝牙打印机 58mm', status: 'disconnected', enabled: true },
+        { id: 'printer-80', type: 'printer', name: '蓝牙打印机 80X', status: 'disconnected', enabled: true }
+    ];
+}
+
+function loadPrinterDevices() {
+    let list = [];
+    try {
+        const stored = JSON.parse(localStorage.getItem(DEVICE_STORAGE_KEY));
+        if (Array.isArray(stored)) list = stored;
+    } catch(e) {}
+    const ids = new Set(list.map(item => item.id));
+    seedPrinterDevices().forEach(item => {
+        if (!ids.has(item.id)) list.push(item);
+    });
+    return list;
+}
+
+function savePrinterDevices(list) {
+    try { localStorage.setItem(DEVICE_STORAGE_KEY, JSON.stringify(list)); } catch(e) {}
+}
+
+function loadDevicePrefs() {
+    try {
+        return Object.assign({ currentPrinterId: 'printer-58' }, JSON.parse(localStorage.getItem(DEVICE_PREF_KEY)) || {});
+    } catch(e) {
+        return { currentPrinterId: 'printer-58' };
+    }
+}
+
+function saveDevicePrefs(prefs) {
+    try { localStorage.setItem(DEVICE_PREF_KEY, JSON.stringify(prefs)); } catch(e) {}
+}
+
+function getCurrentPrinter() {
+    const prefs = loadDevicePrefs();
+    const printers = loadPrinterDevices().filter(item => item.type === 'printer' && item.enabled !== false && item.status !== 'disabled');
+    return printers.find(item => item.id === prefs.currentPrinterId)
+        || printers.find(item => item.status === 'connected')
+        || printers[0];
+}
+
+function openPrintReceipt() {
+    if (!canPrintDetailReceipt()) {
+        showToast('当前订单暂无可打印小票');
+        return;
+    }
+    const printer = getCurrentPrinter();
+    if (printer && printer.status === 'connected') {
+        simulatePrintReceipt();
+        return;
+    }
+    pendingPrintAfterConnect = true;
+    openPrinterSheet();
+}
+
+function simulatePrintReceipt() {
+    showToast('打印小票已发送到打印机');
+}
+
+function canPrintDetailReceipt() {
+    return ['draft', 'pending_price', 'unpaid', 'success'].includes(state.status);
+}
+
+function getDetailReceiptType() {
+    if (state.status === 'draft') return '过磅单';
+    if (state.status === 'pending_price') return '待开价小票';
+    if (state.status === 'unpaid' || state.status === 'pending') return '待付款确认单';
+    if (state.status === 'success') return '付款成功小票';
+    return '业务过程单';
+}
+
+function renderReceiptVoucher() {
+    const row = document.getElementById('receiptVoucherRow');
+    const type = document.getElementById('receiptVoucherType');
+    if (!row || !type) return;
+
+    if (!canPrintDetailReceipt()) {
+        row.classList.add('hidden');
+        return;
+    }
+
+    type.textContent = '打印小票';
+    row.classList.remove('hidden');
+}
+
+function openPrinterSheet() {
+    renderPrinterDeviceList();
+    document.getElementById('printerSheetOverlay').classList.add('show');
+}
+
+function closePrinterSheet() {
+    document.getElementById('printerSheetOverlay').classList.remove('show');
+}
+
+function renderPrinterDeviceList() {
+    const box = document.getElementById('printerDeviceList');
+    if (!box) return;
+    const printers = loadPrinterDevices().filter(item => item.type === 'printer' && item.enabled !== false && item.status !== 'disabled');
+    box.innerHTML = printers.map(item => {
+        const connected = item.status === 'connected';
+        return '<div class="w-full rounded-2xl border ' + (connected ? 'border-[#11A64A]/20 bg-[#F4FBF7]' : 'border-gray-100 bg-white') + ' p-3 flex items-center gap-3 text-left">'
+            + '<div class="w-10 h-10 rounded-xl bg-[#EBF7F0] text-[#11A64A] flex items-center justify-center shrink-0"><i class="fas fa-print"></i></div>'
+            + '<div class="flex-1 min-w-0"><div class="text-[14px] font-semibold text-gray-800 truncate">' + item.name + '</div><div class="text-[11px] text-gray-400 mt-0.5">' + (connected ? '当前设备' : '附近设备') + '</div></div>'
+            + (connected
+                ? '<div class="flex items-center gap-2 shrink-0"><span class="h-8 px-3 rounded-xl bg-[#EAF8EF] text-[#11A64A] text-[12px] font-semibold flex items-center">已连接</span><button type="button" class="h-8 px-3 rounded-xl bg-white border border-red-100 text-red-500 text-[12px] font-semibold active:scale-[0.98]" onclick="disconnectPrinterDevice(\'' + item.id + '\')">断开</button></div>'
+                : '<button type="button" class="h-8 px-3 rounded-xl bg-[#EBF7F0] text-[#11A64A] text-[12px] font-semibold active:scale-[0.98]" onclick="connectPrinterDevice(\'' + item.id + '\')">连接</button>')
+            + '</div>';
+    }).join('');
+}
+
+function refreshPrinterDevices() {
+    showToast('已重新搜索附近打印机');
+    renderPrinterDeviceList();
+}
+
+function connectPrinterDevice(id) {
+    const list = loadPrinterDevices().map(item => {
+        if (item.type !== 'printer') return item;
+        if (item.id === id) return Object.assign({}, item, { status: 'connected', lastConnected: '刚刚' });
+        return Object.assign({}, item, { status: 'disconnected' });
+    });
+    savePrinterDevices(list);
+    const prefs = loadDevicePrefs();
+    prefs.currentPrinterId = id;
+    saveDevicePrefs(prefs);
+    closePrinterSheet();
+    showToast('打印机已连接');
+    if (pendingPrintAfterConnect) {
+        pendingPrintAfterConnect = false;
+        simulatePrintReceipt();
+    }
+}
+
+function disconnectPrinterDevice(id) {
+    const list = loadPrinterDevices().map(item => {
+        if (item.type === 'printer' && item.id === id) return Object.assign({}, item, { status: 'disconnected' });
+        return item;
+    });
+    savePrinterDevices(list);
+    renderPrinterDeviceList();
+    showToast('打印机已断开');
 }
 
 function syncStateToStore() {
@@ -850,19 +1182,54 @@ function renderBottomActions() {
 
     if (state.status === 'draft') {
         box.innerHTML = `
-            <a href="buyer-billing.html?editOrder=${encodeURIComponent(state.grainOrderNo)}" class="block w-full py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow text-center no-underline active:scale-[0.98] transition-transform" style="text-decoration:none;">
-                <i class="fas fa-pen mr-1"></i> 继续编辑
-            </a>
+            <div class="flex gap-3">
+                <a href="buyer-billing.html?editOrder=${encodeURIComponent(state.grainOrderNo)}" class="flex-1 py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow text-center no-underline active:scale-[0.98] transition-transform" style="text-decoration:none;">
+                    <i class="fas fa-pen mr-1"></i>继续编辑
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    if (state.status === 'pending_price') {
+        box.innerHTML = `
+            <div class="flex gap-3">
+                <a href="buyer-billing.html?editOrder=${encodeURIComponent(state.grainOrderNo)}" class="flex-1 py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow text-center no-underline active:scale-[0.98] transition-transform" style="text-decoration:none;">
+                    补充单价
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    if (state.status === 'unpaid') {
+        box.innerHTML = `
+            <div class="flex gap-3">
+                <a href="${buildCashierHref(false)}" class="flex-1 py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow active:scale-[0.98] transition-transform text-center no-underline" style="text-decoration:none;">
+                    继续付款
+                </a>
+            </div>
         `;
         return;
     }
 
     if (state.status === 'pending') {
         box.innerHTML = `
-            <div class="flex gap-3 mt-2">
+            <div class="flex gap-2 mt-2">
                 <button class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold text-sm rounded-2xl active:scale-[0.98] transition-transform" onclick="cancelOrder()">取消订单</button>
                 <a href="${buildCashierHref(false)}" class="flex-1 py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow active:scale-[0.98] transition-transform text-center no-underline" style="text-decoration:none;">
                     继续支付
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    if (state.status === 'success') {
+        box.innerHTML = `
+            <div class="flex gap-3">
+                <a href="${backLink}" class="flex-1 py-3 bg-primary text-white font-bold text-sm rounded-2xl shadow-glow text-center no-underline" style="text-decoration:none;">
+                    ${state.source === 'orders' ? '返回列表' : '返回首页'}
                 </a>
             </div>
         `;
@@ -878,6 +1245,7 @@ function renderBottomActions() {
 
 function renderAll() {
     renderStatus();
+    renderReceiptVoucher();
     renderItems();
     renderInfo();
     renderPhotos();

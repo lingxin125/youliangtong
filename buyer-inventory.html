@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>丰收云 - 库存管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        #statusBar { background: #F7F8FA; }
+        #navBar { background: #F7F8FA; }
+
+        .page-bg { 
+            background: #F7F8FA; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+        }
+        .content { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 12px 14px 24px; 
+            position: relative;
+            z-index: 10;
+        }
+        .panel { 
+            background: #fff; 
+            border: 1px solid rgba(0, 0, 0, 0.03); 
+            border-radius: 16px; 
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.015); 
+        }
+        .section-head { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 14px 16px 10px; 
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03); 
+        }
+        .section-title { 
+            display: flex; 
+            align-items: center; 
+            gap: 7px; 
+            font-size: 15px; 
+            font-weight: 700; 
+            color: #1F2937; 
+        }
+        .section-title::before { 
+            content: ''; 
+            width: 4px; 
+            height: 15px; 
+            border-radius: 999px; 
+            background: #11A64A; 
+        }
+        .overview-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, minmax(0, 1fr)); 
+            padding: 0; 
+        }
+        .overview-item { 
+            padding: 16px 14px; 
+            min-width: 0; 
+            position: relative;
+        }
+        .overview-item:nth-child(1) { border-right: 1px solid rgba(0, 0, 0, 0.04); border-bottom: 1px solid rgba(0, 0, 0, 0.04); }
+        .overview-item:nth-child(2) { border-bottom: 1px solid rgba(0, 0, 0, 0.04); }
+        .overview-item:nth-child(3) { border-right: 1px solid rgba(0, 0, 0, 0.04); }
+        
+        .toolbar { 
+            padding: 10px; 
+            margin: 12px 0; 
+        }
+        .search-box { 
+            height: 42px; 
+            border-radius: 12px; 
+            background: #F8FAFC; 
+            border: 1px solid rgba(0, 0, 0, 0.03); 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            padding: 0 12px; 
+            flex: 1; 
+            min-width: 0; 
+            transition: all 0.2s ease;
+        }
+        .search-box:focus-within {
+            background: #FFF;
+            border-color: rgba(17, 166, 74, 0.2);
+            box-shadow: 0 2px 8px rgba(17, 166, 74, 0.04);
+        }
+        .filter-btn { 
+            width: 42px; 
+            height: 42px; 
+            border-radius: 12px; 
+            background: #EAF8EF; 
+            color: #11A64A; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.2s ease;
+        }
+        .filter-btn:active {
+            transform: scale(0.96);
+            background: #DCEFE3;
+        }
+        .seg { 
+            display: flex; 
+            background: #EDEFF3; 
+            padding: 3px; 
+            border-radius: 12px; 
+            gap: 3px; 
+            margin-bottom: 12px; 
+        }
+        .seg button { 
+            flex: 1; 
+            height: 34px; 
+            border-radius: 9px; 
+            color: #64748B; 
+            font-size: 12px; 
+            font-weight: 800; 
+            white-space: nowrap; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .seg button.active { 
+            background: #fff; 
+            color: #11A64A; 
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04); 
+        }
+        .metric-label { 
+            font-size: 11px; 
+            color: #64748B; 
+            font-weight: 500;
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
+        .metric-value { 
+            margin-top: 4px; 
+            font-family: Poppins, sans-serif; 
+            font-size: 18px; 
+            line-height: 24px; 
+            font-weight: 700; 
+            color: #11A64A; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
+        .list-card { 
+            background: #fff; 
+            border: 1px solid rgba(0, 0, 0, 0.03); 
+            border-radius: 16px; 
+            padding: 16px; 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01); 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .list-card:active {
+            transform: scale(0.985);
+        }
+        .tag { 
+            display: inline-flex; 
+            align-items: center; 
+            height: 22px; 
+            padding: 0 8px; 
+            border-radius: 999px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            white-space: nowrap; 
+        }
+        .tag-green { background: #EAF8EF; color: #11A64A; border: 1px solid rgba(17, 166, 74, 0.05); }
+        .tag-blue { background: #DBEAFE; color: #2563EB; border: 1px solid rgba(37, 99, 235, 0.06); }
+        .tag-red { background: #FEE2E2; color: #DC2626; border: 1px solid rgba(220, 38, 38, 0.06); }
+        .tag-orange { background: #FEF3C7; color: #D97706; border: 1px solid rgba(217, 119, 6, 0.05); }
+        .tag-gray { background: #F1F5F9; color: #64748B; border: 1px solid rgba(100, 116, 139, 0.05); }
+        .qty { 
+            font-family: Poppins, sans-serif; 
+            font-weight: 700; 
+            letter-spacing: -0.01em; 
+        }
+        .field-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+        }
+        .field-box { 
+            border-radius: 12px; 
+            background: #F8FAFC; 
+            padding: 10px; 
+            min-width: 0; 
+        }
+        .summary-row { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 10px; 
+            margin: -2px 2px 10px; 
+            min-height: 32px; 
+        }
+        .preview-title {
+            font-size: 13px;
+            color: #475569;
+            font-weight: 800;
+        }
+        .more-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #94A3B8;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .more-link:active {
+            color: #11A64A;
+        }
+        .checkline { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 12px; 
+            color: #475569; 
+            font-weight: 700; 
+            cursor: pointer;
+        }
+        .checkline input { 
+            width: 16px; 
+            height: 16px; 
+            accent-color: #11A64A; 
+            cursor: pointer;
+        }
+        .card-sub { 
+            margin-top: 3px; 
+            font-size: 12px; 
+            color: #64748B; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
+        .info-icon {
+            color: #CBD5E1;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .card-foot { 
+            margin-top: 12px; 
+            padding-top: 10px; 
+            border-top: 1px solid #F9FAFB; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 10px; 
+            font-size: 11px; 
+            color: #94A3B8; 
+        }
+        .sheet-mask { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(15, 23, 42, 0.4); 
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            opacity: 0; 
+            visibility: hidden; 
+            z-index: 400; 
+            transition: all 0.25s ease; 
+        }
+        .sheet-mask.show { 
+            opacity: 1; 
+            visibility: visible; 
+        }
+        .sheet { 
+            position: absolute; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            max-height: 84%; 
+            overflow-y: auto; 
+            background: #fff; 
+            border-radius: 24px 24px 0 0; 
+            padding: 12px 16px calc(20px + env(safe-area-inset-bottom)); 
+            z-index: 410; 
+            transform: translateY(100%); 
+            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.05);
+            transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1); 
+        }
+        .sheet.show { 
+            transform: translateY(0); 
+        }
+        .handle { 
+            width: 36px; 
+            height: 4px; 
+            border-radius: 999px; 
+            background: #E5E7EB; 
+            margin: 0 auto 14px; 
+        }
+        .detail-row { 
+            min-height: 44px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 12px; 
+            border-bottom: 1px solid #F3F4F6; 
+        }
+        .detail-row:last-child { 
+            border-bottom: 0; 
+        }
+        .detail-label { 
+            font-size: 12px; 
+            color: #64748B; 
+        }
+        .detail-value { 
+            font-size: 13px; 
+            color: #111827; 
+            font-weight: 700; 
+            text-align: right; 
+            min-width: 0;
+            word-break: break-all;
+        }
+        .drill-icon {
+            width: 16px;
+            height: 24px;
+            color: #94A3B8;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .filter-chip { 
+            min-height: 34px; 
+            padding: 0 12px; 
+            border-radius: 8px; 
+            background: #F3F4F6; 
+            color: #4B5563; 
+            font-size: 12px; 
+            font-weight: 700; 
+            display: inline-flex; 
+            align-items: center; 
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .filter-chip.active { 
+            background: #EAF8EF; 
+            color: #11A64A; 
+            border-color: rgba(17, 166, 74, 0.15);
+        }
+    </style>
+</head>
+<body>
+<div class="mobile-container relative">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="page-bg">
+        <div class="content no-scrollbar">
+            <section class="panel mb-3">
+                <div class="section-head">
+                    <div class="section-title">库存概览</div>
+                </div>
+                <div id="overviewGrid" class="overview-grid"></div>
+            </section>
+
+            <div class="seg">
+                <button id="tabStock" type="button" class="active" onclick="switchTab('stock')">库存台账</button>
+                <button id="tabDetail" type="button" onclick="switchTab('detail')">库存明细</button>
+                <button id="tabStorage" type="button" onclick="switchTab('storage')">农户存粮</button>
+            </div>
+
+            <div id="listTools" class="summary-row"></div>
+            <div id="list" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <div id="sheetMask" class="sheet-mask" onclick="closeSheets()"></div>
+
+    <div id="filterSheet" class="sheet no-scrollbar">
+        <div class="handle"></div>
+        <div class="flex items-center justify-between mb-3">
+            <div class="text-[17px] font-bold text-gray-900">筛选</div>
+            <button type="button" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500" onclick="closeSheets()"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="filterBody"></div>
+    </div>
+
+    <div id="detailSheet" class="sheet no-scrollbar">
+        <div class="handle"></div>
+        <div id="detailBody"></div>
+    </div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar('light');
+document.getElementById('navBar').innerHTML = renderHeader('库存管理', 'buyer-my.html');
+
+var store = window.BuyerMockStore || {};
+var state = {
+    tab: 'stock',
+    warehouse: 'all',
+    category: 'all',
+    inventoryType: 'all',
+    inOutStatus: 'all',
+    summary: false
+};
+
+function getMockTrend(name) {
+    if (!name) return { text: '较昨日 --', up: true };
+    var hash = 0;
+    for (var i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    var val = (Math.abs(hash % 38) / 10 + 0.5).toFixed(1);
+    var sign = hash % 2 === 0 ? '+' : '-';
+    return { text: '较昨日 ' + sign + val + '%', up: sign === '+' };
+}
+
+function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, function (ch) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+    });
+}
+
+function fmtQty(value, unit) {
+    return Number(value || 0).toLocaleString('zh-CN') + (unit || '斤');
+}
+
+function fmtSignedQty(value, unit) {
+    return (Number(value || 0) > 0 ? '+' : '') + fmtQty(value, unit);
+}
+
+function fmtTime(value) {
+    if (!value || value === '汇总') return value || '-';
+    var d = new Date(value);
+    if (Number.isNaN(d.getTime())) return value;
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
+}
+
+function mockPhone(name) {
+    var map = { '李大姐': '138****5612', '王大哥': '139****8821', '刘师傅': '137****2098', '潘恒': '184****1411' };
+    return map[name] || '-';
+}
+
+function storageDuration(value) {
+    var d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '-';
+    return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000)) + ' 天';
+}
+
+function isToday(value) {
+    var d = new Date(value);
+    var now = new Date();
+    return !Number.isNaN(d.getTime()) && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+}
+
+function statusLabel(flow) {
+    return flow.type === 'out' ? '出库' : '入库';
+}
+
+function stockRows() {
+    var ledger = store.getInventoryLedger ? store.getInventoryLedger() : [];
+    var stockList = ledger.map(function (row) {
+        return {
+            warehouseName: row.warehouseName,
+            inventoryType: '收粮',
+            categoryName: row.productName,
+            balanceQty: Number(row.currentQty || 0),
+            sourceNo: '库存台账',
+            unit: row.unit || '斤'
+        };
+    });
+    var storageMap = {};
+    storageRows().forEach(function (row) {
+        var key = row.warehouseName + '|' + row.categoryName;
+        if (!storageMap[key]) {
+            storageMap[key] = {
+                warehouseName: row.warehouseName,
+                inventoryType: '存粮',
+                categoryName: row.categoryName,
+                balanceQty: 0,
+                sourceNo: '农户存粮',
+                unit: row.unit || '斤'
+            };
+        }
+        storageMap[key].balanceQty += Number(row.weightQty || 0);
+    });
+    return stockList.concat(Object.keys(storageMap).map(function (key) { return storageMap[key]; }));
+}
+
+function detailRowsData() {
+    var flows = store.getInventoryFlows ? store.getInventoryFlows() : [];
+    var rows = flows.map(function (flow) {
+        var inventoryType = flow.inventoryType || '收粮';
+        var ledgerRow = stockRows().find(function (item) {
+            return item.warehouseName === flow.warehouseName && item.categoryName === flow.productName && item.inventoryType === inventoryType;
+        });
+        return {
+            warehouseName: flow.warehouseName,
+            categoryName: flow.productName,
+            inventoryType: inventoryType,
+            inOutStatus: statusLabel(flow),
+            changeQty: Number(flow.quantity || 0),
+            balanceQty: ledgerRow ? Number(ledgerRow.balanceQty || 0) : 0,
+            changedAt: flow.occurredAt,
+            remark: flow.typeLabel || statusLabel(flow),
+            sourceNo: flow.sourceOrderNo || flow.id || '-',
+            flowNo: flow.id || '-',
+            farmerName: flow.farmerName || '',
+            unit: flow.unit || '斤'
+        };
+    });
+    storageRows().forEach(function (row, index) {
+        rows.push({
+            warehouseName: row.warehouseName,
+            categoryName: row.categoryName,
+            inventoryType: '存粮',
+            inOutStatus: '入库',
+            changeQty: Number(row.weightQty || 0),
+            balanceQty: Number(row.weightQty || 0),
+            changedAt: row.storedAt,
+            remark: '农户存粮',
+            sourceNo: row.orderNo || '存粮记录',
+            flowNo: 'CL' + String(index + 1).padStart(4, '0'),
+            farmerName: row.farmerName || '',
+            unit: row.unit || '斤'
+        });
+    });
+    return rows.sort(function (a, b) {
+        return new Date(b.changedAt).getTime() - new Date(a.changedAt).getTime();
+    });
+}
+
+function storageRows() {
+    var list = store.getFarmerStorageList ? store.getFarmerStorageList() : [];
+    return list.map(function (row, index) {
+        return {
+            farmerName: row.farmerName,
+            farmerMobile: row.farmerMobile || mockPhone(row.farmerName),
+            orderNo: row.orderNo || ('35519761045922' + String(56 + index).padStart(2, '0')),
+            storedAt: row.latestAt,
+            categoryName: row.productName,
+            weightQty: Number(row.quantity || 0),
+            duration: storageDuration(row.latestAt),
+            warehouseName: row.warehouseName,
+            unit: row.unit || '斤'
+        };
+    });
+}
+
+function getQuery() {
+    var input = document.getElementById('searchInput');
+    return input ? (input.value || '').trim().toLowerCase() : '';
+}
+
+function matchText(row, keys) {
+    var q = getQuery();
+    if (!q) return true;
+    return keys.map(function (key) { return row[key] || ''; }).join(' ').toLowerCase().indexOf(q) >= 0;
+}
+
+function passCommon(row) {
+    if (state.warehouse !== 'all' && row.warehouseName !== state.warehouse) return false;
+    if (state.category !== 'all' && row.categoryName !== state.category) return false;
+    if (state.inventoryType !== 'all' && row.inventoryType !== state.inventoryType) return false;
+    return true;
+}
+
+function getStockRows() {
+    return stockRows().filter(function (row) {
+        return passCommon(row) && matchText(row, ['warehouseName', 'inventoryType', 'categoryName', 'sourceNo']);
+    });
+}
+
+// 补充原版中剩余函数
+function getDetailRows() {
+    return detailRowsData().filter(function (row) {
+        if (!passCommon(row)) return false;
+        if (state.inOutStatus !== 'all' && row.inOutStatus !== state.inOutStatus) return false;
+        return matchText(row, ['warehouseName', 'categoryName', 'inventoryType', 'inOutStatus', 'remark', 'sourceNo', 'flowNo', 'farmerName']);
+    });
+}
+
+function getStorageRows() {
+    return storageRows().filter(function (row) {
+        if (state.warehouse !== 'all' && row.warehouseName !== state.warehouse) return false;
+        if (state.category !== 'all' && row.categoryName !== state.category) return false;
+        return matchText(row, ['farmerName', 'farmerMobile', 'orderNo', 'categoryName', 'warehouseName']);
+    });
+}
+
+function groupRows(rows, keys, build) {
+    var map = {};
+    rows.forEach(function (row) {
+        var key = keys.map(function (name) { return row[name] || ''; }).join('|');
+        if (!map[key]) map[key] = build(row);
+        map[key].count += 1;
+        if (row.balanceQty) map[key].balanceQty += Number(row.balanceQty || 0);
+        if (row.changeQty) map[key].changeQty += Number(row.changeQty || 0);
+        if (row.weightQty) map[key].weightQty += Number(row.weightQty || 0);
+    });
+    return Object.keys(map).map(function (key) { return map[key]; });
+}
+
+function uniqueText(values, fallback) {
+    var map = {};
+    values.forEach(function (value) { if (value) map[value] = true; });
+    var list = Object.keys(map);
+    if (!list.length) return fallback || '-';
+    return list.length === 1 ? list[0] : '多' + fallback;
+}
+
+function getDisplayStockRows() {
+    var rows = getStockRows();
+    if (!state.summary) return rows;
+    return groupRows(rows, ['warehouseName', 'categoryName', 'inventoryType'], function (row) {
+        return { warehouseName: row.warehouseName, inventoryType: row.inventoryType, categoryName: row.categoryName, balanceQty: 0, count: 0, summary: true, unit: row.unit };
+    });
+}
+
+function getDisplayDetailRows() {
+    var rows = getDetailRows();
+    if (!state.summary) return rows;
+    return groupRows(rows, ['inventoryType', 'categoryName', 'warehouseName', 'inOutStatus'], function (row) {
+        return { warehouseName: row.warehouseName, categoryName: row.categoryName, inventoryType: row.inventoryType, inOutStatus: row.inOutStatus, changeQty: 0, sourceNo: '汇总记录', count: 0, summary: true, unit: row.unit };
+    });
+}
+
+function getDisplayStorageRows() {
+    var rows = getStorageRows();
+    if (!state.summary) return rows;
+    var map = {};
+    rows.forEach(function (row) {
+        var key = row.farmerName + '|' + row.farmerMobile + '|' + row.categoryName;
+        if (!map[key]) {
+            map[key] = { farmerName: row.farmerName, farmerMobile: row.farmerMobile, orderNo: '汇总记录', storedAt: '汇总', categoryName: row.categoryName, weightQty: 0, duration: '汇总', warehouseName: '', count: 0, summary: true, categories: [], warehouses: [], unit: row.unit };
+        }
+        map[key].count += 1;
+        map[key].weightQty += Number(row.weightQty || 0);
+        map[key].categories.push(row.categoryName);
+        map[key].warehouses.push(row.warehouseName);
+    });
+    return Object.keys(map).map(function (key) {
+        var row = map[key];
+        row.warehouseName = uniqueText(row.warehouses, '仓库');
+        return row;
+    });
+}
+
+function switchTab(tab) {
+    state.tab = tab;
+    renderPage();
+}
+
+function getCounts() {
+    return {
+        stock: getDisplayStockRows().length,
+        detail: getDisplayDetailRows().length,
+        storage: getDisplayStorageRows().length
+    };
+}
+
+function renderTabs() {
+    document.getElementById('tabStock').textContent = '库存台账';
+    document.getElementById('tabDetail').textContent = '库存明细';
+    document.getElementById('tabStorage').textContent = '农户存粮';
+}
+
+function renderOverview() {
+    var stocks = getStockRows();
+    var details = getDetailRows();
+    var storage = getStorageRows();
+    var unit = (stocks[0] && stocks[0].unit) || '斤';
+    var total = stocks.reduce(function (sum, row) { return sum + Number(row.balanceQty || 0); }, 0);
+    var preIn = (store.getInventoryFlows ? store.getInventoryFlows() : []).filter(function (row) { return row.status === 'pre_in' || row.type === 'pre_in'; }).reduce(function (sum, row) { return sum + Math.max(Number(row.quantity || 0), 0); }, 0);
+    var todayNet = details.filter(function (row) { return isToday(row.changedAt); }).reduce(function (sum, row) { return sum + Number(row.changeQty || 0); }, 0);
+    var farmerQty = storage.reduce(function (sum, row) { return sum + Number(row.weightQty || 0); }, 0);
+    
+    var items = [
+        { label: '当前库存', value: fmtQty(total, unit), icon: 'fa-warehouse', trend: getMockTrend('当前库存' + total) },
+        { label: '农户存粮', value: fmtQty(farmerQty, unit), icon: 'fa-seedling', trend: getMockTrend('农户存粮' + farmerQty) },
+        { label: '待确认入库', value: fmtQty(preIn, unit), icon: 'fa-truck', trend: getMockTrend('待确认' + preIn) },
+        { label: '今日库存变化', value: fmtSignedQty(todayNet, unit), icon: 'fa-chart-pie', trend: getMockTrend('变化' + todayNet) }
+    ];
+    
+    document.getElementById('overviewGrid').innerHTML = items.map(function (item) {
+        var trendColor = item.trend.up ? 'text-[#11A64A]' : 'text-[#EF4444]';
+        var trendIcon = item.trend.up ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+        return '<div class="overview-item flex items-center justify-between gap-2">'
+            + '<div class="min-w-0 flex-1">'
+            + '<div class="metric-label mb-0.5">' + escapeHtml(item.label) + '</div>'
+            + '<div class="metric-value">' + escapeHtml(item.value) + '</div>'
+            + '<div class="text-[10px] ' + trendColor + ' mt-1 flex items-center gap-1 font-semibold">'
+            + '<i class="fas ' + trendIcon + ' text-[9px] opacity-80"></i>' + escapeHtml(item.trend.text)
+            + '</div>'
+            + '</div>'
+            + '<div class="w-8 h-8 rounded-lg bg-gray-50 text-[#11A64A]/80 flex items-center justify-center shrink-0 text-[13px] border border-gray-100/50"><i class="fas ' + item.icon + '"></i></div>'
+            + '</div>';
+    }).join('');
+}
+
+function renderListTools() {
+    var config = state.tab === 'stock'
+        ? 'buyer-inventory-ledger.html'
+        : state.tab === 'detail'
+            ? 'buyer-inventory-flows.html'
+            : 'buyer-inventory-farmer.html';
+    document.getElementById('listTools').innerHTML = '<span></span><a class="more-link" href="' + config + '">全部<i class="fas fa-chevron-right text-[10px]"></i></a>';
+}
+
+function toggleSummary(checked) {
+    state.summary = !!checked;
+    renderPage();
+}
+
+function renderStock() {
+    var rows = getDisplayStockRows().slice(0, 5);
+    document.getElementById('list').innerHTML = rows.map(function (row, index) {
+        var isStorage = row.inventoryType === '存粮';
+        var tagClass = isStorage ? 'tag-blue' : 'tag-gray';
+        return '<article class="list-card">'
+            + '<div class="flex items-start justify-between gap-3">'
+            + '<div class="min-w-0 flex-1">'
+            + '<div class="flex items-center gap-1.5 min-w-0">'
+            + '<i class="fas fa-box info-icon"></i>'
+            + '<div class="text-[16px] font-bold text-gray-900 truncate">' + escapeHtml(row.categoryName) + '</div>'
+            + '</div>'
+            + '<div class="card-sub flex items-center gap-1.5">'
+            + '<i class="fas fa-warehouse info-icon text-[11px]"></i>'
+            + '<span class="truncate text-gray-600">' + escapeHtml(row.warehouseName) + '</span>'
+            + '</div>'
+            + '</div>'
+            + '<span class="tag ' + tagClass + '">' + escapeHtml(row.inventoryType) + '</span>'
+            + '</div>'
+            + '<div class="mt-3.5">'
+            + '<div class="field-box flex items-center justify-start gap-2.5">'
+            + '<div class="text-[11px] text-gray-400 shrink-0">结存重量</div>'
+            + '<div class="qty text-[20px] leading-7 text-[#11A64A] truncate">' + fmtQty(row.balanceQty, row.unit) + '</div>'
+            + '</div>'
+            + '</div>'
+            + '</article>';
+    }).join('') || emptyHtml();
+}
+
+function renderDetailList() {
+    var rows = getDisplayDetailRows().slice(0, 5);
+    document.getElementById('list').innerHTML = rows.map(function (row, index) {
+        var isOut = row.changeQty < 0;
+        var tagClass = isOut ? 'tag-red' : 'tag-green';
+        var sourceTagClass = row.inventoryType === '存粮' ? 'tag-blue' : 'tag-gray';
+        var qtyColor = isOut ? 'text-[#DC2626]' : 'text-[#11A64A]';
+        var clickAttr = row.summary ? '' : ' onclick="openDetail(\'detail\',' + index + ')"';
+        
+        var orderLine = row.summary
+            ? ''
+            : '<div class="text-[12px] text-gray-500 mt-1 truncate flex items-center gap-1.5"><i class="fas fa-hashtag info-icon text-[11px]"></i><span class="font-mono text-gray-600 truncate">' + escapeHtml(row.sourceNo || '-') + '</span></div>';
+        return '<article class="list-card"' + clickAttr + '>'
+            + '<div class="flex items-start justify-between gap-3">'
+            + '<div class="min-w-0 flex-1">'
+            + '<div class="flex items-center gap-1.5 min-w-0">'
+            + '<i class="fas fa-box info-icon"></i>'
+            + '<div class="text-[16px] font-bold text-gray-900 truncate">' + escapeHtml(row.categoryName) + '</div>'
+            + '</div>'
+            + '<div class="card-sub flex items-center gap-1.5">'
+            + '<i class="fas fa-warehouse info-icon text-[11px]"></i>'
+            + '<span class="truncate text-gray-600">' + escapeHtml(row.warehouseName) + '</span>'
+            + '</div>'
+            + '</div>'
+            + '<div class="flex items-center gap-1.5 shrink-0"><span class="tag ' + tagClass + '">' + escapeHtml(row.inOutStatus) + '</span>' + (row.summary ? '' : '<span class="drill-icon"><i class="fas fa-chevron-right text-[13px]"></i></span>') + '</div>'
+            + '</div>'
+            + orderLine
+            + '<div class="border-t border-gray-100 mt-3 pt-3">'
+            + '<div class="field-grid">'
+            + '<div class="field-box flex items-center justify-between gap-3">'
+            + '<div class="text-[11px] text-gray-400 shrink-0">变动重量</div>'
+            + '<div class="qty text-[16px] ' + qtyColor + ' text-right truncate">' + fmtSignedQty(row.changeQty, row.unit) + '</div>'
+            + '</div>'
+            + '<div class="field-box flex items-center justify-between gap-3">'
+            + '<div class="text-[11px] text-gray-400 shrink-0">' + (row.summary ? '合并笔数' : '结存量') + '</div>'
+            + '<div class="qty text-[16px] text-gray-900 text-right truncate">' + (row.summary ? escapeHtml(row.count + '笔') : escapeHtml(fmtQty(row.balanceQty, row.unit))) + '</div>'
+            + '</div>'
+            + '</div>'
+            + '<div class="mt-3 flex items-center justify-between gap-3">'
+            + '<span class="tag ' + sourceTagClass + '">' + escapeHtml(row.inventoryType) + '</span>'
+            + (row.summary
+                ? '<span class="text-[11px] text-gray-400">汇总统计</span>'
+                : '<span class="text-[11px] text-gray-500">' + escapeHtml(fmtTime(row.changedAt)) + '</span>')
+            + '</div>'
+            + '</div>'
+            + '</article>';
+    }).join('') || emptyHtml();
+}
+
+function renderStorage() {
+    var rows = getDisplayStorageRows().slice(0, 5);
+    document.getElementById('list').innerHTML = rows.map(function (row, index) {
+        var orderLine = row.summary
+            ? ''
+            : '<div class="text-[12px] text-gray-500 mt-1 truncate flex items-center gap-1.5"><i class="fas fa-hashtag info-icon text-[11px]"></i><span class="font-mono text-gray-600 truncate">' + escapeHtml(row.orderNo || '-') + '</span></div>';
+        return '<article class="list-card" onclick="openDetail(\'storage\',' + index + ')">'
+            + '<div class="flex items-start justify-between gap-3">'
+            + '<div class="min-w-0 flex-1">'
+            + '<div class="flex items-center gap-1.5 min-w-0">'
+            + '<i class="fas fa-user-circle info-icon"></i>'
+            + '<div class="text-[16px] font-bold text-gray-900 truncate">' + escapeHtml(row.farmerName) + '</div>'
+            + '</div>'
+            + '<div class="card-sub flex items-center gap-1.5"><i class="fas fa-phone info-icon text-[11px]"></i><span class="truncate text-gray-600">' + escapeHtml(row.farmerMobile) + '</span></div>'
+            + '</div>'
+            + (row.summary ? '' : '<span class="drill-icon"><i class="fas fa-chevron-right text-[13px]"></i></span>')
+            + '</div>'
+            + orderLine
+            + '<div class="border-t border-gray-100 mt-3 pt-3">'
+            + '<div class="field-grid">'
+            + '<div class="field-box flex items-center justify-between gap-3">'
+            + '<div class="text-[11px] text-gray-400 shrink-0">存粮种类</div>'
+            + '<div class="text-[13px] font-bold text-gray-800 truncate text-right">' + escapeHtml(row.categoryName) + '</div>'
+            + '</div>'
+            + '<div class="field-box flex items-center justify-between gap-3">'
+            + '<div class="text-[11px] text-gray-400 shrink-0">存粮重量</div>'
+            + '<div class="qty text-[16px] text-[#11A64A] text-right truncate">' + fmtQty(row.weightQty, row.unit) + '</div>'
+            + '</div>'
+            + '</div>'
+            + (row.summary
+                ? '<div class="mt-3 flex justify-end text-[11px] text-gray-400">共' + escapeHtml(row.count + '笔') + '</div>'
+                : '<div class="mt-3 flex justify-between gap-2 text-[11px] text-gray-500"><span>存粮时长：<span class="font-semibold text-gray-600">' + escapeHtml(row.duration || '-') + '</span></span><span>' + escapeHtml(fmtTime(row.storedAt)) + '</span></div>')
+            + '</div>'
+            + '</article>';
+    }).join('') || emptyHtml();
+}
+
+function emptyHtml() {
+    return '<div class="list-card text-center py-10"><div class="w-12 h-12 mx-auto rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center mb-3"><i class="fas fa-magnifying-glass"></i></div><div class="text-[13px] font-bold text-gray-700">暂无匹配记录</div></div>';
+}
+
+function renderPage() {
+    ['Stock','Detail','Storage'].forEach(function (name) {
+        document.getElementById('tab' + name).classList.remove('active');
+    });
+    document.getElementById(state.tab === 'stock' ? 'tabStock' : state.tab === 'detail' ? 'tabDetail' : 'tabStorage').classList.add('active');
+    renderOverview();
+    renderTabs();
+    renderListTools();
+    if (state.tab === 'stock') renderStock();
+    if (state.tab === 'detail') renderDetailList();
+    if (state.tab === 'storage') renderStorage();
+}
+
+function optionValues(key) {
+    var rows = stockRows().concat(detailRowsData()).concat(storageRows());
+    var map = {};
+    rows.forEach(function (row) { if (row[key]) map[row[key]] = true; });
+    return Object.keys(map);
+}
+
+function openFilterSheet() {
+    var groups = [
+        ['warehouse', '仓库名称', ['all'].concat(optionValues('warehouseName'))],
+        ['category', '农产品种类', ['all'].concat(optionValues('categoryName'))]
+    ];
+    if (state.tab !== 'storage') groups.push(['inventoryType', '库存类型', ['all'].concat(optionValues('inventoryType'))]);
+    if (state.tab === 'detail') groups.push(['inOutStatus', '库存状态', ['all'].concat(optionValues('inOutStatus'))]);
+    document.getElementById('filterBody').innerHTML = groups.map(function (group) {
+        return '<div class="mb-4"><div class="text-[13px] font-bold text-gray-800 mb-2">' + group[1] + '</div><div class="flex flex-wrap gap-2">' + group[2].map(function (value) {
+            var label = value === 'all' ? '全部' : value;
+            var active = state[group[0]] === value;
+            return '<button type="button" class="filter-chip ' + (active ? 'active' : '') + '" onclick="setFilter(\'' + group[0] + '\',\'' + escapeHtml(value) + '\')">' + escapeHtml(label) + '</button>';
+        }).join('') + '</div></div>';
+    }).join('') + '<button type="button" class="w-full h-11 rounded-xl bg-[#11A64A] text-white text-[14px] font-bold active:scale-[0.98] transition-all duration-150 shadow-[0_4px_12px_rgba(17,166,74,0.2)] mt-5" onclick="closeSheets()">确定</button>';
+    openSheet('filterSheet');
+}
+
+function setFilter(key, value) {
+    state[key] = value;
+    openFilterSheet();
+    renderPage();
+}
+
+function detailRows(items) {
+    return '<div class="rounded-2xl bg-[#FAFAFA] border border-gray-100 px-4">' + items.map(function (row) {
+        return '<div class="detail-row"><span class="detail-label">' + escapeHtml(row[0]) + '</span><span class="detail-value">' + escapeHtml(row[1]) + '</span></div>';
+    }).join('') + '</div>';
+}
+
+function openDetail(type, index) {
+    var row = type === 'stock' ? getDisplayStockRows()[index] : type === 'detail' ? getDisplayDetailRows()[index] : getDisplayStorageRows()[index];
+    if (!row) return;
+    if (type === 'stock') {
+        return;
+    }
+    var title = type === 'detail' ? '库存明细详情' : '农户存粮详情';
+    var rows = [];
+    if (type === 'detail') {
+        if (row.summary) return;
+        rows = [
+            ['农产品名称', row.categoryName],
+            ['仓库名称', row.warehouseName],
+            ['库存类型', row.inventoryType],
+            ['出入库状态', row.inOutStatus],
+            ['变动重量', fmtSignedQty(row.changeQty, row.unit)],
+            ['结存量', fmtQty(row.balanceQty, row.unit)],
+            ['订单编号', row.sourceNo || '-'],
+            ['库存流水号', row.flowNo || '-'],
+            ['库存变动时间', fmtTime(row.changedAt)],
+            ['操作备注', row.remark || '-']
+        ];
+    } else {
+        rows = [
+            ['农户姓名', row.farmerName],
+            ['农户电话', row.farmerMobile],
+            ['订单编号', row.orderNo || '-'],
+            ['存粮时间', fmtTime(row.storedAt)],
+            ['存粮种类', row.categoryName],
+            ['存粮重量', fmtQty(row.weightQty, row.unit)],
+            ['存粮时长', row.duration || '-']
+        ];
+    }
+    document.getElementById('detailBody').innerHTML = '<div class="flex items-center justify-between mb-4"><div class="text-[18px] font-bold text-gray-900">' + title + '</div><button type="button" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500" onclick="closeSheets()"><i class="fas fa-times"></i></button></div>' + detailRows(rows);
+    openSheet('detailSheet');
+}
+
+function openSheet(id) {
+    document.getElementById('sheetMask').classList.add('show');
+    document.getElementById(id).classList.add('show');
+}
+
+function closeSheets() {
+    document.getElementById('sheetMask').classList.remove('show');
+    document.getElementById('filterSheet').classList.remove('show');
+    document.getElementById('detailSheet').classList.remove('show');
+}
+
+renderPage();
+</script>
+</body>
+</html>

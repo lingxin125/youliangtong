@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>丰收云 - 库存管理 UI 稿</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="shared.js"></script>
+    <style>
+        .page-bg { background:#F7F8FA; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+        .content { flex:1; overflow-y:auto; padding:12px 14px 24px; }
+        .panel { background:#fff; border:1px solid rgba(15,23,42,.05); border-radius:14px; box-shadow:0 2px 10px rgba(15,23,42,.025); }
+        .section-head { display:flex; align-items:center; justify-content:space-between; padding:13px 14px 10px; border-bottom:1px solid #F3F4F6; }
+        .section-title { display:flex; align-items:center; gap:7px; font-size:15px; font-weight:700; color:#1F2937; }
+        .section-title::before { content:''; width:4px; height:15px; border-radius:999px; background:#11A64A; }
+        .overview-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; padding:12px 14px 14px; }
+        .overview-item { border-radius:12px; background:#F8FAFC; border:1px solid #EEF2F7; padding:10px; min-width:0; }
+        .toolbar { padding:10px; margin:12px 0; }
+        .search-box { height:40px; border-radius:10px; background:#F8FAFC; border:1px solid #EEF2F7; display:flex; align-items:center; gap:8px; padding:0 12px; flex:1; min-width:0; }
+        .filter-btn { position:relative; width:40px; height:40px; border-radius:10px; background:#fff; color:#64748B; border:1px solid #E5E7EB; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(15,23,42,.03); }
+        .filter-btn.active::after { content:''; position:absolute; top:7px; right:7px; width:6px; height:6px; border-radius:999px; background:#11A64A; }
+        .seg { display:flex; background:#EDEFF3; padding:3px; border-radius:12px; gap:3px; margin-bottom:12px; }
+        .seg button { flex:1; height:34px; border-radius:9px; color:#64748B; font-size:12px; font-weight:800; white-space:nowrap; }
+        .seg button.active { background:#fff; color:#0F8A3D; box-shadow:0 2px 8px rgba(15,23,42,.08); }
+        .metric { min-width:0; }
+        .metric-label { font-size:11px; color:#64748B; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .metric-value { margin-top:4px; font-family:Poppins, sans-serif; font-size:18px; line-height:24px; font-weight:700; color:#0F8A3D; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .list-card { background:#fff; border:1px solid rgba(15,23,42,.05); border-radius:12px; padding:14px; box-shadow:0 2px 10px rgba(15,23,42,.025); }
+        .tag { display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:999px; font-size:11px; font-weight:800; white-space:nowrap; }
+        .tag-green { background:#EAF8EF; color:#0F8A3D; }
+        .tag-blue { background:#EAF8EF; color:#0F8A3D; }
+        .tag-orange { background:#EAF8EF; color:#0F8A3D; }
+        .tag-gray { background:#F1F5F9; color:#64748B; }
+        .qty { font-family:Poppins, sans-serif; font-weight:700; letter-spacing:0; }
+        .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .field-box { border-radius:10px; background:#F8FAFC; padding:10px; min-width:0; }
+        .summary-row { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:-2px 2px 10px; min-height:32px; }
+        .checkline { display:flex; align-items:center; gap:8px; font-size:12px; color:#475569; font-weight:700; }
+        .checkline input { width:16px; height:16px; accent-color:#11A64A; }
+        .card-sub { margin-top:3px; font-size:12px; color:#94A3B8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .card-foot { margin-top:11px; padding-top:10px; border-top:1px solid #F1F5F9; display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:11px; color:#94A3B8; }
+        .sheet-mask { position:absolute; inset:0; background:rgba(0,0,0,.42); opacity:0; visibility:hidden; z-index:400; transition:.22s ease; }
+        .sheet-mask.show { opacity:1; visibility:visible; }
+        .sheet { position:absolute; left:0; right:0; bottom:0; max-height:84%; overflow-y:auto; background:#fff; border-radius:24px 24px 0 0; padding:10px 16px calc(20px + env(safe-area-inset-bottom)); z-index:410; transform:translateY(100%); transition:.28s cubic-bezier(.4,0,.2,1); }
+        .sheet.show { transform:translateY(0); }
+        .handle { width:40px; height:4px; border-radius:999px; background:#D1D5DB; margin:0 auto 14px; }
+        .detail-row { min-height:42px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid #F1F5F9; }
+        .detail-row:last-child { border-bottom:0; }
+        .detail-label { font-size:12px; color:#64748B; }
+        .detail-value { font-size:13px; color:#111827; font-weight:700; text-align:right; }
+        .filter-chip { min-height:36px; padding:0 12px; border-radius:999px; background:#F1F5F9; color:#475569; font-size:12px; font-weight:700; display:inline-flex; align-items:center; }
+        .filter-chip.active { background:#EAF8EF; color:#0F8A3D; }
+        .drill-icon { width:24px; height:24px; border-radius:999px; background:#F8FAFC; color:#CBD5E1; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .group-drill { height:26px; padding:0 9px; border-radius:999px; background:#F8FAFC; color:#64748B; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:4px; }
+    </style>
+</head>
+<body>
+<div class="mobile-container relative">
+    <div id="statusBar"></div>
+    <div id="navBar"></div>
+
+    <div class="page-bg">
+        <div class="content no-scrollbar">
+            <section class="panel mb-3">
+                <div class="section-head">
+                    <div class="section-title">库存概览</div>
+                </div>
+                <div id="overviewGrid" class="overview-grid"></div>
+            </section>
+
+            <div class="toolbar panel">
+                <div class="flex items-center gap-2">
+                    <div class="search-box">
+                        <i class="fas fa-search text-gray-400 text-[13px]"></i>
+                        <input id="searchInput" class="flex-1 min-w-0 bg-transparent outline-none text-[13px] text-gray-800" placeholder="搜索仓库/品种/农户/单号" oninput="renderPage()">
+                    </div>
+                    <button id="filterBtn" type="button" class="filter-btn" onclick="openFilterSheet()"><i class="fas fa-sliders"></i></button>
+                </div>
+            </div>
+
+            <div class="seg">
+                <button id="tabStock" type="button" class="active" onclick="switchTab('stock')">库存台账</button>
+                <button id="tabDetail" type="button" onclick="switchTab('detail')">库存明细</button>
+                <button id="tabStorage" type="button" onclick="switchTab('storage')">农户存粮</button>
+            </div>
+
+            <div id="listTools" class="summary-row"></div>
+            <div id="list" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <div id="sheetMask" class="sheet-mask" onclick="closeSheets()"></div>
+
+    <div id="filterSheet" class="sheet no-scrollbar">
+        <div class="handle"></div>
+        <div class="flex items-center justify-between mb-3">
+            <div class="text-[17px] font-bold text-gray-900">筛选</div>
+            <button type="button" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500" onclick="closeSheets()"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="filterBody"></div>
+    </div>
+
+    <div id="detailSheet" class="sheet no-scrollbar">
+        <div class="handle"></div>
+        <div id="detailBody"></div>
+    </div>
+</div>
+
+<script>
+document.getElementById('statusBar').innerHTML = renderStatusBar();
+document.getElementById('navBar').innerHTML = renderHeader('库存管理', 'buyer-my.html');
+
+var state = {
+    tab: 'stock',
+    warehouse: 'all',
+    category: 'all',
+    inventoryType: 'all',
+    inOutStatus: 'all',
+    summary: false
+};
+
+var stockRows = [
+    { merchantName: '河北雄安响码科技有限公司', warehouseName: '玉米一仓', inventoryType: '收粮', categoryName: '水果玉米', balanceKg: 4440, sourceNo: 'SL202606070021', changedAt: '2026-06-07 08:45' },
+    { merchantName: '河北雄安响码科技有限公司', warehouseName: '玉米一仓', inventoryType: '存粮', categoryName: '水果玉米', balanceKg: 1260, sourceNo: 'SL202606070019', changedAt: '2026-06-07 08:12' },
+    { merchantName: '河北雄安响码科技有限公司', warehouseName: '北区周转仓', inventoryType: '收粮', categoryName: '小麦', balanceKg: 5000, sourceNo: 'PC202606070008', changedAt: '2026-06-07 09:18' },
+    { merchantName: '河北雄安响码科技有限公司', warehouseName: '玉米一仓', inventoryType: '收粮', categoryName: '大豆', balanceKg: 3200, sourceNo: 'PC202606060015', changedAt: '2026-06-06 15:20' }
+];
+
+var detailRowsData = [
+    { warehouseName: '玉米一仓', categoryName: '水果玉米', inventoryType: '收粮', inOutStatus: '出库', changeKg: -1200, balanceKg: 4440, changedAt: '2026-06-07 10:32:18', remark: '销售出库', sourceNo: 'CK202606070012' },
+    { warehouseName: '北区周转仓', categoryName: '小麦', inventoryType: '收粮', inOutStatus: '入库', changeKg: 5000, balanceKg: 5000, changedAt: '2026-06-07 09:18:42', remark: '收粮入库', sourceNo: 'RK202606070008' },
+    { warehouseName: '玉米一仓', categoryName: '水果玉米', inventoryType: '存粮', inOutStatus: '入库', changeKg: 860, balanceKg: 5300, changedAt: '2026-06-07 08:45:26', remark: '农户存粮入库', sourceNo: 'SL202606070021' }
+];
+
+var storageRows = [
+    { farmerName: '潘恒', farmerMobile: '184****1411', orderNo: '3551976104592256', storedAt: '2026-06-08 14:28:28', categoryName: '水果玉米', weightKg: 322, duration: '0 天', warehouseName: '玉米一仓' },
+    { farmerName: '李大姐', farmerMobile: '138****5612', orderNo: 'SL202606060017', storedAt: '2026-06-06 16:10:36', categoryName: '小麦', weightKg: 640, duration: '2 天', warehouseName: '北区周转仓' },
+    { farmerName: '王大哥', farmerMobile: '139****8821', orderNo: 'SL202606060018', storedAt: '2026-06-06 15:20:12', categoryName: '小麦', weightKg: 1800, duration: '2 天', warehouseName: '北区周转仓' },
+    { farmerName: '潘恒', farmerMobile: '184****1411', orderNo: '3551976104592264', storedAt: '2026-06-07 09:42:16', categoryName: '水果玉米', weightKg: 560, duration: '1 天', warehouseName: '玉米一仓' }
+];
+
+function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, function (ch) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+    });
+}
+
+function fmtKg(value) {
+    return Number(value || 0).toLocaleString('zh-CN') + '公斤';
+}
+
+function getQuery() {
+    return (document.getElementById('searchInput').value || '').trim().toLowerCase();
+}
+
+function matchText(row, keys) {
+    var q = getQuery();
+    if (!q) return true;
+    return keys.map(function (key) { return row[key] || ''; }).join(' ').toLowerCase().indexOf(q) >= 0;
+}
+
+function passCommon(row) {
+    if (state.warehouse !== 'all' && row.warehouseName !== state.warehouse) return false;
+    if (state.category !== 'all' && row.categoryName !== state.category) return false;
+    if (state.inventoryType !== 'all' && row.inventoryType !== state.inventoryType) return false;
+    return true;
+}
+
+function getStockRows() {
+    return stockRows.filter(function (row) {
+        return passCommon(row) && matchText(row, ['merchantName', 'warehouseName', 'inventoryType', 'categoryName']);
+    });
+}
+
+function getDetailRows() {
+    return detailRowsData.filter(function (row) {
+        if (!passCommon(row)) return false;
+        if (state.inOutStatus !== 'all' && row.inOutStatus !== state.inOutStatus) return false;
+        return matchText(row, ['warehouseName', 'categoryName', 'inventoryType', 'inOutStatus', 'remark', 'sourceNo']);
+    });
+}
+
+function getStorageRows() {
+    return storageRows.filter(function (row) {
+        if (state.warehouse !== 'all' && row.warehouseName !== state.warehouse) return false;
+        if (state.category !== 'all' && row.categoryName !== state.category) return false;
+        return matchText(row, ['farmerName', 'farmerMobile', 'orderNo', 'categoryName', 'warehouseName']);
+    });
+}
+
+function groupRows(rows, keys, build) {
+    var map = {};
+    rows.forEach(function (row) {
+        var key = keys.map(function (name) { return row[name] || ''; }).join('|');
+        if (!map[key]) map[key] = build(row);
+        map[key].count += 1;
+        if (row.balanceKg) map[key].balanceKg += Number(row.balanceKg || 0);
+        if (row.changeKg) map[key].changeKg += Number(row.changeKg || 0);
+        if (row.weightKg) map[key].weightKg += Number(row.weightKg || 0);
+    });
+    return Object.keys(map).map(function (key) { return map[key]; });
+}
+
+function uniqueText(values, fallback) {
+    var map = {};
+    values.forEach(function (value) { if (value) map[value] = true; });
+    var list = Object.keys(map);
+    if (!list.length) return fallback || '-';
+    return list.length === 1 ? list[0] : '多' + fallback;
+}
+
+function getDisplayStockRows() {
+    var rows = getStockRows();
+    if (!state.summary) return rows;
+    return groupRows(rows, ['warehouseName', 'categoryName'], function (row) {
+        return { merchantName: row.merchantName, warehouseName: row.warehouseName, inventoryType: '收粮', categoryName: row.categoryName, balanceKg: 0, count: 0, summary: true };
+    });
+}
+
+function getDisplayDetailRows() {
+    var rows = getDetailRows();
+    if (!state.summary) return rows;
+    return groupRows(rows, ['inventoryType', 'categoryName', 'warehouseName', 'inOutStatus'], function (row) {
+        return { warehouseName: row.warehouseName, categoryName: row.categoryName, inventoryType: row.inventoryType, inOutStatus: row.inOutStatus, changeKg: 0, balanceKg: row.balanceKg || 0, changedAt: '汇总', remark: '按仓库/品种/状态汇总', sourceNo: '汇总记录', count: 0, summary: true };
+    });
+}
+
+function getDisplayStorageRows() {
+    var rows = getStorageRows();
+    if (!state.summary) return rows;
+    var map = {};
+    rows.forEach(function (row) {
+        var key = row.farmerName + '|' + row.farmerMobile + '|' + row.categoryName;
+        if (!map[key]) {
+            map[key] = { farmerName: row.farmerName, farmerMobile: row.farmerMobile, orderNo: '汇总记录', storedAt: '汇总', categoryName: row.categoryName, weightKg: 0, duration: '汇总', warehouseName: '', count: 0, summary: true, categories: [], warehouses: [] };
+        }
+        map[key].count += 1;
+        map[key].weightKg += Number(row.weightKg || 0);
+        map[key].categories.push(row.categoryName);
+        map[key].warehouses.push(row.warehouseName);
+    });
+    return Object.keys(map).map(function (key) {
+        var row = map[key];
+        row.categoryName = uniqueText(row.categories, '品种');
+        row.warehouseName = uniqueText(row.warehouses, '仓库');
+        return row;
+    });
+}
+
+function switchTab(tab) {
+    state.tab = tab;
+    state.summary = false;
+    renderPage();
+}
+
+function getCounts() {
+    return {
+        stock: getDisplayStockRows().length,
+        detail: getDisplayDetailRows().length,
+        storage: getDisplayStorageRows().length
+    };
+}
+
+function renderTabs() {
+    document.getElementById('tabStock').textContent = '库存台账';
+    document.getElementById('tabDetail').textContent = '库存明细';
+    document.getElementById('tabStorage').textContent = '农户存粮';
+}
+
+function renderOverview() {
+    var stocks = getStockRows();
+    var details = getDetailRows();
+    var storage = getStorageRows();
+    var total = stocks.reduce(function (sum, row) { return sum + row.balanceKg; }, 0);
+    var preIn = details.filter(function (row) { return row.inOutStatus === '预入库'; }).reduce(function (sum, row) { return sum + Math.max(row.changeKg, 0); }, 0);
+    var todayNet = details.reduce(function (sum, row) { return sum + Number(row.changeKg || 0); }, 0);
+    var farmerQty = storage.reduce(function (sum, row) { return sum + row.weightKg; }, 0);
+    var items = [
+        ['当前库存', fmtKg(total)],
+        ['农户存粮', fmtKg(farmerQty)],
+        ['待确认入库', fmtKg(preIn)],
+        ['今日库存变化', (todayNet > 0 ? '+' : '') + fmtKg(todayNet)]
+    ];
+    document.getElementById('overviewGrid').innerHTML = items.map(function (item) {
+        return '<div class="overview-item"><div class="metric-label">' + escapeHtml(item[0]) + '</div><div class="metric-value">' + escapeHtml(item[1]) + '</div></div>';
+    }).join('');
+}
+
+function renderListTools() {
+    if (state.tab === 'stock') {
+        document.getElementById('listTools').innerHTML = '<span></span><span class="text-[11px] text-gray-400">全部</span>';
+        return;
+    }
+    var label = state.tab === 'detail' ? '按类型/品种/仓库/状态汇总' : '按农户/品种汇总';
+    document.getElementById('listTools').innerHTML = '<label class="checkline"><input type="checkbox" ' + (state.summary ? 'checked' : '') + ' onchange="toggleSummary(this.checked)"><span>汇总展示</span></label><span class="text-[11px] text-gray-400">' + label + '</span>';
+}
+
+function toggleSummary(checked) {
+    state.summary = !!checked;
+    renderPage();
+}
+
+function renderStock() {
+    var rows = getDisplayStockRows();
+    document.getElementById('list').innerHTML = rows.map(function (row, index) {
+        var tagClass = row.inventoryType === '存粮' ? 'tag-orange' : 'tag-green';
+        return '<article class="list-card">'
+            + '<div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="text-[16px] font-bold text-gray-900 truncate">' + escapeHtml(row.categoryName) + '</div><div class="card-sub">' + escapeHtml(row.warehouseName) + '</div></div><span class="tag ' + tagClass + '">' + escapeHtml(row.inventoryType) + '</span></div>'
+            + '<div class="mt-3"><div class="text-[11px] text-gray-400">结存重量</div><div class="qty text-[24px] leading-8 text-[#0F8A3D]">' + fmtKg(row.balanceKg) + '</div></div>'
+            + '<div class="card-foot"><span class="truncate">' + escapeHtml(row.sourceNo) + '</span><span class="shrink-0">' + escapeHtml(row.changedAt) + '</span></div>'
+            + '</article>';
+    }).join('') || emptyHtml();
+}
+
+function renderDetailList() {
+    var rows = getDisplayDetailRows();
+    document.getElementById('list').innerHTML = rows.map(function (row, index) {
+        var isOut = row.changeKg < 0;
+        var tagClass = isOut ? 'tag-orange' : 'tag-green';
+        var action = row.summary ? 'openGroupList(\'detail\',' + index + ')' : 'openDetail(\'detail\',' + index + ')';
+        var rightLabel = row.summary ? '合并笔数' : '结存量';
+        var rightValue = row.summary ? row.count + '笔' : fmtKg(row.balanceKg);
+        var rightAction = row.summary ? '<button type="button" class="group-drill" onclick="event.stopPropagation();openGroupList(\'detail\',' + index + ')">明细<i class="fas fa-chevron-right text-[9px]"></i></button>' : '<span class="drill-icon"><i class="fas fa-chevron-right text-[10px]"></i></span>';
+        return '<article class="list-card" onclick="' + action + '">'
+            + '<div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="text-[16px] font-bold text-gray-900 truncate">' + escapeHtml(row.categoryName) + '</div><div class="card-sub">' + escapeHtml(row.warehouseName) + ' · ' + escapeHtml(row.inventoryType) + '</div></div><div class="flex items-center gap-2"><span class="tag ' + tagClass + '">' + escapeHtml(row.inOutStatus) + '</span>' + rightAction + '</div></div>'
+            + '<div class="field-grid mt-3"><div class="field-box"><div class="text-[11px] text-gray-400">' + (row.summary ? '变动重量合计' : '变动重量') + '</div><div class="qty text-[18px] ' + (isOut ? 'text-[#EA580C]' : 'text-[#0F8A3D]') + '">' + (row.changeKg > 0 ? '+' : '') + fmtKg(row.changeKg) + '</div></div><div class="field-box"><div class="text-[11px] text-gray-400">' + rightLabel + '</div><div class="qty text-[18px] text-gray-900">' + escapeHtml(rightValue) + '</div></div></div>'
+            + '<div class="card-foot"><span class="truncate">' + escapeHtml(row.sourceNo) + '</span><span class="shrink-0">' + escapeHtml(row.summary ? '汇总统计' : row.changedAt) + '</span></div>'
+            + '</article>';
+    }).join('') || emptyHtml();
+}
+
+function renderStorage() {
+    var rows = getDisplayStorageRows();
+    document.getElementById('list').innerHTML = rows.map(function (row, index) {
+        var action = row.summary ? 'openGroupList(\'storage\',' + index + ')' : 'openDetail(\'storage\',' + index + ')';
+        var rightAction = row.summary ? '<button type="button" class="group-drill" onclick="event.stopPropagation();openGroupList(\'storage\',' + index + ')">明细<i class="fas fa-chevron-right text-[9px]"></i></button>' : '<span class="drill-icon"><i class="fas fa-chevron-right text-[10px]"></i></span>';
+        return '<article class="list-card" onclick="' + action + '">'
+            + '<div class="flex items-start justify-between gap-3"><div class="min-w-0"><div class="text-[16px] font-bold text-gray-900 truncate">' + escapeHtml(row.farmerName) + '</div><div class="card-sub">' + escapeHtml(row.farmerMobile) + '</div></div>' + rightAction + '</div>'
+            + '<div class="field-grid mt-3"><div class="field-box"><div class="text-[11px] text-gray-400">' + (row.summary ? '存粮重量合计' : '存粮重量') + '</div><div class="qty text-[18px] text-[#0F8A3D]">' + fmtKg(row.weightKg) + '</div></div><div class="field-box"><div class="text-[11px] text-gray-400">' + (row.summary ? '存粮种类' : '存粮时长') + '</div><div class="text-[13px] font-bold text-gray-800 truncate">' + escapeHtml(row.summary ? row.categoryName : row.duration) + '</div></div></div>'
+            + '<div class="card-foot"><span class="truncate">' + escapeHtml(row.summary ? row.categoryName : row.orderNo) + '</span><span class="shrink-0">' + escapeHtml(row.summary ? '共' + row.count + '笔' : row.storedAt) + '</span></div>'
+            + '</article>';
+    }).join('') || emptyHtml();
+}
+
+function emptyHtml() {
+    return '<div class="list-card text-center py-10"><div class="w-12 h-12 mx-auto rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center mb-3"><i class="fas fa-magnifying-glass"></i></div><div class="text-[13px] font-bold text-gray-700">暂无匹配记录</div></div>';
+}
+
+function renderPage() {
+    ['Stock','Detail','Storage'].forEach(function (name) {
+        document.getElementById('tab' + name).classList.remove('active');
+    });
+    document.getElementById(state.tab === 'stock' ? 'tabStock' : state.tab === 'detail' ? 'tabDetail' : 'tabStorage').classList.add('active');
+    document.getElementById('filterBtn').classList.toggle('active', hasActiveFilter());
+    renderOverview();
+    renderTabs();
+    renderListTools();
+    if (state.tab === 'stock') renderStock();
+    if (state.tab === 'detail') renderDetailList();
+    if (state.tab === 'storage') renderStorage();
+}
+
+function hasActiveFilter() {
+    return state.warehouse !== 'all' || state.category !== 'all' || state.inventoryType !== 'all' || state.inOutStatus !== 'all';
+}
+
+function optionValues(key) {
+    var rows = stockRows.concat(detailRowsData).concat(storageRows);
+    var map = {};
+    rows.forEach(function (row) { if (row[key]) map[row[key]] = true; });
+    return Object.keys(map);
+}
+
+function openFilterSheet() {
+    var groups = [
+        ['warehouse', '仓库名称', ['all'].concat(optionValues('warehouseName'))],
+        ['category', '农产品种类', ['all'].concat(optionValues('categoryName'))]
+    ];
+    if (state.tab !== 'storage') groups.push(['inventoryType', '库存类型', ['all'].concat(optionValues('inventoryType'))]);
+    if (state.tab === 'detail') groups.push(['inOutStatus', '出入库状态', ['all'].concat(optionValues('inOutStatus'))]);
+    document.getElementById('filterBody').innerHTML = groups.map(function (group) {
+        return '<div class="mb-4"><div class="text-[13px] font-bold text-gray-800 mb-2">' + group[1] + '</div><div class="flex flex-wrap gap-2">' + group[2].map(function (value) {
+            var label = value === 'all' ? '全部' : value;
+            var active = state[group[0]] === value;
+            return '<button type="button" class="filter-chip ' + (active ? 'active' : '') + '" onclick="setFilter(\'' + group[0] + '\',\'' + escapeHtml(value) + '\')">' + escapeHtml(label) + '</button>';
+        }).join('') + '</div></div>';
+    }).join('') + '<button type="button" class="w-full h-11 rounded-2xl bg-[#11A64A] text-white text-[14px] font-bold" onclick="closeSheets()">确定</button>';
+    openSheet('filterSheet');
+}
+
+function setFilter(key, value) {
+    state[key] = value;
+    openFilterSheet();
+    renderPage();
+}
+
+function detailRows(rows) {
+    return rows.map(function (row) {
+        return '<div class="detail-row"><span class="detail-label">' + escapeHtml(row[0]) + '</span><span class="detail-value">' + escapeHtml(row[1]) + '</span></div>';
+    }).join('');
+}
+
+function openDetail(type, index) {
+    var row = type === 'stock' ? getDisplayStockRows()[index] : type === 'detail' ? getDisplayDetailRows()[index] : getDisplayStorageRows()[index];
+    if (!row) return;
+    var title = type === 'stock' ? row.categoryName : type === 'detail' ? row.sourceNo : row.farmerName;
+    var rows = [];
+    if (type === 'stock') rows = [['商户名称', row.merchantName], ['仓库名称', row.warehouseName], ['库存类型', row.inventoryType], ['农产品种类', row.categoryName], ['结存重量', fmtKg(row.balanceKg)]];
+    if (type === 'detail') rows = [['变动仓库', row.warehouseName], ['农产品种类', row.categoryName], ['库存类型', row.inventoryType], ['出入库状态', row.inOutStatus], ['变动重量', fmtKg(row.changeKg)], ['结存量', row.summary ? '-' : fmtKg(row.balanceKg)], ['库存变动时间', row.changedAt], ['操作备注', row.remark || '-'], ['来源单号', row.sourceNo]];
+    if (type === 'storage') rows = [['农户姓名', row.farmerName], ['农户电话', row.farmerMobile], ['订单编号', row.orderNo], ['存粮时间', row.storedAt], ['存粮种类', row.categoryName], ['存粮重量', fmtKg(row.weightKg)], ['存粮时长', row.duration], ['存放仓库', row.warehouseName]];
+    if (row.summary) rows.push(['记录数量', row.count + '笔']);
+    document.getElementById('detailBody').innerHTML = '<div class="flex items-center justify-between mb-4"><div class="text-[18px] font-bold text-gray-900 truncate pr-3">' + escapeHtml(title) + '</div><button type="button" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500 shrink-0" onclick="closeSheets()"><i class="fas fa-times"></i></button></div><div class="rounded-2xl bg-[#FAFAFA] border border-gray-100 p-3">' + detailRows(rows) + '</div>';
+    openSheet('detailSheet');
+}
+
+function openGroupList(type, index) {
+    var row = type === 'detail' ? getDisplayDetailRows()[index] : getDisplayStorageRows()[index];
+    if (!row) return;
+    var rows = [];
+    var title = type === 'detail' ? '汇总明细列表' : '农户汇总明细';
+    if (type === 'detail') {
+        rows = getDetailRows().filter(function (item) {
+            return item.inventoryType === row.inventoryType && item.categoryName === row.categoryName && item.warehouseName === row.warehouseName && item.inOutStatus === row.inOutStatus;
+        }).map(function (item) {
+            return '<div class="rounded-xl bg-[#F8FAFC] p-3"><div class="flex items-center justify-between gap-3"><div class="min-w-0"><div class="text-[13px] font-bold text-gray-900 truncate">' + escapeHtml(item.categoryName + ' · ' + item.inOutStatus) + '</div><div class="text-[11px] text-gray-400 mt-1 truncate">' + escapeHtml(item.sourceNo + ' · ' + item.changedAt) + '</div></div><div class="text-[13px] font-bold ' + (item.changeKg < 0 ? 'text-[#EA580C]' : 'text-[#0F8A3D]') + ' shrink-0">' + escapeHtml((item.changeKg > 0 ? '+' : '') + fmtKg(item.changeKg)) + '</div></div></div>';
+        });
+    } else {
+        rows = getStorageRows().filter(function (item) {
+            return item.farmerName === row.farmerName && item.farmerMobile === row.farmerMobile && item.categoryName === row.categoryName;
+        }).map(function (item) {
+            return '<div class="rounded-xl bg-[#F8FAFC] p-3"><div class="flex items-center justify-between gap-3"><div class="min-w-0"><div class="text-[13px] font-bold text-gray-900 truncate">' + escapeHtml(item.farmerName + ' · ' + item.categoryName) + '</div><div class="text-[11px] text-gray-400 mt-1 truncate">' + escapeHtml(item.orderNo + ' · ' + item.storedAt) + '</div></div><div class="text-[13px] font-bold text-[#0F8A3D] shrink-0">' + escapeHtml(fmtKg(item.weightKg)) + '</div></div></div>';
+        });
+    }
+    document.getElementById('detailBody').innerHTML = '<div class="flex items-center justify-between mb-4"><div class="text-[18px] font-bold text-gray-900 truncate pr-3">' + escapeHtml(title) + '</div><button type="button" class="w-9 h-9 rounded-full bg-gray-100 text-gray-500 shrink-0" onclick="closeSheets()"><i class="fas fa-times"></i></button></div><div class="space-y-2">' + rows.join('') + '</div>';
+    openSheet('detailSheet');
+}
+
+function openSheet(id) {
+    document.getElementById('sheetMask').classList.add('show');
+    document.getElementById(id).classList.add('show');
+}
+
+function closeSheets() {
+    document.getElementById('sheetMask').classList.remove('show');
+    document.getElementById('filterSheet').classList.remove('show');
+    document.getElementById('detailSheet').classList.remove('show');
+}
+
+renderPage();
+</script>
+</body>
+</html>

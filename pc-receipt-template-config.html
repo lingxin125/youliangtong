@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>丰收云 - 小票模板配置</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        :root {
+            --brand: #11A64A;
+            --brand-dark: #0B7D38;
+            --bg: #F6F8FA;
+            --panel: #FFFFFF;
+            --line: #E8ECEF;
+            --soft: #F3F8F5;
+            --text: #1F2937;
+            --muted: #6B7280;
+            --light: #9CA3AF;
+            --blue: #2563EB;
+            --orange: #F59E0B;
+            --danger: #EF4444;
+            --shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Poppins", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        .page {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 22px 24px 28px;
+        }
+
+        .topbar {
+            height: 72px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--soft);
+            color: var(--brand);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: 1px solid rgba(17, 166, 74, 0.12);
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 20px;
+            line-height: 1.25;
+        }
+
+        .brand p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .btn.primary {
+            background: var(--brand);
+            color: #fff;
+            border-color: var(--brand);
+        }
+
+        .layout {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: 290px minmax(0, 1fr) 360px;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-head {
+            padding: 16px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .panel-title {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .panel-desc {
+            margin: 5px 0 0;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .template-list {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .template-item {
+            width: 100%;
+            border: 1px solid transparent;
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .template-item.active {
+            background: #F4FBF7;
+            border-color: rgba(17, 166, 74, 0.24);
+        }
+
+        .template-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .template-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .template-meta {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            padding: 0 8px;
+            border-radius: 999px;
+            background: #EEF8F2;
+            color: var(--brand);
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .tag.blue {
+            background: #EFF6FF;
+            color: var(--blue);
+        }
+
+        .tag.gray {
+            background: #F3F4F6;
+            color: var(--muted);
+        }
+
+        .editor {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .section {
+            padding: 16px;
+        }
+
+        .section + .section {
+            border-top: 1px solid var(--line);
+        }
+
+        .section-title {
+            margin: 0 0 12px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            height: 38px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 0 11px;
+            background: #fff;
+            color: var(--text);
+            outline: none;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: rgba(17, 166, 74, 0.45);
+            box-shadow: 0 0 0 3px rgba(17, 166, 74, 0.08);
+        }
+
+        .field-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .check-card {
+            height: 38px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 10px;
+            font-size: 13px;
+            color: var(--text);
+            cursor: pointer;
+            background: #fff;
+        }
+
+        .check-card input {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--brand);
+        }
+
+        .rule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .rule-table th,
+        .rule-table td {
+            border-bottom: 1px solid var(--line);
+            padding: 11px 8px;
+            text-align: left;
+        }
+
+        .rule-table th {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            background: #FAFBFC;
+        }
+
+        .switch {
+            position: relative;
+            width: 38px;
+            height: 22px;
+            border-radius: 999px;
+            background: #D1D5DB;
+            display: inline-flex;
+            align-items: center;
+            padding: 2px;
+            cursor: pointer;
+        }
+
+        .switch.on {
+            background: var(--brand);
+        }
+
+        .switch::after {
+            content: "";
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
+            transition: transform 0.18s ease;
+        }
+
+        .switch.on::after {
+            transform: translateX(16px);
+        }
+
+        .preview-wrap {
+            padding: 16px;
+        }
+
+        .receipt {
+            width: 250px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            padding: 18px 16px;
+            color: #111827;
+            font-family: "Noto Sans SC", monospace;
+        }
+
+        .receipt-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .receipt-line {
+            border-top: 1px dashed #C7CDD4;
+            margin: 10px 0;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 12px;
+            line-height: 1.9;
+        }
+
+        .receipt-row span:first-child {
+            color: #6B7280;
+            white-space: nowrap;
+        }
+
+        .receipt-row span:last-child {
+            text-align: right;
+            word-break: break-all;
+        }
+
+        .receipt-foot {
+            margin-top: 12px;
+            text-align: center;
+            color: #6B7280;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .hint-list {
+            padding: 0 16px 16px;
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 28px;
+            transform: translateX(-50%);
+            background: rgba(17, 24, 39, 0.88);
+            color: #fff;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 13px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        @media (max-width: 1100px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .receipt {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-icon"><i class="fas fa-receipt"></i></div>
+                <div>
+                    <h1>小票模板配置</h1>
+                    <p>PC后台统一控制移动端蓝牙打印小票内容、场景规则与预览效果</p>
+                </div>
+            </div>
+            <div class="top-actions">
+                <button class="btn" type="button" onclick="showToast('已生成测试小票')"><i class="fas fa-print"></i>测试打印</button>
+                <button class="btn primary" type="button" onclick="showToast('配置已保存')"><i class="fas fa-floppy-disk"></i>保存配置</button>
+            </div>
+        </header>
+
+        <main class="layout">
+            <aside class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h2 class="panel-title">模板列表</h2>
+                        <p class="panel-desc">按订单状态匹配默认小票</p>
+                    </div>
+                    <button class="btn" type="button" onclick="showToast('新增模板留待二期开放')"><i class="fas fa-plus"></i>新增</button>
+                </div>
+                <div class="template-list" id="templateList"></div>
+            </aside>
+
+            <section class="panel editor">
+                <div class="section">
+                    <h2 class="section-title">基础配置</h2>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>模板名称</label>
+                            <input id="templateName" type="text">
+                        </div>
+                        <div class="field">
+                            <label>适用场景</label>
+                            <select id="templateScene"></select>
+                        </div>
+                        <div class="field">
+                            <label>纸张规格</label>
+                            <select id="paperSize">
+                                <option>58mm 热敏纸</option>
+                                <option>80mm 热敏纸</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>默认打印份数</label>
+                            <select id="copyCount">
+                                <option>1份</option>
+                                <option>2份</option>
+                                <option>3份</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">小票字段</h2>
+                    <div class="field-list" id="fieldList"></div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">业务状态规则</h2>
+                    <table class="rule-table">
+                        <thead>
+                            <tr>
+                                <th>业务节点</th>
+                                <th>默认模板</th>
+                                <th>移动端入口</th>
+                                <th>自动打印</th>
+                                <th>补打</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>开单暂存为挂单</td>
+                                <td>过磅单</td>
+                                <td>暂存成功页 / 订单详情</td>
+                                <td><span class="switch" onclick="toggleSwitch(this)"></span></td>
+                                <td><span class="tag">支持</span></td>
+                            </tr>
+                            <tr>
+                                <td>待开价</td>
+                                <td>待开价小票</td>
+                                <td>订单列表更多 / 订单详情</td>
+                                <td><span class="switch" onclick="toggleSwitch(this)"></span></td>
+                                <td><span class="tag">支持</span></td>
+                            </tr>
+                            <tr>
+                                <td>待付款</td>
+                                <td>待付款确认单</td>
+                                <td>订单列表更多 / 订单详情</td>
+                                <td><span class="switch" onclick="toggleSwitch(this)"></span></td>
+                                <td><span class="tag">支持</span></td>
+                            </tr>
+                            <tr>
+                                <td>付款成功</td>
+                                <td>付款成功小票</td>
+                                <td>付款成功页 / 已结束详情</td>
+                                <td><span class="switch on" onclick="toggleSwitch(this)"></span></td>
+                                <td><span class="tag">支持</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <aside class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h2 class="panel-title">实时预览</h2>
+                        <p class="panel-desc">移动端打印时按此模板生成内容</p>
+                    </div>
+                    <span class="tag blue" id="previewPaper">58mm</span>
+                </div>
+                <div class="preview-wrap">
+                    <div class="receipt" id="receiptPreview"></div>
+                </div>
+                <ul class="hint-list">
+                    <li>模板由PC后台维护，移动端只读取已发布配置。</li>
+                    <li>付款失败或处理中不打印付款成功凭证，只允许补打业务过程单。</li>
+                    <li>字段隐藏后不影响订单数据，只影响小票展示内容。</li>
+                </ul>
+            </aside>
+        </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const fieldOptions = [
+            ['merchant', '收购商名称', '张老板收购站'],
+            ['orderNo', '订单编号', 'FSY202606070001'],
+            ['farmer', '农户姓名', '李建国'],
+            ['phone', '农户手机号', '137****8821'],
+            ['product', '农产品名称', '玉米'],
+            ['gross', '毛重', '1,280.00 kg'],
+            ['tare', '皮重', '80.00 kg'],
+            ['deduct', '扣杂/扣减', '20.00 kg'],
+            ['net', '净重', '1,180.00 kg'],
+            ['price', '单价', '2.36 元/kg'],
+            ['amount', '订单金额', '2,784.80 元'],
+            ['payType', '支付方式', '行业支付'],
+            ['operator', '操作员', '王业务员'],
+            ['time', '打印时间', '2026-06-07 15:20'],
+            ['remark', '备注', '现场收粮留存']
+        ];
+
+        const templates = {
+            weigh: {
+                name: '过磅单',
+                scene: '挂单 / 田间地头先拉货',
+                status: '启用中',
+                fields: ['merchant', 'orderNo', 'farmer', 'product', 'gross', 'tare', 'net', 'operator', 'time']
+            },
+            pendingPrice: {
+                name: '待开价小票',
+                scene: '重量已确认，价格待定',
+                status: '启用中',
+                fields: ['merchant', 'orderNo', 'farmer', 'product', 'gross', 'tare', 'deduct', 'net', 'operator', 'time', 'remark']
+            },
+            unpaid: {
+                name: '待付款确认单',
+                scene: '价格金额已确认，付款未完成',
+                status: '启用中',
+                fields: ['merchant', 'orderNo', 'farmer', 'phone', 'product', 'net', 'price', 'amount', 'operator', 'time']
+            },
+            paid: {
+                name: '付款成功小票',
+                scene: '现金/行业支付/订单付完成',
+                status: '启用中',
+                fields: ['merchant', 'orderNo', 'farmer', 'product', 'net', 'price', 'amount', 'payType', 'operator', 'time']
+            }
+        };
+
+        let activeKey = 'weigh';
+
+        function renderTemplateList() {
+            const list = document.getElementById('templateList');
+            list.innerHTML = Object.keys(templates).map(key => {
+                const item = templates[key];
+                return `<button class="template-item ${key === activeKey ? 'active' : ''}" type="button" onclick="selectTemplate('${key}')">
+                    <div class="template-row">
+                        <div class="template-name">${item.name}</div>
+                        <span class="tag ${key === 'paid' ? 'blue' : ''}">${item.status}</span>
+                    </div>
+                    <div class="template-meta">${item.scene}</div>
+                </button>`;
+            }).join('');
+        }
+
+        function renderEditor() {
+            const tpl = templates[activeKey];
+            document.getElementById('templateName').value = tpl.name;
+            document.getElementById('templateScene').innerHTML = Object.keys(templates)
+                .map(key => `<option ${key === activeKey ? 'selected' : ''}>${templates[key].scene}</option>`)
+                .join('');
+            document.getElementById('fieldList').innerHTML = fieldOptions.map(([key, label]) => `
+                <label class="check-card">
+                    <input type="checkbox" value="${key}" ${tpl.fields.includes(key) ? 'checked' : ''} onchange="toggleField('${key}', this.checked)">
+                    <span>${label}</span>
+                </label>
+            `).join('');
+            renderPreview();
+        }
+
+        function renderPreview() {
+            const tpl = templates[activeKey];
+            const rows = fieldOptions
+                .filter(([key]) => tpl.fields.includes(key))
+                .map(([, label, value]) => `<div class="receipt-row"><span>${label}</span><span>${value}</span></div>`)
+                .join('');
+            document.getElementById('receiptPreview').innerHTML = `
+                <div class="receipt-title">${tpl.name}</div>
+                <div class="receipt-line"></div>
+                ${rows}
+                <div class="receipt-line"></div>
+                <div class="receipt-foot">丰收云<br>请妥善保管本小票</div>
+            `;
+            document.getElementById('previewPaper').textContent = document.getElementById('paperSize').value.indexOf('80') > -1 ? '80mm' : '58mm';
+        }
+
+        function selectTemplate(key) {
+            activeKey = key;
+            renderTemplateList();
+            renderEditor();
+        }
+
+        function toggleField(key, checked) {
+            const fields = templates[activeKey].fields;
+            if (checked && !fields.includes(key)) fields.push(key);
+            if (!checked) templates[activeKey].fields = fields.filter(item => item !== key);
+            renderPreview();
+        }
+
+        function toggleSwitch(el) {
+            el.classList.toggle('on');
+            showToast(el.classList.contains('on') ? '已开启自动打印' : '已关闭自动打印');
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            toast.textContent = text;
+            toast.classList.add('show');
+            clearTimeout(window.__toastTimer);
+            window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 1400);
+        }
+
+        document.getElementById('paperSize').addEventListener('change', renderPreview);
+        renderTemplateList();
+        renderEditor();
+    </script>
+</body>
+
+</html>

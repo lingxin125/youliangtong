@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>蓝牙设备即时连接概念图 V2</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #eef2f3;
+      color: #1f2937;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    .board {
+      width: 100%;
+      min-height: 100vh;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: repeat(5, 390px);
+      gap: 22px;
+      align-items: start;
+    }
+    .frame-wrap { width: 390px; }
+    .caption {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .phone {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      overflow: hidden;
+      border-radius: 32px;
+      background: #f6f7f8;
+      border: 1px solid #d9dee5;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.14);
+    }
+    .status {
+      height: 44px;
+      padding: 12px 22px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #111827;
+      background: #fff;
+    }
+    .status .pill {
+      width: 72px;
+      height: 22px;
+      border-radius: 12px;
+      background: #111827;
+    }
+    .nav {
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      position: relative;
+    }
+    .nav .back,
+    .nav .right {
+      position: absolute;
+      top: 0;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      color: #9ca3af;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    .nav .back { left: 16px; }
+    .nav .right { right: 16px; }
+    .content {
+      height: calc(100% - 92px);
+      overflow: hidden;
+      padding: 14px 16px 92px;
+    }
+    .profile-card {
+      background: linear-gradient(135deg, #13a955, #0b8f45);
+      border-radius: 18px;
+      padding: 18px 16px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 12px 24px rgba(17, 166, 74, 0.18);
+    }
+    .avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      border: 2px solid rgba(255,255,255,0.35);
+    }
+    .profile-title { font-size: 18px; font-weight: 700; }
+    .profile-sub { margin-top: 4px; font-size: 12px; color: rgba(255,255,255,0.82); }
+    .section {
+      margin-top: 14px;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #f1f3f5;
+    }
+    .cell {
+      min-height: 58px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f5f6f7;
+    }
+    .cell:last-child { border-bottom: 0; }
+    .cell-main {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .icon-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: #ebf7f0;
+      color: #11a64a;
+      border: 1px solid rgba(17, 166, 74, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+    .cell-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #374151;
+      white-space: nowrap;
+    }
+    .cell-sub {
+      margin-top: 2px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .cell-right {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: #a3aab5;
+      flex: 0 0 auto;
+    }
+    .green { color: #11a64a; }
+    .red { color: #ef4444; }
+    .chev { color: #c4c9d1; }
+    .tabbar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 74px;
+      padding: 8px 26px 10px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: #fff;
+      border-top: 1px solid #eef0f2;
+    }
+    .tab {
+      text-align: center;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .tab.active { color: #11a64a; font-weight: 700; }
+    .tab .tab-icon {
+      width: 20px;
+      height: 18px;
+      margin: 3px auto 4px;
+      border-radius: 6px;
+      background: currentColor;
+      opacity: .45;
+    }
+    .sheet-mask {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.36);
+    }
+    .sheet {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #fff;
+      border-radius: 22px 22px 0 0;
+      padding: 10px 16px 18px;
+      box-shadow: 0 -12px 36px rgba(15, 23, 42, 0.16);
+    }
+    .handle {
+      width: 40px;
+      height: 5px;
+      margin: 3px auto 18px;
+      border-radius: 99px;
+      background: #d1d5db;
+    }
+    .sheet-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .sheet-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1f2937;
+    }
+    .sheet-note {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .close {
+      width: 32px;
+      height: 32px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      background: #f8fafc;
+      font-size: 18px;
+    }
+    .label {
+      margin: 12px 0 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .device-row {
+      min-height: 64px;
+      margin-bottom: 10px;
+      padding: 11px 12px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      border-radius: 16px;
+      border: 1px solid #f0f2f4;
+      background: #fff;
+    }
+    .device-row.connected {
+      border-color: rgba(17,166,74,.22);
+      background: #f4fbf7;
+    }
+    .device-name {
+      font-size: 14px;
+      color: #1f2937;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .device-desc {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .device-actions {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .tag {
+      height: 24px;
+      padding: 0 9px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #eaf8ef;
+      color: #11a64a;
+    }
+    .btn-small {
+      height: 30px;
+      min-width: 56px;
+      padding: 0 12px;
+      border-radius: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      background: #ebf7f0;
+      color: #11a64a;
+    }
+    .btn-disconnect {
+      background: #fff;
+      color: #ef4444;
+      border: 1px solid #fee2e2;
+    }
+    .btn-wide {
+      height: 44px;
+      margin-top: 4px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f7f8fa;
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .form-card {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #eef0f2;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .field {
+      height: 58px;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .field:last-child { border-bottom: 0; }
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #6b7280;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .read-btn {
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 10px;
+      background: #ebf7f0;
+      color: #11a64a;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .input-value { color: #a3aab5; font-size: 14px; }
+    .primary {
+      height: 46px;
+      border-radius: 14px;
+      background: #11a64a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .order-card {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #eef0f2;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .amount {
+      color: #11a64a;
+      font-family: Arial, sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+    }
+    .receipt {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #f9fafb;
+      border: 1px solid #eef0f2;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="board">
+    <div class="frame-wrap" id="concept-mine-entry">
+      <div class="caption">01 我的模块：保留轻入口，右侧只显示状态</div>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span class="pill"></span></div>
+        <div class="nav">我的</div>
+        <div class="content">
+          <div class="profile-card">
+            <div class="avatar"></div>
+            <div>
+              <div class="profile-title">张老板</div>
+              <div class="profile-sub">保定丰收粮站 · 超级管理员</div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="cell">
+              <div class="cell-main"><div class="icon-box">账</div><div class="cell-title">账户管理</div></div>
+              <div class="cell-right"><span class="chev">›</span></div>
+            </div>
+            <div class="cell">
+              <div class="cell-main"><div class="icon-box">秤</div><div><div class="cell-title">蓝牙电子秤</div></div></div>
+              <div class="cell-right"><span class="green">已连接</span><span class="chev">›</span></div>
+            </div>
+            <div class="cell">
+              <div class="cell-main"><div class="icon-box">印</div><div><div class="cell-title">蓝牙打印机</div></div></div>
+              <div class="cell-right"><span>未连接</span><span class="chev">›</span></div>
+            </div>
+            <div class="cell">
+              <div class="cell-main"><div class="icon-box">附</div><div class="cell-title">附言管理</div></div>
+              <div class="cell-right"><span class="chev">›</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab"><div class="tab-icon"></div>首页</div>
+          <div class="tab"><div class="tab-icon"></div>订单</div>
+          <div class="tab"><div class="tab-icon"></div>开单</div>
+          <div class="tab active"><div class="tab-icon"></div>我的</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap" id="concept-scale-disconnected">
+      <div class="caption">02 电子秤：未连接时直接搜索附近设备</div>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span class="pill"></span></div>
+        <div class="nav">我的</div>
+        <div class="content">
+          <div class="profile-card">
+            <div class="avatar"></div>
+            <div><div class="profile-title">张老板</div><div class="profile-sub">保定丰收粮站</div></div>
+          </div>
+          <div class="section">
+            <div class="cell"><div class="cell-main"><div class="icon-box">秤</div><div class="cell-title">蓝牙电子秤</div></div><div class="cell-right"><span>未连接</span><span class="chev">›</span></div></div>
+            <div class="cell"><div class="cell-main"><div class="icon-box">印</div><div class="cell-title">蓝牙打印机</div></div><div class="cell-right"><span>未连接</span><span class="chev">›</span></div></div>
+          </div>
+        </div>
+        <div class="sheet-mask"></div>
+        <div class="sheet">
+          <div class="handle"></div>
+          <div class="sheet-head">
+            <div><div class="sheet-title">连接蓝牙电子秤</div><div class="sheet-note">选择附近设备连接</div></div>
+            <div class="close">×</div>
+          </div>
+          <div class="label">附近设备</div>
+          <div class="device-row">
+            <div class="icon-box">秤</div>
+            <div style="flex:1;min-width:0"><div class="device-name">德立蓝牙电子秤 D100</div><div class="device-desc">信号强</div></div>
+            <div class="device-actions"><div class="btn-small">连接</div></div>
+          </div>
+          <div class="device-row">
+            <div class="icon-box">秤</div>
+            <div style="flex:1;min-width:0"><div class="device-name">托利多蓝牙电子秤 T7</div><div class="device-desc">附近设备</div></div>
+            <div class="device-actions"><div class="btn-small">连接</div></div>
+          </div>
+          <div class="btn-wide">重新搜索</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap" id="concept-scale-connected">
+      <div class="caption">03 电子秤：已连接时同屏支持主动断开</div>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span class="pill"></span></div>
+        <div class="nav">我的</div>
+        <div class="content">
+          <div class="profile-card">
+            <div class="avatar"></div>
+            <div><div class="profile-title">张老板</div><div class="profile-sub">保定丰收粮站</div></div>
+          </div>
+          <div class="section">
+            <div class="cell"><div class="cell-main"><div class="icon-box">秤</div><div class="cell-title">蓝牙电子秤</div></div><div class="cell-right"><span class="green">已连接</span><span class="chev">›</span></div></div>
+            <div class="cell"><div class="cell-main"><div class="icon-box">印</div><div class="cell-title">蓝牙打印机</div></div><div class="cell-right"><span>未连接</span><span class="chev">›</span></div></div>
+          </div>
+        </div>
+        <div class="sheet-mask"></div>
+        <div class="sheet">
+          <div class="handle"></div>
+          <div class="sheet-head">
+            <div><div class="sheet-title">连接蓝牙电子秤</div><div class="sheet-note">当前设备可断开或切换</div></div>
+            <div class="close">×</div>
+          </div>
+          <div class="label">附近设备</div>
+          <div class="device-row connected">
+            <div class="icon-box">秤</div>
+            <div style="flex:1;min-width:0"><div class="device-name">德立蓝牙电子秤 D100</div><div class="device-desc">当前设备</div></div>
+            <div class="device-actions"><span class="tag">已连接</span><div class="btn-small btn-disconnect">断开</div></div>
+          </div>
+          <div class="device-row">
+            <div class="icon-box">秤</div>
+            <div style="flex:1;min-width:0"><div class="device-name">托利多蓝牙电子秤 T7</div><div class="device-desc">附近设备</div></div>
+            <div class="device-actions"><div class="btn-small">连接</div></div>
+          </div>
+          <div class="btn-wide">重新搜索</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap" id="concept-billing-read-scale">
+      <div class="caption">04 开单页：读秤未连接时复用快速连接抽屉</div>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span class="pill"></span></div>
+        <div class="nav"><span class="back">‹</span>开单</div>
+        <div class="content">
+          <div class="form-card">
+            <div class="field"><div class="field-label">农产品名称</div><div class="input-value">玉米</div></div>
+            <div class="field"><div class="field-label">毛重 <span class="read-btn">读秤</span></div><div class="input-value">请输入</div></div>
+            <div class="field"><div class="field-label">皮重 <span class="read-btn">读秤</span></div><div class="input-value">请输入</div></div>
+            <div class="field"><div class="field-label">净重</div><div class="input-value">自动计算</div></div>
+          </div>
+          <div class="primary">立即开单</div>
+        </div>
+        <div class="sheet-mask"></div>
+        <div class="sheet">
+          <div class="handle"></div>
+          <div class="sheet-head">
+            <div><div class="sheet-title">连接蓝牙电子秤</div><div class="sheet-note">连接后继续读取毛重</div></div>
+            <div class="close">×</div>
+          </div>
+          <div class="label">附近设备</div>
+          <div class="device-row">
+            <div class="icon-box">秤</div>
+            <div style="flex:1;min-width:0"><div class="device-name">德立蓝牙电子秤 D100</div><div class="device-desc">信号强</div></div>
+            <div class="device-actions"><div class="btn-small">连接</div></div>
+          </div>
+          <div class="device-row">
+            <div class="icon-box">秤</div>
+            <div style="flex:1;min-width:0"><div class="device-name">托利多蓝牙电子秤 T7</div><div class="device-desc">附近设备</div></div>
+            <div class="device-actions"><div class="btn-small">连接</div></div>
+          </div>
+          <div class="btn-wide">重新搜索</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-wrap" id="concept-print-printer">
+      <div class="caption">05 打印小票：未连打印机时快速连接，已连可断开</div>
+      <div class="phone">
+        <div class="status"><span>9:41</span><span class="pill"></span></div>
+        <div class="nav"><span class="back">‹</span>订单详情</div>
+        <div class="content">
+          <div class="order-card">
+            <div style="font-size:13px;color:#9ca3af;">应付金额</div>
+            <div class="amount">¥5,000.00</div>
+            <div style="margin-top:10px;font-size:13px;color:#6b7280;">玉米 · 净重 1000斤</div>
+            <div style="margin-top:6px;font-size:13px;color:#6b7280;">状态：待付款</div>
+          </div>
+          <div class="receipt">
+            <div style="font-size:14px;font-weight:800;color:#1f2937;">过磅单</div>
+            <div style="margin-top:6px;font-size:12px;color:#9ca3af;">可打印给农户留存</div>
+          </div>
+          <div style="position:absolute;left:16px;right:16px;bottom:18px;" class="primary">打印小票</div>
+        </div>
+        <div class="sheet-mask"></div>
+        <div class="sheet">
+          <div class="handle"></div>
+          <div class="sheet-head">
+            <div><div class="sheet-title">连接蓝牙打印机</div><div class="sheet-note">连接后继续打印</div></div>
+            <div class="close">×</div>
+          </div>
+          <div class="label">附近设备</div>
+          <div class="device-row connected">
+            <div class="icon-box">印</div>
+            <div style="flex:1;min-width:0"><div class="device-name">便携蓝牙打印机 58mm</div><div class="device-desc">当前设备</div></div>
+            <div class="device-actions"><span class="tag">已连接</span><div class="btn-small btn-disconnect">断开</div></div>
+          </div>
+          <div class="device-row">
+            <div class="icon-box">印</div>
+            <div style="flex:1;min-width:0"><div class="device-name">蓝牙打印机 80X</div><div class="device-desc">附近设备</div></div>
+            <div class="device-actions"><div class="btn-small">连接</div></div>
+          </div>
+          <div class="btn-wide">重新搜索</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

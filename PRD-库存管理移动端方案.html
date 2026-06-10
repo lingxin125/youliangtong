@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>库存管理移动端方案</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#64748b;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--red:#fef2f2;--slate:#f8fafc}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.72}.layout{display:flex;min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:260px;background:#fff;border-right:1px solid var(--line);padding:22px 0;overflow:auto}.brand{padding:0 22px 18px;border-bottom:1px solid var(--line);margin-bottom:10px}.brand .k{font-size:12px;color:var(--primary);font-weight:800;letter-spacing:.4px}.brand h1{margin:6px 0 4px;font-size:18px;line-height:1.35}.brand p{margin:0;color:var(--muted);font-size:12px}.side a{display:block;padding:8px 22px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;font-size:13px}.side a:hover{color:var(--primary);background:rgba(17,166,74,.05);border-left-color:var(--primary)}.main{margin-left:260px;width:calc(100% - 260px);padding:28px 34px 70px}.hero{background:linear-gradient(135deg,#11a64a,#0f7f3d);color:#fff;border-radius:24px;padding:34px 36px;box-shadow:0 18px 40px rgba(17,166,74,.18)}.hero h2{margin:0 0 8px;font-size:30px;line-height:1.25}.hero p{margin:0;max-width:980px;opacity:.92;font-size:15px}.meta,.grid,.phone-grid{display:grid;gap:12px}.meta{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 24px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.phone-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.item,.card,.phone{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}.item{padding:14px 16px}.label{font-size:12px;color:var(--muted)}.value{margin-top:2px;font-size:15px;font-weight:800}.card{padding:24px;margin-bottom:18px}.card h3{margin:0 0 14px;font-size:20px}.card h4{margin:18px 0 8px;font-size:16px}.lead{color:var(--muted);font-size:14px;margin:0 0 14px}.box{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fafafa}.box strong{display:block;font-size:16px;margin-bottom:4px}.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:800;margin:0 6px 6px 0}.green{background:var(--green);color:#047857}.blue{background:#dbeafe;color:#2563eb}.red{background:#fee2e2;color:#dc2626}.slate{background:var(--slate);color:#475569}table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;color:#374151;font-weight:800}ul{margin:8px 0 0;padding-left:20px}li{margin:5px 0}.note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f0fdf4;color:#166534;font-size:13px}.warn{background:#fffbeb;color:#92400e}.diagram{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:12px;overflow:auto}.phone{padding:14px}.phone-top{height:34px;border-radius:12px;background:#f8fafc;border:1px solid var(--line);display:flex;align-items:center;padding:0 10px;color:#64748b;font-size:12px;margin-bottom:12px}.metric-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}.metric{border-radius:12px;padding:10px;background:#f8fafc}.metric b{display:block;font-size:18px;color:#0f172a;line-height:1.1}.metric span{font-size:11px;color:#64748b}.entry{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:8px;background:#fff;gap:10px}.entry strong{font-size:13px}.entry span{font-size:11px;color:#64748b}.pill{display:inline-flex;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800;white-space:nowrap}.timeline{border-left:2px solid #dbeafe;margin-left:8px;padding-left:14px}.timeline .entry{position:relative}.timeline .entry:before{content:"";position:absolute;left:-22px;top:18px;width:8px;height:8px;border-radius:50%;background:#2563eb}@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.phone-grid{grid-template-columns:1fr}.hero{padding:26px 22px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand"><div class="k">REQ-081</div><h1>库存管理移动端方案</h1><p>开单入库与只读查询</p></div>
+    <nav>
+      <a href="#overview">概览</a>
+      <a href="#scope">范围与权限</a>
+      <a href="#billing">开单入库</a>
+      <a href="#status">状态设计</a>
+      <a href="#home">库存首页</a>
+      <a href="#ledger">库存台账</a>
+      <a href="#flows">库存明细</a>
+      <a href="#farmer">农户存粮</a>
+      <a href="#acceptance">验收标准</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <section class="hero" id="overview">
+      <h2>库存管理移动端方案</h2>
+      <p>移动端不复制 PC 库存维护能力，只补齐开单选择入库仓库、订单入库信息展示，以及“我的 > 库存管理”下的库存概览、库存台账、库存明细、农户存粮只读查询。</p>
+    </section>
+    <section class="meta">
+      <div class="item"><div class="label">需求编号</div><div class="value">REQ-081</div></div>
+      <div class="item"><div class="label">入口位置</div><div class="value">我的 > 库存管理</div></div>
+      <div class="item"><div class="label">操作边界</div><div class="value">只读查询 + 开单选择</div></div>
+      <div class="item"><div class="label">推荐状态</div><div class="value">预入库</div></div>
+    </section>
+
+    <section class="card">
+      <h3>1. 设计结论</h3>
+      <div class="grid">
+        <div class="box"><strong>入口不放首页</strong><span class="tag green">低频管理</span><p class="lead">库存入口收口到我的模块，避免轻量收购用户过早感知复杂仓储能力。</p></div>
+        <div class="box"><strong>首页轻预览</strong><span class="tag blue">最近5条</span><p class="lead">库存首页只放概览和三 Tab 预览；搜索、筛选、汇总全部下沉到列表页。</p></div>
+        <div class="box"><strong>库存明细强调语义</strong><span class="tag green">入库</span><span class="tag red">出库</span><p class="lead">右上角用入库/出库表达库存方向，左下角用收粮/存粮表达库存来源。</p></div>
+        <div class="box"><strong>复杂操作仍在 PC</strong><span class="tag slate">只读查询</span><p class="lead">库存调整、出库、调拨、盘点、农户存粮新增和存转销继续由 PC 端完成。</p></div>
+      </div>
+    </section>
+
+    <section class="card" id="scope">
+      <h3>2. 范围与权限</h3>
+      <table>
+        <tr><th>范围</th><th>本期处理</th><th>说明</th></tr>
+        <tr><td>开单页</td><td>新增入库仓库字段</td><td>可为空，默认暂不入库。</td></tr>
+        <tr><td>订单详情</td><td>有入库信息才展示</td><td>未选仓库时不展示入库模块。</td></tr>
+        <tr><td>我的页</td><td>新增库存管理入口</td><td>仅超管和有库存查询权限账号可见。</td></tr>
+        <tr><td>库存查询</td><td>概览、台账、明细、农户存粮</td><td>只读，不做写操作。</td></tr>
+      </table>
+      <table>
+        <tr><th>角色</th><th>权限</th></tr>
+        <tr><td>超管</td><td>可见库存管理入口，可查看全部仓库库存数据。</td></tr>
+        <tr><td>有库存查询权限账号</td><td>可见入口，按账号权限查看可见仓库数据。</td></tr>
+        <tr><td>无权限账号</td><td>不展示库存管理入口。</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="billing">
+      <h3>3. 开单入库流程</h3>
+      <table>
+        <tr><th>字段</th><th>规则</th></tr>
+        <tr><td>入库仓库</td><td>下拉选择，可为空，默认暂不入库。</td></tr>
+        <tr><td>仓库来源</td><td>PC 端仓库接口，仅展示启用仓库。</td></tr>
+        <tr><td>展示内容</td><td>只展示仓库名称。</td></tr>
+        <tr><td>提交字段</td><td>选择仓库后提交 warehouseId 和 warehouseName。</td></tr>
+      </table>
+      <div class="diagram"><pre class="mermaid">flowchart TD
+    A[收购商进入开单页] --> B{商户是否启用入库配置}
+    B -- 否 --> C[不展示入库仓库字段]
+    C --> D[正常开单/付款]
+    B -- 是 --> E[展示入库仓库字段]
+    E --> F{是否选择仓库}
+    F -- 否 --> G[订单不生成入库信息]
+    G --> H[订单详情不展示入库模块]
+    F -- 是 --> I[提交 warehouseId/warehouseName]
+    I --> J[生成预入库记录]
+    J --> K[订单详情展示入库信息]
+    K --> L[PC端/后端确认正式入库]
+    L --> M[移动端库存管理只读查询]</pre></div>
+    </section>
+
+    <section class="card" id="status">
+      <h3>4. 入库状态设计</h3>
+      <table>
+        <tr><th>状态</th><th>含义</th><th>移动端展示</th></tr>
+        <tr><td>未入库</td><td>开单未选择仓库</td><td>订单详情不展示入库信息。</td></tr>
+        <tr><td>预入库</td><td>已选择仓库，货物已进入仓库但库存未正式确认</td><td>展示入库状态、仓库、来源单号。</td></tr>
+        <tr><td>已入库</td><td>PC 或后端库存接口确认入库</td><td>展示库存流水号和入库时间。</td></tr>
+        <tr><td>入库失败</td><td>库存接口或数据校验失败</td><td>展示失败状态，后续 PC 端处理。</td></tr>
+        <tr><td>已冲销</td><td>订单取消或库存记录撤销</td><td>展示冲销状态。</td></tr>
+      </table>
+      <div class="diagram"><pre class="mermaid">stateDiagram-v2
+    [*] --> 未入库: 未选择仓库
+    [*] --> 预入库: 选择仓库并提交订单
+    预入库 --> 已入库: PC端/后端确认
+    预入库 --> 入库失败: 接口失败/校验失败
+    预入库 --> 已冲销: 订单取消/库存撤销
+    入库失败 --> 已入库: PC端处理后重新确认
+    已入库 --> 已冲销: 业务冲销</pre></div>
+    </section>
+
+    <section class="card" id="home">
+      <h3>5. 库存管理首页</h3>
+      <p class="lead">首页为轻量看板，不放搜索、筛选、汇总控件。概览展示当前库存、农户存粮、待确认入库、今日库存变化，并统一展示较昨日趋势，升绿降红。</p>
+      <div class="phone-grid">
+        <div class="phone">
+          <div class="phone-top">库存管理</div>
+          <div class="metric-row">
+            <div class="metric"><b>12.8万</b><span>当前库存 · 较昨日 +2.1%</span></div>
+            <div class="metric"><b>0.5万</b><span>农户存粮 · 较昨日 +1.4%</span></div>
+            <div class="metric"><b>1.6万</b><span>待确认入库 · 较昨日 -0.8%</span></div>
+            <div class="metric"><b>+0.4万</b><span>今日库存变化 · 较昨日 +3.6%</span></div>
+          </div>
+          <div class="entry"><div><strong>库存台账</strong><br><span>最近 5 条预览</span></div><span class="pill green">全部</span></div>
+          <div class="entry"><div><strong>库存明细</strong><br><span>入库/出库 + 收粮/存粮标签</span></div><span class="pill green">全部</span></div>
+          <div class="entry"><div><strong>农户存粮</strong><br><span>农户电话、订单号、存粮时长</span></div><span class="pill green">全部</span></div>
+        </div>
+        <div class="phone">
+          <div class="phone-top">库存明细卡片</div>
+          <div class="entry"><div><strong>玉米</strong><br><span>一号仓 · #SL20260607001</span></div><span class="pill green">入库 ›</span></div>
+          <div class="entry"><div><strong>变动重量</strong><br><span>+2,000斤</span></div><strong>结存量 56,000斤</strong></div>
+          <div class="entry"><span class="pill slate">收粮</span><span>2026-06-09 19:44:34</span></div>
+          <div class="entry"><div><strong>小麦</strong><br><span>北区仓 · #CK20260607002</span></div><span class="pill red">出库 ›</span></div>
+        </div>
+        <div class="phone">
+          <div class="phone-top">农户存粮卡片</div>
+          <div class="entry"><div><strong>李大姐</strong><br><span>138****5612 · #3551976104592256</span></div><span>›</span></div>
+          <div class="entry"><div><strong>存粮种类</strong><br><span>玉米</span></div><strong>3,000斤</strong></div>
+          <div class="entry"><span>存粮时长：2 天</span><span>2026-06-09 16:59:34</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="ledger">
+      <h3>6. 库存台账</h3>
+      <p class="lead">用于查看“现在仓库里还剩多少”。库存台账卡片信息完整，不汇总、不下钻。</p>
+      <table>
+        <tr><th>字段</th><th>展示规则</th></tr>
+        <tr><td>农产品名称</td><td>卡片主标题。</td></tr>
+        <tr><td>仓库名称</td><td>辅助信息行，左侧仓库图标，文字色与列表统一。</td></tr>
+        <tr><td>库存类型</td><td>标签展示：收粮 / 存粮。</td></tr>
+        <tr><td>结存重量</td><td>灰底信息块，字段名与数值左侧紧凑排列。</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="flows">
+      <h3>7. 库存明细</h3>
+      <p class="lead">用于查看库存变动流水，按发生时间倒序展示。右上角表达库存方向，左下角表达库存来源。</p>
+      <table>
+        <tr><th>元素</th><th>展示规则</th></tr>
+        <tr><td>出入库状态</td><td>右上角标签：入库为绿色，出库为低饱和红。</td></tr>
+        <tr><td>库存类型</td><td>左下角标签：收粮为灰色，存粮为蓝色。</td></tr>
+        <tr><td>订单编号</td><td>辅助信息行，左侧编号图标。</td></tr>
+        <tr><td>变动重量 / 结存量</td><td>灰底信息块，字段名固定为变动重量、结存量。</td></tr>
+        <tr><td>详情</td><td>非汇总卡片点击后从底部弹出详情。</td></tr>
+      </table>
+      <h4>汇总规则</h4>
+      <table>
+        <tr><th>汇总维度</th><th>汇总后展示</th><th>汇总后不展示</th></tr>
+        <tr><td>库存类型 + 农产品 + 仓库 + 入库/出库</td><td>变动重量合计、合并笔数、库存类型标签</td><td>订单编号、结存量、流水号、变动时间、操作备注</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="farmer">
+      <h3>8. 农户存粮</h3>
+      <p class="lead">用于查看农户寄存在收购商仓库内、尚未出售给收购商的存粮记录。</p>
+      <table>
+        <tr><th>状态</th><th>字段</th><th>交互</th></tr>
+        <tr><td>未汇总</td><td>农户姓名、电话、订单编号、存粮种类、存粮重量、存粮时长、存粮时间</td><td>点击卡片打开详情弹层。</td></tr>
+        <tr><td>汇总</td><td>农户姓名、电话、存粮种类、存粮重量合计</td><td>点击明细进入分组明细。</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h3>9. 查询流程</h3>
+      <div class="diagram"><pre class="mermaid">flowchart TD
+    A[我的 > 库存管理] --> B[库存概览]
+    B --> C{选择 Tab}
+    C --> D[库存台账最近5条]
+    C --> E[库存明细最近5条]
+    C --> F[农户存粮最近5条]
+    D --> G[全部: 库存台账列表]
+    E --> H[全部: 库存明细列表]
+    F --> I[全部: 农户存粮列表]
+    G --> J[搜索/筛选]
+    H --> K[搜索/筛选/汇总统计]
+    I --> L[搜索/筛选/汇总展示]
+    H --> M[非汇总卡片详情弹层]
+    I --> N[非汇总卡片详情弹层]
+    I --> O[汇总卡片分组明细]</pre></div>
+    </section>
+
+    <section class="card">
+      <h3>10. 数据与接口口径</h3>
+      <table>
+        <tr><th>数据</th><th>来源</th><th>移动端使用方式</th></tr>
+        <tr><td>仓库列表</td><td>PC 端仓库接口</td><td>开单下拉与库存筛选，仅展示启用仓库。</td></tr>
+        <tr><td>库存台账</td><td>PC 库存台账接口</td><td>只读展示当前结存。</td></tr>
+        <tr><td>库存明细</td><td>PC 库存流水接口</td><td>只读展示入库/出库流水。</td></tr>
+        <tr><td>农户存粮</td><td>PC 农户存粮接口</td><td>只读展示未汇总、汇总和分组明细。</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="acceptance">
+      <h3>11. 验收标准</h3>
+      <ul>
+        <li>未启用入库配置时，开单页不展示入库仓库字段。</li>
+        <li>启用入库配置时，开单页展示入库仓库，下拉只展示启用仓库。</li>
+        <li>未选择仓库的订单，详情页不展示入库信息。</li>
+        <li>选择仓库的订单，详情页展示入库状态、仓库、流水号、入库时间和来源单号。</li>
+        <li>库存管理首页展示库存概览和三 Tab 最近 5 条预览，不展示搜索、筛选、汇总控件。</li>
+        <li>库存台账列表支持搜索和筛选，不支持汇总和详情下钻。</li>
+        <li>库存明细列表支持搜索、筛选、汇总统计和非汇总详情弹层。</li>
+        <li>农户存粮列表支持搜索、筛选、汇总展示、非汇总详情弹层和汇总分组明细。</li>
+        <li>库存管理页不出现新增、编辑、删除、出库、调拨、盘点、存转销等操作按钮。</li>
+      </ul>
+    </section>
+  </main>
+</div>
+<script>mermaid.initialize({startOnLoad:true,theme:'default'});</script>
+</body>
+</html>
