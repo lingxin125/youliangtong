@@ -334,6 +334,10 @@
                 <span class="info-label">支付时间</span>
                 <span id="infoPaidAt" class="info-value"></span>
             </div>
+            <div class="info-row">
+                <span class="info-label">付款方式</span>
+                <span id="infoPayMethod" class="info-value"></span>
+            </div>
 
             <!-- 收款方信息 -->
             <div class="section-title" style="margin-top:16px;">
@@ -354,25 +358,23 @@
             </div>
 
             <!-- 付款方信息 -->
-            <div class="section-title" style="margin-top:16px;">
-                <div class="section-dot"></div>
-                <span>付款方信息</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">付款方</span>
-                <span id="payerNameText" class="info-value"></span>
-            </div>
-            <div id="payerBankRow" class="info-row">
-                <span class="info-label">付款银行</span>
-                <span id="payerBankText" class="info-value"></span>
-            </div>
-            <div id="payerCardRow" class="info-row">
-                <span class="info-label">付款卡号</span>
-                <span id="payerCardText" class="info-value"></span>
-            </div>
-            <div id="paymentNoteRow" class="info-row" style="display:none;">
-                <span class="info-label">付款说明</span>
-                <span id="paymentNoteText" class="info-value"></span>
+            <div id="payerInfoBlock">
+                <div class="section-title" style="margin-top:16px;">
+                    <div class="section-dot"></div>
+                    <span>付款方信息</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">付款方</span>
+                    <span id="payerNameText" class="info-value"></span>
+                </div>
+                <div id="payerBankRow" class="info-row">
+                    <span class="info-label">付款银行</span>
+                    <span id="payerBankText" class="info-value"></span>
+                </div>
+                <div id="payerCardRow" class="info-row">
+                    <span class="info-label">付款卡号</span>
+                    <span id="payerCardText" class="info-value"></span>
+                </div>
             </div>
 
             <!-- 农产品信息 -->
@@ -648,6 +650,10 @@ function isCashPayment() {
     return state.payMethod === 'cash';
 }
 
+function getPaymentMethodText() {
+    return isCashPayment() ? '现金支付' : '手机银行转账';
+}
+
 function parseItems(raw) {
     if (!raw) return [];
     try {
@@ -895,13 +901,16 @@ function renderInfo() {
     }
     document.getElementById('operatorRow').style.display = shouldShowOperatorName() ? 'flex' : 'none';
     document.getElementById('infoOperatorName').textContent = state.operatorName || state.payerName || '-';
+    document.getElementById('infoPayMethod').textContent = getPaymentMethodText();
     
-    document.getElementById('payerNameText').textContent = isCashPayment() ? (state.payerCompany || state.payerName) : state.payerName;
-    document.getElementById('payerBankRow').style.display = isCashPayment() ? 'none' : 'flex';
-    document.getElementById('payerCardRow').style.display = isCashPayment() ? 'none' : 'flex';
-    document.getElementById('paymentNoteRow').style.display = isCashPayment() ? 'flex' : 'none';
-    document.getElementById('paymentNoteText').textContent = '现金支付';
+    var payerInfoBlock = document.getElementById('payerInfoBlock');
+    if (payerInfoBlock) {
+        payerInfoBlock.style.display = isCashPayment() ? 'none' : '';
+    }
     if (!isCashPayment()) {
+        document.getElementById('payerNameText').textContent = state.payerName;
+        document.getElementById('payerBankRow').style.display = 'flex';
+        document.getElementById('payerCardRow').style.display = 'flex';
         document.getElementById('payerBankText').textContent = state.payerBank;
         document.getElementById('payerCardText').textContent = state.payerCard;
     }

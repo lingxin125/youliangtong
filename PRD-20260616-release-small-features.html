@@ -46,7 +46,7 @@
         <div class="box"><strong>收购统计增强</strong><span class="tag blue">首页统计</span><p class="lead">收购商首页统计卡片增加本月累计收购、本年累计收购金额与笔数。</p></div>
         <div class="box"><strong>品类明细口径优化</strong><span class="tag amber">经营看板</span><p class="lead">品类明细去掉“今日”页签，保留本月、本年口径。</p></div>
         <div class="box"><strong>待办事项卡片优化</strong><span class="tag green">待办</span><p class="lead">优化待办卡片 UI 样式，提升可读性和点击引导。</p></div>
-        <div class="box"><strong>大字体关怀版</strong><span class="tag blue">用户体验</span><p class="lead">丰收云支持切换为大字体关怀版，提升中老年用户使用体验。</p></div>
+        <div class="box"><strong>大字体关怀版</strong><span class="tag blue">用户体验</span><p class="lead">丰收云切换为大字体关怀版，提升中老年用户使用体验。</p></div>
         <div class="box"><strong>农户地址文案</strong><span class="tag slate">农户建档</span><p class="lead">农户建档页面“联系地址”统一改为“农户地址”。</p></div>
       </div>
     </section>
@@ -104,7 +104,7 @@
       </ul>
       <table>
         <tr><th>调整项</th><th>要求</th></tr>
-        <tr><td>视觉层级</td><td>待办标题、数量、辅助说明层级清晰，数量突出但不压迫页面。</td></tr>
+        <tr><td>视觉层级</td><td>待办标题、数量、辅助说明层级清晰，统一左对齐，数量突出但不压迫页面。</td></tr>
         <tr><td>卡片点击</td><td>保留原跳转能力，点击对应卡片进入相关处理列表。</td></tr>
         <tr><td>空状态</td><td>数量为 0 时样式仍完整，不出现布局塌陷。</td></tr>
         <tr><td>移动端适配</td><td>小屏幕下文字不重叠、不截断关键数字。</td></tr>
@@ -116,18 +116,18 @@
       <h3>6. 丰收云切换为大字体关怀版</h3>
       <h4>业务目标</h4>
       <ul>
-        <li>支持用户将丰收云切换为大字体关怀版，提升中老年用户阅读和点击体验。</li>
-        <li>关怀版优先覆盖高频页面和关键流程，不影响标准版用户。</li>
+        <li>丰收云切换为大字体关怀版，提升中老年用户阅读和点击体验。</li>
+        <li>优先覆盖高频页面和关键流程。，尽可能覆盖全流程页面</li>
       </ul>
       <table>
         <tr><th>能力</th><th>规则</th><th>说明</th></tr>
-        <tr><td>切换入口</td><td>沿用现有版本切换或设置入口</td><td>用户可在标准版与关怀版之间切换。</td></tr>
+        <!-- <tr><td>切换入口</td><td>沿用现有版本切换或设置入口</td><td>用户可在标准版与关怀版之间切换。</td></tr> -->
         <tr><td>字体大小</td><td>关怀版整体字号更大</td><td>重点保证首页、开单、订单、我的等高频页面可读。</td></tr>
         <tr><td>布局适配</td><td>文字变大后不重叠、不遮挡、不撑破按钮</td><td>必要时调整行高、间距和容器高度。</td></tr>
-        <tr><td>记忆规则</td><td>记住用户上次选择</td><td>再次进入时保持上次选择的版本。</td></tr>
+        <!-- <tr><td>记忆规则</td><td>记住用户上次选择</td><td>再次进入时保持上次选择的版本。</td></tr> -->
       </table>
-      <div class="req"><b>REQ-008</b> 用户可切换到大字体关怀版。</div>
-      <div class="req"><b>REQ-009</b> 关怀版需要记住用户选择，重新进入后保持生效。</div>
+      <div class="req"><b>REQ-008</b> 切换到大字体关怀版。</div>
+      <!-- <div class="req"><b>REQ-009</b> 关怀版需要记住用户选择，重新进入后保持生效。</div> -->
       <div class="req"><b>REQ-010</b> 关怀版不得导致关键按钮、金额、订单状态文字重叠或被遮挡。</div>
     </section>
 
@@ -150,7 +150,7 @@
         <tr><td>BR-002</td><td>首页统计卡保留今日主口径，并补充本月、本年累计。</td><td>不引入自定义日期筛选。</td></tr>
         <tr><td>BR-003</td><td>品类明细去掉今日页签。</td><td>默认本月，保留本年切换。</td></tr>
         <tr><td>BR-004</td><td>待办卡片只做 UI 优化。</td><td>不改变数量、状态和跳转逻辑。</td></tr>
-        <tr><td>BR-005</td><td>关怀版切换后应全局记忆。</td><td>需要保证高频页面可读可点。</td></tr>
+        <!-- <tr><td>BR-005</td><td>关怀版切换后应全局记忆。</td><td>需要保证高频页面可读可点。</td></tr> -->
         <tr><td>BR-006</td><td>“联系地址”改“农户地址”只调整文案。</td><td>不改变字段必填、地图选点或保存规则。</td></tr>
       </table>
     </section>

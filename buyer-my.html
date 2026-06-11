@@ -150,6 +150,129 @@
             margin-top: 3px;
         }
 
+        .my-section-card {
+            background: #ffffff;
+            border-radius: 22px;
+            border: 1px solid rgba(17, 24, 39, 0.04);
+            overflow: hidden;
+        }
+
+        .my-section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 16px 12px;
+        }
+
+        .my-section-title {
+            font-size: 17px;
+            line-height: 1.2;
+            font-weight: 500;
+            color: #111827;
+            letter-spacing: 0.01em;
+        }
+
+        .my-section-action {
+            border: none;
+            background: transparent;
+            color: #11A64A;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 2px 0;
+        }
+
+        .common-tool-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            padding: 18px 12px;
+        }
+
+        .common-tool-item {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 9px;
+            color: #1F2937;
+            text-decoration: none;
+            transition: transform 0.18s ease, opacity 0.18s ease;
+        }
+
+        .common-tool-item:active {
+            transform: scale(0.96);
+            opacity: 0.86;
+        }
+
+        .common-tool-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 16px;
+            background: #EBF7F0;
+            border: 1px solid rgba(17, 166, 74, 0.1);
+            color: #11A64A;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .common-tool-label {
+            max-width: 100%;
+            font-size: 13px;
+            line-height: 1.1;
+            font-weight: 500;
+            color: #1F2937;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .my-menu-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            color: #374151;
+            text-decoration: none;
+        }
+
+        .my-menu-row:active {
+            background: #F9FAFB;
+        }
+
+        .my-menu-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: #EBF7F0;
+            border: 1px solid rgba(17, 166, 74, 0.1);
+            color: #11A64A;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 15px;
+        }
+
+        .my-menu-divider {
+            height: 1px;
+            background: #F3F4F6;
+            margin: 0 16px;
+        }
+
+        .my-menu-status {
+            font-size: 12px;
+            color: #9CA3AF;
+            white-space: nowrap;
+        }
+
+        .my-menu-status.is-connected {
+            color: #11A64A;
+        }
+
         .invite-qr-box {
             width: 230px;
             height: 230px;
@@ -485,97 +608,77 @@
                 </div>
             </div>
 
-            <!-- 蓝牙设备快捷入口 -->
-            <div class="device-quick-grid">
-                <button type="button" class="device-quick-card" onclick="openDeviceQuickSheet('scale')">
-                    <div class="device-quick-icon">
-                        <i class="fas fa-scale-balanced"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-[14px] font-semibold text-gray-800 truncate">蓝牙电子秤</div>
-                        <div id="scaleQuickStatus" class="device-quick-status">未连接</div>
-                    </div>
-                    <i class="fas fa-chevron-right text-gray-300 text-[11px] shrink-0"></i>
-                </button>
-                <button type="button" class="device-quick-card" onclick="openDeviceQuickSheet('printer')">
-                    <div class="device-quick-icon">
-                        <i class="fas fa-print"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-[14px] font-semibold text-gray-800 truncate">蓝牙打印机</div>
-                        <div id="printerQuickStatus" class="device-quick-status">未连接</div>
-                    </div>
-                    <i class="fas fa-chevron-right text-gray-300 text-[11px] shrink-0"></i>
-                </button>
+            <!-- 常用工具 -->
+            <div class="my-section-card">
+                <div class="common-tool-grid">
+                    <a href="buyer-order-manage.html" class="common-tool-item" style="text-decoration:none;">
+                        <div class="common-tool-icon"><i class="fas fa-clipboard-list"></i></div>
+                        <span class="common-tool-label">订单管理</span>
+                    </a>
+                    <a href="buyer-team.html" class="common-tool-item" style="text-decoration:none;" id="menuTeamManage">
+                        <div class="common-tool-icon"><i class="fas fa-user-group"></i></div>
+                        <span class="common-tool-label">团队管理</span>
+                    </a>
+                    <a href="account-security.html?source=buyer-my.html" class="common-tool-item"
+                        style="text-decoration:none;">
+                        <div class="common-tool-icon"><i class="fas fa-shield-halved"></i></div>
+                        <span class="common-tool-label">账户管理</span>
+                    </a>
+                    <a href="buyer-category-manage.html" class="common-tool-item" style="text-decoration:none;">
+                        <div class="common-tool-icon"><i class="fas fa-layer-group"></i></div>
+                        <span class="common-tool-label">品类管理</span>
+                    </a>
+                </div>
             </div>
 
-            <!-- 功能菜单 -->
-            <div class="bg-white rounded-2xl overflow-hidden border border-black/[0.04]">
-                <!-- 团队管理（仅超管可见） -->
-                <a href="buyer-team.html" class="flex items-center justify-between px-4 py-3.5 no-underline"
-                    style="text-decoration:none;" id="menuTeamManage">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                            <i class="fas fa-users-gear text-[#11A64A] text-[15px]"></i>
-                        </div>
-                        <span class="text-[15px] font-medium text-gray-700 tracking-wide">团队管理</span>
-                    </div>
-                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
-                </a>
-                <div class="h-px bg-gray-50 mx-4" id="menuTeamManageDivider"></div>
-                <!-- 品类管理 -->
-                <a href="buyer-category-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline"
-                    style="text-decoration:none;">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                            <i class="fas fa-layer-group text-[#11A64A] text-[15px]"></i>
-                        </div>
-                        <span class="text-[15px] font-medium text-gray-700 tracking-wide">品类管理</span>
-                    </div>
-                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
-                </a>
-                <div class="h-px bg-gray-50 mx-4"></div>
-                <!-- 账户管理 -->
-                <a href="account-security.html?source=buyer-my.html"
-                    class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                            <i class="fas fa-shield-halved text-[#11A64A] text-[15px]"></i>
-                        </div>
-                        <span class="text-[15px] font-medium text-gray-700 tracking-wide">账户管理</span>
-                    </div>
-                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
-                </a>
-                <div class="h-px bg-gray-50 mx-4"></div>
+            <!-- 更多功能 -->
+            <div class="my-section-card">
                 <!-- 开单配置（仅超管可见） -->
-                <a href="buyer-billing-config.html" class="flex items-center justify-between px-4 py-3.5 no-underline"
-                    style="text-decoration:none;" id="menuBillingConfig">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                            <i class="fas fa-sliders text-[#11A64A] text-[15px]"></i>
-                        </div>
-                        <span class="text-[15px] font-medium text-gray-700 tracking-wide">开单配置</span>
+                <a href="buyer-billing-config.html" class="my-menu-row" style="text-decoration:none;"
+                    id="menuBillingConfig">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="my-menu-icon"><i class="fas fa-sliders"></i></div>
+                        <span class="text-[15px] font-medium text-gray-700 tracking-wide truncate">开单配置</span>
                     </div>
                     <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
                 </a>
-                <div class="h-px bg-gray-50 mx-4" id="menuBillingConfigDivider"></div>
+                <div class="my-menu-divider" id="menuBillingConfigDivider"></div>
+                <!-- 蓝牙电子秤 -->
+                <a href="#" onclick="openDeviceQuickSheet('scale'); return false;" class="my-menu-row"
+                    style="text-decoration:none;">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="my-menu-icon"><i class="fas fa-scale-balanced"></i></div>
+                        <span class="text-[15px] font-medium text-gray-700 tracking-wide truncate">蓝牙电子秤</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="scaleQuickStatus" class="my-menu-status">未连接</span>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                </a>
+                <div class="my-menu-divider"></div>
+                <!-- 蓝牙打印机 -->
+                <a href="#" onclick="openDeviceQuickSheet('printer'); return false;" class="my-menu-row"
+                    style="text-decoration:none;">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="my-menu-icon"><i class="fas fa-print"></i></div>
+                        <span class="text-[15px] font-medium text-gray-700 tracking-wide truncate">蓝牙打印机</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="printerQuickStatus" class="my-menu-status">未连接</span>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </div>
+                </a>
+                <div class="my-menu-divider"></div>
                 <!-- 库存管理（仅超管/有权限账号可见） -->
-                <a href="buyer-inventory.html" class="flex items-center justify-between px-4 py-3.5 no-underline"
-                    style="text-decoration:none;" id="menuInventoryManage">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                            <i class="fas fa-warehouse text-[#11A64A] text-[15px]"></i>
-                        </div>
-                        <span class="text-[15px] font-medium text-gray-700 tracking-wide">库存管理</span>
+                <a href="buyer-inventory.html" class="my-menu-row" style="text-decoration:none;"
+                    id="menuInventoryManage">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="my-menu-icon"><i class="fas fa-warehouse"></i></div>
+                        <span class="text-[15px] font-medium text-gray-700 tracking-wide truncate">库存管理</span>
                     </div>
                     <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
                 </a>
-                <div class="h-px bg-gray-50 mx-4" id="menuInventoryManageDivider"></div>
+                <div class="my-menu-divider" id="menuInventoryManageDivider"></div>
                 <!-- 需求管理 -->
                 <!-- <a href="buyer-demand-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
                 <div class="flex items-center gap-3">
@@ -599,40 +702,29 @@
             </a>
             <div class="h-px bg-gray-50 mx-4"></div> -->
                 <!-- 附言管理 -->
-                <a href="buyer-remark-manage.html" class="flex items-center justify-between px-4 py-3.5 no-underline"
-                    style="text-decoration:none;">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                            <i class="fas fa-comment-dots text-[#11A64A] text-[15px]"></i>
-                        </div>
-                        <span class="text-[15px] font-medium text-gray-700 tracking-wide">附言管理</span>
+                <a href="buyer-remark-manage.html" class="my-menu-row" style="text-decoration:none;">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="my-menu-icon"><i class="fas fa-comment-dots"></i></div>
+                        <span class="text-[15px] font-medium text-gray-700 tracking-wide truncate">附言管理</span>
                     </div>
                     <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
                 </a>
-                <div class="h-px bg-gray-50 mx-4"></div>
+                <div class="my-menu-divider"></div>
                 <!-- 报表分析 -->
-                <a href="buyer-profit-analysis.html" class="flex items-center justify-between px-4 py-3.5 no-underline"
-                    style="text-decoration:none;">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                            <i class="fas fa-chart-pie text-[#11A64A] text-[15px]"></i>
-                        </div>
-                        <span class="text-[15px] font-medium text-gray-700 tracking-wide">报表分析</span>
+                <a href="buyer-profit-analysis.html" class="my-menu-row" style="text-decoration:none;">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="my-menu-icon"><i class="fas fa-chart-pie"></i></div>
+                        <span class="text-[15px] font-medium text-gray-700 tracking-wide truncate">报表分析</span>
                     </div>
                     <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
                 </a>
-                <div class="h-px bg-gray-50 mx-4"></div>
+                <div class="my-menu-divider"></div>
                 <!-- 切换版本 -->
                 <a href="#" onclick="return openVersionSwitcher(event)"
-                    class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                            <i class="fas fa-font text-[#11A64A] text-[15px]"></i>
-                        </div>
-                        <span class="text-[15px] font-medium text-gray-700 tracking-wide">切换版本</span>
+                    class="my-menu-row" style="text-decoration:none;">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="my-menu-icon"><i class="fas fa-font"></i></div>
+                        <span class="text-[15px] font-medium text-gray-700 tracking-wide truncate">切换版本</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span id="currentVersionHint"
@@ -640,16 +732,13 @@
                         <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
                     </div>
                 </a>
-                <div class="h-px bg-gray-50 mx-4"></div>
+                <div class="my-menu-divider"></div>
                 <!-- 切换账号 -->
                 <a href="#" onclick="return openAccountSwitcher(event)"
-                    class="flex items-center justify-between px-4 py-3.5 no-underline" style="text-decoration:none;">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                            <i class="fas fa-repeat text-[#11A64A] text-[15px]"></i>
-                        </div>
-                        <span class="text-[15px] font-medium text-gray-700 tracking-wide">切换账号</span>
+                    class="my-menu-row" style="text-decoration:none;">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="my-menu-icon"><i class="fas fa-repeat"></i></div>
+                        <span class="text-[15px] font-medium text-gray-700 tracking-wide truncate">切换账号</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span id="currentAccountHint" class="text-[11px] text-gray-400 font-poppins">13700005555</span>
@@ -694,15 +783,11 @@
                 <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
             </a>
             -->
-                <div class="h-px bg-gray-100 mx-4"></div>
-                <a href="about-us.html?from=buyer" class="flex items-center justify-between px-4 py-3.5 no-underline"
-                    style="text-decoration:none;">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-8 h-8 rounded-[10px] bg-[#EBF7F0] flex items-center justify-center border border-[#11A64A]/10">
-                            <i class="fas fa-circle-info text-[#11A64A] text-[15px]"></i>
-                        </div>
-                        <span class="text-[15px] font-medium text-gray-700 tracking-wide">关于</span>
+                <div class="my-menu-divider"></div>
+                <a href="about-us.html?from=buyer" class="my-menu-row" style="text-decoration:none;">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="my-menu-icon"><i class="fas fa-circle-info"></i></div>
+                        <span class="text-[15px] font-medium text-gray-700 tracking-wide truncate">关于</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-gray-400">V1.1.0</span>
@@ -920,7 +1005,6 @@
         document.getElementById('navBar').innerHTML = renderHeader('我的');
         var captureState = new URLSearchParams(window.location.search).get('captureState') || '';
         document.getElementById('tabBar').innerHTML = renderBuyerTabBar('mine');
-        renderDeviceStatusStrip();
 
         if (window.__FIGMA_CAPTURE_MODE__) {
             var buyerAvatar = document.getElementById('buyerAvatar');
@@ -1004,7 +1088,7 @@
             function updateDeviceStatus(el, connected) {
                 if (!el) return;
                 el.textContent = connected ? '已连接' : '未连接';
-                el.className = 'device-quick-status ' + (connected ? 'text-[#11A64A]' : 'text-gray-400');
+                el.className = 'my-menu-status' + (connected ? ' is-connected' : '');
             }
             if (scaleMenu) {
                 scaleMenu.textContent = scale && scale.status === 'connected' ? '已连接' : '未连接';
@@ -1091,6 +1175,8 @@
             updateDeviceQuickDesc();
             showToast(meta.label + '已断开');
         }
+
+        renderDeviceStatusStrip();
 
         // 微信服务通知开关
         function toggleWechatNotify() {
