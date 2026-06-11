@@ -4,7 +4,7 @@ window.FSY_REQUIREMENT_MAP = {
     "wiki": "https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd",
     "spreadsheetToken": "GwZNsIWXthkMfAtHY3Pc98Xcn8b",
     "sheetId": "7ONhrG",
-    "generatedAt": "2026-06-09"
+    "generatedAt": "2026-06-10"
   },
   "modules": [
     {
@@ -108,10 +108,14 @@ window.FSY_REQUIREMENT_MAP = {
           "status": "测试中",
           "start": "2026-04-18",
           "end": "2026-05-11",
-          "note": "",
+          "note": "6月16日小功能PRD补充大字体关怀版切换验收口径。",
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
+            {
+              "label": "0616小功能 PRD",
+              "href": "PRD-20260616-release-small-features.html"
+            },
             {
               "label": "长期PRD",
               "href": "PRD-收粮平台-可视化.html"
@@ -226,15 +230,19 @@ window.FSY_REQUIREMENT_MAP = {
           "id": "REQ-085",
           "module": "首页、我的与用户体验",
           "title": "收购商首页统计卡片与品类明细优化",
-          "description": "收购商首页顶部统计卡片在今日收购金额基础上补充本月、本年收购统计金额及笔数；下方品类明细去掉价值较低的今日页签，仅保留本月和本年。",
+          "description": "首页下掉“农产品交易平台”；收购商首页顶部统计卡片在今日收购金额基础上补充本月、本年收购统计金额及笔数；下方品类明细去掉价值较低的今日页签，仅保留本月和本年；待办事项卡片做UI样式优化。",
           "owner": "潘恒",
-          "status": "需求记录",
+          "status": "需求设计",
           "start": "2026-06-06",
-          "end": "",
-          "note": "轻量优化项，先记录需求；暂不单独输出PRD/测试用例，后续排期时再细化。",
-          "hasLocalDoc": false,
+          "end": "2026-06-16",
+          "note": "6月16日发版小功能PRD已补充：首页文案、统计卡片、品类明细与待办卡片UI优化。",
+          "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
+            {
+              "label": "0616小功能 PRD",
+              "href": "PRD-20260616-release-small-features.html"
+            },
             {
               "label": "飞书总览表",
               "href": "https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd",
@@ -428,10 +436,14 @@ window.FSY_REQUIREMENT_MAP = {
           "status": "已上线",
           "start": "",
           "end": "2026-06-09",
-          "note": "6月9日发版口径：本期收敛为农户地址字段，支持地图选点定位和手动修改。",
+          "note": "6月9日发版口径：本期收敛为农户地址字段，支持地图选点定位和手动修改；6月16日补充建档页“联系地址”改为“农户地址”的文案优化。",
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
+            {
+              "label": "0616小功能 PRD",
+              "href": "PRD-20260616-release-small-features.html"
+            },
             {
               "label": "0609小功能 PRD",
               "href": "PRD-20260609-release-small-features.html"
@@ -1627,6 +1639,34 @@ window.FSY_REQUIREMENT_MAP = {
           "hasLocalDoc": false,
           "hasFeishuLink": false,
           "links": []
+        },
+        {
+          "id": "REQ-088",
+          "module": "登录",
+          "title": "丰收云小程序手机号登录合规整改",
+          "description": "最终采用最小整改口径：保留原登录入口结构和双按钮样式，显性展示用户协议与隐私政策勾选，并在协议下方新增内部商户小程序说明。",
+          "owner": "潘恒",
+          "status": "需求设计",
+          "start": "2026-06-10",
+          "end": "2026-06-16",
+          "note": "微信预警整改：不开放游客模式，不开放自助注册；需在2026-06-16 14:46:17前完成整改提审。飞书总表序号 87。",
+          "hasLocalDoc": true,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "手机号合规整改 PRD",
+              "href": "PRD-20260616-phone-compliance.html"
+            },
+            {
+              "label": "手机号合规整改测试用例",
+              "href": "TEST-20260616-phone-compliance.html"
+            },
+            {
+              "label": "飞书PRD",
+              "href": "https://www.feishu.cn/wiki/P9ECw5hmxi1ntZkvjshcvuiznVb",
+              "external": true
+            }
+          ]
         }
       ]
     },
@@ -1690,7 +1730,7 @@ window.FSY_REQUIREMENT_MAP = {
           "status": "需求设计",
           "start": "",
           "end": "",
-          "note": "入口放在我的 > 库存管理，仅超管和有权限账号可见；首页展示库存概览和三Tab最近5条。库存台账不汇总、不下钻；库存明细支持汇总统计和非汇总详情弹层；农户存粮支持汇总展示、非汇总详情弹层和汇总分组明细。",
+          "note": "入口放在我的 > 库存管理，仅超管和有权限账号可见；订单详情仅在订单信息区域展示入库仓库，不展示独立入库信息模块；首页展示库存概览和三Tab最近5条。库存台账不汇总、不下钻；库存明细支持汇总统计和非汇总详情弹层；农户存粮支持汇总展示、非汇总详情弹层和汇总分组明细。",
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [

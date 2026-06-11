@@ -140,6 +140,10 @@
         .info-row:last-child { border-bottom: none; }
         .info-label { font-size: 12px; color: #9CA3AF; }
         .info-value { font-size: 12px; color: #374151; font-weight: 500; }
+        .mobile-container .glass-panel {
+            border: 1px solid rgba(15, 23, 42, 0.05);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        }
 
         .section-title {
             display: flex;
@@ -232,8 +236,8 @@
         }
         .receipt-voucher-chip {
             position: absolute;
-            top: 10px;
-            right: 12px;
+            top: 14px;
+            right: 14px;
             max-width: 118px;
             height: 28px;
             padding: 0 9px;
@@ -278,7 +282,11 @@
         <!-- 卡片1：状态 + 金额 -->
         <div class="glass-panel rounded-2xl overflow-hidden mb-3">
             <!-- 状态区域 -->
-            <div class="p-5 text-center border-b border-gray-100">
+            <div class="p-5 text-center border-b border-gray-100 relative">
+                <button id="receiptVoucherRow" type="button" class="receipt-voucher-chip hidden" onclick="openPrintReceipt()">
+                    <i class="fas fa-print"></i>
+                    <span id="receiptVoucherType">过磅单</span>
+                </button>
                 <div id="statusIconWrap" class="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-2">
                     <i id="statusIcon" class="fas fa-check-circle text-primary text-2xl"></i>
                 </div>
@@ -286,11 +294,7 @@
                 <div id="statusDesc" class="text-[10px] text-gray-400">订单已完成，感谢您的使用</div>
             </div>
             <!-- 金额区域 -->
-            <div class="p-4 text-center bg-gradient-to-b from-white to-gray-50/50 relative">
-                <button id="receiptVoucherRow" type="button" class="receipt-voucher-chip hidden" onclick="openPrintReceipt()">
-                    <i class="fas fa-print"></i>
-                    <span id="receiptVoucherType">过磅单</span>
-                </button>
+            <div class="p-4 text-center bg-gradient-to-b from-white to-gray-50/50">
                 <div class="text-[11px] text-gray-400 mb-1">付款金额</div>
                 <div id="amountText" class="text-3xl font-bold text-gray-800" style="font-family:Poppins;">¥ 0.00</div>
                 <div id="lastFailReasonRow" class="hidden mt-2 text-[11px] leading-4 text-red-500 px-3">
@@ -317,6 +321,10 @@
             <div class="info-row">
                 <span class="info-label">下单时间</span>
                 <span id="infoCreatedAt" class="info-value"></span>
+            </div>
+            <div id="orderWarehouseRow" class="info-row" style="display:none;">
+                <span class="info-label">入库仓库</span>
+                <span id="infoWarehouseName" class="info-value"></span>
             </div>
             <div id="operatorRow" class="info-row">
                 <span class="info-label">业务员</span>
@@ -407,34 +415,6 @@
             <div class="flex items-center justify-between py-3 border-t border-gray-100 bg-gray-50/50 -mx-4 px-4 -mb-4 mt-3 rounded-b-2xl">
                 <span class="text-xs text-gray-500 font-medium">订单金额</span>
                 <span id="itemTotalText" class="text-base font-bold text-primary" style="font-family:Poppins;">¥ 0.00</span>
-            </div>
-        </div>
-
-        <!-- 卡片3：入库信息（仅已选择仓库的订单展示） -->
-        <div id="inventoryCard" class="glass-panel rounded-2xl p-4 mb-3" style="display:none;">
-            <div class="section-title" style="padding-top:0;border-top:none;">
-                <div class="section-dot"></div>
-                <span>入库信息</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">入库状态</span>
-                <span id="inventoryStatusText" class="info-value"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">入库仓库</span>
-                <span id="inventoryWarehouseText" class="info-value"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">库存流水号</span>
-                <span id="inventoryFlowText" class="info-value font-mono"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">入库时间</span>
-                <span id="inventoryTimeText" class="info-value"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">来源单号</span>
-                <span id="inventorySourceText" class="info-value font-mono"></span>
             </div>
         </div>
 
@@ -537,10 +517,6 @@ const state = {
     unit: params.get('unit') || (orderFromStore && orderFromStore.unit) || '斤',
     warehouseId: params.get('warehouseId') || (orderFromStore && orderFromStore.warehouseId) || '',
     warehouseName: params.get('warehouseName') || (orderFromStore && orderFromStore.warehouseName) || '',
-    inventoryStatus: params.get('inventoryStatus') || (orderFromStore && orderFromStore.inventoryStatus) || '',
-    inventoryFlowNo: params.get('inventoryFlowNo') || (orderFromStore && orderFromStore.inventoryFlowNo) || '',
-    inventoryInAt: params.get('inventoryInAt') || (orderFromStore && orderFromStore.inventoryInAt) || '',
-    inventoryUpdatedAt: params.get('inventoryUpdatedAt') || (orderFromStore && orderFromStore.inventoryUpdatedAt) || '',
     photos: (orderFromStore && orderFromStore.photos) || [],
     clientId: (orderFromStore && orderFromStore.clientId) || '',
     clientName: (orderFromStore && orderFromStore.clientName) || '',
@@ -910,6 +886,13 @@ function renderInfo() {
     document.getElementById('infoPaymentOrderNo').textContent = state.paymentOrderNo;
     document.getElementById('infoCreatedAt').textContent = formatTime(state.createdAt);
     document.getElementById('paymentOrderRow').style.display = shouldShowPaymentOrderNo() ? 'flex' : 'none';
+    var orderWarehouseRow = document.getElementById('orderWarehouseRow');
+    var infoWarehouseName = document.getElementById('infoWarehouseName');
+    var hasWarehouse = !!(state.warehouseName || state.warehouseId);
+    if (orderWarehouseRow && infoWarehouseName) {
+        orderWarehouseRow.style.display = hasWarehouse ? 'flex' : 'none';
+        infoWarehouseName.textContent = state.warehouseName || '-';
+    }
     document.getElementById('operatorRow').style.display = shouldShowOperatorName() ? 'flex' : 'none';
     document.getElementById('infoOperatorName').textContent = state.operatorName || state.payerName || '-';
     
@@ -931,23 +914,6 @@ function renderInfo() {
     } else {
         paidAtRow.style.display = 'none';
     }
-    renderInventoryInfo();
-}
-
-function renderInventoryInfo() {
-    var card = document.getElementById('inventoryCard');
-    if (!card) return;
-    var hasInventory = !!(state.warehouseName || state.warehouseId);
-    card.style.display = hasInventory ? '' : 'none';
-    if (!hasInventory) return;
-    var info = mockStore && typeof mockStore.getInventoryStatusInfo === 'function'
-        ? mockStore.getInventoryStatusInfo(state.inventoryStatus || 'pre_in')
-        : { label: '预入库' };
-    document.getElementById('inventoryStatusText').textContent = info.label || '预入库';
-    document.getElementById('inventoryWarehouseText').textContent = state.warehouseName || '-';
-    document.getElementById('inventoryFlowText').textContent = state.inventoryFlowNo || '待生成';
-    document.getElementById('inventoryTimeText').textContent = state.inventoryInAt ? formatTime(state.inventoryInAt) : '待确认';
-    document.getElementById('inventorySourceText').textContent = state.grainOrderNo || '-';
 }
 
 function buildCashierHref(isRetry) {

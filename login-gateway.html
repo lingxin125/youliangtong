@@ -10,10 +10,145 @@
     <script src="shared.js"></script>
     <style>
         .page-bg {
-            background-color: #F7F8FA;
+            background: linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 42%, #F5F6F6 72%, #EEF0F0 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .page-bg::before {
+            content: "";
+            position: absolute;
+            left: -118px;
+            right: -118px;
+            top: 90px;
+            height: 278px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 50%, rgba(245,246,246,0.78) 100%),
+                url("ChatGPT Image 2026年6月10日 14_49_40.png") center bottom / cover no-repeat;
+            filter: blur(1.6px);
+            opacity: 0.62;
+            transform: scale(1.02);
+            -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 74%, rgba(0,0,0,0.36) 88%, transparent 100%);
+            mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 74%, rgba(0,0,0,0.36) 88%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .page-bg::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 430px;
+            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(245,246,246,0.72) 36%, rgba(238,240,240,0.98) 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .gateway-content {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 30px 34px;
+            overflow: hidden;
+        }
+        .gateway-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 28px;
+        }
+        .gateway-logo {
+            width: 210px;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 10px 20px rgba(17, 166, 74, 0.06));
+            mix-blend-mode: multiply;
+        }
+        .gateway-subtitle {
+            margin-top: 14px;
+            color: #6B7280;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 4px;
+        }
+        .gateway-actions {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-top: 44px;
+        }
+        .gateway-btn {
+            width: 100%;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+        .gateway-btn:active {
+            transform: scale(0.98);
+        }
+        .gateway-btn.secondary {
+            color: #11A64A;
+            background: rgba(255,255,255,0.76);
+            border: 1.5px solid #11A64A;
+        }
+        .gateway-btn.primary {
+            color: #fff;
+            border: 1px solid transparent;
+            background: #11A64A;
+            box-shadow: 0 4px 14px rgba(17,166,74,0.3);
+        }
+        .agreement-line {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
+            margin-top: 26px;
+            color: #98A2B3;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .agreement-line input {
+            width: 15px;
+            height: 15px;
+            margin-top: 2px;
+            accent-color: #11A64A;
+            flex: 0 0 auto;
+        }
+        .agreement-line a {
+            color: #10A34F;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .merchant-tip {
+            width: 100%;
+            margin-top: 10px;
+            color: #9CA3AF;
+            font-size: 11.5px;
+            line-height: 1.45;
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        .merchant-tip i {
+            color: #10A34F;
+            font-size: 13px;
+            line-height: 1.45;
+            margin-top: 0;
+            flex: 0 0 auto;
         }
         /* 微信授权加载状态 */
         .wechat-loading-overlay {
@@ -42,6 +177,28 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
+        .toast-tip {
+            position: absolute;
+            left: 50%;
+            bottom: 64px;
+            max-width: calc(100% - 32px);
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(17, 24, 39, 0.9);
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.45;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, 8px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+        .toast-tip.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -63,30 +220,29 @@
         </div>
     </div>
 
-    <div class="flex-1 flex flex-col items-center px-8 pb-16 justify-between">
-        
-        <!-- 上半部分：巨大 Logo 区域 -->
-        <div class="flex flex-col items-center w-full mt-[10vh]">
-            <img src="丰收云logo新.png" alt="丰收云" class="w-56 h-auto drop-shadow-sm mb-5" onerror="this.src='丰收云logo.png'" style="mix-blend-mode: multiply;" />
-            <p class="text-[14px] text-gray-500 tracking-[4px] font-medium">农产品收购交易平台</p>
+    <div class="gateway-content">
+        <div class="gateway-brand">
+            <img src="丰收云logo新.png" alt="丰收云" class="gateway-logo" onerror="this.src='丰收云logo.png'" />
         </div>
 
-        <div class="flex-1"></div> <!-- 占位符，将按钮往上推一点 -->
-
-        <!-- 下半部分：双按钮 -->
-        <div class="w-full flex flex-col gap-4 mb-32 px-2"> <!-- 进一步上移 -->
-            <!-- 手机号快捷登录 (白底绿边) -->
-            <button onclick="window.location.href='login.html'" 
-                class="w-full h-[48px] rounded-[10px] font-medium text-[15px] text-[#11A64A] bg-white border border-[#11A64A] transition-all active:scale-[0.98] focus:outline-none">
-                手机号快捷登录
+        <div class="gateway-actions">
+            <button onclick="goPhoneLogin()" class="gateway-btn secondary">
+                <span>手机号快捷登录</span>
             </button>
-            
-            <!-- 一键登录 (纯绿底) -->
-            <button onclick="doWechatLogin()" 
-                class="w-full h-[48px] rounded-[10px] font-medium text-[15px] text-white bg-[#11A64A] shadow-[0_4px_14px_rgba(17,166,74,0.3)] transition-all active:scale-[0.98] border border-transparent focus:outline-none">
-                一键登录
+            <button onclick="doWechatLogin()" class="gateway-btn primary">
+                <span>一键登录</span>
             </button>
         </div>
+
+        <label class="agreement-line">
+            <input type="checkbox" id="agreeTermsCheckbox">
+            <span>我已阅读并同意 <a href="user-agreement.html?from=buyer">《用户协议》</a> 和 <a href="privacy-policy.html?from=buyer">《隐私政策》</a></span>
+        </label>
+        <div class="merchant-tip">
+            <i class="fas fa-info-circle"></i>
+            <span>仅供中邮丰收云内部注册人群登录使用</span>
+        </div>
+
     </div>
 
     <!-- 微信授权加载遮罩 -->
@@ -94,13 +250,36 @@
         <div class="spinner"></div>
         <div class="text-white text-sm">授权登录中...</div>
     </div>
+    <div id="toastTip" class="toast-tip"></div>
 </div>
 
 <script>
     // 初始化状态栏
     document.getElementById('statusBar').innerHTML = renderStatusBar('light');
 
+    function showToast(msg) {
+        const tip = document.getElementById('toastTip');
+        tip.textContent = msg;
+        tip.classList.add('show');
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => tip.classList.remove('show'), 1800);
+    }
+
+    function ensureAgreementChecked() {
+        if (!document.getElementById('agreeTermsCheckbox').checked) {
+            showToast('请先阅读并同意用户协议与隐私政策');
+            return false;
+        }
+        return true;
+    }
+
+    function goPhoneLogin() {
+        if (!ensureAgreementChecked()) return;
+        window.location.href = 'login.html';
+    }
+
     function doWechatLogin() {
+        if (!ensureAgreementChecked()) return;
         const loader = document.getElementById('wechatLoading');
         loader.classList.add('show');
         

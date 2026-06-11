@@ -95,6 +95,28 @@
             opacity: 1;
             transform: translate(-50%, 0);
         }
+        .compliance-dialog-mask {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.35);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+            z-index: 120;
+        }
+        .compliance-dialog-mask.show {
+            display: flex;
+        }
+        .compliance-dialog {
+            width: 100%;
+            max-width: 310px;
+            border-radius: 18px;
+            background: #fff;
+            padding: 22px 18px 16px;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+            text-align: center;
+        }
         /* 分隔线 */
         .login-divider {
             display: flex;
@@ -227,12 +249,12 @@
         <!-- Logo 区域 -->
         <div class="flex flex-col items-center mb-8 mt-2">
             <img src="丰收云logo新.png" alt="丰收云" onerror="this.src='丰收云logo.png'" class="w-32 h-auto" style="mix-blend-mode: multiply;" />
-            <p class="text-[11px] text-gray-400 mt-2 tracking-widest">农产品收购交易平台</p>
+            <!-- <p class="text-[11px] text-gray-400 mt-2 tracking-widest">农产品收购交易平台</p> -->
         </div>
 
         <!-- 登录表单卡片 -->
         <div class="bg-white/95 backdrop-blur-md rounded-[20px] p-6 w-full border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
-            <div class="text-left text-[17px] font-semibold text-gray-800 mb-1.5">手机号登录</div>
+	            <div class="text-left text-[17px] font-semibold text-gray-800 mb-1.5">手机号登录</div>
             <div class="text-left text-[12px] text-gray-400 mb-6">请使用登记手机号验证登录</div>
 
             <!-- 手机号输入 -->
@@ -263,13 +285,13 @@
             <div class="agreement w-full mt-2">
                 <div class="agreement-row items-start">
                     <input type="checkbox" id="agreeTermsCheckbox" class="mt-0.5 rounded-sm" />
-                    <label for="agreeTermsCheckbox" class="text-[11px] text-gray-400 leading-snug">
-                        登录前请先阅读并同意
-                        <a href="#" class="text-[#11A64A]">《用户服务协议》</a> 和 <a href="#" class="text-[#11A64A]">《隐私政策》</a>
-                    </label>
-                </div>
-            </div>
-        </div>
+	                    <label for="agreeTermsCheckbox" class="text-[11px] text-gray-400 leading-snug">
+	                        我已阅读并同意
+	                        <a href="user-agreement.html?from=buyer" class="text-[#11A64A]">《用户协议》</a> 和 <a href="privacy-policy.html?from=buyer" class="text-[#11A64A]">《隐私政策》</a>
+	                    </label>
+	                </div>
+	            </div>
+	        </div>
     </div>
 
     <!-- 微信授权加载遮罩 -->
@@ -279,6 +301,13 @@
     </div>
 
     <div id="toastTip" class="toast-tip"></div>
+    <div id="complianceDialog" class="compliance-dialog-mask" role="dialog" aria-modal="true" aria-labelledby="complianceDialogTitle">
+        <div class="compliance-dialog">
+            <div id="complianceDialogTitle" class="text-[17px] font-semibold text-gray-900 mb-2">暂无法登录</div>
+            <div class="text-[13px] text-gray-500 leading-relaxed mb-4">该手机号未完成商户签约。<br>请通过原办理渠道处理。</div>
+            <button onclick="hideComplianceDialog()" class="w-full h-11 rounded-xl bg-[#11A64A] text-white text-[14px] font-medium active:scale-[0.98] transition-transform">我知道了</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -306,6 +335,19 @@ function switchRole(role) {
 
 // 获取验证码（模拟60秒倒计时）
 function getSmsCode() {
+    if (!isAgreementChecked()) {
+        showToast('请先阅读并同意用户协议与隐私政策');
+        return;
+    }
+    var phone = getInputPhone();
+    if (!isValidPhone(phone)) {
+        showToast('请输入正确的登记手机号');
+        return;
+    }
+    if (!isSignedMerchant(phone)) {
+        showComplianceDialog();
+        return;
+    }
     var btn = document.getElementById('smsBtn');
     var sec = 60;
     btn.disabled = true;
@@ -321,6 +363,7 @@ function getSmsCode() {
             btn.textContent = '获取验证码';
         }
     }, 1000);
+    showToast('验证码已发送');
 }
 
 
@@ -334,23 +377,58 @@ function showToast(msg) {
     }, 1800);
 }
 
+function isAgreementChecked() {
+    return document.getElementById('agreeTermsCheckbox').checked;
+}
+
+function getInputPhone() {
+    return (document.getElementById('phoneInput').value || '').replace(/\s+/g, '');
+}
+
+function isValidPhone(phone) {
+    return /^1\d{10}$/.test(phone);
+}
+
+function isSignedMerchant(phone) {
+    return !!(window.UserIdentityStore && UserIdentityStore.getUserByMobile && UserIdentityStore.getUserByMobile(phone));
+}
+
+function showComplianceDialog() {
+    document.getElementById('complianceDialog').classList.add('show');
+}
+
+function hideComplianceDialog() {
+    document.getElementById('complianceDialog').classList.remove('show');
+}
+
 // 登录 - 默认进入农户端
 function doLogin() {
-    if (!document.getElementById('agreeTermsCheckbox').checked) {
-        showToast('请先勾选并同意用户协议与隐私政策');
+    if (!isAgreementChecked()) {
+        showToast('请先阅读并同意用户协议与隐私政策');
         return;
     }
-    // 原型默认以双身份用户登录，默认进农户端
+    var phone = getInputPhone();
+    if (!isValidPhone(phone)) {
+        showToast('请输入正确的登记手机号');
+        return;
+    }
+    if (!isSignedMerchant(phone)) {
+        showComplianceDialog();
+        return;
+    }
     if (window.UserIdentityStore) {
-        UserIdentityStore.login('13700005555');
+        var user = UserIdentityStore.login(phone);
+        var role = user && user.currentRole ? user.currentRole : 'farmer';
+        _navigateTo(UserIdentityStore.getHomeUrl ? UserIdentityStore.getHomeUrl(role) : 'farmer-home.html');
+        return;
     }
     _navigateTo('farmer-home.html');
 }
 
 // 微信快捷登录
 function doWechatLogin() {
-    if (!document.getElementById('agreeTermsCheckbox').checked) {
-        showToast('请先勾选并同意用户协议与隐私政策');
+    if (!isAgreementChecked()) {
+        showToast('请先阅读并同意用户协议与隐私政策');
         return;
     }
     var overlay = document.getElementById('wechatLoading');
@@ -366,7 +444,7 @@ function doWechatLogin() {
 if (loginCaptureState === 'error') {
     setTimeout(function() {
         document.getElementById('agreeTermsCheckbox').checked = false;
-        showToast('请先勾选并同意用户协议与隐私政策');
+        showToast('请先阅读并同意用户协议与隐私政策');
     }, 120);
 }
 </script>

@@ -173,72 +173,42 @@
             line-height: 1.55;
         }
 
-        .doc-group {
+        .prd-library {
             margin-top: 14px;
-            background: rgba(255,255,255,0.64);
+            background: rgba(255,255,255,0.72);
             border: 1px solid var(--card-border);
-            border-radius: 18px;
-            padding: 14px;
+            border-radius: 22px;
+            box-shadow: var(--shadow-2);
+            padding: 16px;
         }
 
-        .doc-group[hidden] {
-            display: none;
-        }
-
-        .prd-tabs {
+        .prd-library-head {
             display: flex;
-            gap: 8px;
-            margin-top: 14px;
-            overflow-x: auto;
-            padding-bottom: 2px;
-        }
-
-        .prd-tab {
-            flex: none;
-            border: 1px solid rgba(17,166,74,0.16);
-            background: #FFFFFF;
-            color: var(--text-sub);
-            border-radius: 999px;
-            padding: 8px 12px;
-            font: inherit;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .prd-tab:hover {
-            color: var(--primary);
-            border-color: rgba(17,166,74,0.32);
-        }
-
-        .prd-tab.active {
-            color: #FFFFFF;
-            background: var(--primary);
-            border-color: var(--primary);
-            box-shadow: 0 8px 18px rgba(17,166,74,0.18);
-        }
-
-        .doc-group-head {
-            display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             gap: 12px;
             margin-bottom: 12px;
         }
 
-        .doc-group-title {
+        .prd-library-title {
             display: flex;
             align-items: center;
             gap: 8px;
             margin: 0;
-            font-size: 15px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 800;
         }
 
-        .doc-group-title i {
+        .prd-library-title i {
             color: var(--primary);
             font-size: 13px;
+        }
+
+        .prd-library-desc {
+            margin-top: 4px;
+            color: var(--text-sub);
+            font-size: 12px;
+            line-height: 1.5;
         }
 
         .status-pill {
@@ -262,6 +232,130 @@
             background: #FFFBEB;
             color: #B45309;
             border-color: rgba(245,158,11,0.22);
+        }
+
+        .prd-toolbar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 260px;
+            gap: 10px;
+            margin: 12px 0 14px;
+        }
+
+        .prd-filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .prd-filter-tab {
+            border: 1px solid rgba(17,166,74,0.16);
+            background: #FFFFFF;
+            color: var(--text-sub);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .prd-filter-tab:hover {
+            color: var(--primary);
+            border-color: rgba(17,166,74,0.32);
+        }
+
+        .prd-filter-tab.active {
+            color: #FFFFFF;
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 8px 18px rgba(17,166,74,0.18);
+        }
+
+        .prd-search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 39px;
+            padding: 0 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(15,23,42,0.08);
+            background: #FFFFFF;
+            color: var(--text-sub);
+        }
+
+        .prd-search input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font: inherit;
+            font-size: 13px;
+            background: transparent;
+            color: var(--text-main);
+        }
+
+        .prd-search input::placeholder {
+            color: #9CA3AF;
+        }
+
+        .prd-library-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: var(--text-sub);
+            font-size: 12px;
+        }
+
+        .prd-doc-card[hidden] {
+            display: none;
+        }
+
+        .prd-doc-tags {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .prd-tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 3px 8px;
+            background: #F8FAFC;
+            color: #64748B;
+            border: 1px solid rgba(15,23,42,0.06);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .prd-tag.green {
+            background: #ECFDF5;
+            color: #047857;
+            border-color: rgba(16,185,129,0.18);
+        }
+
+        .prd-tag.blue {
+            background: #EFF6FF;
+            color: #2563EB;
+            border-color: rgba(37,99,235,0.16);
+        }
+
+        .prd-tag.amber {
+            background: #FFFBEB;
+            color: #B45309;
+            border-color: rgba(245,158,11,0.2);
+        }
+
+        .prd-empty-state {
+            display: none;
+            padding: 28px 12px 18px;
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 13px;
         }
 
         .doc-subgrid {
@@ -875,18 +969,18 @@
                 grid-template-columns: 1fr;
             }
 
-            .doc-group-head {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
             .doc-subgrid {
                 grid-template-columns: 1fr;
             }
 
-            .prd-tabs {
-                margin-right: -14px;
-                padding-right: 14px;
+            .prd-library-head,
+            .prd-library-meta {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .prd-toolbar {
+                grid-template-columns: 1fr;
             }
 
             .req-toolbar,
@@ -1078,234 +1172,347 @@
 
     <section class="section">
         <h2 class="section-title"><i class="fas fa-book-open"></i>PRD评审资料</h2>
-        <p class="section-desc">用于文字需求对照评审，可与原型页面并行打开。有日期的资料按时间倒序排列，长期资料单独归档。</p>
+        <p class="section-desc">用于文字需求对照评审，可与原型页面并行打开。现在按业务主题归类，日期放回资料卡片里，避免资料越多越难找。</p>
 
-        <div class="prd-tabs" role="tablist" aria-label="PRD资料分类">
-            <button class="prd-tab active" type="button" role="tab" aria-selected="true" aria-controls="doc-20260609" data-target="doc-20260609">2026-06-09 发版小功能</button>
-            <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-20260604" data-target="doc-20260604">2026-06-04 发版小功能</button>
-            <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-20260602" data-target="doc-20260602">2026-06-02 发版小功能</button>
-            <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-account-test" data-target="doc-account-test">预计5月底-6月初 账户管理提测</button>
-            <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-20260518" data-target="doc-20260518">2026-05-18 至 2026-05-23 小迭代</button>
-            <button class="prd-tab" type="button" role="tab" aria-selected="false" aria-controls="doc-longterm" data-target="doc-longterm">长期资料</button>
-        </div>
-
-        <div class="doc-group" id="doc-20260609" role="tabpanel">
-            <div class="doc-group-head">
-                <h3 class="doc-group-title"><i class="fas fa-calendar-day"></i>2026-06-09 发版小功能</h3>
-                <span class="status-pill">部分已上线 / 延期 / 小需求记录</span>
+        <div class="prd-library" aria-label="PRD资料库">
+            <div class="prd-library-head">
+                <div>
+                    <h3 class="prd-library-title"><i class="fas fa-layer-group"></i>资料库</h3>
+                    <div class="prd-library-desc">默认展示近期发版资料；搜索为全局搜索，可直接按功能、日期、文档类型查找。</div>
+                </div>
+                <span class="status-pill">分类筛选</span>
             </div>
+
+            <div class="prd-toolbar">
+                <div class="prd-filter-tabs" role="tablist" aria-label="PRD资料分类">
+                    <button class="prd-filter-tab active" type="button" data-category="recent" aria-pressed="true">近期发版</button>
+                    <button class="prd-filter-tab" type="button" data-category="core" aria-pressed="false">核心业务</button>
+                    <button class="prd-filter-tab" type="button" data-category="device" aria-pressed="false">设备与扩展</button>
+                    <button class="prd-filter-tab" type="button" data-category="compliance" aria-pressed="false">合规与基础</button>
+                    <button class="prd-filter-tab" type="button" data-category="archive" aria-pressed="false">历史归档</button>
+                    <button class="prd-filter-tab" type="button" data-category="all" aria-pressed="false">全部资料</button>
+                </div>
+                <label class="prd-search" for="prdDocSearch">
+                    <i class="fas fa-magnifying-glass"></i>
+                    <input id="prdDocSearch" type="search" placeholder="搜索资料、日期或关键词">
+                </label>
+            </div>
+
+            <div class="prd-library-meta">
+                <span id="prdVisibleCount">0 份资料</span>
+                <span>日期倒序展示，长期资料按主题归类。</span>
+            </div>
+
             <div class="doc-subgrid">
-                <a class="card border-green-100 bg-green-50/30" href="PRD-20260609-release-small-features.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-green-100 bg-green-50/30" href="PRD-20260616-phone-compliance.html" target="_blank" rel="noopener noreferrer" data-category="recent compliance" data-title="手机号登录合规整改 PRD" data-date="2026-06-16" data-type="PRD">
+                    <div class="card-head">
+                        <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">手机号登录合规整改 PRD</h2>
+                    <p>补齐签约商户使用范围说明、手机号用途说明、未签约拒绝态、协议说明和提审材料。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-16</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag">合规</span>
+                    </div>
+                </a>
+
+                <a class="card prd-doc-card border-blue-100 bg-blue-50/30" href="TEST-20260616-phone-compliance.html" target="_blank" rel="noopener noreferrer" data-category="recent compliance" data-title="手机号登录合规整改测试用例" data-date="2026-06-16" data-type="测试用例">
+                    <div class="card-head">
+                        <div class="icon icon-doc"><i class="fas fa-vial-circle-check"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">手机号登录合规整改测试用例</h2>
+                    <p>覆盖协议拦截、签约账号登录、未签约拒绝态、授权拒绝、文案适配和提审材料检查。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-16</span>
+                        <span class="prd-tag blue">测试用例</span>
+                        <span class="prd-tag">合规</span>
+                    </div>
+                </a>
+
+                <a class="card prd-doc-card border-emerald-100 bg-emerald-50/30" href="PRD-20260616-release-small-features.html" target="_blank" rel="noopener noreferrer" data-category="recent core" data-title="首页与关怀版小功能 PRD" data-date="2026-06-16" data-type="PRD">
+                    <div class="card-head">
+                        <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">首页与关怀版小功能 PRD</h2>
+                    <p>覆盖首页文案精简、收购统计增强、品类明细去今日、待办卡片优化、大字体关怀版和农户地址文案。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-16</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag">首页优化</span>
+                    </div>
+                </a>
+
+                <a class="card prd-doc-card border-green-100 bg-green-50/30" href="PRD-20260609-release-small-features.html" target="_blank" rel="noopener noreferrer" data-category="recent core" data-title="2026-06-09 发版小功能 PRD" data-date="2026-06-09" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">2026-06-09 发版小功能 PRD</h2>
                     <p>农户地址地图定位、公户结算信息修改、双身份默认端记忆已上线；支付失败原因展示延期，随账户管理一起上线。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-09</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag amber">部分已上线</span>
+                    </div>
                 </a>
 
-                <a class="card border-blue-100 bg-blue-50/30" href="TEST-20260609-release-small-features.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-blue-100 bg-blue-50/30" href="TEST-20260609-release-small-features.html" target="_blank" rel="noopener noreferrer" data-category="recent core" data-title="2026-06-09 发版小功能测试用例" data-date="2026-06-09" data-type="测试用例">
                     <div class="card-head">
                         <div class="icon icon-doc"><i class="fas fa-vial-circle-check"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">2026-06-09 发版小功能测试用例</h2>
                     <p>覆盖已上线三项能力的回归检查；失败原因展示后续随账户管理统一验收。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-09</span>
+                        <span class="prd-tag blue">测试用例</span>
+                        <span class="prd-tag amber">部分已上线</span>
+                    </div>
                 </a>
 
-                <a class="card border-amber-100 bg-amber-50/30" href="#requirementMap">
+                <a class="card prd-doc-card border-amber-100 bg-amber-50/30" href="#requirementMap" data-category="recent core" data-title="2026-06-09 小需求记录 农户建档身份证号正则校验" data-date="2026-06-09" data-type="需求记录">
                     <div class="card-head">
                         <div class="icon icon-doc"><i class="fas fa-list-check"></i></div>
                         <i class="fas fa-chevron-down arrow"></i>
                     </div>
                     <h2 class="text-green-700">2026-06-09 小需求记录</h2>
                     <p>新增农户建档身份证号正则校验，已维护到飞书需求总表；需求较小，不单独输出 PRD/测试用例。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-09</span>
+                        <span class="prd-tag amber">需求记录</span>
+                        <span class="prd-tag">身份证号校验</span>
+                    </div>
                 </a>
-            </div>
-        </div>
 
-        <div class="doc-group" id="doc-20260604" role="tabpanel" hidden>
-            <div class="doc-group-head">
-                <h3 class="doc-group-title"><i class="fas fa-calendar-day"></i>2026-06-04 发版小功能</h3>
-                <span class="status-pill amber">部分上线 / 部分延期</span>
-            </div>
-            <div class="doc-subgrid">
-                <a class="card border-green-100 bg-green-50/30" href="PRD-20260604-release-small-features.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-green-100 bg-green-50/30" href="PRD-20260604-release-small-features.html" target="_blank" rel="noopener noreferrer" data-category="archive" data-title="2026-06-04 发版小功能 PRD" data-date="2026-06-04" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">2026-06-04 发版小功能 PRD</h2>
                     <p>关于模块已上线；拍照留存、农户公户修改、地址与种植面积未上线，后续延期处理。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-04</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag amber">历史归档</span>
+                    </div>
                 </a>
 
-                <a class="card border-blue-100 bg-blue-50/30" href="TEST-20260604-release-small-features.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-blue-100 bg-blue-50/30" href="TEST-20260604-release-small-features.html" target="_blank" rel="noopener noreferrer" data-category="archive" data-title="2026-06-04 发版小功能测试用例" data-date="2026-06-04" data-type="测试用例">
                     <div class="card-head">
                         <div class="icon icon-doc"><i class="fas fa-vial-circle-check"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">2026-06-04 发版小功能测试用例</h2>
                     <p>保留拍照水印、协议返回、公户修改、地图选点等测试口径；当前仅关于模块按上线口径更新。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-04</span>
+                        <span class="prd-tag blue">测试用例</span>
+                        <span class="prd-tag amber">历史归档</span>
+                    </div>
                 </a>
-            </div>
-        </div>
 
-        <div class="doc-group" id="doc-20260602" role="tabpanel" hidden>
-            <div class="doc-group-head">
-                <h3 class="doc-group-title"><i class="fas fa-calendar-day"></i>2026-06-02 发版小功能</h3>
-                <span class="status-pill">已上线</span>
-            </div>
-            <div class="doc-subgrid">
-                <a class="card border-green-100 bg-green-50/30" href="PRD-20260602-release-small-features.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-green-100 bg-green-50/30" href="PRD-20260602-release-small-features.html" target="_blank" rel="noopener noreferrer" data-category="archive" data-title="2026-06-02 发版小功能 PRD" data-date="2026-06-02" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">2026-06-02 发版小功能 PRD</h2>
                     <p>覆盖开通卖方身份、建档成功展示丰收码、开户行选择优化、首页待办/待收款看板。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-02</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag amber">已上线</span>
+                    </div>
                 </a>
 
-                <a class="card border-blue-100 bg-blue-50/30" href="TEST-20260602-release-small-features.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-blue-100 bg-blue-50/30" href="TEST-20260602-release-small-features.html" target="_blank" rel="noopener noreferrer" data-category="archive" data-title="2026-06-02 发版小功能测试用例" data-date="2026-06-02" data-type="测试用例">
                     <div class="card-head">
                         <div class="icon icon-doc"><i class="fas fa-vial-circle-check"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">2026-06-02 发版小功能测试用例</h2>
                     <p>按 P0/P1 覆盖身份开通、农户建档出码、开户行匹配、首页看板跳转和回归检查。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-02</span>
+                        <span class="prd-tag blue">测试用例</span>
+                        <span class="prd-tag amber">已上线</span>
+                    </div>
                 </a>
-            </div>
-        </div>
 
-        <div class="doc-group" id="doc-account-test" role="tabpanel" hidden>
-            <div class="doc-group-head">
-                <h3 class="doc-group-title"><i class="fas fa-building-columns"></i>预计5月底-6月初 账户管理提测</h3>
-                <span class="status-pill">准备提测</span>
-            </div>
-            <div class="doc-subgrid">
-                <a class="card border-green-100 bg-green-50/30" href="PRD-账户管理与多付款账户支付.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-green-100 bg-green-50/30" href="PRD-账户管理与多付款账户支付.html" target="_blank" rel="noopener noreferrer" data-category="core" data-title="账户管理与多付款账户支付 PRD" data-date="预计5月底-6月初" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-prd"><i class="fas fa-file-invoice-dollar"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">账户管理与多付款账户支付 PRD</h2>
                     <p>收购商维护多付款账户后，开单付款、扫码开单和 PC 收银台如何选择账户并分流支付。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">预计5月底-6月初</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag">账户管理</span>
+                    </div>
                 </a>
 
-                <a class="card border-blue-100 bg-blue-50/30" href="TEST-账户管理与多付款账户支付.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-blue-100 bg-blue-50/30" href="TEST-账户管理与多付款账户支付.html" target="_blank" rel="noopener noreferrer" data-category="core" data-title="账户管理与多付款账户支付测试用例" data-date="预计5月底-6月初" data-type="测试用例">
                     <div class="card-head">
                         <div class="icon icon-doc"><i class="fas fa-list-check"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">账户管理与多付款账户支付测试用例</h2>
                     <p>覆盖账户维护、默认账户、H5 付款确认、扫码开单付款、PC 收银台和渠道登录态。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">预计5月底-6月初</span>
+                        <span class="prd-tag blue">测试用例</span>
+                        <span class="prd-tag">账户管理</span>
+                    </div>
                 </a>
-            </div>
-        </div>
 
-        <div class="doc-group" id="doc-20260518" role="tabpanel" hidden>
-            <div class="doc-group-head">
-                <h3 class="doc-group-title"><i class="fas fa-calendar-week"></i>2026-05-18 至 2026-05-23 小迭代</h3>
-                <span class="status-pill blue">已上线 / 验收资料</span>
-            </div>
-            <div class="doc-subgrid">
-                <a class="card border-blue-100 bg-blue-50/30" href="weekly-518-523-plan.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-blue-100 bg-blue-50/30" href="weekly-518-523-plan.html" target="_blank" rel="noopener noreferrer" data-category="archive core" data-title="本周需求讲解页 2026-05-18 至 2026-05-23" data-date="2026-05-18 至 2026-05-23" data-type="需求讲解">
                     <div class="card-head">
                         <div class="icon icon-doc"><i class="fas fa-calendar-week"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">本周需求讲解页</h2>
                     <p>5/18-5/23 上线与开发需求可视化总览，适合业务、技术、测试一起评审拆解。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-05-18 至 2026-05-23</span>
+                        <span class="prd-tag blue">讲解页</span>
+                        <span class="prd-tag amber">历史归档</span>
+                    </div>
                 </a>
 
-                <a class="card border-green-100 bg-green-50/30" href="PRD-003-phase3-live-small-features.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-green-100 bg-green-50/30" href="PRD-003-phase3-live-small-features.html" target="_blank" rel="noopener noreferrer" data-category="archive core" data-title="三期小迭代 PRD" data-date="2026-05-18 至 2026-05-23" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-doc"><i class="fas fa-clipboard-list"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">三期小迭代 PRD</h2>
                     <p>团队管理、结算信息修改、扫码开单及订单管理关联验收口径。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-05-18 至 2026-05-23</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag amber">历史归档</span>
+                    </div>
                 </a>
 
-                <a class="card border-blue-100 bg-blue-50/30" href="TEST-003-phase3-live-small-features.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-blue-100 bg-blue-50/30" href="TEST-003-phase3-live-small-features.html" target="_blank" rel="noopener noreferrer" data-category="archive core" data-title="三期小迭代测试用例" data-date="2026-05-18 至 2026-05-23" data-type="测试用例">
                     <div class="card-head">
                         <div class="icon icon-doc"><i class="fas fa-vial-circle-check"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">三期小迭代测试用例</h2>
                     <p>提供给测试执行的用例清单，覆盖首次登录、免登、团队管理、结算纠错和批量付款。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-05-18 至 2026-05-23</span>
+                        <span class="prd-tag blue">测试用例</span>
+                        <span class="prd-tag amber">历史归档</span>
+                    </div>
                 </a>
-            </div>
-        </div>
 
-        <div class="doc-group" id="doc-longterm" role="tabpanel" hidden>
-            <div class="doc-group-head">
-                <h3 class="doc-group-title"><i class="fas fa-thumbtack"></i>长期资料</h3>
-                <span class="status-pill">长期可看</span>
-            </div>
-            <div class="doc-subgrid">
-                <a class="card" href="PRD-收粮平台-可视化.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card" href="PRD-收粮平台-可视化.html" target="_blank" rel="noopener noreferrer" data-category="compliance core" data-title="PRD 可视化页面 收粮平台" data-date="长期资料" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2>PRD 可视化页面</h2>
                     <p>用于产品说明、功能逻辑确认、测试对照验收、流程图和用户故事评审。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">长期资料</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag">基础资料</span>
+                    </div>
                 </a>
 
-                <a class="card border-green-100 bg-green-50/30" href="PRD-003-phase3-billing-upgrade.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-green-100 bg-green-50/30" href="PRD-003-phase3-billing-upgrade.html" target="_blank" rel="noopener noreferrer" data-category="core" data-title="三期 PRD 开单链路升级" data-date="长期资料" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-miniapp"><i class="fas fa-file-lines"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">三期 PRD</h2>
                     <p>三期开单链路升级评审资料，包含开单、订单管理、客户与付款相关需求说明。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">长期资料</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag">开单链路</span>
+                    </div>
                 </a>
 
-                <a class="card border-emerald-100 bg-emerald-50/30" href="business-flow-overview.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-emerald-100 bg-emerald-50/30" href="business-flow-overview.html" target="_blank" rel="noopener noreferrer" data-category="core" data-title="业务流程全景图 进件 建档 出码 扫码开单 付款成功" data-date="长期资料" data-type="流程图">
                     <div class="card-head">
                         <div class="icon icon-prd bg-emerald-500 text-white"><i class="fas fa-diagram-project"></i></div>
                         <i class="fas fa-chevron-right arrow text-emerald-500"></i>
                     </div>
                     <h2 class="text-emerald-700">业务流程全景图</h2>
                     <p>从进件、建档、出码、扫码开单到单笔付款成功的完整流程图和状态图。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">长期资料</span>
+                        <span class="prd-tag blue">流程图</span>
+                        <span class="prd-tag">核心业务</span>
+                    </div>
                 </a>
 
-                <a class="card border-blue-100 bg-blue-50/30" href="PRD-开单配置与品类管理优化.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-blue-100 bg-blue-50/30" href="PRD-开单配置与品类管理优化.html" target="_blank" rel="noopener noreferrer" data-category="core" data-title="开单配置与品类管理优化 PRD" data-date="长期资料" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-doc"><i class="fas fa-sliders"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">开单配置与品类管理优化</h2>
                     <p>收购商主体级开单配置，超管维护称重模式、计价方式、扣杂、拍照和入库仓库；收购价不在开单配置中维护。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">长期资料</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag">开单配置</span>
+                    </div>
                 </a>
 
-                <a class="card border-green-100 bg-green-50/30" href="PRD-库存管理移动端方案.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-green-100 bg-green-50/30" href="PRD-库存管理移动端方案.html" target="_blank" rel="noopener noreferrer" data-category="device core" data-title="库存管理移动端方案 PRD" data-date="长期资料" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-miniapp"><i class="fas fa-warehouse"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">库存管理移动端方案</h2>
                     <p>入口收口到我的模块，覆盖开单可选入库仓库、预入库状态，以及库存概览、库存台账、库存明细、农户存粮查询与汇总。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">长期资料</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag">库存</span>
+                    </div>
                 </a>
 
-                <a class="card border-green-100 bg-green-50/30" href="PRD-蓝牙设备即时连接重构方案.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-green-100 bg-green-50/30" href="PRD-蓝牙设备即时连接重构方案.html" target="_blank" rel="noopener noreferrer" data-category="device" data-title="蓝牙设备即时连接 V2 蓝牙电子秤 蓝牙打印机" data-date="长期资料" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-miniapp"><i class="fas fa-bluetooth-b"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">蓝牙设备即时连接 V2</h2>
                     <p>评估版 PRD：电子秤读秤、蓝牙打印小票、业务场景内即时连接、主动断开、小票状态规则与 PC 后台模板配置。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">长期资料</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag">蓝牙设备</span>
+                    </div>
                 </a>
 
-                <a class="card border-emerald-100 bg-emerald-50/30" href="pc-receipt-template-config.html" target="_blank" rel="noopener noreferrer">
+                <a class="card prd-doc-card border-emerald-100 bg-emerald-50/30" href="pc-receipt-template-config.html" target="_blank" rel="noopener noreferrer" data-category="device" data-title="小票模板配置 PC后台 过磅单 待开价 待付款 付款成功小票" data-date="长期资料" data-type="原型">
                     <div class="card-head">
                         <div class="icon icon-cashier-h5"><i class="fas fa-receipt"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">小票模板配置（PC后台）</h2>
                     <p>PC 端维护过磅单、待开价小票、待付款确认单、付款成功小票的字段、纸张、份数与打印规则。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">长期资料</span>
+                        <span class="prd-tag blue">原型</span>
+                        <span class="prd-tag">小票模板</span>
+                    </div>
                 </a>
             </div>
+            <div class="prd-empty-state" id="prdEmptyState">没有匹配的资料，换个关键词试试。</div>
         </div>
     </section>
 
@@ -1655,21 +1862,70 @@
 
         bindRequirementMap();
 
-        document.querySelectorAll('.prd-tab').forEach((tab) => {
+        const prdCards = Array.from(document.querySelectorAll('.prd-doc-card'));
+        const prdFilterTabs = Array.from(document.querySelectorAll('.prd-filter-tab'));
+        const prdSearchInput = document.getElementById('prdDocSearch');
+        const prdVisibleCount = document.getElementById('prdVisibleCount');
+        const prdEmptyState = document.getElementById('prdEmptyState');
+        let activePrdCategory = 'recent';
+
+        function setPrdCategory(category) {
+            activePrdCategory = category;
+            prdFilterTabs.forEach((tab) => {
+                const active = tab.dataset.category === category;
+                tab.classList.toggle('active', active);
+                tab.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+            filterPrdDocs();
+        }
+
+        function getPrdSearchText(card) {
+            return [
+                card.dataset.title,
+                card.dataset.date,
+                card.dataset.type,
+                card.textContent
+            ].filter(Boolean).join(' ').toLowerCase();
+        }
+
+        function filterPrdDocs() {
+            const query = (prdSearchInput?.value || '').trim().toLowerCase();
+            let visibleCount = 0;
+
+            prdCards.forEach((card) => {
+                const categories = (card.dataset.category || '').split(/\s+/);
+                const categoryMatched = activePrdCategory === 'all' || categories.includes(activePrdCategory);
+                const queryMatched = !query || getPrdSearchText(card).includes(query);
+                const visible = categoryMatched && queryMatched;
+                card.hidden = !visible;
+                if (visible) visibleCount += 1;
+            });
+
+            if (prdVisibleCount) {
+                prdVisibleCount.textContent = `${visibleCount} 份资料`;
+            }
+            if (prdEmptyState) {
+                prdEmptyState.style.display = visibleCount ? 'none' : 'block';
+            }
+        }
+
+        prdFilterTabs.forEach((tab) => {
             tab.addEventListener('click', () => {
-                const target = tab.dataset.target;
-
-                document.querySelectorAll('.prd-tab').forEach((item) => {
-                    const active = item === tab;
-                    item.classList.toggle('active', active);
-                    item.setAttribute('aria-selected', active ? 'true' : 'false');
-                });
-
-                document.querySelectorAll('.doc-group[role="tabpanel"]').forEach((panel) => {
-                    panel.hidden = panel.id !== target;
-                });
+                setPrdCategory(tab.dataset.category || 'recent');
             });
         });
+
+        if (prdSearchInput) {
+            prdSearchInput.addEventListener('input', () => {
+                if (prdSearchInput.value.trim() && activePrdCategory !== 'all') {
+                    setPrdCategory('all');
+                    return;
+                }
+                filterPrdDocs();
+            });
+        }
+
+        filterPrdDocs();
     </script>
 </main>
 </body>

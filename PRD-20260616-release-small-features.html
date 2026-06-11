@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-06-16 发版小功能 PRD</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2;--slate:#f8fafc}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.7}.layout{display:flex;min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:258px;background:#fff;border-right:1px solid var(--line);padding:22px 0;overflow:auto}.brand{padding:0 22px 18px;border-bottom:1px solid var(--line);margin-bottom:10px}.brand .k{font-size:12px;color:var(--primary);font-weight:800;letter-spacing:.4px}.brand h1{margin:6px 0 4px;font-size:18px;line-height:1.35}.brand p{margin:0;color:var(--muted);font-size:12px}.side a{display:block;padding:8px 22px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;font-size:13px}.side a:hover{color:var(--primary);background:rgba(17,166,74,.05);border-left-color:var(--primary)}.main{margin-left:258px;width:calc(100% - 258px);padding:28px 34px 70px}.hero{background:linear-gradient(135deg,#11a64a,#0f7f3d);color:#fff;border-radius:24px;padding:34px 36px;box-shadow:0 18px 40px rgba(17,166,74,.18)}.hero h2{margin:0 0 8px;font-size:30px;line-height:1.25}.hero p{margin:0;max-width:920px;opacity:.92;font-size:15px}.meta,.grid,.flow{display:grid;gap:12px}.meta{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 24px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.flow{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}.item{padding:14px 16px}.label{font-size:12px;color:var(--muted)}.value{margin-top:2px;font-size:15px;font-weight:800}.card{padding:24px;margin-bottom:18px}.card h3{margin:0 0 14px;font-size:20px}.card h4{margin:18px 0 8px;font-size:16px}.lead{color:var(--muted);font-size:14px;margin:0 0 14px}.box{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fafafa}.box strong{display:block;font-size:16px;margin-bottom:4px}.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;margin:0 6px 6px 0}.green{background:var(--green);color:#047857}.blue{background:var(--blue);color:#2563eb}.amber{background:var(--amber);color:#b45309}.red{background:var(--red);color:#dc2626}.slate{background:var(--slate);color:#475569}table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;color:#374151;font-weight:800}ul{margin:8px 0 0;padding-left:20px}li{margin:5px 0}.step{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcfb}.step b{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-size:12px;margin-right:6px}.note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f0fdf4;color:#166534;font-size:13px}.warn{background:#fffbeb;color:#92400e}.req{margin:10px 0 0;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff}.req b{color:#047857}@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.flow{grid-template-columns:1fr}.hero{padding:26px 22px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand"><div class="k">RELEASE PRD</div><h1>2026-06-16 发版小功能</h1><p>首页、关怀版与建档文案优化</p></div>
+    <nav>
+      <a href="#overview">概览</a>
+      <a href="#home-title">首页文案</a>
+      <a href="#stats">统计卡片</a>
+      <a href="#category">品类明细</a>
+      <a href="#todo">待办事项</a>
+      <a href="#care">关怀版</a>
+      <a href="#farmer-address">农户地址</a>
+      <a href="#rules">业务规则</a>
+      <a href="#acceptance">验收标准</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <section class="hero">
+      <h2>2026-06-16 发版小功能 PRD</h2>
+      <p>本次小版本主要围绕首页信息价值、首页视觉层级、关怀版大字体能力和农户建档字段文案做轻量优化。目标是在不调整核心业务流程的前提下，让首页更有经营参考价值，减少无效信息和用户理解成本。</p>
+    </section>
+
+    <section class="meta" id="overview">
+      <div class="item"><div class="label">版本口径</div><div class="value">6月16日小功能发版</div></div>
+      <div class="item"><div class="label">计划时间</div><div class="value">2026-06-16</div></div>
+      <div class="item"><div class="label">适用端</div><div class="value">移动端</div></div>
+      <div class="item"><div class="label">当前状态</div><div class="value">需求设计</div></div>
+    </section>
+
+    <section class="card">
+      <h3>1. 功能范围</h3>
+      <div class="grid">
+        <div class="box"><strong>首页文案精简</strong><span class="tag green">首页</span><p class="lead">首页下掉“农产品交易平台”展示，减少重复定位文案。</p></div>
+        <div class="box"><strong>收购统计增强</strong><span class="tag blue">首页统计</span><p class="lead">收购商首页统计卡片增加本月累计收购、本年累计收购金额与笔数。</p></div>
+        <div class="box"><strong>品类明细口径优化</strong><span class="tag amber">经营看板</span><p class="lead">品类明细去掉“今日”页签，保留本月、本年口径。</p></div>
+        <div class="box"><strong>待办事项卡片优化</strong><span class="tag green">待办</span><p class="lead">优化待办卡片 UI 样式，提升可读性和点击引导。</p></div>
+        <div class="box"><strong>大字体关怀版</strong><span class="tag blue">用户体验</span><p class="lead">丰收云支持切换为大字体关怀版，提升中老年用户使用体验。</p></div>
+        <div class="box"><strong>农户地址文案</strong><span class="tag slate">农户建档</span><p class="lead">农户建档页面“联系地址”统一改为“农户地址”。</p></div>
+      </div>
+    </section>
+
+    <section class="card" id="home-title">
+      <h3>2. 首页下掉“农产品交易平台”</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>首页减少口号式、副标题式文案，避免和“丰收云”品牌名称重复表达。</li>
+        <li>首页首屏优先展示身份、经营数据、待办事项等直接有用的信息。</li>
+      </ul>
+      <table>
+        <tr><th>位置</th><th>调整前</th><th>调整后</th><th>说明</th></tr>
+        <tr><td>首页顶部品牌区域</td><td>展示“农产品交易平台”</td><td>不展示该文案</td><td>保留丰收云品牌和必要身份信息即可。</td></tr>
+      </table>
+      <div class="req"><b>REQ-001</b> 首页不再展示“农产品交易平台”文案。</div>
+    </section>
+
+    <section class="card" id="stats">
+      <h3>3. 收购商统计卡片增加本月、本年累计</h3>
+      <h4>背景</h4>
+      <p class="lead">当前首页主要强调今日收购金额，但实际收购商不一定每天都有交易，今日数据经常为 0，导致首页经营价值感不足。本次在保留今日口径的基础上补充本月、本年累计，让用户打开首页即可看到更稳定的经营数据。</p>
+      <table>
+        <tr><th>字段</th><th>展示内容</th><th>规则</th></tr>
+        <tr><td>今日收购总额</td><td>金额、笔数</td><td>保持现有主展示，不改业务口径。</td></tr>
+        <tr><td>本月累计收购</td><td>金额、笔数</td><td>展示当月累计收购金额和订单笔数。</td></tr>
+        <tr><td>本年累计收购</td><td>金额、笔数</td><td>展示当年累计收购金额和订单笔数。</td></tr>
+      </table>
+      <div class="req"><b>REQ-002</b> 收购商首页统计卡片应展示本月累计收购金额及笔数。</div>
+      <div class="req"><b>REQ-003</b> 收购商首页统计卡片应展示本年累计收购金额及笔数。</div>
+      <div class="req"><b>REQ-004</b> 今日金额为 0 时，本月、本年累计仍正常展示。</div>
+    </section>
+
+    <section class="card" id="category">
+      <h3>4. 品类明细去掉今日标签</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>去掉数据价值较低的“今日”页签，避免默认展示大量 0 数据。</li>
+        <li>品类明细保留更适合经营分析的本月、本年口径。</li>
+      </ul>
+      <table>
+        <tr><th>位置</th><th>调整</th><th>默认口径</th><th>说明</th></tr>
+        <tr><td>首页品类明细卡片</td><td>移除“今日”页签</td><td>默认本月</td><td>保留本月、本年切换；若后续只保留一个口径，优先保留本月。</td></tr>
+      </table>
+      <div class="req"><b>REQ-005</b> 品类明细不再展示“今日”页签。</div>
+      <div class="req"><b>REQ-006</b> 品类明细至少保留本月口径，建议同时保留本年口径。</div>
+    </section>
+
+    <section class="card" id="todo">
+      <h3>5. 待办事项卡片 UI 样式优化</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>待办事项需要让收购商快速判断当前需要处理什么。</li>
+        <li>优化卡片视觉层级，不调整待办统计逻辑和跳转规则。</li>
+      </ul>
+      <table>
+        <tr><th>调整项</th><th>要求</th></tr>
+        <tr><td>视觉层级</td><td>待办标题、数量、辅助说明层级清晰，数量突出但不压迫页面。</td></tr>
+        <tr><td>卡片点击</td><td>保留原跳转能力，点击对应卡片进入相关处理列表。</td></tr>
+        <tr><td>空状态</td><td>数量为 0 时样式仍完整，不出现布局塌陷。</td></tr>
+        <tr><td>移动端适配</td><td>小屏幕下文字不重叠、不截断关键数字。</td></tr>
+      </table>
+      <div class="req"><b>REQ-007</b> 待办事项卡片 UI 优化不得改变原有待办数量统计与跳转逻辑。</div>
+    </section>
+
+    <section class="card" id="care">
+      <h3>6. 丰收云切换为大字体关怀版</h3>
+      <h4>业务目标</h4>
+      <ul>
+        <li>支持用户将丰收云切换为大字体关怀版，提升中老年用户阅读和点击体验。</li>
+        <li>关怀版优先覆盖高频页面和关键流程，不影响标准版用户。</li>
+      </ul>
+      <table>
+        <tr><th>能力</th><th>规则</th><th>说明</th></tr>
+        <tr><td>切换入口</td><td>沿用现有版本切换或设置入口</td><td>用户可在标准版与关怀版之间切换。</td></tr>
+        <tr><td>字体大小</td><td>关怀版整体字号更大</td><td>重点保证首页、开单、订单、我的等高频页面可读。</td></tr>
+        <tr><td>布局适配</td><td>文字变大后不重叠、不遮挡、不撑破按钮</td><td>必要时调整行高、间距和容器高度。</td></tr>
+        <tr><td>记忆规则</td><td>记住用户上次选择</td><td>再次进入时保持上次选择的版本。</td></tr>
+      </table>
+      <div class="req"><b>REQ-008</b> 用户可切换到大字体关怀版。</div>
+      <div class="req"><b>REQ-009</b> 关怀版需要记住用户选择，重新进入后保持生效。</div>
+      <div class="req"><b>REQ-010</b> 关怀版不得导致关键按钮、金额、订单状态文字重叠或被遮挡。</div>
+    </section>
+
+    <section class="card" id="farmer-address">
+      <h3>7. 农户建档页面“联系地址”改为“农户地址”</h3>
+      <h4>业务目标</h4>
+      <p class="lead">当前字段名称“联系地址”容易理解为联系方式的一部分，而实际用于记录农户所在地或经营地址。本次统一改为“农户地址”，降低理解成本。</p>
+      <table>
+        <tr><th>页面</th><th>调整前</th><th>调整后</th><th>说明</th></tr>
+        <tr><td>农户建档页</td><td>联系地址</td><td>农户地址</td><td>仅调整字段展示文案，不调整字段保存逻辑。</td></tr>
+      </table>
+      <div class="req"><b>REQ-011</b> 农户建档页面字段文案由“联系地址”改为“农户地址”。</div>
+    </section>
+
+    <section class="card" id="rules">
+      <h3>8. 业务规则汇总</h3>
+      <table>
+        <tr><th>编号</th><th>规则</th><th>说明</th></tr>
+        <tr><td>BR-001</td><td>首页不展示“农产品交易平台”。</td><td>仅删除展示文案，不影响业务入口。</td></tr>
+        <tr><td>BR-002</td><td>首页统计卡保留今日主口径，并补充本月、本年累计。</td><td>不引入自定义日期筛选。</td></tr>
+        <tr><td>BR-003</td><td>品类明细去掉今日页签。</td><td>默认本月，保留本年切换。</td></tr>
+        <tr><td>BR-004</td><td>待办卡片只做 UI 优化。</td><td>不改变数量、状态和跳转逻辑。</td></tr>
+        <tr><td>BR-005</td><td>关怀版切换后应全局记忆。</td><td>需要保证高频页面可读可点。</td></tr>
+        <tr><td>BR-006</td><td>“联系地址”改“农户地址”只调整文案。</td><td>不改变字段必填、地图选点或保存规则。</td></tr>
+      </table>
+    </section>
+
+    <section class="card warn" id="acceptance">
+      <h3>9. 验收标准</h3>
+      <ul>
+        <li>首页不再出现“农产品交易平台”文案。</li>
+        <li>收购商首页统计卡片能看到本月累计收购金额/笔数、本年累计收购金额/笔数。</li>
+        <li>品类明细卡片不再展示“今日”页签，默认展示本月，支持本年切换。</li>
+        <li>待办事项卡片视觉层级优化后，数量为 0 或较大数字时均不破版。</li>
+        <li>切换大字体关怀版后，高频页面文字变大且主要按钮、金额、状态不重叠。</li>
+        <li>农户建档页面字段文案展示为“农户地址”。</li>
+      </ul>
+    </section>
+  </main>
+</div>
+</body>
+</html>

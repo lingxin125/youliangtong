@@ -18,7 +18,7 @@
       <a href="#overview">概览</a>
       <a href="#scope">范围与权限</a>
       <a href="#billing">开单入库</a>
-      <a href="#status">状态设计</a>
+      <a href="#order-detail">订单详情</a>
       <a href="#home">库存首页</a>
       <a href="#ledger">库存台账</a>
       <a href="#flows">库存明细</a>
@@ -29,13 +29,13 @@
   <main class="main">
     <section class="hero" id="overview">
       <h2>库存管理移动端方案</h2>
-      <p>移动端不复制 PC 库存维护能力，只补齐开单选择入库仓库、订单入库信息展示，以及“我的 > 库存管理”下的库存概览、库存台账、库存明细、农户存粮只读查询。</p>
+      <p>移动端不复制 PC 库存维护能力，只补齐开单选择入库仓库、订单详情记录入库仓库，以及“我的 > 库存管理”下的库存概览、库存台账、库存明细、农户存粮只读查询。</p>
     </section>
     <section class="meta">
       <div class="item"><div class="label">需求编号</div><div class="value">REQ-081</div></div>
       <div class="item"><div class="label">入口位置</div><div class="value">我的 > 库存管理</div></div>
       <div class="item"><div class="label">操作边界</div><div class="value">只读查询 + 开单选择</div></div>
-      <div class="item"><div class="label">推荐状态</div><div class="value">预入库</div></div>
+      <div class="item"><div class="label">详情展示</div><div class="value">仅入库仓库</div></div>
     </section>
 
     <section class="card">
@@ -53,7 +53,7 @@
       <table>
         <tr><th>范围</th><th>本期处理</th><th>说明</th></tr>
         <tr><td>开单页</td><td>新增入库仓库字段</td><td>可为空，默认暂不入库。</td></tr>
-        <tr><td>订单详情</td><td>有入库信息才展示</td><td>未选仓库时不展示入库模块。</td></tr>
+        <tr><td>订单详情</td><td>有仓库才展示</td><td>仅在订单信息中展示入库仓库，不展示独立入库信息模块。</td></tr>
         <tr><td>我的页</td><td>新增库存管理入口</td><td>仅超管和有库存查询权限账号可见。</td></tr>
         <tr><td>库存查询</td><td>概览、台账、明细、农户存粮</td><td>只读，不做写操作。</td></tr>
       </table>
@@ -80,33 +80,28 @@
     C --> D[正常开单/付款]
     B -- 是 --> E[展示入库仓库字段]
     E --> F{是否选择仓库}
-    F -- 否 --> G[订单不生成入库信息]
-    G --> H[订单详情不展示入库模块]
+    F -- 否 --> G[订单不记录入库仓库]
+    G --> H[订单详情不展示入库仓库]
     F -- 是 --> I[提交 warehouseId/warehouseName]
-    I --> J[生成预入库记录]
-    J --> K[订单详情展示入库信息]
-    K --> L[PC端/后端确认正式入库]
+    I --> J[记录本单入库仓库]
+    J --> K[订单详情订单信息展示入库仓库]
+    K --> L[PC端/后端处理库存入库]
     L --> M[移动端库存管理只读查询]</pre></div>
     </section>
 
-    <section class="card" id="status">
-      <h3>4. 入库状态设计</h3>
+    <section class="card" id="order-detail">
+      <h3>4. 订单详情展示</h3>
+      <p class="lead">订单详情只记录本单农产品入到哪个仓库，不展示库存处理过程。</p>
       <table>
-        <tr><th>状态</th><th>含义</th><th>移动端展示</th></tr>
-        <tr><td>未入库</td><td>开单未选择仓库</td><td>订单详情不展示入库信息。</td></tr>
-        <tr><td>预入库</td><td>已选择仓库，货物已进入仓库但库存未正式确认</td><td>展示入库状态、仓库、来源单号。</td></tr>
-        <tr><td>已入库</td><td>PC 或后端库存接口确认入库</td><td>展示库存流水号和入库时间。</td></tr>
-        <tr><td>入库失败</td><td>库存接口或数据校验失败</td><td>展示失败状态，后续 PC 端处理。</td></tr>
-        <tr><td>已冲销</td><td>订单取消或库存记录撤销</td><td>展示冲销状态。</td></tr>
+        <tr><th>场景</th><th>订单详情展示</th></tr>
+        <tr><td>开单未选择仓库</td><td>不展示入库仓库行。</td></tr>
+        <tr><td>开单选择仓库</td><td>在订单信息区域展示入库仓库。</td></tr>
+        <tr><td>后续库存确认、失败、冲销</td><td>不在订单详情展示，进入库存管理或 PC 端库存功能查看。</td></tr>
       </table>
-      <div class="diagram"><pre class="mermaid">stateDiagram-v2
-    [*] --> 未入库: 未选择仓库
-    [*] --> 预入库: 选择仓库并提交订单
-    预入库 --> 已入库: PC端/后端确认
-    预入库 --> 入库失败: 接口失败/校验失败
-    预入库 --> 已冲销: 订单取消/库存撤销
-    入库失败 --> 已入库: PC端处理后重新确认
-    已入库 --> 已冲销: 业务冲销</pre></div>
+      <table>
+        <tr><th>区域</th><th>字段</th><th>展示规则</th></tr>
+        <tr><td>订单信息</td><td>入库仓库</td><td>展示仓库名称，建议放在下单时间后、业务员前；未选择仓库时不展示该行。</td></tr>
+      </table>
     </section>
 
     <section class="card" id="home">
@@ -216,8 +211,8 @@
       <ul>
         <li>未启用入库配置时，开单页不展示入库仓库字段。</li>
         <li>启用入库配置时，开单页展示入库仓库，下拉只展示启用仓库。</li>
-        <li>未选择仓库的订单，详情页不展示入库信息。</li>
-        <li>选择仓库的订单，详情页展示入库状态、仓库、流水号、入库时间和来源单号。</li>
+        <li>未选择仓库的订单，详情页不展示入库仓库。</li>
+        <li>选择仓库的订单，仅在订单信息中展示入库仓库，不展示入库状态、库存流水号、入库时间和来源单号。</li>
         <li>库存管理首页展示库存概览和三 Tab 最近 5 条预览，不展示搜索、筛选、汇总控件。</li>
         <li>库存台账列表支持搜索和筛选，不支持汇总和详情下钻。</li>
         <li>库存明细列表支持搜索、筛选、汇总统计和非汇总详情弹层。</li>

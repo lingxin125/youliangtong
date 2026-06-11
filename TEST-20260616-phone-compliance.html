@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>丰收云小程序手机号登录合规整改测试用例</title>
+  <style>
+    :root { --green:#11A64A; --blue:#2563EB; --ink:#172033; --muted:#667085; --line:#E6EAF0; --bg:#F6F8FA; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif; }
+    .wrap { max-width:1160px; margin:0 auto; padding:32px 24px 56px; }
+    .hero, section { background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 8px 24px rgba(15,23,42,.05); }
+    .hero { padding:28px; margin-bottom:18px; }
+    section { padding:24px; margin-top:18px; }
+    .kicker { color:var(--green); font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { margin:8px 0 10px; font-size:30px; line-height:1.25; }
+    h2 { margin:0 0 14px; font-size:21px; }
+    p, li { color:#394150; line-height:1.75; font-size:14px; }
+    .lead { color:var(--muted); max-width:880px; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
+    th, td { border:1px solid var(--line); padding:10px 12px; text-align:left; vertical-align:top; line-height:1.65; }
+    th { background:#F8FAFC; color:#334155; }
+    .p0 { color:#DC2626; font-weight:700; }
+    .p1 { color:#2563EB; font-weight:700; }
+    .note { background:#F8FAFC; border:1px solid var(--line); border-radius:12px; padding:12px 14px; color:#475569; font-size:14px; line-height:1.7; }
+    @media (max-width:760px) { .wrap { padding:18px 12px 36px; } .hero, section { padding:18px; } h1 { font-size:24px; } table { font-size:13px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="kicker">Test Cases</div>
+      <h1>丰收云小程序手机号登录合规整改测试用例</h1>
+      <p class="lead">覆盖最终最小整改方案：登录入口原样保留、协议显性展示、内部商户说明、登录前协议拦截、一键登录授权触发和提审材料检查。</p>
+    </div>
+
+    <section>
+      <h2>1. 测试准备</h2>
+      <ul>
+        <li>准备一个已加入商户团队的签约测试手机号，验证码使用测试固定值。</li>
+        <li>准备一个未加入商户团队的手机号，用于回归账号准入逻辑。</li>
+        <li>清除小程序登录态后进入登录入口页。</li>
+        <li>准备常见移动端宽度进行文案适配检查。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>2. P0 测试用例</h2>
+      <table>
+        <tr><th>ID</th><th>优先级</th><th>测试项</th><th>步骤</th><th>预期结果</th></tr>
+        <tr><td>PC-001</td><td class="p0">P0</td><td>首次进入不自动授权</td><td>清除登录态后进入小程序登录入口。</td><td>不弹出手机号授权；页面保持 logo + 双按钮结构。</td></tr>
+        <tr><td>PC-002</td><td class="p0">P0</td><td>最小 UI 文案展示</td><td>进入登录入口页。</td><td>展示“手机号快捷登录”“一键登录”“我已阅读并同意《用户协议》和《隐私政策》”“本小程序为内部商户小程序，需加入商户团队后使用”；不展示“农产品收购交易平台”。</td></tr>
+        <tr><td>PC-003</td><td class="p0">P0</td><td>手机号入口协议拦截</td><td>未勾选协议，点击“手机号快捷登录”。</td><td>提示先同意用户协议与隐私政策，不跳转手机号登录页。</td></tr>
+        <tr><td>PC-004</td><td class="p0">P0</td><td>一键登录前协议拦截</td><td>未勾选协议，点击“一键登录”。</td><td>不触发手机号授权流程，提示先同意协议。</td></tr>
+        <tr><td>PC-005</td><td class="p0">P0</td><td>手机号快捷登录跳转</td><td>勾选协议，点击“手机号快捷登录”。</td><td>进入现有手机号登录页，后续验证码登录流程保持不变。</td></tr>
+        <tr><td>PC-006</td><td class="p0">P0</td><td>一键登录授权触发</td><td>勾选协议，点击“一键登录”。</td><td>触发现有微信手机号授权流程；授权成功后进入业务首页。</td></tr>
+        <tr><td>PC-007</td><td class="p0">P0</td><td>拒绝一键登录授权</td><td>勾选协议，点击一键登录后拒绝授权。</td><td>不退出小程序，不反复弹窗，可返回或改用手机号登录。</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. P1 与回归测试</h2>
+      <table>
+        <tr><th>ID</th><th>优先级</th><th>测试项</th><th>步骤</th><th>预期结果</th></tr>
+        <tr><td>PC-008</td><td class="p1">P1</td><td>手机号格式错误</td><td>进入手机号登录页，输入非 11 位手机号并点击登录或发送验证码。</td><td>提示请输入正确手机号，现有校验不受入口调整影响。</td></tr>
+        <tr><td>PC-009</td><td class="p1">P1</td><td>文案适配</td><td>在 360/390/430px 宽度查看登录入口。</td><td>内部商户说明左对齐，协议区完整可见，按钮不重叠、不溢出。</td></tr>
+        <tr><td>PC-010</td><td class="p1">P1</td><td>隐私协议说明</td><td>从登录入口打开隐私协议。</td><td>能看到手机号用于签约账号核验、登录验证、交易安全校验和必要服务联系。</td></tr>
+        <tr><td>PC-011</td><td class="p1">P1</td><td>用户协议说明</td><td>从登录入口打开用户协议。</td><td>能看到平台面向内部商户团队/签约商户账号使用的说明。</td></tr>
+        <tr><td>PC-012</td><td class="p1">P1</td><td>未加入团队账号准入回归</td><td>使用未加入商户团队的手机号走现有登录流程。</td><td>不得进入业务首页，不创建可用业务登录态。</td></tr>
+        <tr><td>PC-013</td><td class="p1">P1</td><td>登录后主链路回归</td><td>已签约账号登录后查看首页、开单、订单、我的。</td><td>登录后业务主链路不受整改影响。</td></tr>
+        <tr><td>PC-014</td><td class="p1">P1</td><td>提审材料检查</td><td>检查录屏、截图、体验账号、审核说明。</td><td>材料覆盖服务内容、登录限制、协议说明和测试账号。</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. 提审检查清单</h2>
+      <div class="note">
+        提交审核前确认：登录入口截图、协议与内部商户说明截图、隐私协议截图、服务内容录屏、体验账号与固定验证码均已准备；审核备注明确丰收云为内部商户团队使用的小程序，需加入商户团队后使用，手机号用于登录验证、签约账号核验及交易安全校验。
+      </div>
+    </section>
+  </div>
+</body>
+</html>
