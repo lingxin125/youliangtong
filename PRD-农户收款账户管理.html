@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>农户收款账户管理 PRD</title>
+<style>
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#6b7280;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--amber:#fffbeb;--red:#fef2f2;--slate:#f8fafc}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.7}.layout{display:flex;min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:258px;background:#fff;border-right:1px solid var(--line);padding:22px 0;overflow:auto}.brand{padding:0 22px 18px;border-bottom:1px solid var(--line);margin-bottom:10px}.brand .k{font-size:12px;color:var(--primary);font-weight:800;letter-spacing:.4px}.brand h1{margin:6px 0 4px;font-size:18px;line-height:1.35}.brand p{margin:0;color:var(--muted);font-size:12px}.side a{display:block;padding:8px 22px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;font-size:13px}.side a:hover{color:var(--primary);background:rgba(17,166,74,.05);border-left-color:var(--primary)}.main{margin-left:258px;width:calc(100% - 258px);padding:28px 34px 70px}.hero{background:linear-gradient(135deg,#11a64a,#0f7f3d);color:#fff;border-radius:24px;padding:34px 36px;box-shadow:0 18px 40px rgba(17,166,74,.18)}.hero h2{margin:0 0 8px;font-size:30px;line-height:1.25}.hero p{margin:0;max-width:920px;opacity:.92;font-size:15px}.meta,.grid,.flow{display:grid;gap:12px}.meta{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 24px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.flow{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:12px}.item,.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}.item{padding:14px 16px}.label{font-size:12px;color:var(--muted)}.value{margin-top:2px;font-size:15px;font-weight:800}.card{padding:24px;margin-bottom:18px}.card h3{margin:0 0 14px;font-size:20px}.card h4{margin:18px 0 8px;font-size:16px}.lead{color:var(--muted);font-size:14px;margin:0 0 14px}.box{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fafafa}.box strong{display:block;font-size:16px;margin-bottom:4px}.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;margin:0 6px 6px 0}.green{background:var(--green);color:#047857}.blue{background:var(--blue);color:#2563eb}.amber{background:var(--amber);color:#b45309}.red{background:var(--red);color:#dc2626}.slate{background:var(--slate);color:#475569}table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;color:#374151;font-weight:800}ul{margin:8px 0 0;padding-left:20px}li{margin:5px 0}.step{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fbfcfb}.step b{display:inline-flex;width:22px;height:22px;border-radius:50%;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-size:12px;margin-right:6px}.note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f0fdf4;color:#166534;font-size:13px}.warn{background:#fffbeb;color:#92400e}.req{margin:10px 0 0;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#fff}.req b{color:#047857}@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.flow{grid-template-columns:1fr}.hero{padding:26px 22px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand"><div class="k">FEATURE PRD</div><h1>农户收款账户管理</h1><p>结算信息 + 数币账户 合并方案</p></div>
+    <nav>
+      <a href="#overview">概览</a>
+      <a href="#structure">信息架构与入口</a>
+      <a href="#bank">银行账户</a>
+      <a href="#wallet">数币账户</a>
+      <a href="#diff">与收购商端差异</a>
+      <a href="#mock">数据与 Mock 口径</a>
+      <a href="#acceptance">验收标准</a>
+      <a href="#open">待确认问题</a>
+      <a href="#links">原型入口</a>
+      <a href="#changelog">修订记录</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <section class="hero">
+      <h2>农户收款账户管理 PRD</h2>
+      <p>将农户端「结算信息修改」与「数币账户维护」合并为统一的「收款账户管理」，页面分「银行账户」与「数币账户」两个分区。农户建档后必定持有一张唯一的银行结算卡：不可删除、不可新增，仅支持沿用现有模式逐项修改；数币账户最多一个：仅支持新增和删除，不支持编辑。V1.1 补充：开户支行按「卡号能否自动识别开户行」决定是否展示；修改弹层当前值默认脱敏并提供明文切换。</p>
+    </section>
+
+    <section class="meta" id="overview">
+      <div class="item"><div class="label">需求编号</div><div class="value">REQ-089</div></div>
+      <div class="item"><div class="label">方案日期</div><div class="value">2026-06-12</div></div>
+      <div class="item"><div class="label">适用端</div><div class="value">农户端（小程序）</div></div>
+      <div class="item"><div class="label">当前状态</div><div class="value">需求设计 / 原型已落地</div></div>
+    </section>
+
+    <section class="card">
+      <h3>1. 背景与目标</h3>
+      <div class="grid">
+        <div class="box"><strong>现状问题</strong><span class="tag amber">入口分散</span><p class="lead">农户端「我的」页同时存在「账户管理」和「结算信息修改」两个入口，账户能力分散在两个页面，口径不一致：账户管理页允许多卡和删除，与农户实际「建档即一卡」的业务不符。</p></div>
+        <div class="box"><strong>合并目标</strong><span class="tag green">单一入口</span><p class="lead">合并为唯一入口「收款账户管理」，内含银行结算账户（唯一、改不删）与数币收款账户（最多一个、增删不改），口径与农户建档业务对齐。</p></div>
+      </div>
+      <div class="note">设计原则：尽量不改动现有交互模式。银行卡修改完全沿用当前结算信息修改的「逐项修改 + 底部弹层」模式；数币账户新增参考收购商付款账户管理的钱包新增逻辑，仅按农户场景补充字段。</div>
+    </section>
+
+    <section class="card" id="structure">
+      <h3>2. 信息架构与入口变化</h3>
+      <h4>入口合并</h4>
+      <table>
+        <tr><th>位置</th><th>改造前</th><th>改造后</th></tr>
+        <tr><td>农户端 我的</td><td>「账户管理」+「结算信息修改」两个并列入口</td><td>合并为一个「收款账户管理」入口</td></tr>
+        <tr><td>跳转页面</td><td>account-security.html（农户态）/ settlement-info-edit.html</td><td>farmer-account-manage.html（新页面）</td></tr>
+        <tr><td>历史页面</td><td colspan="2">settlement-info-edit.html 继续服务收购商端「付款信息修改」，不受影响；account-security.html 农户态不再被引用</td></tr>
+      </table>
+      <h4>页面结构（farmer-account-manage.html）</h4>
+      <div class="flow">
+        <div class="step"><b>1</b>银行账户区：唯一银行卡卡片，字段逐项展示 + 修改按钮</div>
+        <div class="step"><b>2</b>数币账户区：无 → 空态提示 + 底部「新增数币账户」按钮；有 → 钱包卡片 + 删除</div>
+        <div class="step"><b>3</b>新增数币账户：独立页 farmer-wallet-add.html</div>
+        <div class="step"><b>4</b>删除数币账户：底部弹层二次确认</div>
+      </div>
+    </section>
+
+    <section class="card" id="bank">
+      <h3>3. 银行账户（唯一结算卡，改不删）</h3>
+      <h4>业务规则</h4>
+      <ul>
+        <li>农户建档完成后必定存在一张银行结算卡，该卡<strong>不可删除、不可新增第二张</strong>。</li>
+        <li>卡片头部布局与收购商账户管理的银行卡卡片一致：银行图标 + 银行名称 + 个人户 / 对公户标签，不带副标题说明文案。</li>
+        <li>修改沿用现有结算信息修改模式：<strong>每次仅修改一项</strong>，底部弹层内展示当前值并填写新值。</li>
+        <li>修改弹层中的「当前值」<strong>默认脱敏展示</strong>，右侧提供小眼睛图标，点击切换明文 / 脱敏后再进行修改。</li>
+      </ul>
+      <h4>开户行 / 开户支行展示逻辑（V1.1 明确）</h4>
+      <ul>
+        <li><strong>开户行一定展示</strong>；开户支行是否展示取决于开户行能否通过银行卡号自动识别。</li>
+        <li>大行（邮储 / 工行 / 农行 / 中行 / 建行等）：卡号可自动带出开户行 → <strong>只展示开户行，不展示开户支行</strong>。</li>
+        <li>小行（卡号无法自动识别）：需手动选择开户行和开户支行 → <strong>开户行、开户支行均展示</strong>。</li>
+      </ul>
+      <h4>修改银行卡号的弹层交互（参考农户建档）</h4>
+      <div class="flow" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+        <div class="step"><b>1</b>「开户行」字段默认常驻展示、初始为空；开户支行不展示</div>
+        <div class="step"><b>2</b>输入卡号自动识别成功 → 开户行自动回显，仍不展示开户支行</div>
+        <div class="step"><b>3</b>识别不出 → 开户行切换为手动下拉，并展示开户支行下拉；不附加任何提示文案</div>
+      </div>
+      <h4>字段与可改性（沿用现有口径）</h4>
+      <table>
+        <tr><th>账户类型</th><th>字段</th><th>可修改</th><th>说明</th></tr>
+        <tr><td rowspan="6">个人户</td><td>持卡人姓名</td><td>✅</td><td>弹层修改，当前值脱敏 + 小眼睛明文切换</td></tr>
+        <tr><td>预留手机号</td><td>❌</td><td>农户端不允许修改手机号</td></tr>
+        <tr><td>身份证号</td><td>✅</td><td>弹层修改，当前值脱敏 + 小眼睛明文切换</td></tr>
+        <tr><td>银行卡号</td><td>✅</td><td>修改时按自动识别 / 手动选择联动开户行与支行</td></tr>
+        <tr><td>开户行</td><td>❌</td><td>只读，随卡号修改联动</td></tr>
+        <tr><td>开户支行</td><td>❌</td><td>只读，仅开户行无法自动识别（手动选择）时展示</td></tr>
+        <tr><td rowspan="5">公户</td><td>对公账户名称</td><td>✅</td><td>弹层修改，当前值脱敏 + 小眼睛明文切换</td></tr>
+        <tr><td>预留手机号</td><td>❌</td><td>只读</td></tr>
+        <tr><td>银行账号</td><td>✅</td><td>修改时按自动识别 / 手动选择联动开户行与支行</td></tr>
+        <tr><td>开户行</td><td>❌</td><td>只读，随账号修改联动</td></tr>
+        <tr><td>开户支行</td><td>❌</td><td>只读，仅开户行无法自动识别（手动选择）时展示</td></tr>
+      </table>
+      <div class="req"><b>REQ-B1</b> 银行账户区不提供删除按钮和新增银行卡入口。</div>
+      <div class="req"><b>REQ-B2</b> 各字段修改交互与现有结算信息修改保持一致（逐项修改、当前值展示、新值输入、保存后脱敏展示）。</div>
+      <div class="req"><b>REQ-B3</b> 公户仅允许修改对公账户名称和银行账号（口径与 REQ-083 一致）。</div>
+      <div class="req"><b>REQ-B4</b> 开户支行仅在开户行无法通过卡号自动识别（手动选择）时展示；自动识别成功时卡片与弹层均不出现开户支行。</div>
+      <div class="req"><b>REQ-B5</b> 修改弹层当前值默认脱敏，提供小眼睛图标切换明文；新值输入框不回填旧值。</div>
+    </section>
+
+    <section class="card" id="wallet">
+      <h3>4. 数币账户（最多一个，增删不改）</h3>
+      <h4>业务规则</h4>
+      <ul>
+        <li>数币账户<strong>最多持有一个</strong>：已有数币账户时隐藏新增按钮，需先删除再新增。</li>
+        <li>数币账户<strong>不支持编辑</strong>：信息变更通过「删除 → 重新新增」完成。</li>
+        <li>删除需底部弹层二次确认。</li>
+        <li>新增逻辑参考收购商付款账户管理的钱包新增（含钱包 ID 校验），并按农户场景扩展字段。</li>
+      </ul>
+      <h4>空态与新增入口（V1.1 调整）</h4>
+      <ul>
+        <li>无数币账户时，数币账户区展示空态卡片：「暂无数币账户」+ 说明文案，<strong>空态卡片本身不可点击</strong>。</li>
+        <li>新增入口为<strong>页面底部固定「新增数币账户」按钮</strong>（样式参考收购商账户管理的底部新增按钮）。</li>
+        <li>已有数币账户时底部按钮隐藏（最多一个，无可新增项）。</li>
+      </ul>
+      <h4>钱包卡片回显规则（V1.1 明确）</h4>
+      <ul>
+        <li>卡片标题固定为<strong>「数字人民币钱包」</strong>+ 账户类型标签（个人 / 对公），与收购商端钱包卡片保持一致。</li>
+        <li>副标题行：所属银行 · 钱包等级（如「中国邮政储蓄银行 · III类钱包」）。</li>
+        <li>详情区第一行为<strong>钱包名称（明文展示）</strong>——农户作为收款人时钱包名称是必填必传项，必须直观可见；其后依次为钱包 ID、姓名、手机号、身份证号（均脱敏）。</li>
+      </ul>
+      <h4>新增数币账户字段（farmer-wallet-add.html）</h4>
+      <table>
+        <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+        <tr><td>账户类型</td><td>下拉：个人 / 对公</td><td>✅</td><td>参考收购商新增账户的账户类型选择方式</td></tr>
+        <tr><td>数币账户银行</td><td>下拉（大行）</td><td>✅</td><td>邮储 / 工行 / 农行 / 中行 / 建行 / 交行，个人和对公均需选择</td></tr>
+        <tr><td>钱包名称</td><td>输入</td><td>✅</td><td>手输；输入框下方提示获取路径——银行APP「数字人民币」专区的数币钱包卡片上的名称即为钱包名称</td></tr>
+        <tr><td>姓名</td><td>输入</td><td>✅</td><td>真实客户姓名，手输，不固定带入既有身份信息</td></tr>
+        <tr><td>手机号</td><td>输入</td><td>✅</td><td>11 位格式校验</td></tr>
+        <tr><td>身份证号</td><td>输入</td><td>✅</td><td>18 位格式校验</td></tr>
+        <tr><td>钱包 ID</td><td>输入</td><td>✅</td><td>校验逻辑与收购商钱包新增一致</td></tr>
+      </table>
+      <h4>钱包 ID 校验规则（与收购商端一致）</h4>
+      <table>
+        <tr><th>校验结果</th><th>提示 / 行为</th></tr>
+        <tr><td>III 类及以上实名钱包</td><td>校验通过，保存数币账户并返回收款账户管理</td></tr>
+        <tr><td>IV 类 / 非实名钱包</td><td>提示「当前钱包为非实名钱包，请先升级为实名钱包」</td></tr>
+        <tr><td>未找到钱包</td><td>提示「请先到手机银行数字人民币专区添加数字钱包」</td></tr>
+      </table>
+      <div class="req"><b>REQ-W1</b> 已存在数币账户时，底部「新增数币账户」按钮不可见；删除后按钮恢复。</div>
+      <div class="req"><b>REQ-W2</b> 数币账户卡片不提供编辑按钮，仅提供删除（二次确认）。</div>
+      <div class="req"><b>REQ-W3</b> 新增时账户类型、数币账户银行、钱包名称、姓名、手机号、身份证号、钱包 ID 均必填，校验通过才允许保存。</div>
+      <div class="req"><b>REQ-W4</b> 数币账户卡片：标题「数字人民币钱包」+ 账户类型标签，副行「银行 · 钱包等级」，详情区第一行明文展示钱包名称，其后展示脱敏的钱包 ID / 姓名 / 手机号 / 身份证号。</div>
+      <div class="req"><b>REQ-W5</b> 钱包名称为收款必传项，任何回显场景不可省略、不做脱敏。</div>
+    </section>
+
+    <section class="card" id="diff">
+      <h3>5. 与收购商端账户管理的差异对照</h3>
+      <table>
+        <tr><th>维度</th><th>收购商 付款账户管理</th><th>农户 收款账户管理（本方案）</th></tr>
+        <tr><td>银行卡数量</td><td>多张，可增可删</td><td>仅一张，不可增删</td></tr>
+        <tr><td>银行卡修改</td><td>不支持逐项修改（删除重加）</td><td>逐项修改（沿用结算信息修改模式）</td></tr>
+        <tr><td>默认账户切换</td><td>支持</td><td>不涉及（仅一张结算卡）</td></tr>
+        <tr><td>数币账户数量</td><td>可多个</td><td>最多一个</td></tr>
+        <tr><td>数币新增字段</td><td>姓名 / 手机号 / 身份证号 / 钱包 ID</td><td>增加：账户类型（个人/对公）、数币账户银行、钱包名称</td></tr>
+        <tr><td>数币编辑</td><td>不支持（增删）</td><td>不支持（增删），且唯一</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="mock">
+      <h3>6. 数据与 Mock 口径</h3>
+      <ul>
+        <li>数币钱包存储键：<code>ylt_farmer_wallet_v2</code>（单对象，跨页共享给新增页；删除即移除该键）。银行卡数据为页面内 mock，不持久化。</li>
+        <li>种子数据：李大姐个人户邮储卡一张（卡号自动识别开户行，不展示开户支行），数币账户为空（演示新增流程）。</li>
+        <li>卡号自动识别 Mock（BIN 前缀）：<code>6215 / 6221 / 6228</code> → 邮储，<code>6222</code> → 工行，<code>6230</code> → 农行，<code>6216</code> → 中行，<code>6217</code> → 建行；其余前缀视为无法识别，进入手动选择开户行 + 开户支行。</li>
+        <li>演示用钱包 ID：<code>008188889012</code> / <code>008188887777</code>（通过）、<code>008188885678</code>（非实名提示）、其他（未找到钱包提示）。</li>
+        <li>页面右下角保留「演示公户」切换按钮，便于评审对照个人户 / 公户两种结算卡形态。</li>
+        <li>验证码 Mock 固定为 <code>123456</code>（如涉及）。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="acceptance">
+      <h3>7. 验收标准</h3>
+      <ul>
+        <li>农户「我的」页只保留一个「收款账户管理」入口，原「账户管理」「结算信息修改」两个入口移除。</li>
+        <li>页面分区标题为「银行账户」「数币账户」；银行卡卡片头部为银行图标 + 银行名称 + 账户类型标签，无副标题说明文案。</li>
+        <li>银行账户卡片完整展示且无删除 / 新增能力；每个可改字段都能独立完成修改并即时刷新脱敏展示。</li>
+        <li>修改弹层当前值默认脱敏，小眼睛可切换明文；新值输入框为空，不回填旧值。</li>
+        <li>修改银行卡号：「开户行」字段常驻（初始为空），输入大行卡号自动回显开户行且不出现开户支行；输入无法识别的卡号时开户行变为手动下拉并出现开户支行下拉，无附加提示文案；保存后卡片按对应规则展示 / 隐藏开户支行行。</li>
+        <li>无数币账户时展示「暂无数币账户」空态卡片 + 底部固定「新增数币账户」按钮；新增校验通过后返回列表并展示钱包卡片，此时底部按钮消失。</li>
+        <li>钱包卡片标题为「数字人民币钱包」+ 类型标签，详情第一行明文展示钱包名称。</li>
+        <li>数币账户删除需二次确认；删除后底部新增按钮恢复。</li>
+        <li>钱包 ID 三种校验分支提示文案正确。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="open">
+      <h3>8. 待确认问题</h3>
+      <ul>
+        <li>对公数币账户的「姓名」是否需要改为企业 / 账户名称？当前方案两种类型字段一致。</li>
+        <li>删除数币账户是否需要追加手机号验证码校验？当前方案仅二次确认弹窗。</li>
+        <li>数币账户是否参与收款码 / 收款场景的账户选择？当前方案仅做维护，不引入默认账户切换概念。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="links">
+      <h3>9. 原型入口</h3>
+      <table>
+        <tr><th>页面</th><th>说明</th></tr>
+        <tr><td><a href="farmer-account-manage.html?source=farmer-my.html" target="_blank">farmer-account-manage.html</a></td><td>收款账户管理主页面（银行账户 + 数币账户）</td></tr>
+        <tr><td><a href="farmer-wallet-add.html?source=farmer-my.html" target="_blank">farmer-wallet-add.html</a></td><td>新增数币账户页</td></tr>
+        <tr><td><a href="farmer-my.html" target="_blank">farmer-my.html</a></td><td>农户端我的（合并后的入口）</td></tr>
+        <tr><td><a href="account-security.html?source=buyer-my.html" target="_blank">account-security.html</a></td><td>收购商付款账户管理（参照对象，不受本次改造影响）</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="changelog">
+      <h3>10. 修订记录</h3>
+      <table>
+        <tr><th>版本</th><th>日期</th><th>修订内容</th></tr>
+        <tr><td>V1.2</td><td>2026-06-13</td><td>修改卡号弹层：开户行字段常驻展示（初始为空），自动识别成功直接回显、识别不出切手动下拉，去掉全部提示语；数币卡片字段标题字号与上方银行账户卡片对齐（14px）；删除数币账户弹窗精简为「是否删除数币账户？」一句；新增数币账户页钱包名称下增加获取路径提示文案。</td></tr>
+        <tr><td>V1.1</td><td>2026-06-12</td><td>分区标题改为「银行账户 / 数币账户」；银行卡卡片头部去掉副标题说明，对齐收购商端布局；明确开户支行展示逻辑（自动识别只展示开户行，识别不出才展示支行）；修改弹层当前值默认脱敏 + 小眼睛明文切换，新值不回填；修改银行卡号弹层按建档逻辑自动识别 / 手动选择；数币空态改为「暂无数币账户」提示 + 底部固定新增按钮；钱包卡片标题固定「数字人民币钱包」，钱包名称作为详情第一行明文展示；修正数币钱包存储键口径为 ylt_farmer_wallet_v2。</td></tr>
+        <tr><td>V1.0</td><td>2026-06-12</td><td>首版：结算信息修改与数币账户维护合并为收款账户管理。</td></tr>
+      </table>
+    </section>
+  </main>
+</div>
+</body>
+</html>

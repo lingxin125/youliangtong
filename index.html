@@ -128,6 +128,10 @@
             box-shadow: var(--shadow-1);
         }
 
+        .card-wide {
+            grid-column: 1 / -1;
+        }
+
         .card-head {
             display: flex;
             align-items: center;
@@ -153,6 +157,7 @@
         .icon-prd { background: #DCFCE7; color: #15803D; }
         .icon-doc { background: #E0E7FF; color: #3730A3; }
         .icon-memory { background: #FFF7ED; color: #C2410C; }
+        .icon-sync { background: #E0F2FE; color: #0369A1; }
 
         .arrow {
             color: #9CA3AF;
@@ -1113,6 +1118,29 @@
     </section>
 
     <section class="section">
+        <h2 class="section-title"><i class="fas fa-chart-line"></i>项目进度同步</h2>
+        <p class="section-desc">用于每周项目进度会同步，自动汇总需求状态、识别风险、检查资料缺口，并生成周会重点和待办。</p>
+        <div class="grid">
+            <a class="card card-wide" href="project-execution-dashboard.html" target="_blank" rel="noopener noreferrer">
+                <div class="card-head">
+                    <div class="icon icon-sync"><i class="fas fa-chart-line"></i></div>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </div>
+                <h2>智能项目驾驶舱</h2>
+                <p>深色大屏总览项目健康度、风险雷达、模块态势、状态结构和周会待办；点击模块可下钻查看需求明细、风险和关联资料。</p>
+            </a>
+            <a class="card card-wide" href="project-progress-sync-20260613.html" target="_blank" rel="noopener noreferrer">
+                <div class="card-head">
+                    <div class="icon icon-doc"><i class="fas fa-list-check"></i></div>
+                    <i class="fas fa-chevron-right arrow"></i>
+                </div>
+                <h2>2026-06-13 项目进度会同步</h2>
+                <p>面向明天进度会的同步材料，按已上线、待上线、延期风险、飞书待办、新需求和需拍板事项分类整理。</p>
+            </a>
+        </div>
+    </section>
+
+    <section class="section">
         <h2 class="section-title"><i class="fas fa-sitemap"></i>需求地图</h2>
         <p class="section-desc">从飞书全量需求表生成，按模块、状态、文档覆盖情况统一导航；已有本地 HTML 的需求优先跳转本地资料。</p>
         <div class="requirement-map" id="requirementMap">
@@ -1186,6 +1214,7 @@
             <div class="prd-toolbar">
                 <div class="prd-filter-tabs" role="tablist" aria-label="PRD资料分类">
                     <button class="prd-filter-tab active" type="button" data-category="recent" aria-pressed="true">近期发版</button>
+                    <button class="prd-filter-tab" type="button" data-category="progress" aria-pressed="false">进度同步</button>
                     <button class="prd-filter-tab" type="button" data-category="core" aria-pressed="false">核心业务</button>
                     <button class="prd-filter-tab" type="button" data-category="billing-config" aria-pressed="false">开单配置</button>
                     <button class="prd-filter-tab" type="button" data-category="inventory" aria-pressed="false">库存管理</button>
@@ -1206,6 +1235,34 @@
             </div>
 
             <div class="doc-subgrid">
+                <a class="card prd-doc-card border-green-100 bg-green-50/30" href="project-progress-sync-20260613.html" target="_blank" rel="noopener noreferrer" data-category="recent progress" data-title="2026-06-13 项目进度会同步 已上线 待上线 延期风险 飞书待办 新需求" data-date="2026-06-13" data-type="进度同步">
+                    <div class="card-head">
+                        <div class="icon icon-sync"><i class="fas fa-list-check"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">2026-06-13 项目进度会同步</h2>
+                    <p>汇总近期上线、6月中旬待上线、延期风险、飞书待办、账户管理测试问题和新增数币账户需求。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-13</span>
+                        <span class="prd-tag blue">进度同步</span>
+                        <span class="prd-tag">周会材料</span>
+                    </div>
+                </a>
+
+                <a class="card prd-doc-card border-green-100 bg-green-50/30" href="PRD-农户收款账户管理.html" target="_blank" rel="noopener noreferrer" data-category="recent core" data-title="农户收款账户管理 PRD 结算信息修改 数币账户合并 收款账户" data-date="2026-06-12" data-type="PRD">
+                    <div class="card-head">
+                        <div class="icon icon-prd"><i class="fas fa-wallet"></i></div>
+                        <i class="fas fa-chevron-right arrow"></i>
+                    </div>
+                    <h2 class="text-green-700">农户收款账户管理 PRD</h2>
+                    <p>结算信息修改与数币账户维护合并为收款账户管理：唯一银行卡改不删、数币账户最多一个增删不改。</p>
+                    <div class="prd-doc-tags">
+                        <span class="prd-tag green">2026-06-12</span>
+                        <span class="prd-tag blue">PRD</span>
+                        <span class="prd-tag">账户管理</span>
+                    </div>
+                </a>
+
                 <a class="card prd-doc-card border-green-100 bg-green-50/30" href="PRD-20260616-phone-compliance.html" target="_blank" rel="noopener noreferrer" data-category="recent compliance" data-title="手机号登录合规整改 PRD" data-date="2026-06-16" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
@@ -1234,13 +1291,13 @@
                     </div>
                 </a>
 
-                <a class="card prd-doc-card border-emerald-100 bg-emerald-50/30" href="PRD-20260616-release-small-features.html" target="_blank" rel="noopener noreferrer" data-category="recent core" data-title="首页与关怀版小功能 PRD" data-date="2026-06-16" data-type="PRD">
+                <a class="card prd-doc-card border-emerald-100 bg-emerald-50/30" href="PRD-20260616-release-small-features.html" target="_blank" rel="noopener noreferrer" data-category="recent core" data-title="首页与关怀版小功能 PRD 身份证号校验 协议内容替换 农户地址非必填" data-date="2026-06-16" data-type="PRD">
                     <div class="card-head">
                         <div class="icon icon-prd"><i class="fas fa-file-lines"></i></div>
                         <i class="fas fa-chevron-right arrow"></i>
                     </div>
                     <h2 class="text-green-700">首页与关怀版小功能 PRD</h2>
-                    <p>覆盖首页文案精简、收购统计增强、品类明细去今日、待办卡片优化、大字体关怀版和农户地址文案。</p>
+                    <p>覆盖首页文案精简、收购统计增强、品类明细去今日、待办卡片优化、大字体关怀版、农户地址非必填、身份证号校验和协议内容替换。</p>
                     <div class="prd-doc-tags">
                         <span class="prd-tag green">2026-06-16</span>
                         <span class="prd-tag blue">PRD</span>
@@ -1273,20 +1330,6 @@
                         <span class="prd-tag green">2026-06-09</span>
                         <span class="prd-tag blue">测试用例</span>
                         <span class="prd-tag amber">部分已上线</span>
-                    </div>
-                </a>
-
-                <a class="card prd-doc-card border-amber-100 bg-amber-50/30" href="#requirementMap" data-category="recent core" data-title="2026-06-09 小需求记录 农户建档身份证号正则校验" data-date="2026-06-09" data-type="需求记录">
-                    <div class="card-head">
-                        <div class="icon icon-doc"><i class="fas fa-list-check"></i></div>
-                        <i class="fas fa-chevron-down arrow"></i>
-                    </div>
-                    <h2 class="text-green-700">2026-06-09 小需求记录</h2>
-                    <p>新增农户建档身份证号正则校验，已维护到飞书需求总表；需求较小，不单独输出 PRD/测试用例。</p>
-                    <div class="prd-doc-tags">
-                        <span class="prd-tag green">2026-06-09</span>
-                        <span class="prd-tag amber">需求记录</span>
-                        <span class="prd-tag">身份证号校验</span>
                     </div>
                 </a>
 

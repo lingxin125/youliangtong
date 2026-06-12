@@ -12,7 +12,7 @@
 <body>
 <div class="layout">
   <aside class="side">
-    <div class="brand"><div class="k">RELEASE PRD</div><h1>2026-06-16 发版小功能</h1><p>首页、关怀版与建档文案优化</p></div>
+    <div class="brand"><div class="k">RELEASE PRD</div><h1>2026-06-16 发版小功能</h1><p>首页、关怀版、协议与建档优化</p></div>
     <nav>
       <a href="#overview">概览</a>
       <a href="#home-title">首页文案</a>
@@ -21,6 +21,8 @@
       <a href="#todo">待办事项</a>
       <a href="#care">关怀版</a>
       <a href="#farmer-address">农户地址</a>
+      <a href="#id-card">身份证校验</a>
+      <a href="#agreement">协议内容</a>
       <a href="#rules">业务规则</a>
       <a href="#acceptance">验收标准</a>
     </nav>
@@ -29,7 +31,7 @@
   <main class="main">
     <section class="hero">
       <h2>2026-06-16 发版小功能 PRD</h2>
-      <p>本次小版本主要围绕首页信息价值、首页视觉层级、关怀版大字体能力和农户建档字段文案做轻量优化。目标是在不调整核心业务流程的前提下，让首页更有经营参考价值，减少无效信息和用户理解成本。</p>
+      <p>本次小版本主要围绕首页信息价值、首页视觉层级、关怀版大字体能力、协议内容和农户建档字段做轻量优化。目标是在不调整核心业务流程的前提下，让首页更有经营参考价值，减少无效信息和用户理解成本。</p>
     </section>
 
     <section class="meta" id="overview">
@@ -47,7 +49,9 @@
         <div class="box"><strong>品类明细口径优化</strong><span class="tag amber">经营看板</span><p class="lead">品类明细去掉“今日”页签，保留本月、本年口径。</p></div>
         <div class="box"><strong>待办事项卡片优化</strong><span class="tag green">待办</span><p class="lead">优化待办卡片 UI 样式，提升可读性和点击引导。</p></div>
         <div class="box"><strong>大字体关怀版</strong><span class="tag blue">用户体验</span><p class="lead">丰收云切换为大字体关怀版，提升中老年用户使用体验。</p></div>
-        <div class="box"><strong>农户地址文案</strong><span class="tag slate">农户建档</span><p class="lead">农户建档页面“联系地址”统一改为“农户地址”。</p></div>
+        <div class="box"><strong>农户地址字段</strong><span class="tag slate">农户建档</span><p class="lead">农户建档页面“联系地址”统一改为“农户地址”，且农户地址调整为非必填。</p></div>
+        <div class="box"><strong>身份证号正则校验</strong><span class="tag amber">农户建档</span><p class="lead">农户建档页身份证号字段补充格式校验，格式不正确时拦截提交并提示修改。</p></div>
+        <div class="box"><strong>用户服务及隐私协议内容替换</strong><span class="tag blue">协议合规</span><p class="lead">替换用户服务协议及隐私协议展示内容，确保登录页、关于页等入口查看到最新协议。</p></div>
       </div>
     </section>
 
@@ -132,18 +136,46 @@
     </section>
 
     <section class="card" id="farmer-address">
-      <h3>7. 农户建档页面“联系地址”改为“农户地址”</h3>
+      <h3>7. 农户建档页面“联系地址”改为“农户地址”且非必填</h3>
       <h4>业务目标</h4>
-      <p class="lead">当前字段名称“联系地址”容易理解为联系方式的一部分，而实际用于记录农户所在地或经营地址。本次统一改为“农户地址”，降低理解成本。</p>
+      <p class="lead">当前字段名称“联系地址”容易理解为联系方式的一部分，而实际用于记录农户所在地或经营地址。本次统一改为“农户地址”，并将该字段调整为非必填，避免因地址暂时无法确认而阻断建档。</p>
       <table>
         <tr><th>页面</th><th>调整前</th><th>调整后</th><th>说明</th></tr>
-        <tr><td>农户建档页</td><td>联系地址</td><td>农户地址</td><td>仅调整字段展示文案，不调整字段保存逻辑。</td></tr>
+        <tr><td>农户建档页</td><td>联系地址</td><td>农户地址</td><td>调整字段展示文案。</td></tr>
+        <tr><td>农户建档页</td><td>农户地址必填</td><td>农户地址非必填</td><td>未填写农户地址时允许提交建档；已填写时正常保存。</td></tr>
       </table>
       <div class="req"><b>REQ-011</b> 农户建档页面字段文案由“联系地址”改为“农户地址”。</div>
+      <div class="req"><b>REQ-012</b> 农户建档页面“农户地址”字段改为非必填，未填写时不拦截提交。</div>
+    </section>
+
+    <section class="card" id="id-card">
+      <h3>8. 农户建档身份证号正则校验</h3>
+      <h4>业务目标</h4>
+      <p class="lead">农户建档页身份证号需要补充前端格式校验，减少无效证件号进入后续建档、结算或实名相关链路。</p>
+      <table>
+        <tr><th>字段</th><th>校验规则</th><th>错误处理</th></tr>
+        <tr><td>身份证号</td><td>支持 18 位居民身份证号码格式校验，末位支持数字或 X / x。</td><td>格式不正确时拦截提交，并在字段附近提示“请输入正确的身份证号”。</td></tr>
+      </table>
+      <div class="req"><b>REQ-013</b> 农户建档页身份证号字段补充正则校验。</div>
+      <div class="req"><b>REQ-014</b> 身份证号为空时仍按原业务必填规则处理；已填写但格式不正确时必须提示并阻断提交。</div>
+    </section>
+
+    <section class="card" id="agreement">
+      <h3>9. 用户服务及隐私协议内容替换</h3>
+      <h4>业务目标</h4>
+      <p class="lead">替换用户服务协议和隐私协议页面内容，保证用户在登录页、关于页等入口查看到最新协议文本。</p>
+      <table>
+        <tr><th>入口</th><th>调整内容</th><th>验收要求</th></tr>
+        <tr><td>登录页协议入口</td><td>用户服务协议、隐私协议内容替换为最新版本。</td><td>点击后展示最新协议内容，标题和正文不出现旧协议残留。</td></tr>
+        <tr><td>关于页协议入口</td><td>用户服务协议、隐私协议内容保持一致。</td><td>与登录页打开的协议内容一致。</td></tr>
+      </table>
+      <div class="req"><b>REQ-015</b> 替换用户服务协议内容。</div>
+      <div class="req"><b>REQ-016</b> 替换隐私协议内容。</div>
+      <div class="req"><b>REQ-017</b> 所有协议入口跳转到同一份最新协议内容。</div>
     </section>
 
     <section class="card" id="rules">
-      <h3>8. 业务规则汇总</h3>
+      <h3>10. 业务规则汇总</h3>
       <table>
         <tr><th>编号</th><th>规则</th><th>说明</th></tr>
         <tr><td>BR-001</td><td>首页不展示“农产品交易平台”。</td><td>仅删除展示文案，不影响业务入口。</td></tr>
@@ -151,12 +183,15 @@
         <tr><td>BR-003</td><td>品类明细去掉今日页签。</td><td>默认本月，保留本年切换。</td></tr>
         <tr><td>BR-004</td><td>待办卡片只做 UI 优化。</td><td>不改变数量、状态和跳转逻辑。</td></tr>
         <!-- <tr><td>BR-005</td><td>关怀版切换后应全局记忆。</td><td>需要保证高频页面可读可点。</td></tr> -->
-        <tr><td>BR-006</td><td>“联系地址”改“农户地址”只调整文案。</td><td>不改变字段必填、地图选点或保存规则。</td></tr>
+        <tr><td>BR-006</td><td>“联系地址”改“农户地址”。</td><td>字段展示文案统一调整。</td></tr>
+        <tr><td>BR-007</td><td>农户地址改为非必填。</td><td>未填写地址时允许建档提交；地图选点和手动填写能力不受影响。</td></tr>
+        <tr><td>BR-008</td><td>身份证号补充格式校验。</td><td>格式错误时拦截提交，避免无效身份证号进入后续流程。</td></tr>
+        <tr><td>BR-009</td><td>用户服务协议和隐私协议内容统一替换。</td><td>登录页与关于页等入口展示内容保持一致。</td></tr>
       </table>
     </section>
 
     <section class="card warn" id="acceptance">
-      <h3>9. 验收标准</h3>
+      <h3>11. 验收标准</h3>
       <ul>
         <li>首页不再出现“农产品交易平台”文案。</li>
         <li>收购商首页统计卡片能看到本月累计收购金额/笔数、本年累计收购金额/笔数。</li>
@@ -164,6 +199,9 @@
         <li>待办事项卡片视觉层级优化后，数量为 0 或较大数字时均不破版。</li>
         <li>切换大字体关怀版后，高频页面文字变大且主要按钮、金额、状态不重叠。</li>
         <li>农户建档页面字段文案展示为“农户地址”。</li>
+        <li>农户建档页面农户地址为空时可以正常提交。</li>
+        <li>农户建档页面身份证号格式错误时拦截提交，并展示明确错误提示。</li>
+        <li>登录页、关于页进入用户服务协议和隐私协议时，展示最新替换后的协议内容。</li>
       </ul>
     </section>
   </main>

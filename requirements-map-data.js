@@ -4,7 +4,7 @@ window.FSY_REQUIREMENT_MAP = {
     "wiki": "https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd",
     "spreadsheetToken": "GwZNsIWXthkMfAtHY3Pc98Xcn8b",
     "sheetId": "7ONhrG",
-    "generatedAt": "2026-06-11"
+    "generatedAt": "2026-06-12"
   },
   "modules": [
     {
@@ -136,7 +136,7 @@ window.FSY_REQUIREMENT_MAP = {
           "status": "需求设计",
           "start": "2026-04-18",
           "end": "",
-          "note": "详细文档：https://congmingpay.feishu.cn/wiki/DN7RwgMx8i9pG4kvXcec...",
+          "note": "与磊哥沟通后预计7月上线，目前未上线；需确认农户建档、结算卡修改、收购商进件、付款前校验的覆盖范围和接口依赖。",
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
@@ -207,15 +207,19 @@ window.FSY_REQUIREMENT_MAP = {
           "id": "REQ-R010",
           "module": "首页、我的与用户体验",
           "title": "用户与隐私协议",
-          "description": "小程序或h5端需要明确展示用户协议与隐私协议，建议放到我的模块单独入口",
+          "description": "小程序或h5端需要明确展示用户协议与隐私协议；6月16日小功能补充用户服务协议及隐私协议内容替换，登录页和关于页入口展示内容保持一致。",
           "owner": "潘恒",
-          "status": "已上线",
+          "status": "需求设计",
           "start": "2026-05-30",
-          "end": "2026-06-04",
-          "note": "关于模块已上线，可在我的模块查看版本号、用户协议和隐私协议。",
+          "end": "2026-06-16",
+          "note": "关于模块入口已上线；6月16日补充协议正文内容替换，需保证登录页、关于页等入口展示同一份最新协议内容。",
           "hasLocalDoc": true,
           "hasFeishuLink": false,
           "links": [
+            {
+              "label": "0616小功能 PRD",
+              "href": "PRD-20260616-release-small-features.html"
+            },
             {
               "label": "0604小功能 PRD",
               "href": "PRD-20260604-release-small-features.html"
@@ -431,12 +435,12 @@ window.FSY_REQUIREMENT_MAP = {
           "id": "REQ-017",
           "module": "进件与农户建档",
           "title": "农户建档地址定位",
-          "description": "农户建档新增农户地址字段，支持地图选点定位并支持手动修改；农户个人信息页展示并支持修改地址。",
+          "description": "农户建档新增农户地址字段，支持地图选点定位并支持手动修改；农户个人信息页展示并支持修改地址。6月16日小功能补充：建档页“联系地址”改为“农户地址”，且农户地址改为非必填。",
           "owner": "潘恒",
           "status": "已上线",
           "start": "",
           "end": "2026-06-09",
-          "note": "6月9日发版口径：本期收敛为农户地址字段，支持地图选点定位和手动修改；6月16日补充建档页“联系地址”改为“农户地址”的文案优化。",
+          "note": "6月9日发版口径：本期收敛为农户地址字段，支持地图选点定位和手动修改；6月16日补充建档页“联系地址”改为“农户地址”，并将农户地址调整为非必填。",
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
@@ -465,13 +469,17 @@ window.FSY_REQUIREMENT_MAP = {
           "title": "农户建档身份证号正则校验",
           "description": "农户建档页身份证号字段补充格式校验，录入身份证号时按居民身份证号码规则校验，格式不正确时拦截提交并提示用户修改。",
           "owner": "潘恒",
-          "status": "需求记录",
+          "status": "需求设计",
           "start": "2026-06-09",
-          "end": "",
-          "note": "小需求记录：飞书总表序号 86；仅补充校验规则，不单独输出PRD/测试用例；后续开发时需同步覆盖建档提交和编辑保存链路。",
-          "hasLocalDoc": false,
+          "end": "2026-06-16",
+          "note": "已纳入6月16日小功能PRD；需覆盖建档提交链路，格式错误时字段附近提示并阻断提交。",
+          "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
+            {
+              "label": "0616小功能 PRD",
+              "href": "PRD-20260616-release-small-features.html"
+            },
             {
               "label": "飞书需求总表",
               "href": "https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd",
@@ -735,6 +743,54 @@ window.FSY_REQUIREMENT_MAP = {
             {
               "label": "飞书需求",
               "href": "https://congmingpay.feishu.cn/wiki/DN7RwgMx8i9pG4kvXcecENd9nOc",
+              "external": true
+            }
+          ]
+        },
+        {
+          "id": "REQ-090",
+          "module": "进件与农户建档",
+          "title": "合作农户快捷联系",
+          "description": "合作农户列表或详情中增加“联系他”入口，支持收购商快速拉起手机拨打电话；页面展示手机号仍需脱敏，拨打能力按权限和实际号码拉起系统电话能力。",
+          "owner": "潘恒",
+          "status": "需求记录",
+          "start": "2026-06-12",
+          "end": "",
+          "note": "明天项目进度会待确认：联系按钮展示位置、是否仅超管/业务员可用、脱敏展示与拨号真实号码的权限边界、是否需要拨打记录或操作留痕。",
+          "hasLocalDoc": false,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "0613项目进度会同步",
+              "href": "project-progress-sync-20260613.html"
+            },
+            {
+              "label": "飞书总览表",
+              "href": "https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd",
+              "external": true
+            }
+          ]
+        },
+        {
+          "id": "REQ-091",
+          "module": "进件与农户建档",
+          "title": "邀请农户建档自动识别并加入合作农户",
+          "description": "收购商添加农户时不再要求先搜索农户，直接发起邀请农户建档；系统在建档链路中校验农户是否已建档，如已建档则直接展示丰收码，并自动将该农户加入当前收购商的合作农户。",
+          "owner": "潘恒",
+          "status": "需求记录",
+          "start": "2026-06-12",
+          "end": "",
+          "note": "明天项目进度会待确认：已建档农户的识别字段、自动加入合作农户的授权口径、重复合作关系处理、丰收码展示入口和异常提示。",
+          "hasLocalDoc": false,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "0613项目进度会同步",
+              "href": "project-progress-sync-20260613.html"
+            },
+            {
+              "label": "飞书总览表",
+              "href": "https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd",
               "external": true
             }
           ]
@@ -1266,7 +1322,7 @@ window.FSY_REQUIREMENT_MAP = {
           "status": "开发中",
           "start": "2026-04-18",
           "end": "",
-          "note": "涉及到归属机构需要确认",
+          "note": "涉及归属机构仍需确认；测试重点补充：个人类型商户不允许添加/维护公户；若账户管理页面没有付款银行卡，添加的第一张银行卡应自动成为默认付款账户。",
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
@@ -1281,6 +1337,38 @@ window.FSY_REQUIREMENT_MAP = {
             {
               "label": "飞书需求",
               "href": "https://congmingpay.feishu.cn/wiki/ZfvlwhFLWihUpZkekVwc4QQ8nPf",
+              "external": true
+            }
+          ]
+        },
+        {
+          "id": "REQ-089",
+          "module": "结算与账户管理",
+          "title": "农户收款账户管理（结算信息+数币账户合并）",
+          "description": "农户端「结算信息修改」与「数币账户维护」合并为统一的「收款账户管理」：唯一银行结算卡不可删不可增、沿用逐项修改模式；数币账户最多一个、仅支持新增和删除不支持编辑；新增数币账户需选择账户类型（个人/对公）、数币账户银行（大行下拉），并手输钱包名称、姓名、手机号、身份证号、钱包ID，钱包ID校验逻辑与收购商端一致。",
+          "owner": "潘恒",
+          "status": "需求设计",
+          "start": "2026-06-12",
+          "end": "",
+          "note": "2026-06-12 已输出合并方案与原型：farmer-account-manage.html / farmer-wallet-add.html。待确认：对公数币账户姓名字段口径、删除是否需验证码、数币账户是否参与收款场景账户选择。",
+          "hasLocalDoc": true,
+          "hasFeishuLink": true,
+          "links": [
+            {
+              "label": "收款账户管理 PRD",
+              "href": "PRD-农户收款账户管理.html"
+            },
+            {
+              "label": "收款账户管理原型",
+              "href": "farmer-account-manage.html"
+            },
+            {
+              "label": "0613项目进度会同步",
+              "href": "project-progress-sync-20260613.html"
+            },
+            {
+              "label": "飞书总览表",
+              "href": "https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd",
               "external": true
             }
           ]

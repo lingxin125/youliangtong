@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>丰收云 · 2026-06-13 项目进度同步</title>
+<style>
+  :root {
+    --green: #16a34a;
+    --green-dark: #15803d;
+    --green-soft: #effaf3;
+    --blue: #2563eb;
+    --blue-soft: #eff6ff;
+    --amber: #d97706;
+    --amber-soft: #fffbeb;
+    --red: #dc2626;
+    --red-soft: #fef2f2;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+    line-height: 1.65;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 18px 40px;
+  }
+
+  .hero,
+  .section,
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+
+  .hero {
+    border-radius: 18px;
+    padding: 26px;
+    margin-bottom: 16px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: var(--green-dark);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 30px;
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+
+  .hero p {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid rgba(22, 163, 74, 0.18);
+    color: var(--green-dark);
+    background: var(--green-soft);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .metric {
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .metric .num {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 800;
+  }
+
+  .metric .label {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .section {
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.3;
+  }
+
+  .section-note {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid transparent;
+  }
+
+  .tag.green { color: var(--green-dark); background: var(--green-soft); border-color: rgba(22, 163, 74, 0.18); }
+  .tag.blue { color: var(--blue); background: var(--blue-soft); border-color: rgba(37, 99, 235, 0.16); }
+  .tag.amber { color: var(--amber); background: var(--amber-soft); border-color: rgba(217, 119, 6, 0.18); }
+  .tag.red { color: var(--red); background: var(--red-soft); border-color: rgba(220, 38, 38, 0.16); }
+  .tag.gray { color: #4b5563; background: #f3f4f6; border-color: #e5e7eb; }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 780px;
+    background: #fff;
+  }
+
+  th, td {
+    border-bottom: 1px solid var(--line);
+    padding: 11px 12px;
+    text-align: left;
+    vertical-align: top;
+    font-size: 13px;
+  }
+
+  th {
+    color: #374151;
+    background: #f9fafb;
+    font-weight: 800;
+  }
+
+  tr:last-child td { border-bottom: 0; }
+
+  .item-title {
+    display: block;
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .item-desc {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .todo-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px;
+    background: #fff;
+  }
+
+  .todo-card strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+
+  .todo-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .decision-list {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .decision-list li {
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--green);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #fff;
+    font-size: 13px;
+  }
+
+  .source-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .source-links a {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 8px 10px;
+    color: #374151;
+    background: #fff;
+    font-size: 13px;
+  }
+
+  @media (max-width: 920px) {
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 560px) {
+    .page { padding: 18px 12px 28px; }
+    .hero, .section { padding: 16px; border-radius: 14px; }
+    h1 { font-size: 24px; }
+    .grid { grid-template-columns: 1fr; }
+    .section-head { flex-direction: column; }
+    table { min-width: 720px; }
+  }
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">项目进度会材料 · 2026-06-13</div>
+      <h1>丰收云项目进度会同步议程</h1>
+      <p>按明天会议发言顺序整理：先讲近两周已上线需求，再讲原计划上线但延期的需求，然后同步下周准备上线事项、遗留问题、新需求和大功能专项。</p>
+      <div class="meta-row">
+        <span class="pill">来源：Index / 需求地图 / 飞书总览表 / 飞书待办</span>
+        <span class="pill">更新时间：2026-06-12</span>
+        <span class="pill">会议重点：上线复盘 + 延期说明 + 下周计划 + 问题拍板</span>
+      </div>
+    </header>
+
+    <section class="grid" aria-label="进度概览">
+      <div class="card metric">
+        <span class="num">8</span>
+        <span class="label">近两周已上线/已完成需求</span>
+      </div>
+      <div class="card metric">
+        <span class="num">5</span>
+        <span class="label">原计划上线但延期事项</span>
+      </div>
+      <div class="card metric">
+        <span class="num">10</span>
+        <span class="label">下周准备上线/提审需求</span>
+      </div>
+      <div class="card metric">
+        <span class="num">5</span>
+        <span class="label">遗留问题与待确认事项</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>一、近两周已上线需求</h2>
+          <p class="section-note">按需求项拆分，不把同一需求里的字段、入口和展示能力再拆成多行。</p>
+        </div>
+        <span class="tag green">已上线</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>模块</th>
+              <th>需求项</th>
+              <th>上线口径</th>
+              <th>补充说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>登录与身份</td>
+              <td><span class="item-title">双身份登录默认端记忆</span></td>
+              <td><span class="tag green">2026-06-09 已上线</span></td>
+              <td>退出后再次登录默认进入上次退出时所在身份端。</td>
+            </tr>
+            <tr>
+              <td>我的模块 / 身份</td>
+              <td><span class="item-title">开通农户 / 卖方身份</span></td>
+              <td><span class="tag green">2026-06-02 已上线</span></td>
+              <td>收购商可在“我的”模块开通卖方身份，开通后可切换到农户端；添加合作农户时不能添加自己。</td>
+            </tr>
+            <tr>
+              <td>农户建档</td>
+              <td><span class="item-title">建档成功展示丰收码</span></td>
+              <td><span class="tag green">2026-06-02 已上线</span></td>
+              <td>农户建档成功后直接生成并展示丰收码，便于现场出示给收购商扫码开单。</td>
+            </tr>
+            <tr>
+              <td>农户建档</td>
+              <td><span class="item-title">开户行选择优化</span></td>
+              <td><span class="tag green">2026-06-02 已上线</span></td>
+              <td>银行卡号录入后尽量自动匹配开户行与支行，匹配不到时再手动选择。</td>
+            </tr>
+            <tr>
+              <td>首页</td>
+              <td><span class="item-title">首页待办 / 待收款看板</span></td>
+              <td><span class="tag green">2026-06-02 已上线</span></td>
+              <td>收购商首页展示待办事项，农户首页展示待收款总览，并可跳转对应状态订单列表。</td>
+            </tr>
+            <tr>
+              <td>农户建档 / 农户端</td>
+              <td><span class="item-title">农户地址能力优化</span></td>
+              <td><span class="tag green">2026-06-09 已上线</span></td>
+              <td>建档支持地图选点和手动修正；农户个人信息页支持查看和修改农户地址。</td>
+            </tr>
+            <tr>
+              <td>结算信息</td>
+              <td><span class="item-title">农户结算信息支持公户修改</span></td>
+              <td><span class="tag green">2026-06-09 已上线</span></td>
+              <td>从仅支持个人户扩展为支持公户，允许维护对公账户名和银行账号，其他字段按现有规则收敛。</td>
+            </tr>
+            <tr>
+              <td>我的模块 / 关于与协议</td>
+              <td><span class="item-title">关于页与协议入口恢复</span></td>
+              <td><span class="tag green">近期已上线</span></td>
+              <td>收购商端和农户端恢复“关于”入口，关于页展示版本号，并可查看用户协议和隐私协议。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>二、原计划上线但延期的需求</h2>
+          <p class="section-note">第二段先解释“本来要上但没上”的事项，避免和下周计划混在一起。</p>
+        </div>
+        <span class="tag red">延期说明</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>模块</th>
+              <th>延期项</th>
+              <th>状态</th>
+              <th>延期原因 / 下一步</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>进件与建档</td>
+              <td><span class="item-title">四要素 / 二要素校验</span><span class="item-desc">农户建档、结算卡修改、收购商进件等链路。</span></td>
+              <td><span class="tag red">延期</span></td>
+              <td>与磊哥沟通后预计 7 月上线，目前未上线；需确认接口依赖和覆盖范围。</td>
+            </tr>
+            <tr>
+              <td>订单管理</td>
+              <td><span class="item-title">处理中页签与支付失败原因展示</span></td>
+              <td><span class="tag red">延期</span></td>
+              <td>未随 6 月 9 日上线，后续随账户管理一起验收。</td>
+            </tr>
+            <tr>
+              <td>开单</td>
+              <td><span class="item-title">拍照留存默认水印</span></td>
+              <td><span class="tag red">延期</span></td>
+              <td>6 月 4 日未上线，后续需要重新确认排期和测试口径。</td>
+            </tr>
+            <tr>
+              <td>账户管理</td>
+              <td><span class="item-title">账户管理整体上线</span></td>
+              <td><span class="tag amber">开发中</span></td>
+              <td>还有测试问题：个人类型商户不允许维护公户、首张付款银行卡默认账户等。</td>
+            </tr>
+            <tr>
+              <td>支付与状态</td>
+              <td><span class="item-title">跨行退票后订单状态回退</span></td>
+              <td><span class="tag red">未完成</span></td>
+              <td>错误收款账户退款后，小程序仍显示支付成功，需要确认异步结果消费和状态展示。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>三、下周准备上线 / 提审的需求</h2>
+          <p class="section-note">第三段讲“接下来要上什么”，按需求项同步，不把同一需求里的字段和展示规则拆散。</p>
+        </div>
+        <span class="tag blue">下周计划</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>模块</th>
+              <th>准备上线需求</th>
+              <th>当前状态</th>
+              <th>会议同步点</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>首页</td><td><span class="item-title">首页下掉“农产品交易平台”文案</span></td><td><span class="tag blue">待上线</span></td><td>减少首页重复定位文案。</td></tr>
+            <tr><td>首页</td><td><span class="item-title">首页收购统计卡优化</span></td><td><span class="tag blue">待上线</span></td><td>增加本月累计收购与本年累计收购数据。</td></tr>
+            <tr><td>首页</td><td><span class="item-title">品类明细卡片去掉“今日”标签</span></td><td><span class="tag blue">待上线</span></td><td>保留本月或本年视角。</td></tr>
+            <tr><td>首页</td><td><span class="item-title">待办事项卡片 UI 样式优化</span></td><td><span class="tag blue">待上线</span></td><td>不改变跳转逻辑，只优化视觉层级和可读性。</td></tr>
+            <tr><td>关怀版</td><td><span class="item-title">丰收云切换为大字体关怀版</span></td><td><span class="tag blue">测试中</span></td><td>需确认高频页面在大字体下不重叠、不遮挡。</td></tr>
+            <tr><td>农户建档</td><td><span class="item-title">农户地址字段优化</span></td><td><span class="tag blue">待上线</span></td><td>“联系地址”改为“农户地址”，并调整为非必填。</td></tr>
+            <tr><td>农户建档</td><td><span class="item-title">身份证号正则校验</span></td><td><span class="tag blue">待上线</span></td><td>格式不正确时阻断提交并提示。</td></tr>
+            <tr><td>数字人民币</td><td><span class="item-title">数字人民币钱包卡片补姓名字段</span></td><td><span class="tag blue">待上线</span></td><td>钱包卡片补充姓名展示，便于区分钱包归属。</td></tr>
+            <tr><td>合规</td><td><span class="item-title">协议内容变更</span></td><td><span class="tag blue">待上线</span></td><td>替换用户服务协议和隐私协议，登录页、关于页等入口展示一致。</td></tr>
+            <tr><td>登录合规</td><td><span class="item-title">手机号登录合规整改</span></td><td><span class="tag blue">待提审</span></td><td>登录入口显性展示协议勾选，并补充内部商户小程序说明。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>四、遗留问题和待跟进事项</h2>
+          <p class="section-note">这段讲“还有哪些没有解决或没完全做好”，建议明确责任人和下一次反馈时间。</p>
+        </div>
+        <span class="tag red">待跟进</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>事项</th>
+              <th>问题类型</th>
+              <th>当前状态</th>
+              <th>需要跟进</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="item-title">微信小程序扫码开单流程问题</span></td><td>扫码开单</td><td><span class="tag amber">待确认</span></td><td>确认微信小程序扫码进入开单、返回、回填和支付链路是否完整。</td></tr>
+            <tr><td><span class="item-title">错误收款账户退款后小程序支付状态未回退</span></td><td>支付状态 / 异步回调</td><td><span class="tag red">待跟进</span></td><td>确认银行退票通知、微邮付回传和收粮系统状态消费。</td></tr>
+            <tr><td><span class="item-title">订单数据同步进度及方案</span></td><td>数据同步</td><td><span class="tag amber">待确认</span></td><td>确认支付前/支付后责任边界、PC 与移动端字段范围。</td></tr>
+            <tr><td><span class="item-title">回传流水号与交易凭证信息</span></td><td>银行回传 / PC 联动</td><td><span class="tag amber">待确认</span></td><td>银行回传流水号与交易凭证后，需要支持同步回传 PC 端，用于反向开票功能。</td></tr>
+            <tr><td><span class="item-title">订单付企业网银后台批量付款能力</span></td><td>支付能力</td><td><span class="tag amber">待确认</span></td><td>确认是否本期做，以及是否依赖公户/订单付签约。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>五、新增需求记录</h2>
+          <p class="section-note">这段讲新提的需求，不直接承诺上线，先确认业务口径、字段、权限和排期。</p>
+        </div>
+        <span class="tag amber">需求记录</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>需求</th>
+              <th>归属模块</th>
+              <th>当前记录</th>
+              <th>待确认</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="item-title">农户收款账户管理</span><span class="item-desc">结算信息修改 + 数币账户维护合并。</span></td>
+              <td>结算与账户管理</td>
+              <td><span class="tag blue">REQ-089</span></td>
+              <td>对公数币姓名字段、删除验证码、数币账户是否参与收款账户选择。</td>
+            </tr>
+            <tr>
+              <td><span class="item-title">合作农户快捷联系</span></td>
+              <td>进件与农户建档</td>
+              <td><span class="tag blue">REQ-090</span></td>
+              <td>按钮放列表还是详情、手机号脱敏展示与真实拨号权限边界。</td>
+            </tr>
+            <tr>
+              <td><span class="item-title">邀请农户建档自动识别并加入合作农户</span></td>
+              <td>进件与农户建档</td>
+              <td><span class="tag blue">REQ-091</span></td>
+              <td>已建档识别字段、是否需要授权、重复合作关系处理。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>六、大功能专项进度</h2>
+          <p class="section-note">这段讲还在方案或评审阶段的大功能，重点说明当前资料状态和下一步。</p>
+        </div>
+        <span class="tag blue">专项</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>专项</th>
+              <th>定位</th>
+              <th>当前状态</th>
+              <th>下一步</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="item-title">库存管理</span></td>
+              <td>移动端只读查询 + 开单可选入库仓库。</td>
+              <td><span class="tag blue">需求设计</span></td>
+              <td>已完成 PRD 和 UI 概念稿，待评审确认库存台账、库存明细、农户存粮口径。</td>
+            </tr>
+            <tr>
+              <td><span class="item-title">蓝牙电子秤</span></td>
+              <td>开单场景内即时连接电子秤并回填重量。</td>
+              <td><span class="tag blue">需求设计</span></td>
+              <td>确认设备连接、稳定读数、历史设备重连和异常提示。</td>
+            </tr>
+            <tr>
+              <td><span class="item-title">蓝牙打印小票</span></td>
+              <td>开单暂存、订单详情、支付成功等场景打印小票。</td>
+              <td><span class="tag blue">需求设计</span></td>
+              <td>确认打印入口、打印模板、蓝牙连接失败处理。</td>
+            </tr>
+            <tr>
+              <td><span class="item-title">小票模板配置</span></td>
+              <td>PC 后台维护模板，移动端读取生效模板打印。</td>
+              <td><span class="tag blue">需求设计</span></td>
+              <td>确认字段配置、纸张规格、默认份数和预览规则。</td>
+            </tr>
+            <tr>
+              <td><span class="item-title">开单配置与品类管理优化</span></td>
+              <td>主体级开单场景配置，内置标准称重和快速收购。</td>
+              <td><span class="tag blue">需求设计</span></td>
+              <td>确认内置模板、自定义配置、启停、生效与历史订单快照规则。</td>
+            </tr>
+            <tr>
+              <td><span class="item-title">账户管理与多付款账户支付</span></td>
+              <td>收购商付款账户、默认账户、银行卡/公户/数币钱包。</td>
+              <td><span class="tag amber">开发中</span></td>
+              <td>继续跟进测试问题和 PC/H5/移动端支付分流。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>七、需要会议讨论的问题</h2>
+          <p class="section-note">最后集中收敛需要一起拍板的事项。</p>
+        </div>
+        <span class="tag green">会议动作</span>
+      </div>
+      <ul class="decision-list">
+        <li><strong>四要素 / 二要素校验：</strong>确认 7 月上线是否为确定排期，覆盖农户建档、结算卡、收购商进件中的哪些链路，以及上线前是否需要前端规则兜底。</li>
+        <li><strong>账户管理：</strong>确认个人类型商户禁止维护公户、首张付款银行卡自动设为默认付款账户、数币钱包字段纯手输这些规则是否作为本期测试阻断项。</li>
+        <li><strong>合作农户快捷联系：</strong>确认联系按钮放在列表还是详情，是否所有有权查看合作农户的账号都能拨号，以及脱敏展示和真实拨号号码的合规边界。</li>
+        <li><strong>邀请农户建档：</strong>确认不先搜索、直接邀请建档的交互是否成立；已建档农户如何识别、是否需要授权确认，以及自动加入合作农户的重复关系处理规则。</li>
+        <li><strong>微信小程序扫码开单：</strong>确认扫码进入开单页后的返回、收款人回填、支付发起和异常提示链路。</li>
+        <li><strong>支付状态异常：</strong>确认错误收款账户导致银行退款后，小程序是否新增异常/退款/失败展示，还是先通过后台补偿处理。</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>八、资料入口</h2>
+          <p class="section-note">会议时可并行打开这些资料对照。</p>
+        </div>
+      </div>
+      <div class="source-links">
+        <a href="index.html" target="_blank" rel="noopener noreferrer">原型 Index</a>
+        <a href="project-execution-dashboard.html" target="_blank" rel="noopener noreferrer">智能项目驾驶舱</a>
+        <a href="PRD-20260616-release-small-features.html" target="_blank" rel="noopener noreferrer">6 月 16 日小功能 PRD</a>
+        <a href="PRD-20260616-phone-compliance.html" target="_blank" rel="noopener noreferrer">手机号合规整改 PRD</a>
+        <a href="PRD-账户管理与多付款账户支付.html" target="_blank" rel="noopener noreferrer">账户管理 PRD</a>
+        <a href="PRD-库存管理移动端方案.html" target="_blank" rel="noopener noreferrer">库存管理 PRD</a>
+        <a href="https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd" target="_blank" rel="noopener noreferrer">飞书需求总览表</a>
+        <a href="https://congmingpay.feishu.cn/wiki/MV0nwPsg8iWCW6knBw6coAHBnTh" target="_blank" rel="noopener noreferrer">飞书待办事项</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

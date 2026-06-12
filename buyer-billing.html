@@ -367,12 +367,12 @@
             </div>
         </div>
 
-        <!-- ❺ 入库处理 -->
+        <!-- ❺ 入库仓库 -->
         <div class="step-card mb-3" id="inventorySection">
             <div class="p-4">
                 <div class="flex items-center gap-2 mb-3">
                     <div class="w-1 h-4 bg-primary rounded-full"></div>
-                    <span class="text-sm font-medium text-gray-800">入库处理</span>
+                    <span class="text-sm font-medium text-gray-800">入库仓库</span>
                     <span class="text-xs text-gray-400">选填</span>
                 </div>
                 <div id="warehouseSelectCard" onclick="openWarehouseSheet()" class="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl cursor-pointer hover:bg-gray-100 transition-colors">
@@ -380,13 +380,13 @@
                         <i class="fas fa-warehouse text-[#11A64A] text-sm"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div id="warehouseNameText" class="text-sm font-medium text-gray-800">暂不入库</div>
-                        <div id="warehouseHintText" class="text-[11px] text-gray-500 mt-0.5">后续可在 PC 端处理入库</div>
+                        <div id="warehouseNameText" class="text-sm font-medium text-gray-800">选择入库仓库</div>
+                        <div id="warehouseHintText" class="text-[11px] text-gray-500 mt-0.5">选择后将农产品预入库</div>
                     </div>
                     <button id="warehouseClearBtn" type="button" onclick="event.stopPropagation(); clearWarehouse();" class="hidden w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
                         <i class="fas fa-times"></i>
                     </button>
-                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    <i id="warehouseArrowIcon" class="fas fa-chevron-right text-gray-300 text-xs"></i>
                 </div>
             </div>
         </div>
@@ -475,19 +475,12 @@
             <div class="flex items-center justify-between mb-3">
                 <div>
                     <div class="text-[16px] font-bold text-gray-800">选择入库仓库</div>
-                    <div class="text-[12px] text-gray-400 mt-1">仅展示启用状态仓库</div>
+                    <div class="text-[12px] text-gray-400 mt-1">选择后将农产品预入库</div>
                 </div>
                 <button onclick="closeWarehouseSheet()" class="w-8 h-8 flex items-center justify-center text-gray-400">
                     <i class="fas fa-xmark text-lg"></i>
                 </button>
             </div>
-            <button type="button" onclick="clearWarehouse(); closeWarehouseSheet();" class="w-full rounded-2xl border border-gray-100 bg-gray-50 p-3 flex items-center gap-3 text-left active:scale-[0.99] transition-transform mb-2">
-                <div class="w-10 h-10 rounded-xl bg-white text-gray-400 flex items-center justify-center shrink-0 border border-gray-100"><i class="fas fa-ban"></i></div>
-                <div class="flex-1 min-w-0">
-                    <div class="text-[14px] font-semibold text-gray-800">暂不入库</div>
-                    <div class="text-[11px] text-gray-400 mt-0.5">本单不生成库存信息</div>
-                </div>
-            </button>
             <div id="warehouseListContainer" class="space-y-2"></div>
         </div>
     </div>
@@ -922,15 +915,18 @@ function renderWarehouseCard() {
     var nameEl = document.getElementById('warehouseNameText');
     var hintEl = document.getElementById('warehouseHintText');
     var clearBtn = document.getElementById('warehouseClearBtn');
-    if (!nameEl || !hintEl || !clearBtn) return;
+    var arrowIcon = document.getElementById('warehouseArrowIcon');
+    if (!nameEl || !hintEl || !clearBtn || !arrowIcon) return;
     if (state.warehouse) {
         nameEl.textContent = state.warehouse.name;
-        hintEl.textContent = '开单后生成预入库记录';
+        hintEl.textContent = '选择后将农产品预入库';
         clearBtn.classList.remove('hidden');
+        arrowIcon.classList.add('hidden');
     } else {
-        nameEl.textContent = '暂不入库';
-        hintEl.textContent = '后续可在 PC 端处理入库';
+        nameEl.textContent = '选择入库仓库';
+        hintEl.textContent = '选择后将农产品预入库';
         clearBtn.classList.add('hidden');
+        arrowIcon.classList.remove('hidden');
     }
 }
 
