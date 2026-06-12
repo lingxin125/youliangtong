@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>蓝牙设备评审资料合集</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --green: #16A34A;
+      --green-dark: #0F7A37;
+      --bg: #F6F8F6;
+      --card: #FFFFFF;
+      --line: #E5E7EB;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --soft: #F0FDF4;
+      --blue: #2563EB;
+      --amber: #F59E0B;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.7;
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 28px 22px 44px; }
+    .hero {
+      border-radius: 24px;
+      padding: 30px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      position: relative;
+      overflow: hidden;
+    }
+    .hero:after {
+      content: "";
+      position: absolute;
+      right: -56px;
+      bottom: -80px;
+      width: 210px;
+      height: 210px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .hero h1 { margin: 8px 0 0; font-size: 34px; line-height: 1.25; }
+    .hero p { max-width: 760px; margin: 12px 0 0; color: rgba(255,255,255,.84); font-size: 15px; }
+    .eyebrow { font-size: 13px; font-weight: 700; opacity: .82; }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.12);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    section { margin-top: 20px; }
+    .section-title { margin: 0 0 12px; font-size: 20px; color: #111827; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .card {
+      display: block;
+      min-height: 164px;
+      padding: 20px;
+      border-radius: 18px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      text-decoration: none;
+      color: inherit;
+    }
+    .card:hover { border-color: rgba(22, 163, 74, .42); transform: translateY(-1px); }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--soft);
+      color: var(--green);
+      font-size: 18px;
+    }
+    .card h2 { margin: 14px 0 6px; font-size: 18px; color: #166534; }
+    .card p { margin: 0; font-size: 13px; color: var(--muted); }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: #F3F4F6;
+      color: #4B5563;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .tag.green { background: #DCFCE7; color: #15803D; }
+    .tag.blue { background: #DBEAFE; color: #1D4ED8; }
+    .tag.amber { background: #FEF3C7; color: #B45309; }
+    .panel {
+      padding: 20px;
+      border-radius: 18px;
+      background: var(--card);
+      border: 1px solid var(--line);
+    }
+    table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 14px; font-size: 13px; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #F9FAFB; color: #374151; }
+    tr:last-child td { border-bottom: 0; }
+    a.text-link { color: var(--blue); font-weight: 700; text-decoration: none; }
+    .steps { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .steps li {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid #E5E7EB;
+      background: #FAFAFA;
+      font-size: 14px;
+    }
+    .note { color: var(--muted); font-size: 13px; margin-top: 10px; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 26px; }
+      .page { padding: 16px; }
+      th, td { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow">丰收云 · PRD评审资料 · 设备与扩展</div>
+      <h1>蓝牙设备评审资料合集</h1>
+      <p>统一收口蓝牙电子秤读秤、蓝牙打印小票、PC 小票模板配置和 UI 概念图。后续这条能力的评审资料都优先挂到这里，再从这里进入具体文档。</p>
+      <div class="pills">
+        <span class="pill"><i class="fas fa-layer-group"></i>统一入口</span>
+        <span class="pill"><i class="fas fa-file-lines"></i>PRD</span>
+        <span class="pill"><i class="fas fa-mobile-screen"></i>UI概念图</span>
+        <span class="pill"><i class="fas fa-receipt"></i>小票模板</span>
+      </div>
+    </header>
+
+    <section>
+      <h2 class="section-title">核心资料</h2>
+      <div class="grid">
+        <a class="card" href="PRD-蓝牙设备即时连接重构方案.html" target="_blank" rel="noopener noreferrer">
+          <div class="card-head">
+            <span class="icon"><i class="fas fa-bluetooth-b"></i></span>
+            <i class="fas fa-chevron-right"></i>
+          </div>
+          <h2>蓝牙设备即时连接 V2 PRD</h2>
+          <p>当前评审主文档，覆盖电子秤读秤、蓝牙打印小票、主动断开、异常降级、JSBridge 能力和测试用例。</p>
+          <div class="tags">
+            <span class="tag green">本地HTML</span>
+            <span class="tag blue">PRD</span>
+            <span class="tag">评审主口径</span>
+          </div>
+        </a>
+
+        <a class="card" href="concepts/bluetooth-device-v2-concepts.html" target="_blank" rel="noopener noreferrer">
+          <div class="card-head">
+            <span class="icon"><i class="fas fa-mobile-screen-button"></i></span>
+            <i class="fas fa-chevron-right"></i>
+          </div>
+          <h2>蓝牙设备即时连接 UI 概念图</h2>
+          <p>用于快速看交互方向：我的模块入口、读秤抽屉、打印机连接、订单打印入口和结果反馈。</p>
+          <div class="tags">
+            <span class="tag green">本地HTML</span>
+            <span class="tag blue">概念图</span>
+            <span class="tag">移动端</span>
+          </div>
+        </a>
+
+        <a class="card" href="pc-receipt-template-config.html" target="_blank" rel="noopener noreferrer">
+          <div class="card-head">
+            <span class="icon"><i class="fas fa-receipt"></i></span>
+            <i class="fas fa-chevron-right"></i>
+          </div>
+          <h2>小票模板配置 PC 后台原型</h2>
+          <p>PC 后台维护过磅单、待开价小票、待付款确认单和付款成功小票模板，移动端按生效模板打印。</p>
+          <div class="tags">
+            <span class="tag green">本地HTML</span>
+            <span class="tag blue">原型</span>
+            <span class="tag">PC后台</span>
+          </div>
+        </a>
+
+        <a class="card" href="https://congmingpay.feishu.cn/wiki/JZVgw86c3iPfqbkw8UFcksernPb" target="_blank" rel="noopener noreferrer">
+          <div class="card-head">
+            <span class="icon"><i class="fas fa-cloud"></i></span>
+            <i class="fas fa-arrow-up-right-from-square"></i>
+          </div>
+          <h2>飞书详细 PRD</h2>
+          <p>飞书侧同步文档，用于团队评审、评论和后续持续补充。正文口径与本地 PRD HTML 保持一致。</p>
+          <div class="tags">
+            <span class="tag amber">飞书</span>
+            <span class="tag blue">团队协作</span>
+            <span class="tag">在线文档</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">评审顺序建议</h2>
+      <div class="panel">
+        <ol class="steps">
+          <li>先看《蓝牙设备即时连接 V2 PRD》，确认业务范围、状态规则和技术边界。</li>
+          <li>再看 UI 概念图，确认移动端入口、抽屉交互、读秤回填和打印入口位置。</li>
+          <li>随后看 PC 小票模板配置原型，确认小票模板由后台统一维护，移动端不编辑模板。</li>
+          <li>最后回到飞书详细 PRD 留评论或补充结论。</li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">资料关系</h2>
+      <div class="panel">
+        <table>
+          <thead>
+            <tr>
+              <th>资料</th>
+              <th>用途</th>
+              <th>位置</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>蓝牙设备评审资料合集</td>
+              <td>统一入口，后续同类资料都从这里汇总。</td>
+              <td>PRD评审资料 / 设备与扩展</td>
+            </tr>
+            <tr>
+              <td>蓝牙设备即时连接 V2 PRD</td>
+              <td>评审主口径，说明读秤、打印、主动断开、异常和验收。</td>
+              <td><a class="text-link" href="PRD-蓝牙设备即时连接重构方案.html" target="_blank" rel="noopener noreferrer">本地HTML</a></td>
+            </tr>
+            <tr>
+              <td>蓝牙设备 UI 概念图</td>
+              <td>辅助评审交互方向，不替代当前业务原型。</td>
+              <td><a class="text-link" href="concepts/bluetooth-device-v2-concepts.html" target="_blank" rel="noopener noreferrer">本地HTML</a></td>
+            </tr>
+            <tr>
+              <td>PC 小票模板配置</td>
+              <td>说明后台如何配置小票模板和移动端打印依赖关系。</td>
+              <td><a class="text-link" href="pc-receipt-template-config.html" target="_blank" rel="noopener noreferrer">本地HTML</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note">更新规则：后续只要新增或更新蓝牙设备相关文档，都需要同步生成可视化 HTML，并挂到 `index.html` 的“PRD评审资料 / 设备与扩展”分类下。</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

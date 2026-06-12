@@ -4,7 +4,7 @@ window.FSY_REQUIREMENT_MAP = {
     "wiki": "https://congmingpay.feishu.cn/wiki/N5lyw9xVDiNw0gkJokTcgHzZnOd",
     "spreadsheetToken": "GwZNsIWXthkMfAtHY3Pc98Xcn8b",
     "sheetId": "7ONhrG",
-    "generatedAt": "2026-06-10"
+    "generatedAt": "2026-06-11"
   },
   "modules": [
     {
@@ -1583,6 +1583,10 @@ window.FSY_REQUIREMENT_MAP = {
           "hasFeishuLink": true,
           "links": [
             {
+              "label": "评审资料合集",
+              "href": "PRD-蓝牙设备评审资料合集.html"
+            },
+            {
               "label": "即时连接PRD",
               "href": "PRD-蓝牙设备即时连接重构方案.html"
             },
@@ -1606,6 +1610,10 @@ window.FSY_REQUIREMENT_MAP = {
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
+            {
+              "label": "评审资料合集",
+              "href": "PRD-蓝牙设备评审资料合集.html"
+            },
             {
               "label": "即时连接PRD",
               "href": "PRD-蓝牙设备即时连接重构方案.html"
@@ -1873,6 +1881,10 @@ window.FSY_REQUIREMENT_MAP = {
           "hasLocalDoc": true,
           "hasFeishuLink": true,
           "links": [
+            {
+              "label": "评审资料合集",
+              "href": "PRD-蓝牙设备评审资料合集.html"
+            },
             {
               "label": "PC模板配置原型",
               "href": "pc-receipt-template-config.html"

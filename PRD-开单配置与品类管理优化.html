@@ -159,10 +159,15 @@ a { color: var(--primary-dark); }
     <a href="#roles">入口权限</a>
     <a href="#pages">页面清单</a>
     <a href="#flows">业务流程图</a>
+    <a href="#alignment">原型一致性</a>
     <a href="#templates">内置模板</a>
     <a href="#fields">配置字段</a>
     <a href="#list-detail">列表与详情</a>
     <a href="#billing">开单页套用</a>
+    <a href="#rules">业务规则</a>
+    <a href="#integration">联动边界</a>
+    <a href="#exceptions">异常边界</a>
+    <a href="#implementation">实现建议</a>
     <a href="#model">数据模型</a>
     <a href="#scope">不做范围</a>
     <a href="#acceptance">验收点</a>
@@ -349,6 +354,63 @@ a { color: var(--primary-dark); }
   D1[拍照留存] --> D
   D2[入库仓库] --> D</pre>
       </div>
+
+      <h4 style="margin-top:18px;">配置生效与订单快照流程</h4>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">flowchart TD
+  A[超管保存配置] --> B[写入主体级配置]
+  B --> C{是否点击启用}
+  C -->|是| D[更新当前生效配置 ID]
+  C -->|否| E[只保存为自定义配置]
+  D --> F[业务员新开单读取当前配置]
+  E --> F
+  F --> G[开单页按配置渲染字段]
+  G --> H[提交或暂存订单]
+  H --> I[订单保存字段快照和业务数据]
+  I --> J[后续配置调整不回写历史订单]</pre>
+      </div>
+
+      <h4 style="margin-top:18px;">功能联动关系图</h4>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">flowchart LR
+  A[开单配置] --> B[开单页字段展示]
+  A --> C[称重与金额计算]
+  A --> D[暂存订单状态]
+  A --> E[拍照留存]
+  A --> F[入库仓库]
+  G[团队权限] --> A
+  H[品类管理] --> B
+  I[订单管理/订单详情] --> J[读取订单快照]
+  F --> K[库存预入库]
+  L[收购价管理] -.后续独立设计.-> B</pre>
+      </div>
+    </section>
+
+    <section class="card" id="alignment">
+      <h3><i class="fa-solid fa-code-compare"></i>与当前原型的一致性和补充说明</h3>
+      <p class="lead">本 PRD 以当前原型为主线，同时补充评审和正式实现需要提前说明的底层规则。</p>
+      <div class="grid-2">
+        <div class="box">
+          <h4>原型已表达</h4>
+          <ul>
+            <li>入口为“我的 > 开单配置”，非超管提示暂无配置权限。</li>
+            <li>内置模板只读，可启用，不可编辑或删除。</li>
+            <li>自定义配置从空白新增，可编辑、删除、启用。</li>
+            <li>详情页为编辑页只读态，底部只有返回。</li>
+            <li>开单页按当前配置显示或隐藏字段。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>实现需补充</h4>
+          <ul>
+            <li>原型使用 localStorage，正式实现应落到服务端主体配置。</li>
+            <li>订单提交或暂存时需保存开单结果和必要配置快照。</li>
+            <li>建议后端记录修改人、修改时间、启用记录。</li>
+            <li>超管保存后，业务员重新进入开单页应读取最新配置。</li>
+            <li>旧二级品类配置不自动迁移，默认启用标准称重收购。</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <section class="card" id="templates">
@@ -533,6 +595,153 @@ a { color: var(--primary-dark); }
       </table>
     </section>
 
+    <section class="card" id="rules">
+      <h3><i class="fa-solid fa-scale-balanced"></i>关键业务规则</h3>
+      <div class="grid-2">
+        <div class="box">
+          <h4>初始化与生效</h4>
+          <ul>
+            <li>首次没有配置时，默认生成两个内置模板，并启用标准称重收购。</li>
+            <li>当前生效配置不存在时，自动回退标准称重收购。</li>
+            <li>自定义配置保存后不自动启用，需要在列表页单独启用。</li>
+            <li>删除当前生效自定义配置后，自动回退标准称重收购。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>订单快照</h4>
+          <ul>
+            <li>配置保存后只影响新开单，不回写历史订单。</li>
+            <li>订单保存时记录当次称重、扣杂、计价、照片和仓库结果。</li>
+            <li>订单管理和订单详情以订单自身数据展示，不重新读取当前配置。</li>
+            <li>业务员已打开开单页后，建议提交时以后端最新校验为准。</li>
+          </ul>
+        </div>
+      </div>
+
+      <h4 style="margin-top:18px;">称重与金额计算</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>模式</th>
+            <th>净重计算</th>
+            <th>金额计算</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>毛重 / 皮重</td>
+            <td>净重 = 毛重 - 皮重 - 扣杂</td>
+            <td>单价模式：金额 = 净重 × 单价</td>
+          </tr>
+          <tr>
+            <td>总重量</td>
+            <td>净重 = 总重量 - 扣杂</td>
+            <td>单价模式：金额 = 净重 × 单价</td>
+          </tr>
+          <tr>
+            <td>一口价</td>
+            <td>净重仍用于展示或留档</td>
+            <td>金额 = 业务员输入的一口价</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin-top:18px;">暂存状态规则</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>配置模式</th>
+            <th>暂存条件</th>
+            <th>订单状态</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>标准称重</td><td>有毛重、无皮重</td><td>挂单</td></tr>
+          <tr><td>标准称重</td><td>有毛重和皮重、无价格</td><td>待开价</td></tr>
+          <tr><td>标准称重</td><td>重量和价格完整</td><td>待付款</td></tr>
+          <tr><td>快速收购</td><td>未填总重量</td><td>不允许暂存</td></tr>
+          <tr><td>快速收购</td><td>有总重量、无价格</td><td>待开价</td></tr>
+          <tr><td>快速收购</td><td>总重量和价格完整</td><td>待付款</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="integration">
+      <h3><i class="fa-solid fa-link"></i>功能联动说明</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>联动模块</th>
+            <th>影响</th>
+            <th>边界</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>团队权限</td><td>仅超管可维护开单配置，业务员只使用。</td><td>业务员直接访问配置页需拦截。</td></tr>
+          <tr><td>开单页</td><td>按当前配置控制字段、计价方式、拍照、仓库。</td><td>开单页不展示“配置项”字样。</td></tr>
+          <tr><td>品类管理</td><td>继续负责品类维护。</td><td>不再维护开单方式；收购价后续独立设计。</td></tr>
+          <tr><td>订单管理/详情</td><td>展示订单保存时的称重、价格、照片、仓库结果。</td><td>不随当前配置变化。</td></tr>
+          <tr><td>库存管理</td><td>入库仓库开启后，开单可产生预入库信息。</td><td>仓库维护、正式入库、出库仍在库存模块。</td></tr>
+          <tr><td>拍照留存</td><td>开启时开单页展示照片上传，关闭时不保存照片。</td><td>历史订单已有照片不受新配置影响。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="exceptions">
+      <h3><i class="fa-solid fa-triangle-exclamation"></i>异常与边界场景</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>场景</th>
+            <th>处理规则</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>首次进入开单页但没有任何配置</td><td>使用标准称重收购。</td></tr>
+          <tr><td>当前生效配置被删除</td><td>自动回退标准称重收购。</td></tr>
+          <tr><td>自定义配置名称为空</td><td>不允许保存。</td></tr>
+          <tr><td>自定义配置名称重复</td><td>首版允许重复，后端保留唯一 ID；后续可增加重名提醒。</td></tr>
+          <tr><td>内置模板被异常改写</td><td>服务端按固定 ID 识别内置模板，并支持恢复默认值。</td></tr>
+          <tr><td>仓库或拍照开关关闭后有历史数据</td><td>历史订单继续展示订单保存的仓库或照片信息。</td></tr>
+          <tr><td>配置保存失败</td><td>保持原配置不变，并提示保存失败。</td></tr>
+          <tr><td>业务员开单时配置被超管切换</td><td>已进入页面可继续按页面当前字段填写，提交时建议以后端校验结果为准。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="implementation">
+      <h3><i class="fa-solid fa-screwdriver-wrench"></i>实现建议与评审待确认</h3>
+      <div class="grid-2">
+        <div class="box">
+          <h4>服务端接口建议</h4>
+          <ul>
+            <li>查询当前主体开单配置列表和当前生效配置。</li>
+            <li>新增/编辑自定义配置。</li>
+            <li>启用指定配置。</li>
+            <li>删除自定义配置。</li>
+            <li>查询内置模板详情。</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h4>数据兼容建议</h4>
+          <ul>
+            <li>旧二级品类开单配置不自动迁移。</li>
+            <li>上线后为每个主体生成默认内置模板。</li>
+            <li>后端暂未返回配置时，前端以标准称重收购兜底。</li>
+            <li>收购价管理后续单独建模，不复用开单配置表。</li>
+          </ul>
+        </div>
+      </div>
+      <h4 style="margin-top:18px;">评审待确认</h4>
+      <ul>
+        <li>正式系统是否需要展示配置修改记录。</li>
+        <li>是否需要限制自定义配置数量；建议首版不限制或给较高上限。</li>
+        <li>业务员已打开开单页后，超管切换配置时是否需要强提醒。</li>
+        <li>入库仓库是否允许配置为必填；当前方案只控制显隐，不控制必填。</li>
+        <li>收购价管理放在品类管理下，还是独立做“收购价管理”。</li>
+      </ul>
+    </section>
+
     <section class="card" id="model">
       <h3><i class="fa-solid fa-database"></i>数据模型</h3>
       <p class="lead">原型层面新增主体级配置存储：localStorage key 为 ylt_billing_scene_configs。</p>
@@ -569,7 +778,7 @@ a { color: var(--primary-dark); }
           <tr><td>fields.remark</td><td>固定为 true，备注默认展示。</td></tr>
         </tbody>
       </table>
-      <div class="note" style="margin-top:14px;">旧的 ylt_billing_category_configs 不做迁移，原型直接启用新的主体级配置模型。</div>
+      <div class="note" style="margin-top:14px;">旧的 ylt_billing_category_configs 不做迁移，原型直接启用新的主体级配置模型。正式实现建议映射为服务端主体级配置表，不直接依赖前端本地存储。</div>
     </section>
 
     <section class="card" id="scope">

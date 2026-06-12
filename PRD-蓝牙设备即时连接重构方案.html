@@ -212,6 +212,121 @@ p { margin: 0 0 10px; }
   padding: 14px;
 }
 .arch-box h5 { margin: 0 0 8px; font-size: 14px; color: var(--primary-dark); }
+.mermaid {
+  min-width: 900px;
+  margin: 0;
+  padding: 12px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--line);
+}
+.mermaid-wrap {
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.layer-arch {
+  min-width: 980px;
+  display: grid;
+  gap: 22px;
+}
+.arch-row {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 18px;
+  align-items: center;
+}
+.arch-label {
+  font-size: 24px;
+  font-weight: 900;
+  color: #111827;
+  text-align: right;
+  letter-spacing: 0;
+}
+.arch-content {
+  display: grid;
+  gap: 12px;
+}
+.arch-content.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.arch-content.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.arch-content.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.arch-panel {
+  border: 2px solid var(--arch-color, #16A34A);
+  background: var(--arch-bg, #F0FDF4);
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 92px;
+}
+.arch-panel.wide { min-height: 58px; }
+.arch-panel h5 {
+  margin: 0 0 10px;
+  text-align: center;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 800;
+}
+.arch-items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.arch-items.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.arch-items.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.arch-item {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 2px solid var(--arch-color, #16A34A);
+  background: #fff;
+  border-radius: 7px;
+  padding: 7px 9px;
+  color: #1F2937;
+  font-size: 13px;
+  font-weight: 700;
+}
+.arch-blue { --arch-color: #4F7AD8; --arch-bg: #EEF4FF; }
+.arch-amber { --arch-color: #D8AE45; --arch-bg: #FFF7D8; }
+.arch-purple { --arch-color: #8B6BD8; --arch-bg: #F1EAFE; }
+.arch-slate { --arch-color: #5366A6; --arch-bg: #E9EEFF; }
+.arch-green { --arch-color: #16A34A; --arch-bg: #ECFDF3; }
+.arch-cylinders {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+  padding: 6px 8px 2px;
+}
+.cylinder {
+  position: relative;
+  min-height: 78px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 13px;
+  border: 2px solid var(--arch-color, #5366A6);
+  border-top: 0;
+  border-radius: 0 0 28px 28px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+.cylinder:before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  top: -16px;
+  height: 32px;
+  border: 2px solid var(--arch-color, #5366A6);
+  border-radius: 50%;
+  background: #fff;
+}
+.diagram-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
 .subtle-box {
   border: 1px dashed rgba(17,166,74,.32);
   background: #F7FCF9;
@@ -243,6 +358,7 @@ li { margin: 4px 0; }
     </div>
     <nav class="nav">
       <a href="#overview"><i class="fas fa-clipboard-list"></i>需求概览</a>
+      <a href="#alignment"><i class="fas fa-arrows-rotate"></i>原型对齐</a>
       <a href="#background"><i class="fas fa-seedling"></i>背景目标</a>
       <a href="#scope"><i class="fas fa-filter"></i>范围边界</a>
       <a href="#roles"><i class="fas fa-users"></i>角色场景</a>
@@ -261,7 +377,7 @@ li { margin: 4px 0; }
     <div class="hero">
       <div class="eyebrow">丰收云 · 收购商端 · 评估版 PRD</div>
       <h2>蓝牙电子秤读秤与蓝牙打印小票即时连接方案</h2>
-      <p>本方案将蓝牙电子秤和蓝牙打印机从“重设备管理”调整为“业务场景内即时连接”。用户在开单、暂存、订单详情等场景中直接读秤或打印；已连接设备可主动断开或切换。小票打印覆盖挂单、待开价、待付款和付款成功等节点，小票模板由 PC 后台统一配置并下发到移动端使用。</p>
+      <p>本方案将蓝牙电子秤和蓝牙打印机从“重设备管理”调整为“业务场景内即时连接”。用户在开单、暂存、订单详情等场景中直接读秤或打印；我的模块仅保留普通列表轻入口，用于主动连接、断开和切换设备。小票打印覆盖挂单、待开价、待付款和付款成功等节点，付款中 / 处理中 / 已取消不打印小票；小票模板由 PC 后台统一配置并下发到移动端使用。</p>
       <div class="meta">
         <span class="pill"><i class="fas fa-scale-balanced"></i>蓝牙电子秤</span>
         <span class="pill"><i class="fas fa-print"></i>蓝牙打印机</span>
@@ -282,14 +398,28 @@ li { margin: 4px 0; }
         <tr><th>模块</th><th>评估版口径</th><th>当前原型落点</th></tr>
         <tr><td>蓝牙电子秤</td><td>点击读秤时即时连接；连接后读取稳定重量，支持多次称重明细和确认回填。</td><td><a class="doc-link" href="buyer-billing.html" target="_blank">buyer-billing.html</a></td></tr>
         <tr><td>蓝牙打印机</td><td>点击打印小票时即时连接；连接后继续打印当前小票。</td><td><a class="doc-link" href="buyer-billing.html" target="_blank">开单暂存</a> / <a class="doc-link" href="buyer-order-detail.html" target="_blank">订单详情</a></td></tr>
-        <tr><td>我的模块轻入口</td><td>在头像信息下方提供“蓝牙电子秤”“蓝牙打印机”双卡快捷入口，用于主动连接、断开、切换设备。</td><td><a class="doc-link" href="buyer-my.html" target="_blank">buyer-my.html</a></td></tr>
+        <tr><td>我的模块轻入口</td><td>在下方功能列表内提供“蓝牙电子秤”“蓝牙打印机”普通入口，位于“开单配置”下方；右侧展示已连接 / 未连接和右箭头。</td><td><a class="doc-link" href="buyer-my.html" target="_blank">buyer-my.html</a></td></tr>
         <tr><td>PC小票模板配置</td><td>PC 后台维护过磅单、待开价小票、待付款确认单、付款成功小票的字段、纸张、份数和自动打印规则。</td><td><a class="doc-link" href="pc-receipt-template-config.html" target="_blank">pc-receipt-template-config.html</a></td></tr>
         <tr><td>主动断开</td><td>所有设备连接抽屉中，已连接设备右侧展示“已连接”和“断开”。断开后用户可重新连接或切换其他设备。</td><td>已在三个核心页面原型中落地</td></tr>
       </table>
     </section>
 
+    <section id="alignment" class="card">
+      <h3>2. 原型对齐差异与评审口径</h3>
+      <p class="note">以下内容用于修正旧方案里的历史口径。评审时以“当前原型口径”为准，旧口径不再作为后续实现依据。</p>
+      <table class="table">
+        <tr><th>事项</th><th>旧方案口径</th><th>当前原型口径</th><th>评审说明</th></tr>
+        <tr><td>我的模块入口</td><td>头像区域曾考虑放独立设备卡片。</td><td>下方功能列表普通入口，位于“开单配置”下方，顺序为蓝牙电子秤、蓝牙打印机。</td><td>降低头像区域复杂度，与其他配置类入口保持一致。</td></tr>
+        <tr><td>设备状态展示</td><td>独立设备连接卡片，可展开收起。</td><td>列表行右侧展示“已连接 / 未连接 + 右箭头”。</td><td>状态轻展示，详细连接、断开、切换统一进底部抽屉。</td></tr>
+        <tr><td>开单页状态提示</td><td>顶部展示电子秤已连接 / 未连接提示条。</td><td>取消顶部提示条，仅在重量字段标题右侧保留“读秤”。</td><td>开单页只承载开单动作，避免无操作价值的信息占位。</td></tr>
+        <tr><td>订单打印范围</td><td>付款异常状态曾考虑打印过程单。</td><td>付款中 / 处理中 / 已取消不展示打印小票入口。</td><td>避免现场误解为付款凭证；待付款、待开价、挂单、付款成功才支持打印。</td></tr>
+        <tr><td>暂存后打印</td><td>从订单详情或列表补打。</td><td>暂存成功抽屉可直接打印小票，同时订单详情保留补打。</td><td>减少田间地头场景下“回列表找订单”的操作成本。</td></tr>
+        <tr><td>PC 模板配置</td><td>作为打印方案补充说明。</td><td>作为独立配置子模块，由 PC 后台维护模板、字段、状态规则和预览。</td><td>移动端只读取生效配置，不编辑模板内容。</td></tr>
+      </table>
+    </section>
+
     <section id="background" class="card">
-      <h3>2. 背景与目标</h3>
+      <h3>3. 背景与目标</h3>
       <div class="grid cols-2">
         <div>
           <h4>业务背景</h4>
@@ -323,12 +453,12 @@ li { margin: 4px 0; }
     </section>
 
     <section id="scope" class="card">
-      <h3>3. 范围与边界</h3>
+      <h3>4. 范围与边界</h3>
       <div class="grid cols-2">
         <div class="subtle-box">
           <h4>本期纳入</h4>
           <ul>
-            <li>我的模块：头像信息下方展示蓝牙电子秤、蓝牙打印机双卡轻入口。</li>
+            <li>我的模块：下方功能列表中展示蓝牙电子秤、蓝牙打印机普通入口，入口右侧展示连接状态。</li>
             <li>连接抽屉：搜索附近设备、连接、主动断开、切换连接、重新搜索。</li>
             <li>开单页：读秤按钮触发连接和读数确认，确认后回填重量字段。</li>
             <li>多次称重：读秤弹窗保留称重明细，可继续读秤、重新读取、确认回填。</li>
@@ -351,10 +481,10 @@ li { margin: 4px 0; }
     </section>
 
     <section id="roles" class="card">
-      <h3>4. 角色与典型场景</h3>
+      <h3>5. 角色与典型场景</h3>
       <table class="table">
         <tr><th>角色</th><th>场景</th><th>诉求</th><th>设备动作</th></tr>
-        <tr><td>收购商超管</td><td>门店或站点收粮</td><td>希望设备快速可用，减少现场培训成本。</td><td>我的模块头像下方双卡可主动连接、断开、切换秤或打印机。</td></tr>
+        <tr><td>收购商超管</td><td>门店或站点收粮</td><td>希望设备快速可用，减少现场培训成本。</td><td>从我的模块功能列表进入蓝牙电子秤或蓝牙打印机，主动连接、断开、切换设备。</td></tr>
         <tr><td>收购业务员</td><td>田间地头收购</td><td>边称重边开单，暂存后给农户凭证。</td><td>开单读秤即时连接；暂存后直接打印小票。</td></tr>
         <tr><td>农户</td><td>交粮后等待结算</td><td>需要知道重量、品类、金额或待确认信息。</td><td>接收业务员打印的过磅单或订单小票。</td></tr>
         <tr><td>技术/实施人员</td><td>设备适配和现场排障</td><td>需要明确小程序、H5、硬件协议的边界。</td><td>按本 PRD 的架构边界评估设备接入方式。</td></tr>
@@ -362,7 +492,7 @@ li { margin: 4px 0; }
     </section>
 
     <section id="process" class="card">
-      <h3>5. 业务操作流程</h3>
+      <h3>6. 业务操作流程</h3>
       <div class="diagram">
         <div class="diagram-title">5.1 总体业务流程图</div>
         <div class="flow-row">
@@ -414,7 +544,7 @@ li { margin: 4px 0; }
     </section>
 
     <section id="receipt" class="card">
-      <h3>6. 小票打印与模板配置方案</h3>
+      <h3>7. 小票打印与模板配置方案</h3>
       <h4>打印覆盖节点</h4>
       <table class="table">
         <tr><th>订单节点</th><th>是否打印</th><th>默认小票类型</th><th>入口建议</th><th>说明</th></tr>
@@ -422,7 +552,7 @@ li { margin: 4px 0; }
         <tr><td>待开价</td><td><span class="tag">支持</span></td><td>待开价小票</td><td>订单详情、列表更多</td><td>明确重量已确认但价格未定，避免被误解为最终结算单。</td></tr>
         <tr><td>待付款</td><td><span class="tag">支持</span></td><td>待付款确认单</td><td>订单详情、列表更多</td><td>价格、金额已确认但未完成付款，可作为双方确认凭证。</td></tr>
         <tr><td>付款成功</td><td><span class="tag">支持</span></td><td>付款成功小票 / 收购结算小票</td><td>付款成功页、已结束详情</td><td>展示最终金额和支付方式，支持后续补打。</td></tr>
-        <tr><td>付款失败 / 处理中</td><td>谨慎支持</td><td>业务过程单</td><td>订单详情</td><td>不打印付款成功凭证，只允许补打挂单、待开价、待付款类业务单。</td></tr>
+        <tr><td>付款中 / 处理中 / 已取消</td><td><span class="tag amber">不支持</span></td><td>不生成小票</td><td>不展示打印入口</td><td>付款未形成最终凭证或订单已取消，避免被误解为有效收购凭证；用户可继续完成付款后再打印最终小票。</td></tr>
       </table>
 
       <h4>移动端打印交互</h4>
@@ -451,34 +581,211 @@ li { margin: 4px 0; }
     </section>
 
     <section id="sequence" class="card">
-      <h3>7. 时序图与架构边界</h3>
-      <h4>7.1 读秤时序图</h4>
+      <h3>8. 时序图与架构边界</h3>
+      <h4>8.1 读秤时序图</h4>
       <div class="diagram">
-        <div class="sequence">
-          <div class="seq-col"><div class="head">用户</div><div class="body"><div class="seq-msg">点击读秤</div><div class="seq-msg">选择设备 / 确认读数</div><div class="seq-msg">确认回填</div></div></div>
-          <div class="seq-col"><div class="head">丰收云页面</div><div class="body"><div class="seq-msg">检查连接状态</div><div class="seq-msg">打开连接抽屉或读秤抽屉</div><div class="seq-msg">写入重量字段并重算净重</div></div></div>
-          <div class="seq-col"><div class="head">小程序 / 宿主桥</div><div class="body"><div class="seq-msg">调用蓝牙扫描</div><div class="seq-msg">连接设备并订阅读数</div><div class="seq-msg">返回稳定重量</div></div></div>
-          <div class="seq-col"><div class="head">蓝牙电子秤</div><div class="body"><div class="seq-msg">广播设备信息</div><div class="seq-msg">建立连接</div><div class="seq-msg">推送当前重量</div></div></div>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant P as 丰收云开单页
+  participant A as 蓝牙适配层
+  participant H as 小程序蓝牙API / 宿主JSBridge
+  participant S as 蓝牙电子秤
+
+  U->>P: 点击重量字段右侧“读秤”
+  P->>A: 查询当前电子秤连接状态
+  alt 未连接电子秤
+    A->>H: 扫描附近蓝牙电子秤
+    H-->>A: 返回设备列表
+    A-->>P: 展示连接抽屉
+    U->>P: 选择设备并点击连接
+    P->>A: 发起连接
+    A->>H: connect(deviceId)
+    H->>S: 建立蓝牙连接
+    S-->>H: 连接成功
+    H-->>A: 返回连接状态
+    A-->>P: 进入读秤确认抽屉
+  else 已连接电子秤
+    A-->>P: 直接进入读秤确认抽屉
+  end
+  P->>A: 订阅读数
+  A->>H: subscribeWeight(deviceId)
+  S-->>H: 推送当前重量
+  H-->>A: 返回重量、单位、稳定状态、时间
+  A-->>P: 展示稳定读数和称重明细
+  U->>P: 确认回填
+  P->>P: 写入毛重 / 皮重并重算净重
+          </pre>
         </div>
+        <p class="diagram-note">说明：电子秤只负责推送当前重量，不理解订单；多次称重明细和合计由丰收云页面记录。</p>
       </div>
-      <h4>7.2 打印时序图</h4>
+      <h4>8.2 打印时序图</h4>
       <div class="diagram">
-        <div class="sequence">
-          <div class="seq-col"><div class="head">用户</div><div class="body"><div class="seq-msg">点击打印小票</div><div class="seq-msg">选择或确认打印机</div><div class="seq-msg">查看打印结果</div></div></div>
-          <div class="seq-col"><div class="head">丰收云页面</div><div class="body"><div class="seq-msg">判断订单状态</div><div class="seq-msg">读取 PC 模板并生成小票</div><div class="seq-msg">展示成功或失败提示</div></div></div>
-          <div class="seq-col"><div class="head">小程序 / 宿主桥</div><div class="body"><div class="seq-msg">扫描并连接打印机</div><div class="seq-msg">发送打印指令</div><div class="seq-msg">返回打印状态</div></div></div>
-          <div class="seq-col"><div class="head">蓝牙打印机</div><div class="body"><div class="seq-msg">广播设备信息</div><div class="seq-msg">建立连接</div><div class="seq-msg">打印小票</div></div></div>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant U as 用户
+  participant P as 丰收云订单页面
+  participant T as PC小票模板服务
+  participant A as 蓝牙适配层
+  participant H as 小程序蓝牙API / 宿主JSBridge
+  participant R as 蓝牙打印机
+
+  U->>P: 点击“打印小票”
+  P->>P: 校验订单状态和可打印小票类型
+  alt 状态不可打印
+    P-->>U: 不展示入口或提示当前状态不可打印
+  else 状态可打印
+    P->>T: 获取当前状态生效小票模板
+    T-->>P: 返回字段、纸张、份数、打印规则
+    P->>P: 组装打印内容
+    P->>A: 查询打印机连接状态
+    alt 未连接打印机
+      A->>H: 扫描附近蓝牙打印机
+      H-->>A: 返回设备列表
+      A-->>P: 展示打印机连接抽屉
+      U->>P: 选择设备并点击连接
+      P->>A: 发起连接
+      A->>H: connect(deviceId)
+      H->>R: 建立蓝牙连接
+      R-->>H: 连接成功
+      H-->>A: 返回连接状态
+    end
+    P->>A: 发送打印数据
+    A->>H: print(deviceId, payload)
+    H->>R: 下发打印指令
+    R-->>H: 返回接收状态
+    H-->>A: 返回成功 / 失败原因
+    A-->>P: 回传打印结果
+    P-->>U: 展示打印成功或失败提示
+  end
+          </pre>
         </div>
+        <p class="diagram-note">说明：移动端只按订单状态取模板并发起打印，模板字段和纸张规则由 PC 后台统一维护。</p>
       </div>
-      <h4>7.3 技术架构边界图</h4>
+      <h4>8.3 技术架构边界图</h4>
       <div class="diagram">
-        <div class="arch">
-          <div class="arch-box"><h5>丰收云业务页面</h5><ul><li>开单页</li><li>订单详情</li><li>我的模块</li><li>暂存结果抽屉</li></ul></div>
-          <div class="arch-box"><h5>PC配置后台</h5><ul><li>小票模板</li><li>字段配置</li><li>打印规则</li><li>模板预览</li></ul></div>
-          <div class="arch-box"><h5>设备连接适配层</h5><ul><li>连接状态</li><li>设备列表</li><li>主动断开</li><li>读数 / 打印回调</li></ul></div>
-          <div class="arch-box"><h5>宿主能力</h5><ul><li>微信小程序蓝牙 API</li><li>邮储 App JSBridge</li><li>未来自有 App JSBridge</li></ul></div>
-          <div class="arch-box"><h5>蓝牙硬件</h5><ul><li>电子秤：推送重量</li><li>打印机：接收打印指令</li><li>品牌型号需适配协议</li></ul></div>
+        <div class="mermaid-wrap">
+          <div class="layer-arch" aria-label="蓝牙设备分层技术架构图">
+            <div class="arch-row">
+              <div class="arch-label">接入层</div>
+              <div class="arch-content">
+                <div class="arch-panel wide arch-blue">
+                  <h5>移动端运行环境</h5>
+                  <div class="arch-items cols-4">
+                    <div class="arch-item">微信小程序</div>
+                    <div class="arch-item">邮储 App 内 H5</div>
+                    <div class="arch-item">未来自有 App</div>
+                    <div class="arch-item">普通浏览器 H5<br>不作为主路径</div>
+                  </div>
+                </div>
+                <div class="arch-panel wide arch-blue">
+                  <h5>宿主蓝牙能力</h5>
+                  <div class="arch-items cols-3">
+                    <div class="arch-item">微信蓝牙 API</div>
+                    <div class="arch-item">宿主 JSBridge</div>
+                    <div class="arch-item">权限 / 错误码</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="arch-row">
+              <div class="arch-label">应用层</div>
+              <div class="arch-content cols-3">
+                <div class="arch-panel arch-amber">
+                  <h5>开单读秤</h5>
+                  <div class="arch-items">
+                    <div class="arch-item">毛重读秤</div>
+                    <div class="arch-item">皮重读秤</div>
+                    <div class="arch-item">称重明细</div>
+                    <div class="arch-item">净重重算</div>
+                  </div>
+                </div>
+                <div class="arch-panel arch-amber">
+                  <h5>订单打印</h5>
+                  <div class="arch-items">
+                    <div class="arch-item">挂单小票</div>
+                    <div class="arch-item">待开价小票</div>
+                    <div class="arch-item">待付款小票</div>
+                    <div class="arch-item">付款成功小票</div>
+                  </div>
+                </div>
+                <div class="arch-panel arch-amber">
+                  <h5>我的模块轻入口</h5>
+                  <div class="arch-items">
+                    <div class="arch-item">电子秤入口</div>
+                    <div class="arch-item">打印机入口</div>
+                    <div class="arch-item">主动断开</div>
+                    <div class="arch-item">切换设备</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="arch-row">
+              <div class="arch-label">领域层</div>
+              <div class="arch-content cols-3">
+                <div class="arch-panel arch-purple">
+                  <h5>设备适配服务</h5>
+                  <div class="arch-items">
+                    <div class="arch-item">扫描设备</div>
+                    <div class="arch-item">连接设备</div>
+                    <div class="arch-item">断开设备</div>
+                    <div class="arch-item">连接状态</div>
+                  </div>
+                </div>
+                <div class="arch-panel arch-purple">
+                  <h5>电子秤读数服务</h5>
+                  <div class="arch-items">
+                    <div class="arch-item">协议解析</div>
+                    <div class="arch-item">稳定判断</div>
+                    <div class="arch-item">单位换算</div>
+                    <div class="arch-item">明细汇总</div>
+                  </div>
+                </div>
+                <div class="arch-panel arch-purple">
+                  <h5>打印小票服务</h5>
+                  <div class="arch-items">
+                    <div class="arch-item">模板匹配</div>
+                    <div class="arch-item">数据组装</div>
+                    <div class="arch-item">指令封装</div>
+                    <div class="arch-item">结果回调</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="arch-row">
+              <div class="arch-label">支撑层</div>
+              <div class="arch-content cols-2">
+                <div class="arch-panel arch-slate">
+                  <h5>丰收云后端能力</h5>
+                  <div class="arch-items">
+                    <div class="arch-item">订单服务</div>
+                    <div class="arch-item">商户 / 账号权限</div>
+                    <div class="arch-item">小票模板配置</div>
+                    <div class="arch-item">设备操作日志</div>
+                    <div class="arch-item">异常码映射</div>
+                    <div class="arch-item">打印记录留痕</div>
+                  </div>
+                </div>
+                <div class="arch-panel arch-slate">
+                  <h5>蓝牙硬件与存储</h5>
+                  <div class="arch-cylinders">
+                    <div class="cylinder">电子秤</div>
+                    <div class="cylinder">打印机</div>
+                    <div class="cylinder">模板 / 日志</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        <p class="diagram-note">说明：该图表达技术底层分层边界。应用层只做读秤、打印和轻入口；领域层统一处理设备连接、电子秤协议和打印指令；接入层由微信小程序蓝牙 API 或宿主 JSBridge 提供底层蓝牙能力。</p>
       </div>
       <table class="table" style="margin-top:14px;">
         <tr><th>端</th><th>可行性</th><th>说明</th></tr>
@@ -486,26 +793,38 @@ li { margin: 4px 0; }
         <tr><td>普通浏览器 H5</td><td><span class="tag amber">不建议依赖</span></td><td>Web Bluetooth 支持范围和安全限制不稳定，不作为主落地路径。</td></tr>
         <tr><td>邮储 App 内 H5</td><td><span class="tag blue">依赖桥接</span></td><td>需要宿主提供蓝牙 JSBridge，页面通过 JSBridge 调用扫描、连接、断开、读数、打印。</td></tr>
       </table>
+      <h4>8.4 JSBridge 最小能力清单</h4>
+      <table class="table">
+        <tr><th>能力</th><th>使用场景</th><th>返回要求</th></tr>
+        <tr><td>扫描附近蓝牙设备</td><td>读秤 / 打印前未连接设备时弹出连接抽屉。</td><td>设备名称、设备标识、设备类型或可识别特征、信号状态。</td></tr>
+        <tr><td>连接设备</td><td>用户选择电子秤或打印机后建立连接。</td><td>连接成功 / 失败、失败原因、当前设备标识。</td></tr>
+        <tr><td>主动断开</td><td>连接抽屉内点击“断开”。</td><td>断开成功 / 失败，不改变订单状态。</td></tr>
+        <tr><td>订阅读数 / 停止订阅</td><td>电子秤读秤确认抽屉。</td><td>重量值、单位、稳定状态、读数时间；关闭抽屉后停止订阅。</td></tr>
+        <tr><td>发送打印数据</td><td>打印小票。</td><td>发送成功 / 失败、失败原因；是否真实出纸以后续硬件能力为准。</td></tr>
+        <tr><td>错误码映射</td><td>蓝牙未开、未授权、设备被占用、连接超时、缺纸等异常。</td><td>返回可用于用户提示和日志排查的标准错误码。</td></tr>
+      </table>
     </section>
 
     <section id="pages" class="card">
-      <h3>8. 页面与交互说明</h3>
+      <h3>9. 页面与交互说明</h3>
       <table class="table">
         <tr><th>页面 / 组件</th><th>功能点</th><th>交互说明</th><th>优先级</th></tr>
-        <tr><td>我的模块</td><td>蓝牙电子秤入口</td><td>头像信息下方双卡展示已连接 / 未连接；点击进入电子秤连接抽屉，可连接、断开、切换。</td><td><span class="tag">P0</span></td></tr>
-        <tr><td>我的模块</td><td>蓝牙打印机入口</td><td>头像信息下方双卡展示已连接 / 未连接；点击进入打印机连接抽屉，可连接、断开、切换。</td><td><span class="tag">P0</span></td></tr>
+        <tr><td>我的模块</td><td>蓝牙电子秤入口</td><td>下方功能列表内普通入口，位于“开单配置”下方；右侧展示已连接 / 未连接和右箭头；点击进入电子秤连接抽屉。</td><td><span class="tag">P0</span></td></tr>
+        <tr><td>我的模块</td><td>蓝牙打印机入口</td><td>位于蓝牙电子秤下方；右侧展示已连接 / 未连接和右箭头；点击进入打印机连接抽屉。</td><td><span class="tag">P0</span></td></tr>
         <tr><td>连接抽屉</td><td>附近设备列表</td><td>仅展示设备名称、当前状态和操作按钮；不展示复杂设备档案信息。</td><td><span class="tag">P0</span></td></tr>
         <tr><td>连接抽屉</td><td>主动断开</td><td>已连接设备行右侧固定展示“已连接”和“断开”；点击断开后状态刷新为可连接。</td><td><span class="tag">P0</span></td></tr>
         <tr><td>开单页</td><td>读秤按钮</td><td>按钮放在重量字段标题右侧；点击后未连接则先连设备，已连接则进入读秤确认。</td><td><span class="tag">P0</span></td></tr>
         <tr><td>读秤确认抽屉</td><td>单次 / 多次称重</td><td>展示合计重量、稳定状态、称重明细；支持继续读秤、重新读取、确认回填。</td><td><span class="tag">P0</span></td></tr>
         <tr><td>暂存结果抽屉</td><td>直接打印</td><td>暂存到挂单、待开价、待付款后，可直接打印对应小票，不必返回订单列表。</td><td><span class="tag">P0</span></td></tr>
-        <tr><td>订单详情</td><td>打印小票</td><td>挂单、待开价、待付款、支付成功均可打印；未连接打印机时即时连接。</td><td><span class="tag">P0</span></td></tr>
+        <tr><td>订单列表</td><td>打印小票</td><td>挂单、待开价、待付款列表卡片展示“打印小票”；付款中 / 处理中不展示打印入口。</td><td><span class="tag">P0</span></td></tr>
+        <tr><td>订单详情 / 编辑页</td><td>打印小票</td><td>挂单、待开价、待付款、支付成功可打印；未连接打印机时即时连接；已取消和处理中不展示打印入口。</td><td><span class="tag">P0</span></td></tr>
+        <tr><td>付款成功页</td><td>打印小票</td><td>支付完成后可打印付款成功小票；现金支付成功等成功态也走同一打印入口。</td><td><span class="tag">P1</span></td></tr>
         <tr><td>PC后台</td><td>小票模板配置</td><td>维护模板字段、纸张、打印份数、自动打印规则和实时预览；移动端按生效模板打印。</td><td><span class="tag">P1</span></td></tr>
       </table>
     </section>
 
     <section id="rules" class="card">
-      <h3>9. 业务规则</h3>
+      <h3>10. 业务规则</h3>
       <div class="grid cols-2">
         <div>
           <h4>设备连接规则</h4>
@@ -534,8 +853,18 @@ li { margin: 4px 0; }
         <tr><th>规则</th><th>说明</th></tr>
         <tr><td>模板匹配</td><td>移动端按订单状态匹配模板：挂单=过磅单，待开价=待开价小票，待付款=待付款确认单，付款成功=付款成功小票。</td></tr>
         <tr><td>关键字段</td><td>订单号、收购商、农户、农产品、净重等建议作为必备字段；金额和支付方式仅在适用模板中展示。</td></tr>
-        <tr><td>补打口径</td><td>订单详情支持补打当前订单对应的小票；付款失败/处理中不允许打印付款成功凭证。</td></tr>
+        <tr><td>补打口径</td><td>订单详情支持补打当前订单对应的小票；付款中、处理中、已取消不展示打印入口。</td></tr>
         <tr><td>自动打印</td><td>首期以手动打印为主，自动打印作为 PC 后台开关配置项，避免现场重复出纸。</td></tr>
+      </table>
+      <h4>订单状态与小票类型规则</h4>
+      <table class="table">
+        <tr><th>订单状态</th><th>是否可打印</th><th>小票类型</th><th>入口</th><th>关键限制</th></tr>
+        <tr><td>挂单</td><td><span class="tag">可打印</span></td><td>过磅单</td><td>暂存结果、列表、详情 / 编辑页</td><td>不展示最终付款信息。</td></tr>
+        <tr><td>待开价</td><td><span class="tag">可打印</span></td><td>待开价小票</td><td>列表、详情 / 编辑页</td><td>强调价格未定，不作为最终结算凭证。</td></tr>
+        <tr><td>待付款</td><td><span class="tag">可打印</span></td><td>待付款确认单</td><td>列表、详情 / 编辑页</td><td>可展示金额，但不展示付款成功信息。</td></tr>
+        <tr><td>付款成功</td><td><span class="tag">可打印</span></td><td>付款成功小票</td><td>付款成功页、已结束详情</td><td>展示最终金额、支付方式和打印时间。</td></tr>
+        <tr><td>付款中 / 处理中</td><td><span class="tag amber">不可打印</span></td><td>无</td><td>不展示入口</td><td>支付结果未确认，避免形成误导凭证。</td></tr>
+        <tr><td>已取消</td><td><span class="tag amber">不可打印</span></td><td>无</td><td>不展示入口</td><td>订单已失效，不再出具小票。</td></tr>
       </table>
       <h4>设备记录归属</h4>
       <table class="table">
@@ -547,24 +876,28 @@ li { margin: 4px 0; }
     </section>
 
     <section id="exceptions" class="card">
-      <h3>10. 异常与降级</h3>
+      <h3>11. 异常与降级</h3>
       <table class="table">
         <tr><th>异常场景</th><th>页面表现</th><th>降级路径</th></tr>
         <tr><td>蓝牙未开启</td><td>连接抽屉提示开启蓝牙，保留重新搜索。</td><td>用户开启蓝牙后重搜；开单可手动录入。</td></tr>
         <tr><td>未授权附近设备 / 定位</td><td>提示授权用于扫描附近蓝牙设备。</td><td>授权后重试；不授权时手动录入或稍后打印。</td></tr>
         <tr><td>搜索不到设备</td><td>列表为空，提示确认设备开机、靠近手机、未被占用。</td><td>重新搜索；手动录入重量；订单后续再打印。</td></tr>
         <tr><td>连接失败</td><td>设备行保持未连接，Toast 提示失败原因。</td><td>重新连接或选择其他设备。</td></tr>
+        <tr><td>连接中断</td><td>当前设备状态刷新为未连接；读秤或打印动作失败。</td><td>重新连接后继续读秤 / 打印；已填写数据不清空。</td></tr>
         <tr><td>读数不稳定</td><td>读秤确认抽屉展示不稳定状态，不自动回填。</td><td>等待稳定、重新读取或手动录入。</td></tr>
+        <tr><td>读数为 0 或为空</td><td>确认回填前提示请先读取有效重量。</td><td>重新读取；仍异常时手动录入。</td></tr>
         <tr><td>打印失败</td><td>提示打印失败，保留当前订单和小票类型。</td><td>重新打印、断开重连、稍后到订单详情打印。</td></tr>
+        <tr><td>打印机缺纸 / 卡纸</td><td>若硬件返回错误码，提示检查纸张或打印机状态。</td><td>处理硬件后重新打印；订单状态不变化。</td></tr>
         <tr><td>模板配置缺失</td><td>使用系统默认模板并提示后台配置待完善。</td><td>不阻断打印；后台后续补齐模板。</td></tr>
         <tr><td>H5 无 JSBridge</td><td>提示当前环境暂不支持蓝牙设备。</td><td>切到小程序 / 宿主 App；业务继续走手动操作。</td></tr>
       </table>
     </section>
 
     <section id="tests" class="card">
-      <h3>11. 验收标准与测试用例</h3>
-      <h4>11.1 验收标准</h4>
+      <h3>12. 验收标准与测试用例</h3>
+      <h4>12.1 验收标准</h4>
       <ul>
+        <li>我的模块设备入口展示在下方功能列表内，位于开单配置下方，入口右侧状态可同步刷新。</li>
         <li>我的模块、开单页、订单详情页的设备连接抽屉交互一致。</li>
         <li>已连接设备行必须能主动断开，断开后入口状态和列表状态同步刷新。</li>
         <li>点击读秤时，如果未连接电子秤，必须先进入连接抽屉；连接成功后继续读秤。</li>
@@ -572,7 +905,9 @@ li { margin: 4px 0; }
         <li>PC 后台可配置小票模板字段、状态规则和预览，移动端按订单状态匹配对应模板。</li>
         <li>蓝牙异常不阻断手动开单、订单查看、继续付款等主业务流程。</li>
       </ul>
-      <h4>11.2 测试用例</h4>
+        <li>付款中 / 处理中 / 已取消不展示打印小票入口。</li>
+      </ul>
+      <h4>12.2 测试用例</h4>
       <table class="table">
         <tr><th>编号</th><th>模块</th><th>测试点</th><th>预期结果</th></tr>
         <tr><td>BT-001</td><td>我的模块</td><td>打开蓝牙电子秤入口</td><td>出现电子秤连接抽屉，展示附近设备和重新搜索。</td></tr>
@@ -584,26 +919,64 @@ li { margin: 4px 0; }
         <tr><td>BT-007</td><td>开单暂存</td><td>暂存到挂单后打印</td><td>暂存结果抽屉可直接打印过磅单。</td></tr>
         <tr><td>BT-008</td><td>订单详情</td><td>挂单 / 待开价 / 待付款 / 已完成打印</td><td>均展示打印小票入口，未连接时打开打印机连接抽屉。</td></tr>
         <tr><td>BT-009</td><td>打印机</td><td>已连接打印机点击断开</td><td>打印机状态变为未连接，可重新连接或切换。</td></tr>
-        <tr><td>BT-010</td><td>异常</td><td>搜索不到设备</td><td>可重新搜索，不影响手动录入和关闭抽屉。</td></tr>
-        <tr><td>BT-011</td><td>异常</td><td>读秤失败</td><td>提示失败，可重新读秤或手动录入。</td></tr>
-        <tr><td>BT-012</td><td>异常</td><td>打印失败</td><td>提示失败，可重新打印或重新连接打印机。</td></tr>
-        <tr><td>BT-013</td><td>PC后台</td><td>配置过磅单字段并保存</td><td>预览实时更新，保存后移动端挂单打印按新模板展示。</td></tr>
-        <tr><td>BT-014</td><td>PC后台</td><td>关闭自动打印开关</td><td>移动端不自动出纸，但订单详情仍支持手动打印。</td></tr>
+        <tr><td>BT-010</td><td>订单状态</td><td>付款中 / 处理中 / 已取消订单</td><td>不展示打印小票入口。</td></tr>
+        <tr><td>BT-011</td><td>异常</td><td>搜索不到设备</td><td>可重新搜索，不影响手动录入和关闭抽屉。</td></tr>
+        <tr><td>BT-012</td><td>异常</td><td>读秤失败或读数为 0</td><td>提示失败或请先读取有效重量，可重新读秤或手动录入。</td></tr>
+        <tr><td>BT-013</td><td>异常</td><td>打印失败 / 缺纸</td><td>提示失败，可重新打印或重新连接打印机，订单状态不变化。</td></tr>
+        <tr><td>BT-014</td><td>PC后台</td><td>配置过磅单字段并保存</td><td>预览实时更新，保存后移动端挂单打印按新模板展示。</td></tr>
+        <tr><td>BT-015</td><td>PC后台</td><td>关闭自动打印开关</td><td>移动端不自动出纸，但订单详情仍支持手动打印。</td></tr>
+        <tr><td>BT-016</td><td>技术边界</td><td>H5 无 JSBridge</td><td>提示当前环境暂不支持蓝牙设备，业务仍可手动开单和稍后打印。</td></tr>
       </table>
     </section>
 
     <section id="open" class="card">
-      <h3>12. 待评估事项</h3>
+      <h3>13. 待评估事项</h3>
       <table class="table">
         <tr><th>事项</th><th>建议</th><th>待确认方</th></tr>
         <tr><td>电子秤品牌和协议</td><td>先以已验证 Demo 的设备型号作为首期适配对象，再扩展品牌型号。</td><td>技术 / 硬件供应商</td></tr>
         <tr><td>小程序蓝牙权限</td><td>确认微信小程序所需蓝牙、定位、附近设备权限提示和审核要求。</td><td>技术</td></tr>
         <tr><td>邮储 App H5 桥接</td><td>确认宿主是否能提供扫描、连接、断开、读数、打印 JSBridge。</td><td>邮储 / 技术</td></tr>
         <tr><td>小票模板</td><td>PC后台统一控制模板内容和状态规则，需确认字段必选项、纸张规格、自动打印默认值和配置下发方式。</td><td>产品 / 业务 / 技术</td></tr>
-        <tr><td>设备配置入口</td><td>当前保留我的模块两个轻入口，是否下沉到“设备配置”待评审后决定。</td><td>产品 / 领导评审</td></tr>
+        <tr><td>设备管理聚合</td><td>当前仅保留我的模块两个轻入口；后续若设备能力增多，再评估是否做独立设备聚合页。</td><td>产品 / 领导评审</td></tr>
+        <tr><td>打印记录留痕</td><td>需评估是否记录打印人、打印时间、打印次数和失败原因，便于后续追溯。</td><td>产品 / 技术</td></tr>
       </table>
     </section>
   </main>
 </div>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+  mermaid.initialize({
+    startOnLoad: true,
+    securityLevel: 'loose',
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#F0FDF4',
+      primaryTextColor: '#166534',
+      primaryBorderColor: '#16A34A',
+      lineColor: '#64748B',
+      secondaryColor: '#EFF6FF',
+      tertiaryColor: '#FFFFFF',
+      actorBorder: '#16A34A',
+      actorBkg: '#F0FDF4',
+      actorTextColor: '#166534',
+      noteBkgColor: '#FEF3C7',
+      noteTextColor: '#92400E',
+      fontFamily: 'Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif'
+    },
+    sequence: {
+      showSequenceNumbers: true,
+      actorMargin: 48,
+      messageMargin: 42,
+      mirrorActors: false
+    },
+    flowchart: {
+      curve: 'basis',
+      htmlLabels: true,
+      nodeSpacing: 42,
+      rankSpacing: 54
+    }
+  });
+</script>
 </body>
 </html>

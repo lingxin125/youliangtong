@@ -6,14 +6,68 @@
 <title>库存管理移动端方案</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
-:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#64748b;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--red:#fef2f2;--slate:#f8fafc}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.72}.layout{display:flex;min-height:100vh}.side{position:fixed;inset:0 auto 0 0;width:260px;background:#fff;border-right:1px solid var(--line);padding:22px 0;overflow:auto}.brand{padding:0 22px 18px;border-bottom:1px solid var(--line);margin-bottom:10px}.brand .k{font-size:12px;color:var(--primary);font-weight:800;letter-spacing:.4px}.brand h1{margin:6px 0 4px;font-size:18px;line-height:1.35}.brand p{margin:0;color:var(--muted);font-size:12px}.side a{display:block;padding:8px 22px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;font-size:13px}.side a:hover{color:var(--primary);background:rgba(17,166,74,.05);border-left-color:var(--primary)}.main{margin-left:260px;width:calc(100% - 260px);padding:28px 34px 70px}.hero{background:linear-gradient(135deg,#11a64a,#0f7f3d);color:#fff;border-radius:24px;padding:34px 36px;box-shadow:0 18px 40px rgba(17,166,74,.18)}.hero h2{margin:0 0 8px;font-size:30px;line-height:1.25}.hero p{margin:0;max-width:980px;opacity:.92;font-size:15px}.meta,.grid,.phone-grid{display:grid;gap:12px}.meta{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 24px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.phone-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.item,.card,.phone{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}.item{padding:14px 16px}.label{font-size:12px;color:var(--muted)}.value{margin-top:2px;font-size:15px;font-weight:800}.card{padding:24px;margin-bottom:18px}.card h3{margin:0 0 14px;font-size:20px}.card h4{margin:18px 0 8px;font-size:16px}.lead{color:var(--muted);font-size:14px;margin:0 0 14px}.box{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fafafa}.box strong{display:block;font-size:16px;margin-bottom:4px}.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:800;margin:0 6px 6px 0}.green{background:var(--green);color:#047857}.blue{background:#dbeafe;color:#2563eb}.red{background:#fee2e2;color:#dc2626}.slate{background:var(--slate);color:#475569}table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:13px}th{background:#f9fafb;color:#374151;font-weight:800}ul{margin:8px 0 0;padding-left:20px}li{margin:5px 0}.note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f0fdf4;color:#166534;font-size:13px}.warn{background:#fffbeb;color:#92400e}.diagram{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:12px;overflow:auto}.phone{padding:14px}.phone-top{height:34px;border-radius:12px;background:#f8fafc;border:1px solid var(--line);display:flex;align-items:center;padding:0 10px;color:#64748b;font-size:12px;margin-bottom:12px}.metric-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}.metric{border-radius:12px;padding:10px;background:#f8fafc}.metric b{display:block;font-size:18px;color:#0f172a;line-height:1.1}.metric span{font-size:11px;color:#64748b}.entry{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:8px;background:#fff;gap:10px}.entry strong{font-size:13px}.entry span{font-size:11px;color:#64748b}.pill{display:inline-flex;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800;white-space:nowrap}.timeline{border-left:2px solid #dbeafe;margin-left:8px;padding-left:14px}.timeline .entry{position:relative}.timeline .entry:before{content:"";position:absolute;left:-22px;top:18px;width:8px;height:8px;border-radius:50%;background:#2563eb}@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.phone-grid{grid-template-columns:1fr}.hero{padding:26px 22px}}
+:root{--bg:#f6f8f6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1f2937;--muted:#64748b;--primary:#11a64a;--green:#ecfdf5;--blue:#eff6ff;--red:#fef2f2;--amber:#fffbeb;--slate:#f8fafc}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;line-height:1.72}
+.layout{display:flex;min-height:100vh}
+.side{position:fixed;inset:0 auto 0 0;width:268px;background:#fff;border-right:1px solid var(--line);padding:22px 0;overflow:auto}
+.brand{padding:0 22px 18px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.brand .k{font-size:12px;color:var(--primary);font-weight:800;letter-spacing:.4px}
+.brand h1{margin:6px 0 4px;font-size:18px;line-height:1.35}
+.brand p{margin:0;color:var(--muted);font-size:12px}
+.side a{display:block;padding:8px 22px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;font-size:13px}
+.side a:hover{color:var(--primary);background:rgba(17,166,74,.05);border-left-color:var(--primary)}
+.main{margin-left:268px;width:calc(100% - 268px);padding:28px 34px 70px}
+.hero{background:#fff;border:1px solid rgba(17,166,74,.16);border-radius:24px;padding:34px 36px;box-shadow:0 10px 28px rgba(15,23,42,.05)}
+.hero .eyebrow{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:999px;background:#ecfdf5;color:#047857;font-size:12px;font-weight:800;margin-bottom:12px}
+.hero h2{margin:0 0 8px;font-size:30px;line-height:1.25}
+.hero p{margin:0;max-width:980px;color:var(--muted);font-size:15px}
+.meta,.grid,.phone-grid{display:grid;gap:12px}
+.meta{grid-template-columns:repeat(4,minmax(0,1fr));margin:18px 0 24px}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.phone-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.item,.card,.phone{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}
+.item{padding:14px 16px}
+.label{font-size:12px;color:var(--muted)}
+.value{margin-top:2px;font-size:15px;font-weight:800}
+.card{padding:24px;margin-bottom:18px}
+.card h3{margin:0 0 14px;font-size:20px}
+.card h4{margin:18px 0 8px;font-size:16px}
+.lead{color:var(--muted);font-size:14px;margin:0 0 14px}
+.box{border:1px solid var(--line);border-radius:14px;padding:16px;background:#fafafa}
+.box strong{display:block;font-size:16px;margin-bottom:4px}
+.tag{display:inline-flex;align-items:center;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:800;margin:0 6px 6px 0;white-space:nowrap}
+.green{background:var(--green);color:#047857}.blue{background:#dbeafe;color:#2563eb}.red{background:#fee2e2;color:#dc2626}.amber{background:var(--amber);color:#92400e}.slate{background:var(--slate);color:#475569}
+table{width:100%;border-collapse:collapse;margin-top:10px;background:#fff;border-radius:14px;overflow:hidden}
+th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top;font-size:13px}
+th{background:#f9fafb;color:#374151;font-weight:800}
+ul{margin:8px 0 0;padding-left:20px}li{margin:5px 0}
+.note{margin-top:12px;padding:12px 14px;border-radius:14px;background:#f0fdf4;color:#166534;font-size:13px}
+.warn{background:#fffbeb;color:#92400e}
+.diagram{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:12px;overflow:auto}
+.phone{padding:14px}
+.phone-top{height:34px;border-radius:12px;background:#f8fafc;border:1px solid var(--line);display:flex;align-items:center;padding:0 10px;color:#64748b;font-size:12px;margin-bottom:12px}
+.metric-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.metric{border-radius:12px;padding:10px;background:#f8fafc;border:1px solid rgba(15,23,42,.05)}
+.metric b{display:block;font-size:18px;color:#0f172a;line-height:1.1}
+.metric span{font-size:11px;color:#64748b}
+.entry{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:8px;background:#fff;gap:10px}
+.entry strong{font-size:13px}.entry span{font-size:11px;color:#64748b}
+.pill{display:inline-flex;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800;white-space:nowrap}
+.checklist{columns:2;column-gap:28px}
+.checklist li{break-inside:avoid}
+@media(max-width:900px){.side{display:none}.main{margin-left:0;width:100%;padding:16px}.meta,.grid,.phone-grid{grid-template-columns:1fr}.hero{padding:26px 22px}.checklist{columns:1}}
 </style>
 </head>
 <body>
 <div class="layout">
   <aside class="side">
-    <div class="brand"><div class="k">REQ-081</div><h1>库存管理移动端方案</h1><p>开单入库与只读查询</p></div>
+    <div class="brand">
+      <div class="k">REQ-081</div>
+      <h1>库存管理移动端方案</h1>
+      <p>开单入库与只读查询</p>
+    </div>
     <nav>
       <a href="#overview">概览</a>
       <a href="#scope">范围与权限</a>
@@ -23,27 +77,33 @@
       <a href="#ledger">库存台账</a>
       <a href="#flows">库存明细</a>
       <a href="#farmer">农户存粮</a>
+      <a href="#data">数据与接口</a>
+      <a href="#alignment">原型对齐</a>
+      <a href="#edge">边界与待确认</a>
       <a href="#acceptance">验收标准</a>
     </nav>
   </aside>
+
   <main class="main">
     <section class="hero" id="overview">
+      <div class="eyebrow">REQ-081 · 初评版</div>
       <h2>库存管理移动端方案</h2>
       <p>移动端不复制 PC 库存维护能力，只补齐开单选择入库仓库、订单详情记录入库仓库，以及“我的 > 库存管理”下的库存概览、库存台账、库存明细、农户存粮只读查询。</p>
     </section>
+
     <section class="meta">
-      <div class="item"><div class="label">需求编号</div><div class="value">REQ-081</div></div>
       <div class="item"><div class="label">入口位置</div><div class="value">我的 > 库存管理</div></div>
       <div class="item"><div class="label">操作边界</div><div class="value">只读查询 + 开单选择</div></div>
-      <div class="item"><div class="label">详情展示</div><div class="value">仅入库仓库</div></div>
+      <div class="item"><div class="label">库存状态建议</div><div class="value">预入库 / 待确认入库</div></div>
+      <div class="item"><div class="label">订单详情</div><div class="value">仅展示入库仓库</div></div>
     </section>
 
     <section class="card">
       <h3>1. 设计结论</h3>
       <div class="grid">
         <div class="box"><strong>入口不放首页</strong><span class="tag green">低频管理</span><p class="lead">库存入口收口到我的模块，避免轻量收购用户过早感知复杂仓储能力。</p></div>
-        <div class="box"><strong>首页轻预览</strong><span class="tag blue">最近5条</span><p class="lead">库存首页只放概览和三 Tab 预览；搜索、筛选、汇总全部下沉到列表页。</p></div>
-        <div class="box"><strong>库存明细强调语义</strong><span class="tag green">入库</span><span class="tag red">出库</span><p class="lead">右上角用入库/出库表达库存方向，左下角用收粮/存粮表达库存来源。</p></div>
+        <div class="box"><strong>首页轻预览</strong><span class="tag blue">最近 5 条</span><p class="lead">库存首页只放概览和三 Tab 预览；搜索、筛选、汇总全部下沉到列表页。</p></div>
+        <div class="box"><strong>库存明细强调语义</strong><span class="tag green">入库</span><span class="tag red">出库</span><p class="lead">右上角用入库 / 出库表达库存方向，左下角用收粮 / 存粮表达库存来源。</p></div>
         <div class="box"><strong>复杂操作仍在 PC</strong><span class="tag slate">只读查询</span><p class="lead">库存调整、出库、调拨、盘点、农户存粮新增和存转销继续由 PC 端完成。</p></div>
       </div>
     </section>
@@ -52,17 +112,18 @@
       <h3>2. 范围与权限</h3>
       <table>
         <tr><th>范围</th><th>本期处理</th><th>说明</th></tr>
-        <tr><td>开单页</td><td>新增入库仓库字段</td><td>可为空，默认暂不入库。</td></tr>
-        <tr><td>订单详情</td><td>有仓库才展示</td><td>仅在订单信息中展示入库仓库，不展示独立入库信息模块。</td></tr>
+        <tr><td>开单页</td><td>新增入库仓库字段</td><td>可为空，默认暂不入库；强库存客户后续可配置必填。</td></tr>
+        <tr><td>订单详情</td><td>有仓库才展示</td><td>仅在订单信息中展示入库仓库，不拆库存处理模块。</td></tr>
         <tr><td>我的页</td><td>新增库存管理入口</td><td>仅超管和有库存查询权限账号可见。</td></tr>
-        <tr><td>库存查询</td><td>概览、台账、明细、农户存粮</td><td>只读，不做写操作。</td></tr>
+        <tr><td>库存查询</td><td>概览、台账、明细、农户存粮</td><td>只读，不做新增、编辑、删除、调拨、盘点、出库、存转销。</td></tr>
       </table>
       <table>
-        <tr><th>角色</th><th>权限</th></tr>
-        <tr><td>超管</td><td>可见库存管理入口，可查看全部仓库库存数据。</td></tr>
-        <tr><td>有库存查询权限账号</td><td>可见入口，按账号权限查看可见仓库数据。</td></tr>
-        <tr><td>无权限账号</td><td>不展示库存管理入口。</td></tr>
+        <tr><th>角色</th><th>入口可见性</th><th>数据范围</th></tr>
+        <tr><td>超管</td><td>可见</td><td>当前收购商主体下全部有权限仓库。</td></tr>
+        <tr><td>有库存查询权限账号</td><td>可见</td><td>按账号授权仓库范围查看。</td></tr>
+        <tr><td>无库存查询权限账号</td><td>不展示入口</td><td>后端接口仍需拒绝直链访问。</td></tr>
       </table>
+      <div class="note">前端入口隐藏只是体验控制，后端接口必须按账号权限和可见仓库范围过滤数据。</div>
     </section>
 
     <section class="card" id="billing">
@@ -71,37 +132,43 @@
         <tr><th>字段</th><th>规则</th></tr>
         <tr><td>入库仓库</td><td>下拉选择，可为空，默认暂不入库。</td></tr>
         <tr><td>仓库来源</td><td>PC 端仓库接口，仅展示启用仓库。</td></tr>
-        <tr><td>展示内容</td><td>只展示仓库名称。</td></tr>
-        <tr><td>提交字段</td><td>选择仓库后提交 warehouseId 和 warehouseName。</td></tr>
+        <tr><td>历史禁用仓库</td><td>新开单不展示；历史订单按订单快照展示仓库名称。</td></tr>
+        <tr><td>提交字段</td><td>选择仓库后提交 `warehouseId` 和 `warehouseName`。</td></tr>
       </table>
       <div class="diagram"><pre class="mermaid">flowchart TD
-    A[收购商进入开单页] --> B{商户是否启用入库配置}
+    A[收购商进入开单页] --> B{商户是否启用入库仓库配置}
     B -- 否 --> C[不展示入库仓库字段]
-    C --> D[正常开单/付款]
+    C --> D[正常开单/挂单/待开价/付款]
     B -- 是 --> E[展示入库仓库字段]
     E --> F{是否选择仓库}
     F -- 否 --> G[订单不记录入库仓库]
     G --> H[订单详情不展示入库仓库]
-    F -- 是 --> I[提交 warehouseId/warehouseName]
-    I --> J[记录本单入库仓库]
+    F -- 是 --> I[提交 warehouseId 和 warehouseName]
+    I --> J[订单记录入库仓库快照]
     J --> K[订单详情订单信息展示入库仓库]
-    K --> L[PC端/后端处理库存入库]
-    L --> M[移动端库存管理只读查询]</pre></div>
+    K --> L[后端生成预入库或待确认入库数据]
+    L --> M[PC端完成正式库存确认或后续库存作业]
+    M --> N[移动端库存管理只读查询]</pre></div>
+      <table>
+        <tr><th>底层状态建议</th><th>含义</th><th>移动端展示</th></tr>
+        <tr><td>未入库</td><td>开单未选择仓库，订单不进入库存流程。</td><td>订单详情不展示入库仓库。</td></tr>
+        <tr><td>预入库 / 待确认入库</td><td>已记录仓库归属，等待后端或 PC 正式确认。</td><td>库存概览可计入待确认入库。</td></tr>
+        <tr><td>已入库</td><td>已正式入库，形成库存流水。</td><td>在库存台账 / 库存明细中查询。</td></tr>
+        <tr><td>入库取消 / 冲销</td><td>后续库存处理被撤销或冲销。</td><td>在库存明细或 PC 端查看，不在订单详情展开。</td></tr>
+      </table>
     </section>
 
     <section class="card" id="order-detail">
-      <h3>4. 订单详情展示</h3>
+      <h3>4. 订单详情展示边界</h3>
       <p class="lead">订单详情只记录本单农产品入到哪个仓库，不展示库存处理过程。</p>
       <table>
         <tr><th>场景</th><th>订单详情展示</th></tr>
-        <tr><td>开单未选择仓库</td><td>不展示入库仓库行。</td></tr>
-        <tr><td>开单选择仓库</td><td>在订单信息区域展示入库仓库。</td></tr>
-        <tr><td>后续库存确认、失败、冲销</td><td>不在订单详情展示，进入库存管理或 PC 端库存功能查看。</td></tr>
+        <tr><td>开单未选择仓库</td><td>不展示 `入库仓库` 行。</td></tr>
+        <tr><td>开单选择仓库</td><td>在 `订单信息` 区域展示 `入库仓库`。</td></tr>
+        <tr><td>仓库后续被禁用</td><td>仍展示订单保存时的仓库名称快照。</td></tr>
+        <tr><td>后续库存确认、失败、冲销</td><td>不在订单详情展示，进入库存管理或 PC 库存功能查看。</td></tr>
       </table>
-      <table>
-        <tr><th>区域</th><th>字段</th><th>展示规则</th></tr>
-        <tr><td>订单信息</td><td>入库仓库</td><td>展示仓库名称，建议放在下单时间后、业务员前；未选择仓库时不展示该行。</td></tr>
-      </table>
+      <div class="warn note">订单详情不展示库存流水号、入库状态、入库时间、来源单号等库存作业字段，避免把订单详情做成库存处理详情。</div>
     </section>
 
     <section class="card" id="home">
@@ -117,7 +184,7 @@
             <div class="metric"><b>+0.4万</b><span>今日库存变化 · 较昨日 +3.6%</span></div>
           </div>
           <div class="entry"><div><strong>库存台账</strong><br><span>最近 5 条预览</span></div><span class="pill green">全部</span></div>
-          <div class="entry"><div><strong>库存明细</strong><br><span>入库/出库 + 收粮/存粮标签</span></div><span class="pill green">全部</span></div>
+          <div class="entry"><div><strong>库存明细</strong><br><span>入库 / 出库 + 收粮 / 存粮标签</span></div><span class="pill green">全部</span></div>
           <div class="entry"><div><strong>农户存粮</strong><br><span>农户电话、订单号、存粮时长</span></div><span class="pill green">全部</span></div>
         </div>
         <div class="phone">
@@ -134,18 +201,26 @@
           <div class="entry"><span>存粮时长：2 天</span><span>2026-06-09 16:59:34</span></div>
         </div>
       </div>
+      <table>
+        <tr><th>指标</th><th>含义</th><th>趋势口径</th></tr>
+        <tr><td>当前库存</td><td>收粮类型与存粮类型的当前库存结存合计。</td><td>较昨日同一统计时点，升绿降红。</td></tr>
+        <tr><td>农户存粮</td><td>农户寄存在收购商仓库的存粮重量合计。</td><td>较昨日，升绿降红。</td></tr>
+        <tr><td>待确认入库</td><td>已形成预入库但未正式确认的重量。</td><td>较昨日，升绿降红。</td></tr>
+        <tr><td>今日库存变化</td><td>当日入库与出库净变动。</td><td>较昨日，升绿降红。</td></tr>
+      </table>
     </section>
 
     <section class="card" id="ledger">
       <h3>6. 库存台账</h3>
-      <p class="lead">用于查看“现在仓库里还剩多少”。库存台账卡片信息完整，不汇总、不下钻。</p>
+      <p class="lead">用于查看“现在仓库里还剩多少”。库存台账是当前库存结果，不强调入库 / 出库发生时间。</p>
       <table>
         <tr><th>字段</th><th>展示规则</th></tr>
         <tr><td>农产品名称</td><td>卡片主标题。</td></tr>
-        <tr><td>仓库名称</td><td>辅助信息行，左侧仓库图标，文字色与列表统一。</td></tr>
+        <tr><td>仓库名称</td><td>辅助信息行，左侧仓库图标。</td></tr>
         <tr><td>库存类型</td><td>标签展示：收粮 / 存粮。</td></tr>
         <tr><td>结存重量</td><td>灰底信息块，字段名与数值左侧紧凑排列。</td></tr>
       </table>
+      <div class="note">库存台账不提供汇总展示，不提供详情下钻。若要看变动时间和来源，进入库存明细。</div>
     </section>
 
     <section class="card" id="flows">
@@ -153,16 +228,17 @@
       <p class="lead">用于查看库存变动流水，按发生时间倒序展示。右上角表达库存方向，左下角表达库存来源。</p>
       <table>
         <tr><th>元素</th><th>展示规则</th></tr>
-        <tr><td>出入库状态</td><td>右上角标签：入库为绿色，出库为低饱和红。</td></tr>
-        <tr><td>库存类型</td><td>左下角标签：收粮为灰色，存粮为蓝色。</td></tr>
+        <tr><td>出入库状态</td><td>右上角标签：入库为主题绿，出库为低饱和红。</td></tr>
+        <tr><td>库存类型</td><td>左下角标签：收粮为中性灰，存粮为浅蓝。</td></tr>
         <tr><td>订单编号</td><td>辅助信息行，左侧编号图标。</td></tr>
         <tr><td>变动重量 / 结存量</td><td>灰底信息块，字段名固定为变动重量、结存量。</td></tr>
+        <tr><td>变动时间</td><td>完整时间，展示到秒。</td></tr>
         <tr><td>详情</td><td>非汇总卡片点击后从底部弹出详情。</td></tr>
       </table>
       <h4>汇总规则</h4>
       <table>
         <tr><th>汇总维度</th><th>汇总后展示</th><th>汇总后不展示</th></tr>
-        <tr><td>库存类型 + 农产品 + 仓库 + 入库/出库</td><td>变动重量合计、合并笔数、库存类型标签</td><td>订单编号、结存量、流水号、变动时间、操作备注</td></tr>
+        <tr><td>库存类型 + 农产品 + 仓库 + 入库 / 出库</td><td>农产品、仓库、出入库状态、变动重量合计、合并笔数、库存类型标签。</td><td>订单编号、结存量、流水号、变动时间、操作备注。</td></tr>
       </table>
     </section>
 
@@ -171,53 +247,111 @@
       <p class="lead">用于查看农户寄存在收购商仓库内、尚未出售给收购商的存粮记录。</p>
       <table>
         <tr><th>状态</th><th>字段</th><th>交互</th></tr>
-        <tr><td>未汇总</td><td>农户姓名、电话、订单编号、存粮种类、存粮重量、存粮时长、存粮时间</td><td>点击卡片打开详情弹层。</td></tr>
-        <tr><td>汇总</td><td>农户姓名、电话、存粮种类、存粮重量合计</td><td>点击明细进入分组明细。</td></tr>
+        <tr><td>未汇总</td><td>农户姓名、电话、订单编号、存粮种类、存粮重量、存粮时长、存粮时间。</td><td>点击卡片打开详情弹层。</td></tr>
+        <tr><td>汇总</td><td>农户姓名、电话、存粮种类、存粮重量合计。</td><td>点击明细进入该汇总分组下的原始明细集合。</td></tr>
       </table>
+      <div class="note">农户存粮是寄存粮口径，不等同于收购商已买断库存。汇总态不展示单条订单编号、单条存粮时间、存粮时长和仓库单值。</div>
     </section>
 
     <section class="card">
       <h3>9. 查询流程</h3>
       <div class="diagram"><pre class="mermaid">flowchart TD
-    A[我的 > 库存管理] --> B[库存概览]
-    B --> C{选择 Tab}
-    C --> D[库存台账最近5条]
-    C --> E[库存明细最近5条]
-    C --> F[农户存粮最近5条]
-    D --> G[全部: 库存台账列表]
-    E --> H[全部: 库存明细列表]
-    F --> I[全部: 农户存粮列表]
-    G --> J[搜索/筛选]
-    H --> K[搜索/筛选/汇总统计]
-    I --> L[搜索/筛选/汇总展示]
-    H --> M[非汇总卡片详情弹层]
-    I --> N[非汇总卡片详情弹层]
-    I --> O[汇总卡片分组明细]</pre></div>
+    A[我的 > 库存管理] --> B{是否有库存查询权限}
+    B -- 否 --> C[展示无权限空态]
+    B -- 是 --> D[库存概览]
+    D --> E{选择 Tab}
+    E --> F[库存台账最近5条]
+    E --> G[库存明细最近5条]
+    E --> H[农户存粮最近5条]
+    F --> I[全部: 库存台账列表]
+    G --> J[全部: 库存明细列表]
+    H --> K[全部: 农户存粮列表]
+    I --> L[搜索/筛选]
+    J --> M[搜索/筛选/汇总统计]
+    K --> N[搜索/筛选/汇总展示]
+    J --> O[非汇总卡片详情弹层]
+    K --> P[非汇总卡片详情弹层]
+    K --> Q[汇总卡片分组明细]</pre></div>
     </section>
 
-    <section class="card">
+    <section class="card" id="data">
       <h3>10. 数据与接口口径</h3>
+      <div class="diagram"><pre class="mermaid">flowchart LR
+    A[PC仓库管理] --> B[启用仓库列表]
+    B --> C[移动端开单仓库下拉]
+    C --> D[订单 warehouseId/warehouseName]
+    D --> E[后端预入库/待确认入库]
+    E --> F[PC库存确认与库存作业]
+    F --> G[库存台账]
+    F --> H[库存明细]
+    F --> I[农户存粮]
+    G --> J[移动端库存管理只读查询]
+    H --> J
+    I --> J</pre></div>
       <table>
-        <tr><th>数据</th><th>来源</th><th>移动端使用方式</th></tr>
-        <tr><td>仓库列表</td><td>PC 端仓库接口</td><td>开单下拉与库存筛选，仅展示启用仓库。</td></tr>
-        <tr><td>库存台账</td><td>PC 库存台账接口</td><td>只读展示当前结存。</td></tr>
-        <tr><td>库存明细</td><td>PC 库存流水接口</td><td>只读展示入库/出库流水。</td></tr>
-        <tr><td>农户存粮</td><td>PC 农户存粮接口</td><td>只读展示未汇总、汇总和分组明细。</td></tr>
+        <tr><th>数据</th><th>来源</th><th>移动端使用方式</th><th>后端要求</th></tr>
+        <tr><td>仓库列表</td><td>PC 仓库接口</td><td>开单下拉与库存筛选，仅展示启用仓库。</td><td>返回启用状态、仓库 ID、仓库名称。</td></tr>
+        <tr><td>订单仓库</td><td>订单接口</td><td>订单详情展示仓库名称快照。</td><td>保存 warehouseId、warehouseName。</td></tr>
+        <tr><td>待确认入库</td><td>库存 / 订单联动接口</td><td>库存概览展示待确认入库重量。</td><td>明确状态名与统计口径。</td></tr>
+        <tr><td>库存台账</td><td>PC 库存台账接口</td><td>只读展示当前结存。</td><td>按权限过滤仓库范围。</td></tr>
+        <tr><td>库存明细</td><td>PC 库存流水接口</td><td>只读展示入库 / 出库流水。</td><td>支持搜索、筛选、汇总。</td></tr>
+        <tr><td>农户存粮</td><td>PC 农户存粮接口</td><td>只读展示未汇总、汇总和分组明细。</td><td>支持汇总和分组明细查询。</td></tr>
+      </table>
+    </section>
+
+    <section class="card" id="alignment">
+      <h3>11. 原型对齐与方案补充说明</h3>
+      <table>
+        <tr><th>分类</th><th>内容</th><th>当前处理</th></tr>
+        <tr><td>原型已覆盖</td><td>我的 > 库存管理入口、库存概览、库存台账 / 库存明细 / 农户存粮三 Tab、最近 5 条预览、全部列表、筛选、汇总、详情弹层。</td><td>作为本期移动端展示基线。</td></tr>
+        <tr><td>原型已覆盖</td><td>开单页入库仓库、订单详情按条件展示入库仓库、不开库存处理模块。</td><td>作为开单与订单详情联动基线。</td></tr>
+        <tr><td>PRD 补充</td><td>仓库禁用后历史订单仍展示仓库名称快照。</td><td>需要后端保存订单仓库快照。</td></tr>
+        <tr><td>PRD 补充</td><td>开单选择仓库后形成预入库 / 待确认入库。</td><td>需要后端确认状态名、生成时机和统计口径。</td></tr>
+        <tr><td>PRD 补充</td><td>权限过滤、直链无权限、接口失败、无数据、筛选无结果等异常态。</td><td>需要前后端联动补齐。</td></tr>
+        <tr><td>PRD 补充</td><td>趋势指标较昨日的统计时点。</td><td>需要后端或数据口径确认。</td></tr>
+      </table>
+      <div class="note">原型主要表达页面结构、字段展示和交互路径；PRD 额外说明后端状态、权限过滤、历史快照、异常空态和统计口径。</div>
+    </section>
+
+    <section class="card" id="edge">
+      <h3>12. 异常边界与待确认事项</h3>
+      <table>
+        <tr><th>异常场景</th><th>处理规则</th></tr>
+        <tr><td>仓库接口失败</td><td>开单页仓库字段展示加载失败提示，可重试；不影响不选仓库继续开单。</td></tr>
+        <tr><td>无启用仓库</td><td>下拉展示空态，提示暂无可用仓库；允许暂不入库。</td></tr>
+        <tr><td>用户无库存权限</td><td>不展示入口；直链进入展示无权限空态。</td></tr>
+        <tr><td>库存接口失败</td><td>页面展示加载失败和重试入口，不展示错误数据。</td></tr>
+        <tr><td>无数据 / 筛选无结果</td><td>展示空态，不展示新增按钮。</td></tr>
+      </table>
+      <table>
+        <tr><th>评审关注点</th><th>需要确认的问题</th></tr>
+        <tr><td>预入库状态</td><td>状态名、生成时机、是否进入库存概览待确认入库。</td></tr>
+        <tr><td>仓库接口</td><td>是否可返回启用状态、权限过滤后的仓库列表。</td></tr>
+        <tr><td>订单接口</td><td>是否保存仓库快照，历史禁用仓库是否仍可展示名称。</td></tr>
+        <tr><td>库存明细接口</td><td>是否支持按库存类型、农产品、仓库、入库 / 出库汇总。</td></tr>
+        <tr><td>农户存粮接口</td><td>是否支持未汇总、汇总、分组明细三种查询。</td></tr>
+        <tr><td>趋势指标</td><td>较昨日的统计时点和计算方式。</td></tr>
       </table>
     </section>
 
     <section class="card" id="acceptance">
-      <h3>11. 验收标准</h3>
-      <ul>
+      <h3>13. 验收标准</h3>
+      <ul class="checklist">
         <li>未启用入库配置时，开单页不展示入库仓库字段。</li>
         <li>启用入库配置时，开单页展示入库仓库，下拉只展示启用仓库。</li>
+        <li>入库仓库默认可为空，不影响挂单、待开价、待付款、付款成功等订单流程。</li>
         <li>未选择仓库的订单，详情页不展示入库仓库。</li>
-        <li>选择仓库的订单，仅在订单信息中展示入库仓库，不展示入库状态、库存流水号、入库时间和来源单号。</li>
-        <li>库存管理首页展示库存概览和三 Tab 最近 5 条预览，不展示搜索、筛选、汇总控件。</li>
+        <li>选择仓库的订单，仅在订单信息中展示入库仓库，不展示库存作业字段。</li>
+        <li>我的页仅超管和有库存查询权限账号展示库存管理入口。</li>
+        <li>库存管理首页展示库存概览和三 Tab 最近 5 条预览。</li>
+        <li>库存管理首页不展示搜索、筛选、汇总控件。</li>
+        <li>库存概览四个指标展示较昨日趋势，升绿降红。</li>
         <li>库存台账列表支持搜索和筛选，不支持汇总和详情下钻。</li>
         <li>库存明细列表支持搜索、筛选、汇总统计和非汇总详情弹层。</li>
+        <li>库存明细字段名称统一为变动重量、结存量，时间展示到秒。</li>
         <li>农户存粮列表支持搜索、筛选、汇总展示、非汇总详情弹层和汇总分组明细。</li>
         <li>库存管理页不出现新增、编辑、删除、出库、调拨、盘点、存转销等操作按钮。</li>
+        <li>无权限、无数据、接口失败、筛选无结果均有明确空态或错误提示。</li>
       </ul>
     </section>
   </main>

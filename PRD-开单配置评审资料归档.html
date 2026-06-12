@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开单配置 PRD 评审资料归档</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{--bg:#F6F8F6;--card:#fff;--line:rgba(15,23,42,.08);--text:#1F2937;--muted:#6B7280;--primary:#11A64A;--primary-dark:#0E7A38;--soft:#F0FDF4;--blue-soft:#EFF6FF;--amber-soft:#FFFBEB}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Noto Sans SC","Poppins",sans-serif;background:var(--bg);color:var(--text);line-height:1.72}
+.page{max-width:1120px;margin:0 auto;padding:28px 24px 56px}
+.hero{background:linear-gradient(135deg,#11A64A 0%,#0E7A38 100%);color:#fff;border-radius:24px;padding:34px 36px;box-shadow:0 18px 40px rgba(17,166,74,.18)}
+.hero .kicker{font-size:12px;font-weight:900;letter-spacing:.06em;opacity:.9}
+.hero h1{margin:8px 0;font-size:30px;line-height:1.25}
+.hero p{margin:0;max-width:820px;opacity:.92;font-size:15px}
+.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0 24px}
+.item,.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 20px rgba(15,23,42,.04)}
+.item{padding:14px 16px}.label{color:var(--muted);font-size:12px}.value{margin-top:2px;font-size:15px;font-weight:900}
+.card{padding:24px;margin-bottom:18px}h2{margin:0 0 14px;font-size:20px;display:flex;gap:10px;align-items:center}h2 i{color:var(--primary);font-size:18px}h3{margin:0 0 8px;font-size:16px}.lead{margin:0 0 14px;color:var(--muted)}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.box{background:#FAFAFA;border:1px solid var(--line);border-radius:14px;padding:16px}.box p{margin:0;color:var(--muted);font-size:13px}
+ul{margin:8px 0 0 18px;padding:0}li{margin:5px 0}
+.link-card{display:flex;align-items:center;gap:14px;padding:16px;background:#fff;border:1px solid var(--line);border-radius:16px;text-decoration:none;color:inherit}
+.link-card:hover{border-color:rgba(17,166,74,.28);box-shadow:0 10px 24px rgba(15,23,42,.06)}
+.link-icon{width:42px;height:42px;border-radius:14px;background:var(--soft);color:var(--primary-dark);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.link-main{flex:1;min-width:0}.link-title{font-weight:900}.link-desc{color:var(--muted);font-size:13px;margin-top:2px}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.tag{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:999px;background:var(--soft);color:var(--primary-dark);font-size:12px;font-weight:800}.tag.blue{background:var(--blue-soft);color:#2563EB}.tag.amber{background:var(--amber-soft);color:#B45309}
+.note{background:var(--amber-soft);color:#92400E;border:1px solid rgba(245,158,11,.24);border-radius:14px;padding:14px 16px;font-size:14px}.footer{text-align:center;color:var(--muted);font-size:12px;margin-top:28px}
+@media(max-width:860px){.page{padding:16px}.hero{padding:28px 24px}.hero h1{font-size:24px}.meta,.grid-2,.grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="page">
+  <section class="hero">
+    <div class="kicker">PRD REVIEW ARCHIVE</div>
+    <h1>开单配置 PRD 评审资料归档</h1>
+    <p>统一收拢本次开单配置改版相关的 PRD、HTML 展示页、飞书文档、需求地图和项目上下文，方便评审时从一个入口打开。</p>
+  </section>
+
+  <section class="meta">
+    <div class="item"><div class="label">功能</div><div class="value">开单配置</div></div>
+    <div class="item"><div class="label">状态</div><div class="value">需求设计</div></div>
+    <div class="item"><div class="label">最后补充</div><div class="value">2026-06-11</div></div>
+    <div class="item"><div class="label">归属</div><div class="value">PRD评审资料</div></div>
+  </section>
+
+  <section class="card">
+    <h2><i class="fa-solid fa-folder-open"></i>统一资料入口</h2>
+    <div class="grid-2">
+      <a class="link-card" href="PRD-开单配置与品类管理优化.html" target="_blank" rel="noopener noreferrer">
+        <div class="link-icon"><i class="fa-solid fa-file-lines"></i></div>
+        <div class="link-main"><div class="link-title">开单配置与品类管理优化 PRD</div><div class="link-desc">评审主文档，包含流程图、字段规则、底层逻辑、联动边界和待确认事项。</div></div>
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </a>
+      <a class="link-card" href="https://congmingpay.feishu.cn/wiki/OIe0w3wV4iTA8SkFkhFcVljqnPf" target="_blank" rel="noopener noreferrer">
+        <div class="link-icon"><i class="fa-solid fa-cloud"></i></div>
+        <div class="link-main"><div class="link-title">飞书 PRD 文档</div><div class="link-desc">已同步到飞书，便于会议评审、评论和协同补充。</div></div>
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><i class="fa-solid fa-clipboard-check"></i>本次同步范围</h2>
+    <div class="grid-3">
+      <div class="box"><h3>本地 PRD</h3><p>Markdown 母版和 HTML 展示页均已更新为主体级开单配置口径。</p></div>
+      <div class="box"><h3>评审可视化</h3><p>HTML 中补齐配置生效、订单快照、联动关系、异常边界、实现建议等评审内容。</p></div>
+      <div class="box"><h3>导航归档</h3><p>资料已放入首页 PRD评审资料的“开单配置”分类。</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><i class="fa-solid fa-list-check"></i>当前口径</h2>
+    <ul>
+      <li>入口为“我的 > 开单配置”，配置维度为收购商主体级。</li>
+      <li>超管维护配置，业务员不展示配置入口，开单页自动使用当前生效配置。</li>
+      <li>默认启用标准称重收购；内置模板只读，可启用，不可编辑或删除。</li>
+      <li>自定义配置从空白新增，可编辑、删除、启用；列表中不提供查看按钮。</li>
+      <li>收购价、默认一口价、默认扣减比例、默认杂重不在开单配置中维护。</li>
+    </ul>
+    <div class="tag-row">
+      <span class="tag">主体级配置</span><span class="tag blue">开单页套用</span><span class="tag amber">历史订单不回写</span><span class="tag">收购价独立设计</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><i class="fa-solid fa-triangle-exclamation"></i>评审重点</h2>
+    <ul>
+      <li>是否需要展示配置修改记录。</li>
+      <li>是否需要限制自定义配置数量。</li>
+      <li>业务员已打开开单页后，超管切换配置时是否需要强提醒。</li>
+      <li>入库仓库是否允许配置为必填；当前方案只控制显隐，不控制必填。</li>
+      <li>收购价管理放在品类管理下，还是独立做“收购价管理”。</li>
+    </ul>
+    <div class="note" style="margin-top:14px;">评审时建议以 PRD 主文档为准，本页只作为资料归档和会议导航入口。</div>
+  </section>
+
+  <div class="footer">丰收云 · 开单配置 PRD 评审资料归档</div>
+</main>
+</body>
+</html>
