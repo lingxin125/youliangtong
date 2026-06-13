@@ -28,16 +28,18 @@
         <div id="walletWrap" class="mt-3"></div>
     </div>
 
-    <button id="demoSwitch" onclick="toggleDemoAccountType()" class="absolute right-4 bottom-24 z-40 rounded-full bg-white border border-emerald-100 shadow-[0_8px_24px_rgba(15,23,42,0.12)] px-3 h-10 flex items-center gap-2 active:scale-[0.98] transition-transform">
-        <span class="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px]">
-            <i class="fas fa-building"></i>
-        </span>
-        <span id="demoSwitchText" class="text-[12px] font-semibold text-gray-700">演示公户</span>
-    </button>
-
-    <div id="walletAddBar" class="hidden absolute bottom-0 left-0 right-0 z-30 px-4 pb-6 pt-3 bg-[#F7F8FA] border-t border-black/[0.04]">
-        <button onclick="goAddWallet()" class="w-full h-12 rounded-2xl bg-primary text-white text-[15px] font-semibold shadow-glow active:scale-[0.98] transition-transform">
-            新增数币账户
+    <div class="absolute right-4 bottom-24 z-40 flex flex-col gap-2">
+        <button id="demoBankSwitch" onclick="toggleBankEmptyDemo()" class="rounded-full bg-white border border-emerald-100 shadow-[0_8px_24px_rgba(15,23,42,0.12)] px-3 h-10 flex items-center gap-2 active:scale-[0.98] transition-transform">
+            <span class="w-5 h-5 rounded-full bg-emerald-50 text-primary flex items-center justify-center text-[10px]">
+                <i class="fas fa-credit-card"></i>
+            </span>
+            <span id="demoBankSwitchText" class="text-[12px] font-semibold text-gray-700">演示银行空态</span>
+        </button>
+        <button id="demoSwitch" onclick="toggleDemoAccountType()" class="rounded-full bg-white border border-emerald-100 shadow-[0_8px_24px_rgba(15,23,42,0.12)] px-3 h-10 flex items-center gap-2 active:scale-[0.98] transition-transform">
+            <span class="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-[10px]">
+                <i class="fas fa-building"></i>
+            </span>
+            <span id="demoSwitchText" class="text-[12px] font-semibold text-gray-700">演示公户</span>
         </button>
     </div>
 
@@ -73,54 +75,60 @@
     var q = new URLSearchParams(window.location.search);
     var sourcePage = q.get('source') || 'farmer-my.html';
     var WALLET_KEY = 'ylt_farmer_wallet_v2';
-    var isPublicDemo = false;
+    var BANK_KEY = 'ylt_farmer_bank_account_v1';
+    var isPublicDemo = q.get('merchantType') === 'public';
+    var isBankEmptyDemo = true;
+    var isDemoPreview = false;
+    try {
+        isBankEmptyDemo = !localStorage.getItem(BANK_KEY);
+    } catch (e) {}
     var editState = { key: '' };
-
-    var settlementData = {
-        personal: {
-            name: '李大姐',
-            mobile: '13800006666',
-            idNo: '370611197802146628',
-            cardNo: '6215853322334455',
-            bank: '中国邮政储蓄银行',
-            branch: '',
-            branchAuto: true
-        },
-        public: {
-            accountName: '李大姐家庭农场',
-            mobile: '13800006666',
-            accountNo: '6221888800008899',
-            bank: '中国邮政储蓄银行',
-            branch: '',
-            branchAuto: true
-        }
-    };
 
     document.getElementById('statusBar').innerHTML = renderStatusBar();
     document.getElementById('navBar').innerHTML = renderHeader('收款账户管理', sourcePage);
     renderPage();
 
+    function loadBankAccount() {
+        try {
+            var stored = localStorage.getItem(BANK_KEY);
+            if (stored) return JSON.parse(stored);
+        } catch (e) {}
+        return null;
+    }
+
+    function saveBankAccount(account) {
+        try {
+            if (account) localStorage.setItem(BANK_KEY, JSON.stringify(account));
+            else localStorage.removeItem(BANK_KEY);
+        } catch (e) {}
+    }
+
     function getCurrentData() {
-        return isPublicDemo ? settlementData.public : settlementData.personal;
+        if (isBankEmptyDemo) return null;
+        var data = loadBankAccount();
+        if (data && !isDemoPreview) return data;
+        if (isPublicDemo) {
+            return { accountType: 'public', accountName: '李大姐家庭农场', mobile: '13800006666', accountNo: '6221888800008899', bank: '中国邮政储蓄银行', branch: '', branchAuto: true };
+        }
+        return { accountType: 'personal', name: '李大姐', mobile: '13800006666', idNo: '370611197802146628', cardNo: '6215853322334455', bank: '中国邮政储蓄银行', branch: '', branchAuto: true };
     }
 
     function getFields() {
         var data = getCurrentData();
+        if (!data) return [];
         var fields;
-        if (isPublicDemo) {
+        if (data.accountType === 'public') {
             fields = [
                 { key: 'accountName', label: '对公账户名称', editable: true, placeholder: '请输入对公账户名称' },
-                { key: 'mobile', label: '预留手机号', editable: false },
-                { key: 'accountNo', label: '银行账号', editable: true, placeholder: '请输入银行账号', mono: true },
-                { key: 'bank', label: '开户行', editable: false }
+                { key: 'accountNo', label: '银行账号', editable: true, placeholder: '请输入银行账号', mono: true }
             ];
+            if (data.mobile) fields.splice(1, 0, { key: 'mobile', label: '预留手机号', editable: false });
         } else {
             fields = [
                 { key: 'name', label: '持卡人姓名', editable: true, placeholder: '请输入姓名' },
                 { key: 'mobile', label: '预留手机号', editable: false },
                 { key: 'idNo', label: '身份证号', editable: true, placeholder: '请输入身份证号', mono: true },
-                { key: 'cardNo', label: '银行卡号', editable: true, placeholder: '请输入银行卡号', mono: true },
-                { key: 'bank', label: '开户行', editable: false }
+                { key: 'cardNo', label: '银行卡号', editable: true, placeholder: '请输入银行卡号', mono: true }
             ];
         }
         if (!data.branchAuto) {
@@ -131,13 +139,18 @@
 
     function renderPage() {
         document.getElementById('demoSwitchText').textContent = isPublicDemo ? '演示个人户' : '演示公户';
+        document.getElementById('demoBankSwitchText').textContent = isBankEmptyDemo ? '演示银行有值' : '演示银行空态';
         renderBankCard();
         renderWalletSection();
     }
 
     function renderBankCard() {
         var data = getCurrentData();
-        var chip = isPublicDemo
+        if (!data) {
+            document.getElementById('bankCardWrap').innerHTML = renderBankEmptyCard();
+            return;
+        }
+        var chip = data.accountType === 'public'
             ? '<span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium bg-blue-50 text-blue-600">对公账户</span>'
             : '<span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-50 text-emerald-600">个人账户</span>';
         var iconSrc = (String(data.bank || '').indexOf('邮政') > -1 || String(data.bank || '').indexOf('邮储') > -1) ? './邮政银行.png' : './通用银行.png';
@@ -161,6 +174,16 @@
                 '<div class="mx-4 mt-3 h-px bg-gray-100"></div>' +
                 '<div class="pb-1">' + fieldRows + '</div>' +
             '</div>';
+    }
+
+    function renderBankEmptyCard() {
+        return '' +
+            '<button onclick="goAddBank()" class="w-full bg-white rounded-2xl border border-dashed border-gray-200 px-4 py-7 flex flex-col items-center justify-center text-center active:scale-[0.99] transition-transform">' +
+                '<span class="w-12 h-12 rounded-full bg-emerald-50/70 border border-emerald-100 text-primary/80 flex items-center justify-center">' +
+                    '<i class="fas fa-plus text-base"></i>' +
+                '</span>' +
+                '<div class="mt-3 text-[14px] font-medium text-gray-500">还没有添加银行账户</div>' +
+            '</button>';
     }
 
     function renderFieldRow(field, value) {
@@ -196,20 +219,14 @@
     function renderWalletSection() {
         var wallet = loadWallet();
         var wrap = document.getElementById('walletWrap');
-        var addBar = document.getElementById('walletAddBar');
-        var demoSwitch = document.getElementById('demoSwitch');
-        addBar.classList.toggle('hidden', !!wallet);
-        demoSwitch.classList.remove('bottom-6', 'bottom-24');
-        demoSwitch.classList.add(wallet ? 'bottom-6' : 'bottom-24');
         if (!wallet) {
             wrap.innerHTML = '' +
-                '<div class="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_8px_rgba(15,23,42,0.04)] px-4 py-8 flex flex-col items-center justify-center">' +
-                    '<div class="w-12 h-12 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden mb-2.5">' +
-                        '<img src="./数字人民币.png" alt="数字人民币" class="w-8 h-8 object-contain opacity-60">' +
-                    '</div>' +
-                    '<div class="text-[14px] font-medium text-gray-500">暂无数币账户</div>' +
-                    
-                '</div>';
+                '<button onclick="goAddWallet()" class="w-full bg-white rounded-2xl border border-dashed border-gray-200 px-4 py-7 flex flex-col items-center justify-center text-center active:scale-[0.99] transition-transform">' +
+                    '<span class="w-12 h-12 rounded-full bg-emerald-50/70 border border-emerald-100 text-primary/80 flex items-center justify-center">' +
+                        '<i class="fas fa-plus text-base"></i>' +
+                    '</span>' +
+                    '<div class="mt-3 text-[14px] font-medium text-gray-500">还没有添加数币账户</div>' +
+                '</button>';
             return;
         }
         var typeChip = wallet.accountType === 'public'
@@ -257,6 +274,11 @@
         window.location.href = 'farmer-wallet-add.html?source=' + encodeURIComponent(sourcePage);
     }
 
+    function goAddBank() {
+        var merchantType = isPublicDemo ? 'public' : 'personal';
+        window.location.href = 'farmer-bank-add.html?source=' + encodeURIComponent(sourcePage) + '&merchantType=' + merchantType;
+    }
+
     function promptDeleteWallet() {
         var modal = document.getElementById('deleteModal');
         var content = document.getElementById('deleteModalContent');
@@ -284,6 +306,7 @@
     }
 
     function openEditModal(key) {
+        if (!getCurrentData()) return;
         editState = { key: key };
         renderEditModal();
         var modal = document.getElementById('editModal');
@@ -420,7 +443,7 @@
         if (field.key === 'cardNo' || field.key === 'accountNo') {
             var match = matchBankByNo(newValue);
             if (match.state === 'pending') {
-                showToast(isPublicDemo ? '请输入正确的银行账号' : '请输入正确的银行卡号');
+                showToast(data.accountType === 'public' ? '请输入正确的银行账号' : '请输入正确的银行卡号');
                 return;
             }
             if (match.state === 'auto') {
@@ -434,6 +457,7 @@
             }
         }
         data[field.key] = newValue;
+        saveBankAccount(data);
         closeEditModal();
         renderPage();
         showToast('修改成功');
@@ -441,6 +465,15 @@
 
     function toggleDemoAccountType() {
         isPublicDemo = !isPublicDemo;
+        isBankEmptyDemo = false;
+        isDemoPreview = true;
+        closeEditModal();
+        renderPage();
+    }
+
+    function toggleBankEmptyDemo() {
+        isBankEmptyDemo = !isBankEmptyDemo;
+        isDemoPreview = false;
         closeEditModal();
         renderPage();
     }
